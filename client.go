@@ -52,12 +52,19 @@ func NewClientForTesting(responses map[string]string) (*Client, *httptest.Server
 		}
 	}))
 
+	client, err := NewClientForTestingWithServer(server)
+
+	return client, server, err
+}
+
+// NewClientForTestingWithServer initializes a Client connecting to a passed-in local test server
+func NewClientForTestingWithServer(server *httptest.Server) (*Client, error) {
 	client, err := NewClientWithURL("TEST-API-KEY", server.URL)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	client.httpClient = server.Client()
-	return client, server, err
+	return client, err
 }
 
 func (c *Client) prepareClientURL(requestURL string) *url.URL {
