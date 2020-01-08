@@ -1,16 +1,11 @@
 package civogo
 
 import (
-	"bytes"
-	"io/ioutil"
-	"net/http"
-	"net/http/httptest"
-	"strings"
 	"testing"
 )
 
 func TestListInstances(t *testing.T) {
-	client, server, _ := NewClientForTesting(map[string]string{
+	client, server, err := NewClientForTesting(map[string]string{
 		"/v2/instances": `{"page": 1, "per_page": 20, "pages": 2, "items":[{"id": "12345", "hostname": "foo.example.com"}]}`,
 	})
 	defer server.Close()
@@ -84,40 +79,29 @@ func TestNewInstanceConfig(t *testing.T) {
 }
 
 func TestCreateInstance(t *testing.T) {
-	responses := map[string]string{
-		"/v2/networks":  `[{"id": "1", "default": true, "name": "Default Network"}]`,
-		"/v2/templates": `[{"id": "2", "code": "centos-7"},{"id": "3", "code": "ubuntu-18.04"}]`,
-		"/v2/sshkeys":   `{"items":[{"id": "4", "name": "RSA Key"}]}`,
-	}
-	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		for url, response := range responses {
-			if strings.Contains(req.URL.String(), url) {
-				rw.Write([]byte(response))
-			}
-		}
-
-		// Grab the request body and set a new body, which will simulate the same data we read:
-		body, err := ioutil.ReadAll(req.Body)
-		if err != nil {
-			t.Errorf("Error reading body: %v", err)
-			return
-		}
-		req.Body = ioutil.NopCloser(bytes.NewBuffer(body))
-
-		if strings.Contains(req.URL.String(), "/v2/instances") &&
-			req.Method == "POST" &&
-			string(body) == "count=1&hostname=foo.example.com&initial_user=civo&network_id=1&public_ip_required=true&region=lon1&reverse_dns=&script=&size=g2.xsmall&snapshot_id=&ssh_key_id=4&tags=&template_id=3" {
-			rw.Write([]byte(`{"id": "12345", "hostname": "foo.example.com", "network_id": "1", "ssh_key": "4", "template_id": "3"}`))
-		}
-
-	}))
+	client, server, _ := NewAdvancedClientForTesting(map[string]map[string]string{
+		"/v2/networks": map[string]string{
+			"requestBody":  "",
+			"method":       "GET",
+			"responseBody": `[{"id": "1", "default": true, "name": "Default Network"}]`,
+		},
+		"/v2/templates": map[string]string{
+			"requestBody":  "",
+			"method":       "GET",
+			"responseBody": `[{"id": "2", "code": "centos-7"},{"id": "3", "code": "ubuntu-18.04"}]`,
+		},
+		"/v2/sshkeys": map[string]string{
+			"requestBody":  "",
+			"method":       "GET",
+			"responseBody": `{"items":[{"id": "4", "name": "RSA Key"}]}`,
+		},
+		"/v2/instances": map[string]string{
+			"requestBody":  "count=1&hostname=foo.example.com&initial_user=civo&network_id=1&public_ip_required=true&region=lon1&reverse_dns=&script=&size=g2.xsmall&snapshot_id=&ssh_key_id=4&tags=&template_id=3",
+			"method":       "POST",
+			"responseBody": `{"id": "12345", "hostname": "foo.example.com", "network_id": "1", "ssh_key": "4", "template_id": "3"}`,
+		},
+	})
 	defer server.Close()
-
-	client, err := NewClientForTestingWithServer(server)
-	if err != nil {
-		t.Errorf("Creating a client returned an error: %s", err)
-		return
-	}
 
 	config, err := client.NewInstanceConfig()
 	if err != nil {
@@ -145,4 +129,164 @@ func TestCreateInstance(t *testing.T) {
 	if got.SSHKey != "4" {
 		t.Errorf("Expected %s, got %s", "3", got.TemplateID)
 	}
+}
+
+func TestSetInstanceTags(t *testing.T) {
+	client, server, _ := NewAdvancedClientForTesting(map[string]map[string]string{
+		"/v2/instances/12345/tags": map[string]string{
+			"requestBody":  `tags=prod+lamp`,
+			"method":       "PUT",
+			"responseBody": `{"result": "success"}`,
+		},
+	})
+	defer server.Close()
+
+	got, err := client.SetInstanceTags("12345", "prod lamp")
+	EnsureSuccessfulSimpleResponse(t, got, err)
+}
+
+func TestUpdateInstance(t *testing.T) {
+	client, server, _ := NewAdvancedClientForTesting(map[string]map[string]string{
+		"/v2/instances/12345": map[string]string{
+			"requestBody":  `hostname=dummy.example.com&notes=my+notes&reverse_dns=dummy-reverse.example.com`,
+			"method":       "PUT",
+			"responseBody": `{"result": "success"}`,
+		},
+	})
+	defer server.Close()
+
+	i := Instance{
+		ID:         "12345",
+		Hostname:   "dummy.example.com",
+		ReverseDNS: "dummy-reverse.example.com",
+		Notes:      "my notes",
+	}
+	got, err := client.UpdateInstance(&i)
+	EnsureSuccessfulSimpleResponse(t, got, err)
+}
+
+func TestDeleteInstance(t *testing.T) {
+	client, server, _ := NewAdvancedClientForTesting(map[string]map[string]string{
+		"/v2/instances/12345": map[string]string{
+			"requestBody":  ``,
+			"method":       "DELETE",
+			"responseBody": `{"result": "success"}`,
+		},
+	})
+	defer server.Close()
+
+	got, err := client.DeleteInstance("12345")
+	EnsureSuccessfulSimpleResponse(t, got, err)
+}
+
+func TestRebootInstance(t *testing.T) {
+	client, server, _ := NewAdvancedClientForTesting(map[string]map[string]string{
+		"/v2/instances/12345/hard_reboots": map[string]string{
+			"requestBody":  ``,
+			"method":       "POST",
+			"responseBody": `{"result": "success"}`,
+		},
+	})
+	defer server.Close()
+
+	got, err := client.RebootInstance("12345")
+	EnsureSuccessfulSimpleResponse(t, got, err)
+}
+
+func TestHardRebootInstance(t *testing.T) {
+	client, server, _ := NewAdvancedClientForTesting(map[string]map[string]string{
+		"/v2/instances/12345/hard_reboots": map[string]string{
+			"requestBody":  ``,
+			"method":       "POST",
+			"responseBody": `{"result": "success"}`,
+		},
+	})
+	defer server.Close()
+
+	got, err := client.HardRebootInstance("12345")
+	EnsureSuccessfulSimpleResponse(t, got, err)
+}
+
+func TestSoftRebootInstance(t *testing.T) {
+	client, server, _ := NewAdvancedClientForTesting(map[string]map[string]string{
+		"/v2/instances/12345/soft_reboots": map[string]string{
+			"requestBody":  ``,
+			"method":       "POST",
+			"responseBody": `{"result": "success"}`,
+		},
+	})
+	defer server.Close()
+
+	got, err := client.SoftRebootInstance("12345")
+	EnsureSuccessfulSimpleResponse(t, got, err)
+}
+
+func TestStopInstance(t *testing.T) {
+	client, server, _ := NewAdvancedClientForTesting(map[string]map[string]string{
+		"/v2/instances/12345/stop": map[string]string{
+			"requestBody":  ``,
+			"method":       "PUT",
+			"responseBody": `{"result": "success"}`,
+		},
+	})
+	defer server.Close()
+
+	got, err := client.StopInstance("12345")
+	EnsureSuccessfulSimpleResponse(t, got, err)
+}
+
+func TestStartInstance(t *testing.T) {
+	client, server, _ := NewAdvancedClientForTesting(map[string]map[string]string{
+		"/v2/instances/12345/start": map[string]string{
+			"requestBody":  ``,
+			"method":       "PUT",
+			"responseBody": `{"result": "success"}`,
+		},
+	})
+	defer server.Close()
+
+	got, err := client.StartInstance("12345")
+	EnsureSuccessfulSimpleResponse(t, got, err)
+}
+
+func TestUpgradeInstance(t *testing.T) {
+	client, server, _ := NewAdvancedClientForTesting(map[string]map[string]string{
+		"/v2/instances/12345/resize": map[string]string{
+			"requestBody":  `size=g99.huge`,
+			"method":       "PUT",
+			"responseBody": `{"result": "success"}`,
+		},
+	})
+	defer server.Close()
+
+	got, err := client.UpgradeInstance("12345", "g99.huge")
+	EnsureSuccessfulSimpleResponse(t, got, err)
+}
+
+func TestMovePublicIPToInstance(t *testing.T) {
+	client, server, _ := NewAdvancedClientForTesting(map[string]map[string]string{
+		"/v2/instances/12345/ip/1.2.3.4": map[string]string{
+			"requestBody":  ``,
+			"method":       "PUT",
+			"responseBody": `{"result": "success"}`,
+		},
+	})
+	defer server.Close()
+
+	got, err := client.MovePublicIPToInstance("12345", "1.2.3.4")
+	EnsureSuccessfulSimpleResponse(t, got, err)
+}
+
+func TestSetInstanceFirewall(t *testing.T) {
+	client, server, _ := NewAdvancedClientForTesting(map[string]map[string]string{
+		"/v2/instances/12345/firewall": map[string]string{
+			"requestBody":  `firewall_id=67890`,
+			"method":       "PUT",
+			"responseBody": `{"result": "success"}`,
+		},
+	})
+	defer server.Close()
+
+	got, err := client.SetInstanceFirewall("12345", "67890")
+	EnsureSuccessfulSimpleResponse(t, got, err)
 }

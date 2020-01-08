@@ -1,7 +1,10 @@
 package civogo
 
 import (
+	"bytes"
+	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -19,6 +22,14 @@ type Client struct {
 	APIKey    string
 
 	httpClient *http.Client
+}
+
+// SimpleResponse is a structure that returns success and/or any error
+type SimpleResponse struct {
+	Result       string `json:"result"`
+	ErrorCode    string `json:"code"`
+	ErrorReason  string `json:"reason"`
+	ErrorDetails string `json:"details"`
 }
 
 // NewClientWithURL initializes a Client with a specific API URL
@@ -42,13 +53,63 @@ func NewClient(apiKey string) (*Client, error) {
 	return NewClientWithURL(apiKey, "https://api.civo.com")
 }
 
+// NewAdvancedClientForTesting initializes a Client connecting to a local test server and allows for specifying methods
+func NewAdvancedClientForTesting(responses map[string]map[string]string) (*Client, *httptest.Server, error) {
+	var responseSent bool
+
+	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		body, err := ioutil.ReadAll(req.Body)
+		if err != nil {
+			log.Printf("Error reading body: %v", err)
+			return
+		}
+
+		req.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+
+		for url, criteria := range responses {
+			if strings.Contains(req.URL.String(), url) &&
+				req.Method == criteria["method"] {
+				if criteria["method"] == "PUT" || criteria["method"] == "POST" || criteria["method"] == "PATCH" {
+
+					if string(body) == criteria["requestBody"] {
+						responseSent = true
+						rw.Write([]byte(criteria["responseBody"]))
+					}
+				} else {
+					responseSent = true
+					rw.Write([]byte(criteria["responseBody"]))
+				}
+			}
+		}
+
+		if responseSent == false {
+			fmt.Println("Failed to find a matching request!")
+			fmt.Println("Request body:", string(body))
+			fmt.Println("Method:", req.Method)
+			fmt.Println("URL:", req.URL.String())
+			rw.Write([]byte(`{"result": "failed to find a matching request"}`))
+		}
+	}))
+
+	client, err := NewClientForTestingWithServer(server)
+
+	return client, server, err
+}
+
 // NewClientForTesting initializes a Client connecting to a local test server
 func NewClientForTesting(responses map[string]string) (*Client, *httptest.Server, error) {
+	var responseSent bool
+
 	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		for url, response := range responses {
 			if strings.Contains(req.URL.String(), url) {
+				responseSent = true
 				rw.Write([]byte(response))
 			}
+		}
+
+		if responseSent == false {
+			rw.Write([]byte(`{"result": "failed to find a matching request"}`))
 		}
 	}))
 
@@ -104,8 +165,17 @@ func (c *Client) SendGetRequest(requestURL string) ([]byte, error) {
 // SendPostRequest sends a correctly authenticated post request to the API server
 func (c *Client) SendPostRequest(requestURL string, params interface{}) ([]byte, error) {
 	u := c.prepareClientURL(requestURL)
-	body, err := form.EncodeToValues(params)
-	req, err := http.NewRequest("POST", u.String(), strings.NewReader(body.Encode()))
+	values, err := form.EncodeToValues(params)
+	if err != nil {
+		return nil, err
+	}
+
+	body := values.Encode()
+	if body == "=" {
+		body = ""
+	}
+
+	req, err := http.NewRequest("POST", u.String(), strings.NewReader(body))
 	if err != nil {
 		return nil, err
 	}
@@ -115,8 +185,17 @@ func (c *Client) SendPostRequest(requestURL string, params interface{}) ([]byte,
 // SendPutRequest sends a correctly authenticated put request to the API server
 func (c *Client) SendPutRequest(requestURL string, params interface{}) ([]byte, error) {
 	u := c.prepareClientURL(requestURL)
-	body, err := form.EncodeToValues(params)
-	req, err := http.NewRequest("PUT", u.String(), strings.NewReader(body.Encode()))
+	values, err := form.EncodeToValues(params)
+	if err != nil {
+		return nil, err
+	}
+
+	body := values.Encode()
+	if body == "=" {
+		body = ""
+	}
+
+	req, err := http.NewRequest("PUT", u.String(), strings.NewReader(body))
 	if err != nil {
 		return nil, err
 	}
@@ -124,7 +203,7 @@ func (c *Client) SendPutRequest(requestURL string, params interface{}) ([]byte, 
 }
 
 // SendDeleteRequest sends a correctly authenticated delete request to the API server
-func (c *Client) SendDeleteRequest(requestURL string, params interface{}) ([]byte, error) {
+func (c *Client) SendDeleteRequest(requestURL string) ([]byte, error) {
 	u := c.prepareClientURL(requestURL)
 	req, err := http.NewRequest("DELETE", u.String(), nil)
 	if err != nil {

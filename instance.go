@@ -140,3 +140,145 @@ func (c *Client) CreateInstance(config *InstanceConfig) (*Instance, error) {
 
 	return &instance, nil
 }
+
+// SetInstanceTags sets the tags for the specified instance
+func (c *Client) SetInstanceTags(id, tags string) (*SimpleResponse, error) {
+	resp, err := c.SendPutRequest("/v2/instances/"+id+"/tags", map[string]string{
+		"tags": tags,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	response := SimpleResponse{}
+	err = json.NewDecoder(bytes.NewReader(resp)).Decode(&response)
+	return &response, err
+}
+
+// UpdateInstance updates an Instance's hostname, reverse DNS or notes
+func (c *Client) UpdateInstance(i *Instance) (*SimpleResponse, error) {
+	params := map[string]string{
+		"hostname":    i.Hostname,
+		"reverse_dns": i.ReverseDNS,
+		"notes":       i.Notes,
+	}
+
+	if i.Notes == "" {
+		params["notes_delete"] = "true"
+	}
+
+	resp, err := c.SendPutRequest("/v2/instances/"+i.ID, params)
+	if err != nil {
+		return nil, err
+	}
+
+	response := SimpleResponse{}
+	err = json.NewDecoder(bytes.NewReader(resp)).Decode(&response)
+	return &response, err
+}
+
+// DeleteInstance deletes an instance and frees its resources
+func (c *Client) DeleteInstance(id string) (*SimpleResponse, error) {
+	resp, err := c.SendDeleteRequest("/v2/instances/" + id)
+	if err != nil {
+		return nil, err
+	}
+
+	response := SimpleResponse{}
+	err = json.NewDecoder(bytes.NewReader(resp)).Decode(&response)
+	return &response, err
+}
+
+// RebootInstance reboots an instance (short version of HardRebootInstance)
+func (c *Client) RebootInstance(id string) (*SimpleResponse, error) {
+	return c.HardRebootInstance(id)
+}
+
+// HardRebootInstance harshly reboots an instance (like shutting the power off and booting it again)
+func (c *Client) HardRebootInstance(id string) (*SimpleResponse, error) {
+	resp, err := c.SendPostRequest("/v2/instances/"+id+"/hard_reboots", "")
+	if err != nil {
+		return nil, err
+	}
+
+	response := SimpleResponse{}
+	err = json.NewDecoder(bytes.NewReader(resp)).Decode(&response)
+	return &response, err
+}
+
+// SoftRebootInstance requests the VM to shut down nicely
+func (c *Client) SoftRebootInstance(id string) (*SimpleResponse, error) {
+	resp, err := c.SendPostRequest("/v2/instances/"+id+"/soft_reboots", "")
+	if err != nil {
+		return nil, err
+	}
+
+	response := SimpleResponse{}
+	err = json.NewDecoder(bytes.NewReader(resp)).Decode(&response)
+	return &response, err
+}
+
+// StopInstance shuts the power down to the instance
+func (c *Client) StopInstance(id string) (*SimpleResponse, error) {
+	resp, err := c.SendPutRequest("/v2/instances/"+id+"/stop", "")
+	if err != nil {
+		return nil, err
+	}
+
+	response := SimpleResponse{}
+	err = json.NewDecoder(bytes.NewReader(resp)).Decode(&response)
+	return &response, err
+}
+
+// StartInstance starts the instance booting from the shutdown state
+func (c *Client) StartInstance(id string) (*SimpleResponse, error) {
+	resp, err := c.SendPutRequest("/v2/instances/"+id+"/start", "")
+	if err != nil {
+		return nil, err
+	}
+
+	response := SimpleResponse{}
+	err = json.NewDecoder(bytes.NewReader(resp)).Decode(&response)
+	return &response, err
+}
+
+// UpgradeInstance resizes the instance up to the new specification
+// it's not possible to resize the instance to a smaller size
+func (c *Client) UpgradeInstance(id, newSize string) (*SimpleResponse, error) {
+	resp, err := c.SendPutRequest("/v2/instances/"+id+"/resize", map[string]string{
+		"size": newSize,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	response := SimpleResponse{}
+	err = json.NewDecoder(bytes.NewReader(resp)).Decode(&response)
+	return &response, err
+}
+
+// MovePublicIPToInstance moves a public IP to the specified instance
+func (c *Client) MovePublicIPToInstance(id, ipAddress string) (*SimpleResponse, error) {
+	resp, err := c.SendPutRequest("/v2/instances/"+id+"/ip/"+ipAddress, "")
+	if err != nil {
+		return nil, err
+	}
+
+	response := SimpleResponse{}
+	err = json.NewDecoder(bytes.NewReader(resp)).Decode(&response)
+	return &response, err
+}
+
+// SetInstanceFirewall changes the current firewall for an instance
+func (c *Client) SetInstanceFirewall(id, firewallID string) (*SimpleResponse, error) {
+	resp, err := c.SendPutRequest("/v2/instances/"+id+"/firewall", map[string]string{
+		"firewall_id": firewallID,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	response := SimpleResponse{}
+	err = json.NewDecoder(bytes.NewReader(resp)).Decode(&response)
+	return &response, err
+}
