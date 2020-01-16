@@ -1,7 +1,6 @@
 package civogo
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -32,17 +31,17 @@ func TestListInstancesWithPage(t *testing.T) {
 		t.Errorf("Request returned an error: %s", err)
 		return
 	}
-	fmt.Println(got)
+
 	if got.Items[0].ID != "12345" {
 		t.Errorf("Expected %s, got %s", "12345", got.Items[0].ID)
 	}
-	if got.Page != 2 {
+	if got.Page != 1 {
 		t.Errorf("Expected %d, got %d", 1, got.Page)
 	}
 	if got.Pages != 2 {
 		t.Errorf("Expected %d, got %d", 2, got.Pages)
 	}
-	if got.PerPage != 10 {
+	if got.PerPage != 20 {
 		t.Errorf("Expected %d, got %d", 20, got.PerPage)
 	}
 }

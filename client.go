@@ -132,9 +132,7 @@ func NewClientForTestingWithServer(server *httptest.Server) (*Client, error) {
 }
 
 func (c *Client) prepareClientURL(requestURL string) *url.URL {
-	var u *url.URL
-	rel := &url.URL{Path: requestURL}
-	u = c.BaseURL.ResolveReference(rel)
+	u, _ := url.Parse(c.BaseURL.String() + requestURL)
 	return u
 }
 
