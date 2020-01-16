@@ -109,6 +109,9 @@ func NewClientForTesting(responses map[string]string) (*Client, *httptest.Server
 		}
 
 		if responseSent == false {
+			fmt.Println("Failed to find a matching request!")
+			fmt.Println("URL:", req.URL.String())
+
 			rw.Write([]byte(`{"result": "failed to find a matching request"}`))
 		}
 	}))

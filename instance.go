@@ -3,6 +3,7 @@ package civogo
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/civo/civogo/utils"
@@ -67,9 +68,14 @@ type InstanceConfig struct {
 	Tags             string `form:"tags"`
 }
 
-// ListInstances returns a list of Instances owned by the calling API account
-func (c *Client) ListInstances() (*PaginatedInstanceList, error) {
-	resp, err := c.SendGetRequest("/v2/instances")
+// ListInstances returns a page of Instances owned by the calling API account
+func (c *Client) ListInstances(page int, perPage int) (*PaginatedInstanceList, error) {
+	url := "/v2/instances"
+	if page != 0 && perPage != 0 {
+		url = url + fmt.Sprintf("?page=%d&per_page=%d", page, perPage)
+	}
+
+	resp, err := c.SendGetRequest(url)
 	if err != nil {
 		return nil, err
 	}
@@ -77,6 +83,16 @@ func (c *Client) ListInstances() (*PaginatedInstanceList, error) {
 	PaginatedInstances := PaginatedInstanceList{}
 	err = json.NewDecoder(bytes.NewReader(resp)).Decode(&PaginatedInstances)
 	return &PaginatedInstances, err
+}
+
+// ListAllInstances returns all (well, upto 99,999,999 instances) Instances owned by the calling API account
+func (c *Client) ListAllInstances() ([]Instance, error) {
+	instances, err := c.ListInstances(1, 99999999)
+	if err != nil {
+		return []Instance{}, err
+	}
+
+	return instances.Items, nil
 }
 
 // GetInstance returns a single Instance by its full ID
