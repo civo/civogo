@@ -37,7 +37,7 @@ type SimpleResponse struct {
 func NewClientWithURL(apiKey string, civoAPIURL string) (*Client, error) {
 	parsedURL, err := url.Parse(civoAPIURL)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	client := &Client{
