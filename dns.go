@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"time"
 )
 
 // Domain represents a domain registered within Civo's infrastructure
@@ -16,9 +17,6 @@ type Domain struct {
 
 	// The Name of the domain
 	Name string `json:"name"`
-
-	// The Result of the operation
-	Result string `json:"result"`
 }
 
 // RecordType represents the allowed record types: a, cname, mx or txt
@@ -26,13 +24,16 @@ type RecordType string
 
 // Record represents a DNS record registered within Civo's infrastructure
 type Record struct {
-	ID       string     `json:"id"`
-	DomainID string     `json:"domain_id"`
-	Name     string     `json:"name"`
-	Value    string     `json:"value"`
-	Type     RecordType `json:"type"`
-	Priority int        `json:"priority"`
-	TTL      int        `json:"ttl"`
+	ID        string     `json:"id"`
+	AccountID string     `json:"account_id"`
+	DomainID  string     `json:"domain_id"`
+	Name      string     `json:"name"`
+	Value     string     `json:"value"`
+	Type      RecordType `json:"type"`
+	Priority  int        `json:"priority"`
+	TTL       int        `json:"ttl"`
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt time.Time  `json:"updated_at"`
 }
 
 // RecordConfig describes the parameters for a new DNS record
@@ -70,7 +71,7 @@ func (c *Client) ListDomains() ([]Domain, error) {
 		return nil, err
 	}
 
-	var ds []Domain
+	var ds = make([]Domain, 0)
 	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&ds); err != nil {
 		return nil, err
 
@@ -103,6 +104,7 @@ func (c *Client) DeleteDomain(d *Domain) (*SimpleResponse, error) {
 		return nil, err
 	}
 
+	fmt.Printf(string(resp))
 	return c.DecodeSimpleResponse(resp)
 }
 
@@ -118,7 +120,7 @@ func (c *Client) NewRecord(r *RecordConfig) (*Record, error) {
 		return nil, err
 	}
 
-	var record *Record
+	var record = &Record{}
 	if err := json.NewDecoder(bytes.NewReader(body)).Decode(record); err != nil {
 		return nil, err
 	}
