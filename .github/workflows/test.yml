@@ -14,7 +14,7 @@ jobs:
         go-version: ${{ matrix.go-version }}
     - name: Checkout code
       uses: actions/checkout@v1
-    - name: Ensure correctly formatted
-      run: test -z "$(gofmt -l $(find . -type f -name '*.go'))"
     - name: Test
       run: go test ./...
+    - name: Ensure correctly formatted
+      run: test -z "$(gofmt -l $(find . -type f -name '*.go'))"
