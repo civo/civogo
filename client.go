@@ -141,7 +141,7 @@ func (c *Client) sendRequest(req *http.Request) ([]byte, error) {
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("User-Agent", c.UserAgent)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Set("Authorization", "bearer "+c.APIKey)
+	req.Header.Set("Authorization", fmt.Sprintf("bearer %s", c.APIKey))
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
