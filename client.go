@@ -14,6 +14,7 @@ import (
 	"github.com/ajg/form"
 )
 
+// Version represents the version of the CLI
 const Version = "0.0.1"
 
 // Client is the means of connecting to the Civo API service
