@@ -166,9 +166,8 @@ func (c *Client) SetInstanceTags(id, tags string) (*SimpleResponse, error) {
 		return nil, err
 	}
 
-	response := SimpleResponse{}
-	err = json.NewDecoder(bytes.NewReader(resp)).Decode(&response)
-	return &response, err
+	response, err := c.DecodeSimpleResponse(resp)
+	return response, err
 }
 
 // UpdateInstance updates an Instance's hostname, reverse DNS or notes
@@ -188,9 +187,8 @@ func (c *Client) UpdateInstance(i *Instance) (*SimpleResponse, error) {
 		return nil, err
 	}
 
-	response := SimpleResponse{}
-	err = json.NewDecoder(bytes.NewReader(resp)).Decode(&response)
-	return &response, err
+	response, err := c.DecodeSimpleResponse(resp)
+	return response, err
 }
 
 // DeleteInstance deletes an instance and frees its resources
@@ -200,9 +198,8 @@ func (c *Client) DeleteInstance(id string) (*SimpleResponse, error) {
 		return nil, err
 	}
 
-	response := SimpleResponse{}
-	err = json.NewDecoder(bytes.NewReader(resp)).Decode(&response)
-	return &response, err
+	response, err := c.DecodeSimpleResponse(resp)
+	return response, err
 }
 
 // RebootInstance reboots an instance (short version of HardRebootInstance)
@@ -217,9 +214,8 @@ func (c *Client) HardRebootInstance(id string) (*SimpleResponse, error) {
 		return nil, err
 	}
 
-	response := SimpleResponse{}
-	err = json.NewDecoder(bytes.NewReader(resp)).Decode(&response)
-	return &response, err
+	response, err := c.DecodeSimpleResponse(resp)
+	return response, err
 }
 
 // SoftRebootInstance requests the VM to shut down nicely
@@ -229,9 +225,8 @@ func (c *Client) SoftRebootInstance(id string) (*SimpleResponse, error) {
 		return nil, err
 	}
 
-	response := SimpleResponse{}
-	err = json.NewDecoder(bytes.NewReader(resp)).Decode(&response)
-	return &response, err
+	response, err := c.DecodeSimpleResponse(resp)
+	return response, err
 }
 
 // StopInstance shuts the power down to the instance
@@ -241,9 +236,8 @@ func (c *Client) StopInstance(id string) (*SimpleResponse, error) {
 		return nil, err
 	}
 
-	response := SimpleResponse{}
-	err = json.NewDecoder(bytes.NewReader(resp)).Decode(&response)
-	return &response, err
+	response, err := c.DecodeSimpleResponse(resp)
+	return response, err
 }
 
 // StartInstance starts the instance booting from the shutdown state
@@ -253,9 +247,8 @@ func (c *Client) StartInstance(id string) (*SimpleResponse, error) {
 		return nil, err
 	}
 
-	response := SimpleResponse{}
-	err = json.NewDecoder(bytes.NewReader(resp)).Decode(&response)
-	return &response, err
+	response, err := c.DecodeSimpleResponse(resp)
+	return response, err
 }
 
 // UpgradeInstance resizes the instance up to the new specification
@@ -268,9 +261,8 @@ func (c *Client) UpgradeInstance(id, newSize string) (*SimpleResponse, error) {
 		return nil, err
 	}
 
-	response := SimpleResponse{}
-	err = json.NewDecoder(bytes.NewReader(resp)).Decode(&response)
-	return &response, err
+	response, err := c.DecodeSimpleResponse(resp)
+	return response, err
 }
 
 // MovePublicIPToInstance moves a public IP to the specified instance
@@ -280,9 +272,8 @@ func (c *Client) MovePublicIPToInstance(id, ipAddress string) (*SimpleResponse, 
 		return nil, err
 	}
 
-	response := SimpleResponse{}
-	err = json.NewDecoder(bytes.NewReader(resp)).Decode(&response)
-	return &response, err
+	response, err := c.DecodeSimpleResponse(resp)
+	return response, err
 }
 
 // SetInstanceFirewall changes the current firewall for an instance
@@ -294,7 +285,6 @@ func (c *Client) SetInstanceFirewall(id, firewallID string) (*SimpleResponse, er
 		return nil, err
 	}
 
-	response := SimpleResponse{}
-	err = json.NewDecoder(bytes.NewReader(resp)).Decode(&response)
-	return &response, err
+	response, err := c.DecodeSimpleResponse(resp)
+	return response, err
 }

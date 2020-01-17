@@ -2,6 +2,7 @@ package civogo
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -211,4 +212,11 @@ func (c *Client) SendDeleteRequest(requestURL string) ([]byte, error) {
 		return nil, err
 	}
 	return c.sendRequest(req)
+}
+
+// DecodeSimpleResponse parses a response body in to a SimpleResponse object
+func (c *Client) DecodeSimpleResponse(resp []byte) (*SimpleResponse, error) {
+	response := SimpleResponse{}
+	err := json.NewDecoder(bytes.NewReader(resp)).Decode(&response)
+	return &response, err
 }
