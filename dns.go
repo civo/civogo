@@ -104,7 +104,6 @@ func (c *Client) DeleteDomain(d *Domain) (*SimpleResponse, error) {
 		return nil, err
 	}
 
-	fmt.Printf(string(resp))
 	return c.DecodeSimpleResponse(resp)
 }
 

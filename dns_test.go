@@ -42,17 +42,9 @@ func TestGetDomain(t *testing.T) {
 func TestDeleteDomain(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/dns/12346": `{"result": "success"}`,
-		"/v2/dns":       `[{"id": "12345", "account_id": "1", "name": "example.com"}, {"id": "12346", "account_id": "1", "name": "example.net"}]`,
 	})
 	defer server.Close()
-	d, err := client.GetDomain("example.net")
-
-	if err != nil {
-		t.Errorf("Request returned an error: %s", err)
-		return
-	}
-
-	got, err := client.DeleteDomain(d)
+	got, err := client.DeleteDomain(&Domain{ID: "12346"})
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
