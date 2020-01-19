@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 )
 
 // Network represents a private network for instances to connect to
@@ -22,7 +23,7 @@ type NetworkConfig struct {
 
 type NetworkResult struct {
 	ID     string `json:"id"`
-	Name   string `json:"name"`
+	Label  string `json:"label"`
 	Result string `json:"result"`
 }
 
@@ -46,7 +47,7 @@ func (c *Client) GetDefaultNetwork() (*Network, error) {
 
 // NewVolumes creates a new volume
 func (c *Client) NewNetwork(r *NetworkConfig) (*NetworkResult, error) {
-	body, err := c.SendPostRequest("/v2/networks/", r)
+	body, err := c.SendPostRequest("/v2/networks", r)
 	if err != nil {
 		return nil, err
 	}
@@ -57,4 +58,29 @@ func (c *Client) NewNetwork(r *NetworkConfig) (*NetworkResult, error) {
 	}
 
 	return result, nil
+}
+
+// ListNetwork list all networks
+func (c *Client) ListNetwork() ([]Network, error) {
+	resp, err := c.SendGetRequest("/v2/networks")
+	if err != nil {
+		return nil, err
+	}
+
+	networks := make([]Network, 0)
+	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&networks); err != nil {
+		return nil, err
+	}
+
+	return networks, nil
+}
+
+// DeleteNetwork deletes an network
+func (c *Client) DeleteNetwork(id string) (*SimpleResponse, error) {
+	resp, err := c.SendDeleteRequest(fmt.Sprintf("/v2/networks/%s", id))
+	if err != nil {
+		return nil, err
+	}
+
+	return c.DecodeSimpleResponse(resp)
 }
