@@ -24,9 +24,9 @@ type VolumesResult struct {
 }
 
 type VolumesConfig struct {
-	Name     string `json:"name"`
-	SizeGB   int    `json:"size_gb"`
-	Bootable bool   `json:"bootable"`
+	Name     string `form:"name"`
+	SizeGB   int    `form:"size_gb"`
+	Bootable bool   `form:"bootable"`
 }
 
 // ListVolumes returns all volumes owned by the calling API account
