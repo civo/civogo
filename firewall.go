@@ -57,7 +57,7 @@ func (c *Client) ListFirewall() ([]Firewall, error) {
 		return nil, err
 	}
 
-	var firewall = make([]Firewall, 0)
+	firewall := make([]Firewall, 0)
 	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&firewall); err != nil {
 		return nil, err
 	}
@@ -72,7 +72,7 @@ func (c *Client) NewFirewall(r *FirewallConfig) (*FirewallResult, error) {
 		return nil, err
 	}
 
-	var result = &FirewallResult{}
+	result := &FirewallResult{}
 	if err := json.NewDecoder(bytes.NewReader(body)).Decode(result); err != nil {
 		return nil, err
 	}
@@ -101,7 +101,7 @@ func (c *Client) NewFirewallRule(r *FirewallRuleConfig) (*FirewallRule, error) {
 		return nil, err
 	}
 
-	var rule = &FirewallRule{}
+	rule := &FirewallRule{}
 	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(rule); err != nil {
 		return nil, err
 	}
@@ -116,11 +116,7 @@ func (c *Client) ListFirewallRule(id string) ([]FirewallRule, error) {
 		return nil, err
 	}
 
-	if err != nil {
-		return nil, err
-	}
-
-	var firewallRule = make([]FirewallRule, 0)
+	firewallRule := make([]FirewallRule, 0)
 	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&firewallRule); err != nil {
 		return nil, err
 	}
