@@ -75,6 +75,21 @@ func (c *Client) ListNetwork() ([]Network, error) {
 	return networks, nil
 }
 
+// RenameNetwork rename a new volume
+func (c *Client) RenameNetwork(r *NetworkConfig) (*NetworkResult, error) {
+	body, err := c.SendPutRequest("/v2/networks", r)
+	if err != nil {
+		return nil, err
+	}
+
+	var result = &NetworkResult{}
+	if err := json.NewDecoder(bytes.NewReader(body)).Decode(result); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
 // DeleteNetwork deletes an network
 func (c *Client) DeleteNetwork(id string) (*SimpleResponse, error) {
 	resp, err := c.SendDeleteRequest(fmt.Sprintf("/v2/networks/%s", id))

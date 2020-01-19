@@ -44,16 +44,8 @@ func TestNewNetwork(t *testing.T) {
 		Result: "success",
 	}
 
-	if expected.ID != got.ID {
-		t.Errorf("Expected %s, got %s", expected.ID, got.ID)
-	}
-
-	if expected.Label != got.Label {
-		t.Errorf("Expected %s, got %s", expected.Label, got.Label)
-	}
-
-	if expected.Result != got.Result {
-		t.Errorf("Expected %s, got %s", expected.Result, got.Result)
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Expected %+v, got %+v", expected, got)
 	}
 }
 
@@ -76,6 +68,34 @@ func TestListNetwork(t *testing.T) {
 		return
 	}
 	expected := []Network{{ID: "12345", Name: "my-net", Region: "lon1", Default: false, CIDR: "0.0.0.0/0", Label: "development"}}
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Expected %+v, got %+v", expected, got)
+	}
+}
+
+func TestRenameNetwork(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/networks": `{
+			"id": "76cc107f-fbef-4e2b-b97f-f5d34f4075d3",
+			"label": "new-net",
+			"result": "success"
+		}`,
+	})
+	defer server.Close()
+
+	cfg := &NetworkConfig{Label: "private-net"}
+	got, err := client.RenameNetwork(cfg)
+	if err != nil {
+		t.Errorf("Request returned an error: %s", err)
+		return
+	}
+
+	expected := &NetworkResult{
+		ID:     "76cc107f-fbef-4e2b-b97f-f5d34f4075d3",
+		Label:  "new-net",
+		Result: "success",
+	}
+
 	if !reflect.DeepEqual(got, expected) {
 		t.Errorf("Expected %+v, got %+v", expected, got)
 	}
