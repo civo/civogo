@@ -53,10 +53,6 @@ func (c *Client) ListFirewall() ([]Firewall, error) {
 		return nil, err
 	}
 
-	if err != nil {
-		return nil, err
-	}
-
 	firewall := make([]Firewall, 0)
 	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&firewall); err != nil {
 		return nil, err
