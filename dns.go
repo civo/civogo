@@ -40,12 +40,12 @@ type Record struct {
 // none of the fields are mandatory and will be automatically
 // set with default values
 type RecordConfig struct {
-	DomainID string     `json:"-"`
-	Type     RecordType `json:"type"`
-	Name     string     `json:"name"`
-	Value    string     `json:"value"`
-	Priority int        `json:"priority"`
-	TTL      int        `json:"ttl"`
+	DomainID string     `form:"-"`
+	Type     RecordType `form:"type"`
+	Name     string     `form:"name"`
+	Value    string     `form:"value"`
+	Priority int        `form:"priority"`
+	TTL      int        `form:"ttl"`
 }
 
 const (
