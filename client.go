@@ -14,6 +14,7 @@ import (
 	"github.com/ajg/form"
 )
 
+// Version represents the version of the CLI
 const Version = "0.0.1"
 
 // Client is the means of connecting to the Civo API service
@@ -25,12 +26,22 @@ type Client struct {
 	httpClient *http.Client
 }
 
+// HTTPError is the error returned when the API fails with an HTTP error
+type HTTPError struct {
+	Code   int
+	Status string
+}
+
 // SimpleResponse is a structure that returns success and/or any error
 type SimpleResponse struct {
 	Result       string `json:"result"`
 	ErrorCode    string `json:"code"`
 	ErrorReason  string `json:"reason"`
 	ErrorDetails string `json:"details"`
+}
+
+func (e HTTPError) Error() string {
+	return fmt.Sprintf("%d: %s", e.Code, e.Status)
 }
 
 // NewClientWithURL initializes a Client with a specific API URL
@@ -148,9 +159,11 @@ func (c *Client) sendRequest(req *http.Request) ([]byte, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
+	if resp.StatusCode >= 300 {
+		return nil, HTTPError{Code: resp.StatusCode, Status: resp.Status}
+	}
 
 	body, err := ioutil.ReadAll(resp.Body)
-
 	return body, err
 }
 

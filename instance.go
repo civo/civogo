@@ -152,7 +152,9 @@ func (c *Client) CreateInstance(config *InstanceConfig) (*Instance, error) {
 	}
 
 	var instance Instance
-	err = json.NewDecoder(bytes.NewReader(body)).Decode(&instance)
+	if err := json.NewDecoder(bytes.NewReader(body)).Decode(&instance); err != nil {
+		return nil, err
+	}
 
 	return &instance, nil
 }
