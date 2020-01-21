@@ -49,7 +49,7 @@ func TestNewNetwork(t *testing.T) {
 	}
 }
 
-func TestListNetwork(t *testing.T) {
+func TestListNetworks(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/networks": `[{
 			"id": "12345",
@@ -61,7 +61,7 @@ func TestListNetwork(t *testing.T) {
 		  }]`,
 	})
 	defer server.Close()
-	got, err := client.ListNetwork()
+	got, err := client.ListNetworks()
 
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)

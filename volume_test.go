@@ -24,13 +24,13 @@ func TestListVolumes(t *testing.T) {
 		t.Errorf("Request returned an error: %s", err)
 		return
 	}
-	expected := []Volumes{{ID: "12345", InstanceID: "null", Name: "my-volume", MountPoint: "null", SizeGB: 25, Bootable: false}}
+	expected := []Volume{{ID: "12345", InstanceID: "null", Name: "my-volume", MountPoint: "null", SizeGB: 25, Bootable: false}}
 	if !reflect.DeepEqual(got, expected) {
 		t.Errorf("Expected %+v, got %+v", expected, got)
 	}
 }
 
-func TestNewVolumes(t *testing.T) {
+func TestNewVolume(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/volumes/": `{
 			"id": "76cc107f-fbef-4e2b-b97f-f5d34f4075d3",
@@ -40,14 +40,14 @@ func TestNewVolumes(t *testing.T) {
 	})
 	defer server.Close()
 
-	cfg := &VolumesConfig{Name: "my-volume", SizeGB: 25, Bootable: false}
-	got, err := client.NewVolumes(cfg)
+	cfg := &VolumeConfig{Name: "my-volume", SizeGB: 25, Bootable: false}
+	got, err := client.NewVolume(cfg)
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
 	}
 
-	expected := &VolumesResult{
+	expected := &VolumeResult{
 		ID:     "76cc107f-fbef-4e2b-b97f-f5d34f4075d3",
 		Name:   "my-volume",
 		Result: "success",
@@ -71,7 +71,7 @@ func TestResizeVolumes(t *testing.T) {
 		"/v2/volumes/12346/resize": `{"result": "success"}`,
 	})
 	defer server.Close()
-	got, err := client.ResizeVolumes("12346", 25)
+	got, err := client.ResizeVolume("12346", 25)
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
@@ -88,7 +88,7 @@ func TestAttachVolumes(t *testing.T) {
 		"/v2/volumes/12346/attach": `{"result": "success"}`,
 	})
 	defer server.Close()
-	got, err := client.AttachVolumes("12346", "123456")
+	got, err := client.AttachVolume("12346", "123456")
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
@@ -105,7 +105,7 @@ func TestDetachVolumes(t *testing.T) {
 		"/v2/volumes/12346/detach": `{"result": "success"}`,
 	})
 	defer server.Close()
-	got, err := client.DetachVolumes("12346")
+	got, err := client.DetachVolume("12346")
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
@@ -122,7 +122,7 @@ func TestDeleteVolumes(t *testing.T) {
 		"/v2/volumes/12346": `{"result": "success"}`,
 	})
 	defer server.Close()
-	got, err := client.DeleteVolumes("12346")
+	got, err := client.DeleteVolume("12346")
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return

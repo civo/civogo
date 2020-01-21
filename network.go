@@ -45,7 +45,7 @@ func (c *Client) GetDefaultNetwork() (*Network, error) {
 	return nil, errors.New("No default network found")
 }
 
-// NewVolumes creates a new volume
+// NewNetwork creates a new private network
 func (c *Client) NewNetwork(r *NetworkConfig) (*NetworkResult, error) {
 	body, err := c.SendPostRequest("/v2/networks", r)
 	if err != nil {
@@ -60,8 +60,8 @@ func (c *Client) NewNetwork(r *NetworkConfig) (*NetworkResult, error) {
 	return result, nil
 }
 
-// ListNetwork list all networks
-func (c *Client) ListNetwork() ([]Network, error) {
+// ListNetworks list all private networks
+func (c *Client) ListNetworks() ([]Network, error) {
 	resp, err := c.SendGetRequest("/v2/networks")
 	if err != nil {
 		return nil, err
@@ -75,7 +75,7 @@ func (c *Client) ListNetwork() ([]Network, error) {
 	return networks, nil
 }
 
-// RenameNetwork rename a new volume
+// RenameNetwork renames an existing private network
 func (c *Client) RenameNetwork(r *NetworkConfig) (*NetworkResult, error) {
 	body, err := c.SendPutRequest("/v2/networks", r)
 	if err != nil {
@@ -90,7 +90,7 @@ func (c *Client) RenameNetwork(r *NetworkConfig) (*NetworkResult, error) {
 	return result, nil
 }
 
-// DeleteNetwork deletes an network
+// DeleteNetwork deletes a private network
 func (c *Client) DeleteNetwork(id string) (*SimpleResponse, error) {
 	resp, err := c.SendDeleteRequest(fmt.Sprintf("/v2/networks/%s", id))
 	if err != nil {

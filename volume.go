@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-type Volumes struct {
+type Volume struct {
 	ID         string    `json:"id"`
 	Name       string    `json:"name"`
 	InstanceID string    `json:"instance_id"`
@@ -17,20 +17,20 @@ type Volumes struct {
 	CreatedAt  time.Time `json:"created_at"`
 }
 
-type VolumesResult struct {
+type VolumeResult struct {
 	ID     string `json:"id"`
 	Name   string `json:"name"`
 	Result string `json:"result"`
 }
 
-type VolumesConfig struct {
+type VolumeConfig struct {
 	Name     string `form:"name"`
 	SizeGB   int    `form:"size_gb"`
 	Bootable bool   `form:"bootable"`
 }
 
 // ListVolumes returns all volumes owned by the calling API account
-func (c *Client) ListVolumes() ([]Volumes, error) {
+func (c *Client) ListVolumes() ([]Volume, error) {
 	resp, err := c.SendGetRequest("/v2/volumes")
 	if err != nil {
 		return nil, err
@@ -40,7 +40,7 @@ func (c *Client) ListVolumes() ([]Volumes, error) {
 		return nil, err
 	}
 
-	var volumes = make([]Volumes, 0)
+	var volumes = make([]Volume, 0)
 	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&volumes); err != nil {
 		return nil, err
 	}
@@ -48,14 +48,14 @@ func (c *Client) ListVolumes() ([]Volumes, error) {
 	return volumes, nil
 }
 
-// NewVolumes creates a new volume
-func (c *Client) NewVolumes(r *VolumesConfig) (*VolumesResult, error) {
-	body, err := c.SendPostRequest("/v2/volumes/", r)
+// NewVolume creates a new volume
+func (c *Client) NewVolume(v *VolumeConfig) (*VolumeResult, error) {
+	body, err := c.SendPostRequest("/v2/volumes/", v)
 	if err != nil {
 		return nil, err
 	}
 
-	var result = &VolumesResult{}
+	var result = &VolumeResult{}
 	if err := json.NewDecoder(bytes.NewReader(body)).Decode(result); err != nil {
 		return nil, err
 	}
@@ -63,8 +63,8 @@ func (c *Client) NewVolumes(r *VolumesConfig) (*VolumesResult, error) {
 	return result, nil
 }
 
-// ResizeVolumes resize a volume
-func (c *Client) ResizeVolumes(id string, size int) (*SimpleResponse, error) {
+// ResizeVolume resizes a volume
+func (c *Client) ResizeVolume(id string, size int) (*SimpleResponse, error) {
 	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/volumes/%s/resize", id), map[string]int{
 		"size_gb": size,
 	})
@@ -76,8 +76,8 @@ func (c *Client) ResizeVolumes(id string, size int) (*SimpleResponse, error) {
 	return response, err
 }
 
-// AttachVolumes attach volume to a intances
-func (c *Client) AttachVolumes(id string, instance string) (*SimpleResponse, error) {
+// AttachVolume attaches a volume to an intance
+func (c *Client) AttachVolume(id string, instance string) (*SimpleResponse, error) {
 	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/volumes/%s/attach", id), map[string]string{
 		"instance_id": instance,
 	})
@@ -89,8 +89,8 @@ func (c *Client) AttachVolumes(id string, instance string) (*SimpleResponse, err
 	return response, err
 }
 
-// DetachVolumes attach volume to a intances
-func (c *Client) DetachVolumes(id string) (*SimpleResponse, error) {
+// DetachVolume attach volume from any instances
+func (c *Client) DetachVolume(id string) (*SimpleResponse, error) {
 	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/volumes/%s/detach", id), "")
 	if err != nil {
 		return nil, err
@@ -100,8 +100,8 @@ func (c *Client) DetachVolumes(id string) (*SimpleResponse, error) {
 	return response, err
 }
 
-// DeleteVolumes deletes an volumes
-func (c *Client) DeleteVolumes(id string) (*SimpleResponse, error) {
+// DeleteVolume deletes a volumes
+func (c *Client) DeleteVolume(id string) (*SimpleResponse, error) {
 	resp, err := c.SendDeleteRequest(fmt.Sprintf("/v2/volumes/%s", id))
 	if err != nil {
 		return nil, err
