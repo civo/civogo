@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/civo/civogo/utils"
@@ -53,19 +54,20 @@ type PaginatedInstanceList struct {
 // none of the fields are mandatory and will be automatically
 // set with default values
 type InstanceConfig struct {
-	Count            int    `form:"count"`
-	Hostname         string `form:"hostname"`
-	ReverseDNS       string `form:"reverse_dns"`
-	Size             string `form:"size"`
-	Region           string `form:"region"`
-	PublicIPRequired bool   `form:"public_ip_required"`
-	NetworkID        string `form:"network_id"`
-	TemplateID       string `form:"template_id"`
-	SnapshotID       string `form:"snapshot_id"`
-	InitialUser      string `form:"initial_user"`
-	SSHKeyID         string `form:"ssh_key_id"`
-	Script           string `form:"script"`
-	Tags             string `form:"tags"`
+	Count            int      `form:"count"`
+	Hostname         string   `form:"hostname"`
+	ReverseDNS       string   `form:"reverse_dns"`
+	Size             string   `form:"size"`
+	Region           string   `form:"region"`
+	PublicIPRequired bool     `form:"public_ip_required"`
+	NetworkID        string   `form:"network_id"`
+	TemplateID       string   `form:"template_id"`
+	SnapshotID       string   `form:"snapshot_id"`
+	InitialUser      string   `form:"initial_user"`
+	SSHKeyID         string   `form:"ssh_key_id"`
+	Script           string   `form:"script"`
+	Tags             []string `form:"-"`
+	TagsList         string   `form:"tags"`
 }
 
 // ListInstances returns a page of Instances owned by the calling API account
@@ -140,12 +142,13 @@ func (c *Client) NewInstanceConfig() (*InstanceConfig, error) {
 		InitialUser:      "civo",
 		SSHKeyID:         sshKeyID,
 		Script:           "",
-		Tags:             "",
+		Tags:             []string{""},
 	}, nil
 }
 
 // CreateInstance creates a new instance in the account
 func (c *Client) CreateInstance(config *InstanceConfig) (*Instance, error) {
+	config.TagsList = strings.Join(config.Tags, " ")
 	body, err := c.SendPostRequest("/v2/instances", config)
 	if err != nil {
 		return nil, err
