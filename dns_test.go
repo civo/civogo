@@ -38,7 +38,7 @@ func TestGetDomain(t *testing.T) {
 		t.Errorf("Expected %+v, got %+v", expected, got)
 	}
 
-	got, err = client.GetDomain("example.com")
+	got, err = client.GetDomain("example.io")
 	if err != ErrDomainNotFound {
 		t.Errorf("Expected %+v, got %+v", ErrDomainNotFound, got)
 	}
