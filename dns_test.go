@@ -142,7 +142,7 @@ func TestDeleteRecord(t *testing.T) {
 		return
 	}
 
-	expected := &SimpleResponse{Result: "success"}
+	expected := &SimpleResponse{Result: ResultSuccess}
 	if !reflect.DeepEqual(got, expected) {
 		t.Errorf("Expected %+v, got %+v", expected, got)
 	}

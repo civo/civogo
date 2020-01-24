@@ -32,13 +32,19 @@ type HTTPError struct {
 	Status string
 }
 
+// Result is the result of a SimpleResponse
+type Result string
+
 // SimpleResponse is a structure that returns success and/or any error
 type SimpleResponse struct {
-	Result       string `json:"result"`
+	Result       Result `json:"result"`
 	ErrorCode    string `json:"code"`
 	ErrorReason  string `json:"reason"`
 	ErrorDetails string `json:"details"`
 }
+
+// ResultSuccess represents a successful SimpleResponse
+const ResultSuccess = "success"
 
 func (e HTTPError) Error() string {
 	return fmt.Sprintf("%d: %s", e.Code, e.Status)
