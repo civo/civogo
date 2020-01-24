@@ -37,6 +37,11 @@ func TestGetDomain(t *testing.T) {
 	if !reflect.DeepEqual(got, expected) {
 		t.Errorf("Expected %+v, got %+v", expected, got)
 	}
+
+	got, err = client.GetDomain("example.com")
+	if err != ErrDomainNotFound {
+		t.Errorf("Expected %+v, got %+v", ErrDomainNotFound, got)
+	}
 }
 
 func TestDeleteDomain(t *testing.T) {
@@ -140,5 +145,50 @@ func TestDeleteRecord(t *testing.T) {
 	expected := &SimpleResponse{Result: "success"}
 	if !reflect.DeepEqual(got, expected) {
 		t.Errorf("Expected %+v, got %+v", expected, got)
+	}
+}
+
+func TestListRecords(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/dns/1111/records": `[{"id": "12345", "domain_id":"1111", "account_id": "1", "name": "www", "type": "cname", "value": "10.0.0.0", "ttl": 600}, {"id": "12346", "account_id": "1", "domain_id":"1111", "name": "mail", "type": "mx", "value": "10.0.0.1", "ttl": 600, "priority": 10}]`,
+	})
+	defer server.Close()
+	got, err := client.ListRecords("1111")
+
+	if err != nil {
+		t.Errorf("Request returned an error: %s", err)
+		return
+	}
+	expected := []Record{
+		{ID: "12345", AccountID: "1", DomainID: "1111", Name: "www", Value: "10.0.0.0", Type: RecordTypeCName, TTL: 600},
+		{ID: "12346", AccountID: "1", DomainID: "1111", Name: "mail", Value: "10.0.0.1", Type: RecordTypeMX, TTL: 600, Priority: 10},
+	}
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Expected %+v, got %+v", expected, got)
+	}
+}
+
+func TestGetRecord(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/dns/1111/records": `[{"id": "12345", "domain_id":"1111", "account_id": "1", "name": "www", "type": "cname", "value": "10.0.0.0", "ttl": 600}, {"id": "12346", "account_id": "1", "domain_id":"1111", "name": "mail", "type": "mx", "value": "10.0.0.1", "ttl": 600, "priority": 10}]`,
+	})
+
+	defer server.Close()
+	got, err := client.GetRecord("1111", "mail")
+
+	if err != nil {
+		t.Errorf("Request returned an error: %s", err)
+		return
+	}
+	expected := &Record{ID: "12346", AccountID: "1", DomainID: "1111", Name: "mail", Value: "10.0.0.1", Type: RecordTypeMX, TTL: 600, Priority: 10}
+
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Expected %+v, got %+v", expected, got)
+	}
+
+	got, err = client.GetRecord("1111", "hello")
+	if err != ErrRecordNotFound {
+		t.Errorf("Expected %+v, got %+v", ErrDomainNotFound, got)
+		return
 	}
 }

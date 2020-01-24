@@ -62,6 +62,14 @@ const (
 	RecordTypeTXT = "txt"
 )
 
+var (
+	// ErrDomainNotFound is returned when the domain is not found
+	ErrDomainNotFound = fmt.Errorf("domain not found")
+
+	// ErrRecordNotFound is returned when the record is not found
+	ErrRecordNotFound = fmt.Errorf("record not found")
+)
+
 // ListDomains returns all Domains owned by the calling API account
 func (c *Client) ListDomains() ([]Domain, error) {
 	url := "/v2/dns"
@@ -93,7 +101,7 @@ func (c *Client) GetDomain(name string) (*Domain, error) {
 		}
 	}
 
-	return nil, fmt.Errorf("domain not found")
+	return nil, ErrDomainNotFound
 }
 
 // DeleteDomain deletes the Domain that matches the name
@@ -125,6 +133,39 @@ func (c *Client) NewRecord(r *RecordConfig) (*Record, error) {
 	}
 
 	return record, nil
+}
+
+// ListRecords returns all the records associated with domainID
+func (c *Client) ListRecords(domainID string) ([]Record, error) {
+	url := fmt.Sprintf("/v2/dns/%s/records", domainID)
+	resp, err := c.SendGetRequest(url)
+	if err != nil {
+		return nil, err
+	}
+
+	var rs = make([]Record, 0)
+	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&rs); err != nil {
+		return nil, err
+
+	}
+
+	return rs, nil
+}
+
+// GetRecord returns the Record that matches the name and the domainID
+func (c *Client) GetRecord(domainID, name string) (*Record, error) {
+	rs, err := c.ListRecords(domainID)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, r := range rs {
+		if r.Name == name {
+			return &r, nil
+		}
+	}
+
+	return nil, ErrRecordNotFound
 }
 
 // DeleteRecord deletes the DNS record
