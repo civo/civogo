@@ -19,6 +19,10 @@ type Domain struct {
 	Name string `json:"name"`
 }
 
+type domainConfig struct {
+	Name string `form:"name"`
+}
+
 // RecordType represents the allowed record types: a, cname, mx or txt
 type RecordType string
 
@@ -88,6 +92,23 @@ func (c *Client) ListDomains() ([]Domain, error) {
 	return ds, nil
 }
 
+// NewDomain registers a new Domain
+func (c *Client) NewDomain(name string) (*Domain, error) {
+	url := fmt.Sprintf("/v2/dns")
+	d := &domainConfig{Name: name}
+	body, err := c.SendPostRequest(url, d)
+	if err != nil {
+		return nil, err
+	}
+
+	var n = &Domain{}
+	if err := json.NewDecoder(bytes.NewReader(body)).Decode(n); err != nil {
+		return nil, err
+	}
+
+	return n, nil
+}
+
 // GetDomain returns the Domain that matches the name
 func (c *Client) GetDomain(name string) (*Domain, error) {
 	ds, err := c.ListDomains()
@@ -102,6 +123,23 @@ func (c *Client) GetDomain(name string) (*Domain, error) {
 	}
 
 	return nil, ErrDomainNotFound
+}
+
+// UpdateDomain updates the provided domain with name
+func (c *Client) UpdateDomain(d *Domain, name string) (*Domain, error) {
+	url := fmt.Sprintf("/v2/dns/%s", d.ID)
+	dc := &domainConfig{Name: name}
+	body, err := c.SendPutRequest(url, dc)
+	if err != nil {
+		return nil, err
+	}
+
+	var r = &Domain{}
+	if err := json.NewDecoder(bytes.NewReader(body)).Decode(r); err != nil {
+		return nil, err
+	}
+
+	return r, nil
 }
 
 // DeleteDomain deletes the Domain that matches the name
