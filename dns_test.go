@@ -22,6 +22,23 @@ func TestListDomains(t *testing.T) {
 	}
 }
 
+func TestNewDomain(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/dns": `{"id": "12345", "account_id": "1", "name": "example.com"}`,
+	})
+	defer server.Close()
+	got, err := client.NewDomain("example.com")
+
+	if err != nil {
+		t.Errorf("Request returned an error: %s", err)
+		return
+	}
+	expected := &Domain{ID: "12345", AccountID: "1", Name: "example.com"}
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Expected %+v, got %+v", expected, got)
+	}
+}
+
 func TestGetDomain(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/dns": `[{"id": "12345", "account_id": "1", "name": "example.com"}, {"id": "12346", "account_id": "1", "name": "example.net"}]`,
@@ -34,6 +51,25 @@ func TestGetDomain(t *testing.T) {
 		return
 	}
 	expected := &Domain{ID: "12346", AccountID: "1", Name: "example.net"}
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Expected %+v, got %+v", expected, got)
+	}
+}
+
+func TestUpdateDomain(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/dns/12345": `{"id": "12345", "account_id": "1", "name": "example.com"}`,
+	})
+	defer server.Close()
+	d := &Domain{ID: "12345", AccountID: "1", Name: "example.com"}
+	got, err := client.UpdateDomain(d, "example.net")
+
+	if err != nil {
+		t.Errorf("Request returned an error: %s", err)
+		return
+	}
+
+	expected := &Domain{ID: "12345", AccountID: "1", Name: "example.com"}
 	if !reflect.DeepEqual(got, expected) {
 		t.Errorf("Expected %+v, got %+v", expected, got)
 	}
