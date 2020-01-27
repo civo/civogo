@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestListLoadBalance(t *testing.T) {
+func TestListLoadbalancer(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/loadbalancers": `[
 		  {
@@ -32,13 +32,13 @@ func TestListLoadBalance(t *testing.T) {
 		]`,
 	})
 	defer server.Close()
-	got, err := client.ListLoadBalance()
+	got, err := client.ListLoadBalancer()
 
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
 	}
-	expected := []LoadBalance{{
+	expected := []LoadBalancer{{
 		ID:                      "542e9eca-539d-45e6-b629-2f905d0b5f93",
 		Hostname:                "www.example.com",
 		Protocol:                "https",
@@ -51,14 +51,14 @@ func TestListLoadBalance(t *testing.T) {
 		FailTimeout:             30,
 		MaxConns:                10,
 		IgnoreInvalidBackendTls: true,
-		Backends:                []LoadBalanceBackend{{InstanceID: "82ef8d8e-688c-4fc3-a31c-41746f27b074", Protocol: "http", Port: 3000}},
+		Backends:                []LoadBalancerBackend{{InstanceID: "82ef8d8e-688c-4fc3-a31c-41746f27b074", Protocol: "http", Port: 3000}},
 	}}
 	if !reflect.DeepEqual(got, expected) {
 		t.Errorf("Expected %+v, got %+v", expected, got)
 	}
 }
 
-func TestNewLoadbalance(t *testing.T) {
+func TestNewLoadbalancer(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/loadbalancers": `{
 			"id": "542e9eca-539d-45e6-b629-2f905d0b5f93",
@@ -84,7 +84,7 @@ func TestNewLoadbalance(t *testing.T) {
 	})
 	defer server.Close()
 
-	cfg := &LoadBalanceConfig{
+	cfg := &LoadBalancerConfig{
 		Hostname:                "www.example.com",
 		Protocol:                "https",
 		Port:                    "443",
@@ -96,20 +96,20 @@ func TestNewLoadbalance(t *testing.T) {
 		FailTimeout:             30,
 		MaxConns:                10,
 		IgnoreInvalidBackendTls: true,
-		Backends: []LoadBalanceBackendConfig{{
+		Backends: []LoadBalancerBackendConfig{{
 			InstanceID: "82ef8d8e-688c-4fc3-a31c-41746f27b074",
 			Protocol:   "http",
 			Port:       3000,
 		},
 		},
 	}
-	got, err := client.NewLoadBalance(cfg)
+	got, err := client.NewLoadBalancer(cfg)
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
 	}
 
-	expected := &LoadBalance{
+	expected := &LoadBalancer{
 		ID:                      "542e9eca-539d-45e6-b629-2f905d0b5f93",
 		Hostname:                "www.example.com",
 		Protocol:                "https",
@@ -122,7 +122,7 @@ func TestNewLoadbalance(t *testing.T) {
 		FailTimeout:             30,
 		MaxConns:                10,
 		IgnoreInvalidBackendTls: true,
-		Backends:                []LoadBalanceBackend{{InstanceID: "82ef8d8e-688c-4fc3-a31c-41746f27b074", Protocol: "http", Port: 3000}},
+		Backends:                []LoadBalancerBackend{{InstanceID: "82ef8d8e-688c-4fc3-a31c-41746f27b074", Protocol: "http", Port: 3000}},
 	}
 
 	if !reflect.DeepEqual(got, expected) {
@@ -130,7 +130,7 @@ func TestNewLoadbalance(t *testing.T) {
 	}
 }
 
-func TestUpdateLoadbalance(t *testing.T) {
+func TestUpdateLoadbalancer(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/loadbalancers/542e9eca-539d-45e6-b629-2f905d0b5f93": `{
 			"id": "542e9eca-539d-45e6-b629-2f905d0b5f93",
@@ -161,21 +161,21 @@ func TestUpdateLoadbalance(t *testing.T) {
 	})
 	defer server.Close()
 
-	cfg := &LoadBalanceConfig{
-		Backends: []LoadBalanceBackendConfig{{
+	cfg := &LoadBalancerConfig{
+		Backends: []LoadBalancerBackendConfig{{
 			InstanceID: "85der56e-688c-4fc3-a31c-41746f27b074",
 			Protocol:   "http",
 			Port:       3001,
 		},
 		},
 	}
-	got, err := client.UpdateLoadBalance("542e9eca-539d-45e6-b629-2f905d0b5f93", cfg)
+	got, err := client.UpdateLoadBalancer("542e9eca-539d-45e6-b629-2f905d0b5f93", cfg)
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
 	}
 
-	expected := &LoadBalance{
+	expected := &LoadBalancer{
 		ID:                      "542e9eca-539d-45e6-b629-2f905d0b5f93",
 		Hostname:                "www.example.com",
 		Protocol:                "https",
@@ -188,7 +188,7 @@ func TestUpdateLoadbalance(t *testing.T) {
 		FailTimeout:             30,
 		MaxConns:                10,
 		IgnoreInvalidBackendTls: true,
-		Backends: []LoadBalanceBackend{
+		Backends: []LoadBalancerBackend{
 			{InstanceID: "82ef8d8e-688c-4fc3-a31c-41746f27b074", Protocol: "http", Port: 3000},
 			{InstanceID: "85der56e-688c-4fc3-a31c-41746f27b074", Protocol: "http", Port: 3001},
 		},
@@ -199,12 +199,12 @@ func TestUpdateLoadbalance(t *testing.T) {
 	}
 }
 
-func TestDeleteLoadBalance(t *testing.T) {
+func TestDeleteLoadbalancer(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/loadbalancers/12345": `{"result": "success"}`,
 	})
 	defer server.Close()
-	got, err := client.DeleteLoadBalance("12345")
+	got, err := client.DeleteLoadBalancer("12345")
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
