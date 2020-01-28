@@ -19,9 +19,10 @@ const Version = "0.0.1"
 
 // Client is the means of connecting to the Civo API service
 type Client struct {
-	BaseURL   *url.URL
-	UserAgent string
-	APIKey    string
+	BaseURL          *url.URL
+	UserAgent        string
+	APIKey           string
+	LastJSONResponse string
 
 	httpClient *http.Client
 }
@@ -164,6 +165,7 @@ func (c *Client) sendRequest(req *http.Request) ([]byte, error) {
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
+	c.LastJSONResponse = string(body)
 	return body, err
 }
 
