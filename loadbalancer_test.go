@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestListLoadbalancer(t *testing.T) {
+func TestListLoadBalancer(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/loadbalancers": `[
 		  {
@@ -58,7 +58,7 @@ func TestListLoadbalancer(t *testing.T) {
 	}
 }
 
-func TestNewLoadbalancer(t *testing.T) {
+func TestNewLoadBalancer(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/loadbalancers": `{
 			"id": "542e9eca-539d-45e6-b629-2f905d0b5f93",
@@ -130,7 +130,7 @@ func TestNewLoadbalancer(t *testing.T) {
 	}
 }
 
-func TestUpdateLoadbalancer(t *testing.T) {
+func TestUpdateLoadBalancer(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/loadbalancers/542e9eca-539d-45e6-b629-2f905d0b5f93": `{
 			"id": "542e9eca-539d-45e6-b629-2f905d0b5f93",
@@ -199,7 +199,7 @@ func TestUpdateLoadbalancer(t *testing.T) {
 	}
 }
 
-func TestDeleteLoadbalancer(t *testing.T) {
+func TestDeleteLoadBalancer(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/loadbalancers/12345": `{"result": "success"}`,
 	})
