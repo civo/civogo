@@ -76,8 +76,8 @@ func (c *Client) ListNetworks() ([]Network, error) {
 }
 
 // RenameNetwork renames an existing private network
-func (c *Client) RenameNetwork(r *NetworkConfig) (*NetworkResult, error) {
-	body, err := c.SendPutRequest("/v2/networks", r)
+func (c *Client) RenameNetwork(r *NetworkConfig, id string) (*NetworkResult, error) {
+	body, err := c.SendPutRequest("/v2/networks/"+id, r)
 	if err != nil {
 		return nil, err
 	}

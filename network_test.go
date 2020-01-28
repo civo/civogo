@@ -75,16 +75,16 @@ func TestListNetworks(t *testing.T) {
 
 func TestRenameNetwork(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
-		"/v2/networks": `{
+		"/v2/networks/76cc107f-fbef-4e2b-b97f-f5d34f4075d3": `{
 			"id": "76cc107f-fbef-4e2b-b97f-f5d34f4075d3",
-			"label": "new-net",
+			"label": "private-net",
 			"result": "success"
 		}`,
 	})
 	defer server.Close()
 
 	cfg := &NetworkConfig{Label: "private-net"}
-	got, err := client.RenameNetwork(cfg)
+	got, err := client.RenameNetwork(cfg, "76cc107f-fbef-4e2b-b97f-f5d34f4075d3")
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
@@ -92,7 +92,7 @@ func TestRenameNetwork(t *testing.T) {
 
 	expected := &NetworkResult{
 		ID:     "76cc107f-fbef-4e2b-b97f-f5d34f4075d3",
-		Label:  "new-net",
+		Label:  "private-net",
 		Result: "success",
 	}
 
