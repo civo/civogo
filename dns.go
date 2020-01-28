@@ -92,9 +92,9 @@ func (c *Client) ListDomains() ([]Domain, error) {
 	return ds, nil
 }
 
-// NewDomain registers a new Domain
-func (c *Client) NewDomain(name string) (*Domain, error) {
-	url := fmt.Sprintf("/v2/dns")
+// CreateDomain registers a new Domain
+func (c *Client) CreateDomain(name string) (*Domain, error) {
+	url := "/v2/dns"
 	d := &domainConfig{Name: name}
 	body, err := c.SendPostRequest(url, d)
 	if err != nil {
@@ -153,8 +153,8 @@ func (c *Client) DeleteDomain(d *Domain) (*SimpleResponse, error) {
 	return c.DecodeSimpleResponse(resp)
 }
 
-// NewRecord creates a new DNS record
-func (c *Client) NewRecord(r *RecordConfig) (*Record, error) {
+// CreateRecord creates a new DNS record
+func (c *Client) CreateRecord(r *RecordConfig) (*Record, error) {
 	if len(r.DomainID) == 0 {
 		return nil, fmt.Errorf("r.DomainID is empty")
 	}

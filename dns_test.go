@@ -22,12 +22,12 @@ func TestListDomains(t *testing.T) {
 	}
 }
 
-func TestNewDomain(t *testing.T) {
+func TestCreateDomain(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/dns": `{"id": "12345", "account_id": "1", "name": "example.com"}`,
 	})
 	defer server.Close()
-	got, err := client.NewDomain("example.com")
+	got, err := client.CreateDomain("example.com")
 
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
@@ -115,7 +115,7 @@ func TestNewRecord(t *testing.T) {
 	defer server.Close()
 
 	cfg := &RecordConfig{DomainID: "12346", Name: "mail", Type: RecordTypeMX, Value: "10.0.0.1", Priority: 10}
-	got, err := client.NewRecord(cfg)
+	got, err := client.CreateRecord(cfg)
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
