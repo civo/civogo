@@ -44,13 +44,13 @@ func TestListLoadBalancer(t *testing.T) {
 		Protocol:                "https",
 		Port:                    "443",
 		MaxRequestSize:          20,
-		TlsCertificate:          "...base64-encoded...",
-		TlsKey:                  "...base64-encoded...",
+		TLSCertificate:          "...base64-encoded...",
+		TLSKey:                  "...base64-encoded...",
 		Policy:                  "random",
 		HealthCheckPath:         "/",
 		FailTimeout:             30,
 		MaxConns:                10,
-		IgnoreInvalidBackendTls: true,
+		IgnoreInvalidBackendTLS: true,
 		Backends:                []LoadBalancerBackend{{InstanceID: "82ef8d8e-688c-4fc3-a31c-41746f27b074", Protocol: "http", Port: 3000}},
 	}}
 	if !reflect.DeepEqual(got, expected) {
@@ -58,7 +58,7 @@ func TestListLoadBalancer(t *testing.T) {
 	}
 }
 
-func TestNewLoadBalancer(t *testing.T) {
+func TestCreateLoadBalancer(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/loadbalancers": `{
 			"id": "542e9eca-539d-45e6-b629-2f905d0b5f93",
@@ -89,13 +89,13 @@ func TestNewLoadBalancer(t *testing.T) {
 		Protocol:                "https",
 		Port:                    "443",
 		MaxRequestSize:          20,
-		TlsCertificate:          "...base64-encoded...",
-		TlsKey:                  "...base64-encoded...",
+		TLSCertificate:          "...base64-encoded...",
+		TLSKey:                  "...base64-encoded...",
 		Policy:                  "random",
 		HealthCheckPath:         "/",
 		FailTimeout:             30,
 		MaxConns:                10,
-		IgnoreInvalidBackendTls: true,
+		IgnoreInvalidBackendTLS: true,
 		Backends: []LoadBalancerBackendConfig{{
 			InstanceID: "82ef8d8e-688c-4fc3-a31c-41746f27b074",
 			Protocol:   "http",
@@ -103,7 +103,7 @@ func TestNewLoadBalancer(t *testing.T) {
 		},
 		},
 	}
-	got, err := client.NewLoadBalancer(cfg)
+	got, err := client.CreateLoadBalancer(cfg)
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
@@ -115,13 +115,13 @@ func TestNewLoadBalancer(t *testing.T) {
 		Protocol:                "https",
 		Port:                    "443",
 		MaxRequestSize:          20,
-		TlsCertificate:          "...base64-encoded...",
-		TlsKey:                  "...base64-encoded...",
+		TLSCertificate:          "...base64-encoded...",
+		TLSKey:                  "...base64-encoded...",
 		Policy:                  "random",
 		HealthCheckPath:         "/",
 		FailTimeout:             30,
 		MaxConns:                10,
-		IgnoreInvalidBackendTls: true,
+		IgnoreInvalidBackendTLS: true,
 		Backends:                []LoadBalancerBackend{{InstanceID: "82ef8d8e-688c-4fc3-a31c-41746f27b074", Protocol: "http", Port: 3000}},
 	}
 
@@ -181,13 +181,13 @@ func TestUpdateLoadBalancer(t *testing.T) {
 		Protocol:                "https",
 		Port:                    "443",
 		MaxRequestSize:          20,
-		TlsCertificate:          "...base64-encoded...",
-		TlsKey:                  "...base64-encoded...",
+		TLSCertificate:          "...base64-encoded...",
+		TLSKey:                  "...base64-encoded...",
 		Policy:                  "random",
 		HealthCheckPath:         "/",
 		FailTimeout:             30,
 		MaxConns:                10,
-		IgnoreInvalidBackendTls: true,
+		IgnoreInvalidBackendTLS: true,
 		Backends: []LoadBalancerBackend{
 			{InstanceID: "82ef8d8e-688c-4fc3-a31c-41746f27b074", Protocol: "http", Port: 3000},
 			{InstanceID: "85der56e-688c-4fc3-a31c-41746f27b074", Protocol: "http", Port: 3001},
