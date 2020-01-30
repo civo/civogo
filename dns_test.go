@@ -22,6 +22,23 @@ func TestListDomains(t *testing.T) {
 	}
 }
 
+func TestCreateDomain(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/dns": `{"id": "12345", "account_id": "1", "name": "example.com"}`,
+	})
+	defer server.Close()
+	got, err := client.CreateDomain("example.com")
+
+	if err != nil {
+		t.Errorf("Request returned an error: %s", err)
+		return
+	}
+	expected := &Domain{ID: "12345", AccountID: "1", Name: "example.com"}
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Expected %+v, got %+v", expected, got)
+	}
+}
+
 func TestGetDomain(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/dns": `[{"id": "12345", "account_id": "1", "name": "example.com"}, {"id": "12346", "account_id": "1", "name": "example.net"}]`,
@@ -34,6 +51,30 @@ func TestGetDomain(t *testing.T) {
 		return
 	}
 	expected := &Domain{ID: "12346", AccountID: "1", Name: "example.net"}
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Expected %+v, got %+v", expected, got)
+	}
+
+	got, err = client.GetDomain("example.io")
+	if err != ErrDomainNotFound {
+		t.Errorf("Expected %+v, got %+v", ErrDomainNotFound, got)
+	}
+}
+
+func TestUpdateDomain(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/dns/12345": `{"id": "12345", "account_id": "1", "name": "example.com"}`,
+	})
+	defer server.Close()
+	d := &Domain{ID: "12345", AccountID: "1", Name: "example.com"}
+	got, err := client.UpdateDomain(d, "example.net")
+
+	if err != nil {
+		t.Errorf("Request returned an error: %s", err)
+		return
+	}
+
+	expected := &Domain{ID: "12345", AccountID: "1", Name: "example.com"}
 	if !reflect.DeepEqual(got, expected) {
 		t.Errorf("Expected %+v, got %+v", expected, got)
 	}
@@ -74,7 +115,7 @@ func TestNewRecord(t *testing.T) {
 	defer server.Close()
 
 	cfg := &RecordConfig{DomainID: "12346", Name: "mail", Type: RecordTypeMX, Value: "10.0.0.1", Priority: 10}
-	got, err := client.NewRecord(cfg)
+	got, err := client.CreateRecord(cfg)
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
@@ -137,8 +178,53 @@ func TestDeleteRecord(t *testing.T) {
 		return
 	}
 
-	expected := &SimpleResponse{Result: "success"}
+	expected := &SimpleResponse{Result: ResultSuccess}
 	if !reflect.DeepEqual(got, expected) {
 		t.Errorf("Expected %+v, got %+v", expected, got)
+	}
+}
+
+func TestListRecords(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/dns/1111/records": `[{"id": "12345", "domain_id":"1111", "account_id": "1", "name": "www", "type": "cname", "value": "10.0.0.0", "ttl": 600}, {"id": "12346", "account_id": "1", "domain_id":"1111", "name": "mail", "type": "mx", "value": "10.0.0.1", "ttl": 600, "priority": 10}]`,
+	})
+	defer server.Close()
+	got, err := client.ListRecords("1111")
+
+	if err != nil {
+		t.Errorf("Request returned an error: %s", err)
+		return
+	}
+	expected := []Record{
+		{ID: "12345", AccountID: "1", DomainID: "1111", Name: "www", Value: "10.0.0.0", Type: RecordTypeCName, TTL: 600},
+		{ID: "12346", AccountID: "1", DomainID: "1111", Name: "mail", Value: "10.0.0.1", Type: RecordTypeMX, TTL: 600, Priority: 10},
+	}
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Expected %+v, got %+v", expected, got)
+	}
+}
+
+func TestGetRecord(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/dns/1111/records": `[{"id": "12345", "domain_id":"1111", "account_id": "1", "name": "www", "type": "cname", "value": "10.0.0.0", "ttl": 600}, {"id": "12346", "account_id": "1", "domain_id":"1111", "name": "mail", "type": "mx", "value": "10.0.0.1", "ttl": 600, "priority": 10}]`,
+	})
+
+	defer server.Close()
+	got, err := client.GetRecord("1111", "mail")
+
+	if err != nil {
+		t.Errorf("Request returned an error: %s", err)
+		return
+	}
+	expected := &Record{ID: "12346", AccountID: "1", DomainID: "1111", Name: "mail", Value: "10.0.0.1", Type: RecordTypeMX, TTL: 600, Priority: 10}
+
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Expected %+v, got %+v", expected, got)
+	}
+
+	got, err = client.GetRecord("1111", "hello")
+	if err != ErrRecordNotFound {
+		t.Errorf("Expected %+v, got %+v", ErrDomainNotFound, got)
+		return
 	}
 }
