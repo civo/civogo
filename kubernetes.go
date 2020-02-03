@@ -40,8 +40,8 @@ type Kubernetes struct {
 	Version               string    `json:"version"`
 	Status                string    `json:"status"`
 	Ready                 bool      `json:"ready"`
-	NumTargetNode         bool      `json:"num_target_nodes"`
-	TargetNodeSize        bool      `json:"target_nodes_size"`
+	NumTargetNode         int       `json:"num_target_nodes"`
+	TargetNodeSize        string    `json:"target_nodes_size"`
 	BuiltAt               time.Time `json:"built_at"`
 	KubeConfig            string    `json:"kubeconfig"`
 	KubernetesVersion     string    `json:"kubernetes_version"`
@@ -63,7 +63,7 @@ type KubernetesConfig struct {
 }
 
 // ListCluster returns all cluster of kubernetes in the account
-func (c *Client) ListCluster() ([]Kubernetes, error) {
+func (c *Client) ListKubernetesCluster() ([]Kubernetes, error) {
 	resp, err := c.SendGetRequest("/v2/kubernetes/clusters")
 	if err != nil {
 		return nil, err
