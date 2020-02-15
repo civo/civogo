@@ -35,7 +35,7 @@ type KubernetesApplications struct {
 	Configuration map[string]string `json:"configuration,omitempty"`
 }
 
-type Kubernetes struct {
+type KubernetesCluster struct {
 	ID                    string                   `json:"id"`
 	Name                  string                   `json:"name"`
 	Version               string                   `json:"version"`
@@ -54,7 +54,7 @@ type Kubernetes struct {
 	InstalledApplications []KubernetesApplications `json:"installed_applications"`
 }
 
-type KubernetesConfig struct {
+type KubernetesClusterConfig struct {
 	Name              string `form:"name"`
 	NumTargetNodes    string `form:"num_target_nodes"`
 	TargetNodesSize   string `form:"target_nodes_size"`
@@ -72,7 +72,7 @@ type KubernetesMarketplacePlan struct {
 	Configuration map[string]KubernetesPlanConfiguration `json:"configuration"`
 }
 
-type KubernetesMarketplace struct {
+type KubernetesMarketplaceApplication struct {
 	Name         string                      `json:"name"`
 	Title        string                      `json:"title,omitempty"`
 	Version      string                      `json:"version"`
@@ -86,24 +86,20 @@ type KubernetesMarketplace struct {
 	Plans        []KubernetesMarketplacePlan `json:"plans"`
 }
 
-type KubernetesRecycleConfig struct {
-	Hostname string `form:"hostname"`
-}
-
-type KubernetesVersions struct {
+type KubernetesVersion struct {
 	Version string `json:"version"`
 	Type    string `json:"type"`
 	Default bool   `json:"default,omitempty"`
 }
 
 // ListKubernetesCluster returns all cluster of kubernetes in the account
-func (c *Client) ListKubernetesCluster() ([]Kubernetes, error) {
+func (c *Client) ListKubernetesClusters() ([]KubernetesCluster, error) {
 	resp, err := c.SendGetRequest("/v2/kubernetes/clusters")
 	if err != nil {
 		return nil, err
 	}
 
-	kubernetes := make([]Kubernetes, 0)
+	kubernetes := make([]KubernetesCluster, 0)
 	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&kubernetes); err != nil {
 		return nil, err
 	}
@@ -112,13 +108,13 @@ func (c *Client) ListKubernetesCluster() ([]Kubernetes, error) {
 }
 
 // NewKubernetesCluster create a new cluster of kubernetes
-func (c *Client) NewKubernetesCluster(v *KubernetesConfig) (*Kubernetes, error) {
-	body, err := c.SendPostRequest("/v2/kubernetes/clusters", v)
+func (c *Client) NewKubernetesClusters(kc *KubernetesClusterConfig) (*KubernetesCluster, error) {
+	body, err := c.SendPostRequest("/v2/kubernetes/clusters", kc)
 	if err != nil {
 		return nil, err
 	}
 
-	kubernetes := &Kubernetes{}
+	kubernetes := &KubernetesCluster{}
 	if err := json.NewDecoder(bytes.NewReader(body)).Decode(kubernetes); err != nil {
 		return nil, err
 	}
@@ -127,19 +123,19 @@ func (c *Client) NewKubernetesCluster(v *KubernetesConfig) (*Kubernetes, error) 
 }
 
 // GetKubernetesCluster returns a single kubernetes cluster by its full ID
-func (c *Client) GetKubernetesCluster(id string) (*Kubernetes, error) {
+func (c *Client) GetKubernetesClusters(id string) (*KubernetesCluster, error) {
 	resp, err := c.SendGetRequest(fmt.Sprintf("/v2/kubernetes/clusters/%s", id))
 	if err != nil {
 		return nil, err
 	}
 
-	kubernetes := &Kubernetes{}
+	kubernetes := &KubernetesCluster{}
 	err = json.NewDecoder(bytes.NewReader(resp)).Decode(kubernetes)
 	return kubernetes, nil
 }
 
 // UpdateKubernetesCluster update a single kubernetes cluster by its full ID
-func (c *Client) UpdateKubernetesCluster(id string, i *KubernetesConfig) (*Kubernetes, error) {
+func (c *Client) UpdateKubernetesClusters(id string, i *KubernetesClusterConfig) (*KubernetesCluster, error) {
 	params := map[string]string{
 		"name":             i.Name,
 		"num_target_nodes": i.NumTargetNodes,
@@ -152,19 +148,19 @@ func (c *Client) UpdateKubernetesCluster(id string, i *KubernetesConfig) (*Kuber
 		return nil, err
 	}
 
-	kubernetes := &Kubernetes{}
+	kubernetes := &KubernetesCluster{}
 	err = json.NewDecoder(bytes.NewReader(resp)).Decode(kubernetes)
 	return kubernetes, nil
 }
 
 //ListKubernetesMarketplace returns all application inside marketplace
-func (c *Client) ListKubernetesMarketplace() ([]KubernetesMarketplace, error) {
+func (c *Client) ListKubernetesMarketplaceApplications() ([]KubernetesMarketplaceApplication, error) {
 	resp, err := c.SendGetRequest("/v2/kubernetes/applications")
 	if err != nil {
 		return nil, err
 	}
 
-	kubernetes := make([]KubernetesMarketplace, 0)
+	kubernetes := make([]KubernetesMarketplaceApplication, 0)
 	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&kubernetes); err != nil {
 		return nil, err
 	}
@@ -173,7 +169,7 @@ func (c *Client) ListKubernetesMarketplace() ([]KubernetesMarketplace, error) {
 }
 
 // DeleteKubernetesCluster deletes a cluster
-func (c *Client) DeleteKubernetesCluster(id string) (*SimpleResponse, error) {
+func (c *Client) DeleteKubernetesClusters(id string) (*SimpleResponse, error) {
 	resp, err := c.SendDeleteRequest(fmt.Sprintf("/v2/kubernetes/clusters/%s", id))
 	if err != nil {
 		return nil, err
@@ -183,8 +179,10 @@ func (c *Client) DeleteKubernetesCluster(id string) (*SimpleResponse, error) {
 }
 
 // RecycleKubernetesCluster create a new cluster of kubernetes
-func (c *Client) RecycleKubernetesCluster(id string, v *KubernetesRecycleConfig) (*SimpleResponse, error) {
-	body, err := c.SendPostRequest(fmt.Sprintf("/v2/kubernetes/clusters/%s", id), v)
+func (c *Client) RecycleKubernetesClusters(id string, hostname string) (*SimpleResponse, error) {
+	body, err := c.SendPostRequest(fmt.Sprintf("/v2/kubernetes/clusters/%s", id), map[string]string{
+		"hostname": hostname,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -193,13 +191,13 @@ func (c *Client) RecycleKubernetesCluster(id string, v *KubernetesRecycleConfig)
 }
 
 // VersionKubernetesCluster returns all version of kubernetes in the cloud
-func (c *Client) VersionKubernetesCluster() ([]KubernetesVersions, error) {
+func (c *Client) ListAvailableKubernetesVersions() ([]KubernetesVersion, error) {
 	resp, err := c.SendGetRequest("/v2/kubernetes/versions")
 	if err != nil {
 		return nil, err
 	}
 
-	kubernetes := make([]KubernetesVersions, 0)
+	kubernetes := make([]KubernetesVersion, 0)
 	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&kubernetes); err != nil {
 		return nil, err
 	}

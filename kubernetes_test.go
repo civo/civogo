@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func TestListKubernetesCluster(t *testing.T) {
+func TestListKubernetesClusters(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/kubernetes/clusters": `[{
 		  "id": "69a23478-a89e-41d2-97b1-6f4c341cee70",
@@ -52,7 +52,7 @@ func TestListKubernetesCluster(t *testing.T) {
 		}]`,
 	})
 	defer server.Close()
-	got, err := client.ListKubernetesCluster()
+	got, err := client.ListKubernetesClusters()
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
@@ -63,7 +63,7 @@ func TestListKubernetesCluster(t *testing.T) {
 	createAtInstance, _ := time.Parse(time.RFC3339, "2019-09-23T13:03:00.000+01:00")
 	updateAt, _ := time.Parse(time.RFC3339, "2019-09-23T13:02:59.000+01:00")
 
-	expected := []Kubernetes{{
+	expected := []KubernetesCluster{{
 		ID:                "69a23478-a89e-41d2-97b1-6f4c341cee70",
 		Name:              "your-cluster-name",
 		Version:           "2",
@@ -107,7 +107,7 @@ func TestListKubernetesCluster(t *testing.T) {
 	}
 }
 
-func TestNewKubernetesCluster(t *testing.T) {
+func TestNewKubernetesClusters(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/kubernetes/clusters": `{
 		  "id": "69a23478-a89e-41d2-97b1-6f4c341cee70",
@@ -154,7 +154,7 @@ func TestNewKubernetesCluster(t *testing.T) {
 	})
 	defer server.Close()
 
-	cfg := &KubernetesConfig{
+	cfg := &KubernetesClusterConfig{
 		Name:              "your-cluster-name",
 		Tags:              "",
 		KubernetesVersion: "0.8.1",
@@ -162,7 +162,7 @@ func TestNewKubernetesCluster(t *testing.T) {
 		TargetNodesSize:   "g2.xsmall",
 		Applications:      "traefik",
 	}
-	got, err := client.NewKubernetesCluster(cfg)
+	got, err := client.NewKubernetesClusters(cfg)
 
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
@@ -174,7 +174,7 @@ func TestNewKubernetesCluster(t *testing.T) {
 	createAtInstance, _ := time.Parse(time.RFC3339, "2019-09-23T13:03:00.000+01:00")
 	updateAt, _ := time.Parse(time.RFC3339, "2019-09-23T13:02:59.000+01:00")
 
-	expected := &Kubernetes{
+	expected := &KubernetesCluster{
 		ID:                "69a23478-a89e-41d2-97b1-6f4c341cee70",
 		Name:              "your-cluster-name",
 		Version:           "2",
@@ -219,7 +219,7 @@ func TestNewKubernetesCluster(t *testing.T) {
 	}
 }
 
-func TestGetKubernetesCluster(t *testing.T) {
+func TestGetKubernetesClusters(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/kubernetes/clusters/69a23478-a89e-41d2-97b1-6f4c341cee70": `{
 		  "id": "69a23478-a89e-41d2-97b1-6f4c341cee70",
@@ -266,7 +266,7 @@ func TestGetKubernetesCluster(t *testing.T) {
 	})
 	defer server.Close()
 
-	got, err := client.GetKubernetesCluster("69a23478-a89e-41d2-97b1-6f4c341cee70")
+	got, err := client.GetKubernetesClusters("69a23478-a89e-41d2-97b1-6f4c341cee70")
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
@@ -277,7 +277,7 @@ func TestGetKubernetesCluster(t *testing.T) {
 	createAtInstance, _ := time.Parse(time.RFC3339, "2019-09-23T13:03:00.000+01:00")
 	updateAt, _ := time.Parse(time.RFC3339, "2019-09-23T13:02:59.000+01:00")
 
-	expected := &Kubernetes{
+	expected := &KubernetesCluster{
 		ID:                "69a23478-a89e-41d2-97b1-6f4c341cee70",
 		Name:              "your-cluster-name",
 		Version:           "2",
@@ -322,7 +322,7 @@ func TestGetKubernetesCluster(t *testing.T) {
 	}
 }
 
-func TestUpdateKubernetesCluster(t *testing.T) {
+func TestUpdateKubernetesClusters(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/kubernetes/clusters/69a23478-a89e-41d2-97b1-6f4c341cee70": `{
 		  "id": "69a23478-a89e-41d2-97b1-6f4c341cee70",
@@ -369,12 +369,12 @@ func TestUpdateKubernetesCluster(t *testing.T) {
 	})
 	defer server.Close()
 
-	cfg := &KubernetesConfig{
+	cfg := &KubernetesClusterConfig{
 		Name:           "cluster-name",
 		NumTargetNodes: "6",
 	}
 
-	got, err := client.UpdateKubernetesCluster("69a23478-a89e-41d2-97b1-6f4c341cee70", cfg)
+	got, err := client.UpdateKubernetesClusters("69a23478-a89e-41d2-97b1-6f4c341cee70", cfg)
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
@@ -385,7 +385,7 @@ func TestUpdateKubernetesCluster(t *testing.T) {
 	createAtInstance, _ := time.Parse(time.RFC3339, "2019-09-23T13:03:00.000+01:00")
 	updateAt, _ := time.Parse(time.RFC3339, "2019-09-23T13:02:59.000+01:00")
 
-	expected := &Kubernetes{
+	expected := &KubernetesCluster{
 		ID:                "69a23478-a89e-41d2-97b1-6f4c341cee70",
 		Name:              "cluster-name",
 		Version:           "2",
@@ -430,7 +430,7 @@ func TestUpdateKubernetesCluster(t *testing.T) {
 	}
 }
 
-func TestListKubernetesMarketplace(t *testing.T) {
+func TestKubernetesMarketplaceApplication(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/kubernetes/applications": `[{
 		  "name": "MariaDB",
@@ -462,13 +462,13 @@ func TestListKubernetesMarketplace(t *testing.T) {
 		}]`,
 	})
 	defer server.Close()
-	got, err := client.ListKubernetesMarketplace()
+	got, err := client.ListKubernetesMarketplaceApplications()
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
 	}
 
-	expected := []KubernetesMarketplace{{
+	expected := []KubernetesMarketplaceApplication{{
 		Name:         "MariaDB",
 		Version:      "10.4.7",
 		Dependencies: []string{"Longhorn"},
@@ -490,12 +490,12 @@ func TestListKubernetesMarketplace(t *testing.T) {
 	}
 }
 
-func TestDeleteKubernetesCluster(t *testing.T) {
+func TestDeleteKubernetesClusters(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/kubernetes/clusters/12346": `{"result": "success"}`,
 	})
 	defer server.Close()
-	got, err := client.DeleteKubernetesCluster("12346")
+	got, err := client.DeleteKubernetesClusters("12346")
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
@@ -507,17 +507,13 @@ func TestDeleteKubernetesCluster(t *testing.T) {
 	}
 }
 
-func TestRecycleKubernetesCluster(t *testing.T) {
+func TestRecycleKubernetesClusters(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/kubernetes/clusters/12346": `{"result": "success"}`,
 	})
 	defer server.Close()
 
-	cfg := &KubernetesRecycleConfig{
-		Hostname: "test-server-name",
-	}
-
-	got, err := client.RecycleKubernetesCluster("12346", cfg)
+	got, err := client.RecycleKubernetesClusters("12346", "test-hostname")
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
@@ -529,7 +525,7 @@ func TestRecycleKubernetesCluster(t *testing.T) {
 	}
 }
 
-func TestVersionKubernetesCluster(t *testing.T) {
+func TestListAvailableKubernetesVersions(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/kubernetes/versions": `[
 		  {
@@ -544,13 +540,13 @@ func TestVersionKubernetesCluster(t *testing.T) {
 		]`,
 	})
 	defer server.Close()
-	got, err := client.VersionKubernetesCluster()
+	got, err := client.ListAvailableKubernetesVersions()
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
 	}
 
-	expected := []KubernetesVersions{{
+	expected := []KubernetesVersion{{
 		Default: true,
 		Type:    "stable",
 		Version: "0.9.1",
