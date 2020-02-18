@@ -158,7 +158,7 @@ func TestNewKubernetesClusters(t *testing.T) {
 		Name:              "your-cluster-name",
 		Tags:              "",
 		KubernetesVersion: "0.8.1",
-		NumTargetNodes:    "3",
+		NumTargetNodes:    3,
 		TargetNodesSize:   "g2.xsmall",
 		Applications:      "traefik",
 	}
@@ -371,7 +371,7 @@ func TestUpdateKubernetesClusters(t *testing.T) {
 
 	cfg := &KubernetesClusterConfig{
 		Name:           "cluster-name",
-		NumTargetNodes: "6",
+		NumTargetNodes: 6,
 	}
 
 	got, err := client.UpdateKubernetesClusters("69a23478-a89e-41d2-97b1-6f4c341cee70", cfg)

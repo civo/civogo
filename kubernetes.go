@@ -56,7 +56,7 @@ type KubernetesCluster struct {
 
 type KubernetesClusterConfig struct {
 	Name              string `form:"name"`
-	NumTargetNodes    string `form:"num_target_nodes"`
+	NumTargetNodes    int    `form:"num_target_nodes"`
 	TargetNodesSize   string `form:"target_nodes_size"`
 	KubernetesVersion string `form:"kubernetes_version"`
 	Tags              string `form:"tags"`
@@ -136,7 +136,7 @@ func (c *Client) GetKubernetesClusters(id string) (*KubernetesCluster, error) {
 
 // UpdateKubernetesCluster update a single kubernetes cluster by its full ID
 func (c *Client) UpdateKubernetesClusters(id string, i *KubernetesClusterConfig) (*KubernetesCluster, error) {
-	params := map[string]string{
+	params := map[string]interface{}{
 		"name":             i.Name,
 		"num_target_nodes": i.NumTargetNodes,
 		"version":          i.KubernetesVersion,
