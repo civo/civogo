@@ -128,7 +128,7 @@ If you want to get involved, we'd love to receive a pull request - or an offer t
 | Template | Done |
 | Volumes | Done |
 | Snapshots | Pending |
-| Load Balancer | Pending |
+| Load Balancer | Done |
 | Webhooks | Pending |
 | Instance Sizes | Pending |
 | Quota | Pending |
