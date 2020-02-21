@@ -44,7 +44,7 @@ type LoadBalancerConfig struct {
 	Protocol                string `from:"protocol"`
 	TLSCertificate          string `from:"tls_certificate"`
 	TLSKey                  string `from:"tls_key"`
-	Policy                  string `json:"policy"`
+	Policy                  string `from:"policy"`
 	Port                    string `from:"port"`
 	MaxRequestSize          int    `from:"max_request_size"`
 	HealthCheckPath         string `from:"health_check_path"`
