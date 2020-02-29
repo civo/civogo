@@ -132,5 +132,5 @@ If you want to get involved, we'd love to receive a pull request - or an offer t
 | Webhooks | Pending |
 | Instance sizes | ✅ Done |
 | Quota | ✅ Done |
-| Charges | Pending |
+| Charges | ✅ Done |
 | Regions | ✅ Done |
