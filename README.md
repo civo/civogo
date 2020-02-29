@@ -133,4 +133,4 @@ If you want to get involved, we'd love to receive a pull request - or an offer t
 | Instance sizes | Pending |
 | Quota | Pending |
 | Charges | Pending |
-| Regions | Pending |
+| Regions | ✅ Done |
