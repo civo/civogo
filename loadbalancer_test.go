@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestListLoadBalancer(t *testing.T) {
+func TestListLoadBalancers(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/loadbalancers": `[
 		  {
@@ -32,7 +32,7 @@ func TestListLoadBalancer(t *testing.T) {
 		]`,
 	})
 	defer server.Close()
-	got, err := client.ListLoadBalancer()
+	got, err := client.ListLoadBalancers()
 
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
