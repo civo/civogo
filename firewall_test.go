@@ -5,12 +5,12 @@ import (
 	"testing"
 )
 
-func TestListFirewall(t *testing.T) {
+func TestListFirewalls(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/firewalls": `[{"id": "12345", "name": "instance-123456", "rules_count": "3", "instances_count": "10", "region": "lon1"}, {"id": "67789", "name": "instance-7890", "rules_count": "1", "instances_count": "2", "region": "lon1"}]`,
 	})
 	defer server.Close()
-	got, err := client.ListFirewall()
+	got, err := client.ListFirewalls()
 
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
@@ -144,7 +144,7 @@ func TestNewFirewallRule(t *testing.T) {
 	}
 }
 
-func TestListFirewallRule(t *testing.T) {
+func TestListFirewallRules(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/firewalls/22/rules": `[{
 			"id": "1",
@@ -173,7 +173,7 @@ func TestListFirewallRule(t *testing.T) {
 		  }]`,
 	})
 	defer server.Close()
-	got, err := client.ListFirewallRule("22")
+	got, err := client.ListFirewallRules("22")
 
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)

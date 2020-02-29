@@ -46,8 +46,8 @@ type FirewallRuleConfig struct {
 	Label      string   `json:"label,omitempty"`
 }
 
-// ListFirewall returns all firewall owned by the calling API account
-func (c *Client) ListFirewall() ([]Firewall, error) {
+// ListFirewalls returns all firewall owned by the calling API account
+func (c *Client) ListFirewalls() ([]Firewall, error) {
 	resp, err := c.SendGetRequest("/v2/firewalls")
 	if err != nil {
 		return nil, err
@@ -105,8 +105,8 @@ func (c *Client) NewFirewallRule(r *FirewallRuleConfig) (*FirewallRule, error) {
 	return rule, nil
 }
 
-// ListFirewallRule get all rules for a firewall
-func (c *Client) ListFirewallRule(id string) ([]FirewallRule, error) {
+// ListFirewallRules get all rules for a firewall
+func (c *Client) ListFirewallRules(id string) ([]FirewallRule, error) {
 	resp, err := c.SendGetRequest(fmt.Sprintf("/v2/firewalls/%s/rules", id))
 	if err != nil {
 		return nil, err
