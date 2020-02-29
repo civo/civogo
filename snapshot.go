@@ -43,3 +43,28 @@ func (c *Client) CreateSnapshot(name string, r *SnapshotsConfig) (*Snapshot, err
 
 	return n, nil
 }
+
+// ListSnapshots a list of all snapshots
+func (c *Client) ListSnapshots() ([]Snapshot, error) {
+	resp, err := c.SendGetRequest("/v2/snapshots")
+	if err != nil {
+		return nil, err
+	}
+
+	snapshots := make([]Snapshot, 0)
+	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&snapshots); err != nil {
+		return nil, err
+	}
+
+	return snapshots, nil
+}
+
+// DeleteLoadBalancer deletes a load balancer
+func (c *Client) DeleteSnapshot(name string) (*SimpleResponse, error) {
+	resp, err := c.SendDeleteRequest(fmt.Sprintf("/v2/snapshots/%s", name))
+	if err != nil {
+		return nil, err
+	}
+
+	return c.DecodeSimpleResponse(resp)
+}

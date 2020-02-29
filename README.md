@@ -127,7 +127,7 @@ If you want to get involved, we'd love to receive a pull request - or an offer t
 | SSH | ✅ Done |
 | Template | ✅ Done |
 | Volumes | ✅ Done |
-| Snapshots | Pending |
+| Snapshots | ✅ Done |
 | Load balancers | ✅ Done |
 | Webhooks | Pending |
 | Instance sizes | ✅ Done |
