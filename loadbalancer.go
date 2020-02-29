@@ -54,8 +54,8 @@ type LoadBalancerConfig struct {
 	Backends                []LoadBalancerBackendConfig
 }
 
-// ListLoadBalancer returns all load balancers owned by the calling API account
-func (c *Client) ListLoadBalancer() ([]LoadBalancer, error) {
+// ListLoadBalancers returns all load balancers owned by the calling API account
+func (c *Client) ListLoadBalancers() ([]LoadBalancer, error) {
 	resp, err := c.SendGetRequest("/v2/loadbalancers")
 	if err != nil {
 		return nil, err

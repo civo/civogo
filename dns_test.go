@@ -5,18 +5,18 @@ import (
 	"testing"
 )
 
-func TestListDomains(t *testing.T) {
+func TestDNSListDomains(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/dns": `[{"id": "12345", "account_id": "1", "name": "example.com"}, {"id": "12346", "account_id": "1", "name": "example.net"}]`,
 	})
 	defer server.Close()
-	got, err := client.ListDomains()
+	got, err := client.ListDNSDomains()
 
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
 	}
-	expected := []Domain{{ID: "12345", AccountID: "1", Name: "example.com"}, {ID: "12346", AccountID: "1", Name: "example.net"}}
+	expected := []DNSDomain{{ID: "12345", AccountID: "1", Name: "example.com"}, {ID: "12346", AccountID: "1", Name: "example.net"}}
 	if !reflect.DeepEqual(got, expected) {
 		t.Errorf("Expected %+v, got %+v", expected, got)
 	}
@@ -27,37 +27,37 @@ func TestCreateDomain(t *testing.T) {
 		"/v2/dns": `{"id": "12345", "account_id": "1", "name": "example.com"}`,
 	})
 	defer server.Close()
-	got, err := client.CreateDomain("example.com")
+	got, err := client.CreateDNSDomain("example.com")
 
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
 	}
-	expected := &Domain{ID: "12345", AccountID: "1", Name: "example.com"}
+	expected := &DNSDomain{ID: "12345", AccountID: "1", Name: "example.com"}
 	if !reflect.DeepEqual(got, expected) {
 		t.Errorf("Expected %+v, got %+v", expected, got)
 	}
 }
 
-func TestGetDomain(t *testing.T) {
+func TestGetDNSDomain(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/dns": `[{"id": "12345", "account_id": "1", "name": "example.com"}, {"id": "12346", "account_id": "1", "name": "example.net"}]`,
 	})
 	defer server.Close()
-	got, err := client.GetDomain("example.net")
+	got, err := client.GetDNSDomain("example.net")
 
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
 	}
-	expected := &Domain{ID: "12346", AccountID: "1", Name: "example.net"}
+	expected := &DNSDomain{ID: "12346", AccountID: "1", Name: "example.net"}
 	if !reflect.DeepEqual(got, expected) {
 		t.Errorf("Expected %+v, got %+v", expected, got)
 	}
 
-	got, err = client.GetDomain("example.io")
-	if err != ErrDomainNotFound {
-		t.Errorf("Expected %+v, got %+v", ErrDomainNotFound, got)
+	got, err = client.GetDNSDomain("example.io")
+	if err != ErrDNSDomainNotFound {
+		t.Errorf("Expected %+v, got %+v", ErrDNSDomainNotFound, got)
 	}
 }
 
@@ -66,15 +66,15 @@ func TestUpdateDomain(t *testing.T) {
 		"/v2/dns/12345": `{"id": "12345", "account_id": "1", "name": "example.com"}`,
 	})
 	defer server.Close()
-	d := &Domain{ID: "12345", AccountID: "1", Name: "example.com"}
-	got, err := client.UpdateDomain(d, "example.net")
+	d := &DNSDomain{ID: "12345", AccountID: "1", Name: "example.com"}
+	got, err := client.UpdateDNSDomain(d, "example.net")
 
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
 	}
 
-	expected := &Domain{ID: "12345", AccountID: "1", Name: "example.com"}
+	expected := &DNSDomain{ID: "12345", AccountID: "1", Name: "example.com"}
 	if !reflect.DeepEqual(got, expected) {
 		t.Errorf("Expected %+v, got %+v", expected, got)
 	}
@@ -85,7 +85,7 @@ func TestDeleteDomain(t *testing.T) {
 		"/v2/dns/12346": `{"result": "success"}`,
 	})
 	defer server.Close()
-	got, err := client.DeleteDomain(&Domain{ID: "12346"})
+	got, err := client.DeleteDNSDomain(&DNSDomain{ID: "12346"})
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
@@ -114,21 +114,21 @@ func TestNewRecord(t *testing.T) {
 	})
 	defer server.Close()
 
-	cfg := &RecordConfig{DomainID: "12346", Name: "mail", Type: RecordTypeMX, Value: "10.0.0.1", Priority: 10}
-	got, err := client.CreateRecord(cfg)
+	cfg := &DNSRecordConfig{DNSDomainID: "12346", Name: "mail", Type: DNSRecordTypeMX, Value: "10.0.0.1", Priority: 10}
+	got, err := client.CreateDNSRecord(cfg)
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
 	}
 
-	expected := &Record{
-		ID:       "76cc107f-fbef-4e2b-b97f-f5d34f4075d3",
-		DomainID: "12346",
-		Name:     "mail",
-		Value:    "10.0.0.1",
-		Type:     "mx",
-		Priority: 10,
-		TTL:      600,
+	expected := &DNSRecord{
+		ID:          "76cc107f-fbef-4e2b-b97f-f5d34f4075d3",
+		DNSDomainID: "12346",
+		Name:        "mail",
+		Value:       "10.0.0.1",
+		Type:        "mx",
+		Priority:    10,
+		TTL:         600,
 	}
 
 	if expected.ID != got.ID {
@@ -162,17 +162,17 @@ func TestDeleteRecord(t *testing.T) {
 	})
 	defer server.Close()
 
-	r := &Record{
-		ID:       "76cc107f-fbef-4e2b-b97f-f5d34f4075d3",
-		DomainID: "12346",
-		Name:     "mail",
-		Value:    "10.0.0.1",
-		Type:     "mx",
-		Priority: 10,
-		TTL:      600,
+	r := &DNSRecord{
+		ID:          "76cc107f-fbef-4e2b-b97f-f5d34f4075d3",
+		DNSDomainID: "12346",
+		Name:        "mail",
+		Value:       "10.0.0.1",
+		Type:        "mx",
+		Priority:    10,
+		TTL:         600,
 	}
 
-	got, err := client.DeleteRecord(r)
+	got, err := client.DeleteDNSRecord(r)
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
@@ -184,20 +184,20 @@ func TestDeleteRecord(t *testing.T) {
 	}
 }
 
-func TestListRecords(t *testing.T) {
+func TestListDNSRecords(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/dns/1111/records": `[{"id": "12345", "domain_id":"1111", "account_id": "1", "name": "www", "type": "cname", "value": "10.0.0.0", "ttl": 600}, {"id": "12346", "account_id": "1", "domain_id":"1111", "name": "mail", "type": "mx", "value": "10.0.0.1", "ttl": 600, "priority": 10}]`,
 	})
 	defer server.Close()
-	got, err := client.ListRecords("1111")
+	got, err := client.ListDNSRecords("1111")
 
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
 	}
-	expected := []Record{
-		{ID: "12345", AccountID: "1", DomainID: "1111", Name: "www", Value: "10.0.0.0", Type: RecordTypeCName, TTL: 600},
-		{ID: "12346", AccountID: "1", DomainID: "1111", Name: "mail", Value: "10.0.0.1", Type: RecordTypeMX, TTL: 600, Priority: 10},
+	expected := []DNSRecord{
+		{ID: "12345", AccountID: "1", DNSDomainID: "1111", Name: "www", Value: "10.0.0.0", Type: DNSRecordTypeCName, TTL: 600},
+		{ID: "12346", AccountID: "1", DNSDomainID: "1111", Name: "mail", Value: "10.0.0.1", Type: DNSRecordTypeMX, TTL: 600, Priority: 10},
 	}
 	if !reflect.DeepEqual(got, expected) {
 		t.Errorf("Expected %+v, got %+v", expected, got)
@@ -210,21 +210,21 @@ func TestGetRecord(t *testing.T) {
 	})
 
 	defer server.Close()
-	got, err := client.GetRecord("1111", "mail")
+	got, err := client.GetDNSRecord("1111", "mail")
 
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
 	}
-	expected := &Record{ID: "12346", AccountID: "1", DomainID: "1111", Name: "mail", Value: "10.0.0.1", Type: RecordTypeMX, TTL: 600, Priority: 10}
+	expected := &DNSRecord{ID: "12346", AccountID: "1", DNSDomainID: "1111", Name: "mail", Value: "10.0.0.1", Type: DNSRecordTypeMX, TTL: 600, Priority: 10}
 
 	if !reflect.DeepEqual(got, expected) {
 		t.Errorf("Expected %+v, got %+v", expected, got)
 	}
 
-	got, err = client.GetRecord("1111", "hello")
-	if err != ErrRecordNotFound {
-		t.Errorf("Expected %+v, got %+v", ErrDomainNotFound, got)
+	got, err = client.GetDNSRecord("1111", "hello")
+	if err != ErrDNSRecordNotFound {
+		t.Errorf("Expected %+v, got %+v", ErrDNSDomainNotFound, got)
 		return
 	}
 }
