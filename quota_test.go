@@ -64,17 +64,17 @@ func TestGetQuota(t *testing.T) {
 	if got.CPUCoreUsage != 3 {
 		t.Errorf("Expected %d, got %d", 3, got.CPUCoreUsage)
 	}
-	if got.RAMMBLimit != 5120 {
-		t.Errorf("Expected %d, got %d", 5120, got.RAMMBLimit)
+	if got.RAMMegabytesLimit != 5120 {
+		t.Errorf("Expected %d, got %d", 5120, got.RAMMegabytesLimit)
 	}
-	if got.RAMMBUsage != 1536 {
-		t.Errorf("Expected %d, got %d", 1536, got.RAMMBUsage)
+	if got.RAMMegabytesUsage != 1536 {
+		t.Errorf("Expected %d, got %d", 1536, got.RAMMegabytesUsage)
 	}
-	if got.DiskGBLimit != 250 {
-		t.Errorf("Expected %d, got %d", 250, got.DiskGBLimit)
+	if got.DiskGigabytesLimit != 250 {
+		t.Errorf("Expected %d, got %d", 250, got.DiskGigabytesLimit)
 	}
-	if got.DiskGBUsage != 75 {
-		t.Errorf("Expected %d, got %d", 75, got.DiskGBUsage)
+	if got.DiskGigabytesUsage != 75 {
+		t.Errorf("Expected %d, got %d", 75, got.DiskGigabytesUsage)
 	}
 	if got.DiskVolumeCountLimit != 16 {
 		t.Errorf("Expected %d, got %d", 16, got.DiskVolumeCountLimit)

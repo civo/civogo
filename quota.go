@@ -14,10 +14,10 @@ type Quota struct {
 	InstanceCountUsage      int    `json:"instance_count_usage"`
 	CPUCoreLimit            int    `json:"cpu_core_limit"`
 	CPUCoreUsage            int    `json:"cpu_core_usage"`
-	RAMMBLimit              int    `json:"ram_mb_limit"`
-	RAMMBUsage              int    `json:"ram_mb_usage"`
-	DiskGBLimit             int    `json:"disk_gb_limit"`
-	DiskGBUsage             int    `json:"disk_gb_usage"`
+	RAMMegabytesLimit       int    `json:"ram_mb_limit"`
+	RAMMegabytesUsage       int    `json:"ram_mb_usage"`
+	DiskGigabytesLimit      int    `json:"disk_gb_limit"`
+	DiskGigabytesUsage      int    `json:"disk_gb_usage"`
 	DiskVolumeCountLimit    int    `json:"disk_volume_count_limit"`
 	DiskVolumeCountUsage    int    `json:"disk_volume_count_usage"`
 	DiskSnapshotCountLimit  int    `json:"disk_snapshot_count_limit"`
