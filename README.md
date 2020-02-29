@@ -131,6 +131,6 @@ If you want to get involved, we'd love to receive a pull request - or an offer t
 | Load balancers | ✅ Done |
 | Webhooks | Pending |
 | Instance sizes | Pending |
-| Quota | Pending |
+| Quota | ✅ Done |
 | Charges | Pending |
 | Regions | ✅ Done |
