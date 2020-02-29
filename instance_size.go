@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 )
 
-// InstanceSize represents a geographical/DC region for Civo resources
+// InstanceSize represents an available size for instances to launch
 type InstanceSize struct {
 	ID            string `json:"id"`
 	Name          string `json:"name"`
@@ -17,7 +17,7 @@ type InstanceSize struct {
 	Selectable    bool   `json:"selectable"`
 }
 
-// ListInstanceSizes returns all load balancers owned by the calling API account
+// ListInstanceSizes returns all availble sizes of instances
 func (c *Client) ListInstanceSizes() ([]InstanceSize, error) {
 	resp, err := c.SendGetRequest("/v2/sizes")
 	if err != nil {
