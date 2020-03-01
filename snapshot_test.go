@@ -25,7 +25,7 @@ func TestCreateSnapshot(t *testing.T) {
 	})
 	defer server.Close()
 
-	cfg := &SnapshotsConfig{
+	cfg := &SnapshotConfig{
 		InstanceID: "44aab548-61ca-11e5-860e-5cf9389be614",
 		Safe:       true,
 		Cron:       "",
@@ -37,15 +37,15 @@ func TestCreateSnapshot(t *testing.T) {
 	}
 
 	expected := &Snapshot{
-		ID:         "0ca69adc-ff39-4fc1-8f08-d91434e86fac",
-		InstanceID: "44aab548-61ca-11e5-860e-5cf9389be614",
-		Hostname:   "server1.prod.example.com",
-		Template:   "0b213794-d795-4483-8982-9f249c0262b9",
-		Region:     "lon1",
-		Name:       "my-backup",
-		Safe:       1,
-		SizeGB:     0,
-		State:      "new",
+		ID:            "0ca69adc-ff39-4fc1-8f08-d91434e86fac",
+		InstanceID:    "44aab548-61ca-11e5-860e-5cf9389be614",
+		Hostname:      "server1.prod.example.com",
+		Template:      "0b213794-d795-4483-8982-9f249c0262b9",
+		Region:        "lon1",
+		Name:          "my-backup",
+		Safe:          1,
+		SizeGigabytes: 0,
+		State:         "new",
 	}
 
 	if !reflect.DeepEqual(got, expected) {
@@ -79,15 +79,15 @@ func TestListSnapshots(t *testing.T) {
 		return
 	}
 	expected := []Snapshot{{
-		ID:         "0ca69adc-ff39-4fc1-8f08-d91434e86fac",
-		InstanceID: "44aab548-61ca-11e5-860e-5cf9389be614",
-		Hostname:   "server1.prod.example.com",
-		Template:   "0b213794-d795-4483-8982-9f249c0262b9",
-		Region:     "lon1",
-		Name:       "my-backup",
-		Safe:       1,
-		SizeGB:     0,
-		State:      "new",
+		ID:            "0ca69adc-ff39-4fc1-8f08-d91434e86fac",
+		InstanceID:    "44aab548-61ca-11e5-860e-5cf9389be614",
+		Hostname:      "server1.prod.example.com",
+		Template:      "0b213794-d795-4483-8982-9f249c0262b9",
+		Region:        "lon1",
+		Name:          "my-backup",
+		Safe:          1,
+		SizeGigabytes: 0,
+		State:         "new",
 	}}
 	if !reflect.DeepEqual(got, expected) {
 		t.Errorf("Expected %+v, got %+v", expected, got)

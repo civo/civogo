@@ -7,29 +7,31 @@ import (
 	"time"
 )
 
+// Snapshot is a backup of an instance
 type Snapshot struct {
-	ID          string    `json:"id"`
-	InstanceID  string    `json:"instance_id"`
-	Hostname    string    `json:"hostname"`
-	Template    string    `json:"template_id"`
-	Region      string    `json:"region"`
-	Name        string    `json:"name"`
-	Safe        int       `json:"safe"`
-	SizeGB      int       `json:"size_gb"`
-	State       string    `json:"state"`
-	Cron        string    `json:"cron_timing,omitempty"`
-	RequestedAt time.Time `json:"requested_at,omitempty"`
-	CompletedAt time.Time `json:"completed_at,omitempty"`
+	ID            string    `json:"id"`
+	InstanceID    string    `json:"instance_id"`
+	Hostname      string    `json:"hostname"`
+	Template      string    `json:"template_id"`
+	Region        string    `json:"region"`
+	Name          string    `json:"name"`
+	Safe          int       `json:"safe"`
+	SizeGigabytes int       `json:"size_gb"`
+	State         string    `json:"state"`
+	Cron          string    `json:"cron_timing,omitempty"`
+	RequestedAt   time.Time `json:"requested_at,omitempty"`
+	CompletedAt   time.Time `json:"completed_at,omitempty"`
 }
 
-type SnapshotsConfig struct {
+// SnapshotConfig represents the options required for creating a new snapshot
+type SnapshotConfig struct {
 	InstanceID string `form:"instance_id"`
 	Safe       bool   `from:"safe"`
 	Cron       string `from:"cron_timing"`
 }
 
 // CreateSnapshot create a new or update an old snapshot
-func (c *Client) CreateSnapshot(name string, r *SnapshotsConfig) (*Snapshot, error) {
+func (c *Client) CreateSnapshot(name string, r *SnapshotConfig) (*Snapshot, error) {
 	url := fmt.Sprintf("/v2/snapshots/%s", name)
 	body, err := c.SendPutRequest(url, r)
 	if err != nil {
@@ -44,7 +46,7 @@ func (c *Client) CreateSnapshot(name string, r *SnapshotsConfig) (*Snapshot, err
 	return n, nil
 }
 
-// ListSnapshots a list of all snapshots
+// ListSnapshots returns a list of all snapshots within the current account
 func (c *Client) ListSnapshots() ([]Snapshot, error) {
 	resp, err := c.SendGetRequest("/v2/snapshots")
 	if err != nil {
@@ -59,7 +61,7 @@ func (c *Client) ListSnapshots() ([]Snapshot, error) {
 	return snapshots, nil
 }
 
-// DeleteLoadBalancer deletes a load balancer
+// DeleteSnapshot deletes a snapshot
 func (c *Client) DeleteSnapshot(name string) (*SimpleResponse, error) {
 	resp, err := c.SendDeleteRequest(fmt.Sprintf("/v2/snapshots/%s", name))
 	if err != nil {
