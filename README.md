@@ -129,7 +129,7 @@ If you want to get involved, we'd love to receive a pull request - or an offer t
 | Volumes | ✅ Done |
 | Snapshots | ✅ Done |
 | Load balancers | ✅ Done |
-| Webhooks | Pending |
+| Webhooks | ✅ Done |
 | Instance sizes | ✅ Done |
 | Quota | ✅ Done |
 | Charges | ✅ Done |
