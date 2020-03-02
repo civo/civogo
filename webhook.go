@@ -6,11 +6,11 @@ import (
 	"fmt"
 )
 
-// Webhook is a representation of the one o more actions
+// Webhook is a representation of a saved webhook callback from changes in Civo
 type Webhook struct {
 	ID                string   `json:"id"`
 	Events            []string `json:"events"`
-	Url               string   `json:"url"`
+	URL               string   `json:"url"`
 	Secret            string   `json:"secret"`
 	Disabled          bool     `json:"disabled"`
 	Failures          int      `json:"failures"`
@@ -20,11 +20,11 @@ type Webhook struct {
 // WebhookConfig represents the options required for creating a new webhook
 type WebhookConfig struct {
 	Events []string `form:"events"`
-	Url    string   `form:"url"`
+	URL    string   `form:"url"`
 	Secret string   `form:"secret"`
 }
 
-// CreateSnapshot create a new or update an old snapshot
+// CreateWebhook creates a new webhook
 func (c *Client) CreateWebhook(r *WebhookConfig) (*Webhook, error) {
 	body, err := c.SendPostRequest("/v2/webhooks", r)
 	if err != nil {
@@ -54,7 +54,7 @@ func (c *Client) ListWebhooks() ([]Webhook, error) {
 	return webhook, nil
 }
 
-// UpdateWebhook update a webhook
+// UpdateWebhook updates a webhook
 func (c *Client) UpdateWebhook(id string, r *WebhookConfig) (*Webhook, error) {
 	body, err := c.SendPutRequest(fmt.Sprintf("/v2/webhooks/%s", id), r)
 	if err != nil {

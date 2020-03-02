@@ -21,7 +21,7 @@ func TestCreateWebhook(t *testing.T) {
 
 	cfg := &WebhookConfig{
 		Events: []string{"*"},
-		Url:    "https://api.example.com/webhook",
+		URL:    "https://api.example.com/webhook",
 		Secret: "DfeFUON8gorc5Zj0hk4GT1M9QImnRL6J",
 	}
 	got, err := client.CreateWebhook(cfg)
@@ -33,7 +33,7 @@ func TestCreateWebhook(t *testing.T) {
 	expected := &Webhook{
 		ID:                "b8de2e4e-72f4-4911-83ee-f4fc030fc4a2",
 		Events:            []string{"*"},
-		Url:               "https://api.example.com/webhook",
+		URL:               "https://api.example.com/webhook",
 		Secret:            "DfeFUON8gorc5Zj0hk4GT1M9QImnRL6J",
 		Disabled:          false,
 		Failures:          0,
@@ -68,7 +68,7 @@ func TestListWebhooks(t *testing.T) {
 	expected := []Webhook{{
 		ID:                "b8de2e4e-72f4-4911-83ee-f4fc030fc4a2",
 		Events:            []string{"*"},
-		Url:               "https://api.example.com/webhook",
+		URL:               "https://api.example.com/webhook",
 		Secret:            "DfeFUON8gorc5Zj0hk4GT1M9QImnRL6J",
 		Disabled:          false,
 		Failures:          0,
@@ -105,7 +105,7 @@ func TestUpdateWebhook(t *testing.T) {
 	expected := &Webhook{
 		ID:                "b8de2e4e-72f4-4911-83ee-f4fc030fc4a2",
 		Events:            []string{"instance.created", "instance.active"},
-		Url:               "https://api.example.com/webhook",
+		URL:               "https://api.example.com/webhook",
 		Secret:            "DfeFUON8gorc5Zj0hk4GT1M9QImnRL6J",
 		Disabled:          false,
 		Failures:          0,
