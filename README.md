@@ -114,23 +114,3 @@ func MyListAllInstances(client *civogo.Client) ([]civogo.Instance, error) {
 ## Contributing
 
 If you want to get involved, we'd love to receive a pull request - or an offer to help over our KUBE100 Slack channel. Please see the [contribution guidelines](CONTRIBUTING.md).
-
-## Current progress
-
-| API Module | Status |
-| :--- | --- |
-| DNS | ✅ Done |
-| Firewall | ✅ Done |
-| Instance | ✅ Done |
-| Kubernetes | ✅ Done |
-| Network | ✅ Done |
-| SSH | ✅ Done |
-| Template | ✅ Done |
-| Volumes | ✅ Done |
-| Snapshots | ✅ Done |
-| Load balancers | ✅ Done |
-| Webhooks | Pending |
-| Instance sizes | ✅ Done |
-| Quota | ✅ Done |
-| Charges | ✅ Done |
-| Regions | ✅ Done |
