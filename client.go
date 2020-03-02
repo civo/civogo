@@ -53,6 +53,9 @@ func (e HTTPError) Error() string {
 
 // NewClientWithURL initializes a Client with a specific API URL
 func NewClientWithURL(apiKey string, civoAPIURL string) (*Client, error) {
+	if apiKey == "" {
+		return nil, fmt.Errorf("no API Key supplied, this is required")
+	}
 	parsedURL, err := url.Parse(civoAPIURL)
 	if err != nil {
 		return nil, err
