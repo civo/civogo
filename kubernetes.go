@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -116,6 +117,31 @@ func (c *Client) ListKubernetesClusters() ([]KubernetesCluster, error) {
 	}
 
 	return kubernetes, nil
+}
+
+// FindKubernetesCluster finds a Kubernetes cluster by either part of the ID or part of the name
+func (c *Client) FindKubernetesCluster(search string) (*KubernetesCluster, error) {
+	clusters, err := c.ListKubernetesClusters()
+	if err != nil {
+		return nil, err
+	}
+
+	found := -1
+
+	for i, cluster := range clusters {
+		if strings.Contains(cluster.ID, search) || strings.Contains(cluster.Name, search) {
+			if found != -1 {
+				return nil, fmt.Errorf("unable to find %s because there were multiple matches", search)
+			}
+			found = i
+		}
+	}
+
+	if found == -1 {
+		return nil, fmt.Errorf("unable to find %s, zero matches", search)
+	}
+
+	return &clusters[found], nil
 }
 
 // NewKubernetesClusters create a new cluster of kubernetes

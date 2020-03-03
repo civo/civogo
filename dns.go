@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -83,13 +84,38 @@ func (c *Client) ListDNSDomains() ([]DNSDomain, error) {
 		return nil, err
 	}
 
-	var ds = make([]DNSDomain, 0)
-	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&ds); err != nil {
+	var domains = make([]DNSDomain, 0)
+	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&domains); err != nil {
 		return nil, err
 
 	}
 
-	return ds, nil
+	return domains, nil
+}
+
+// FindDNSDomain finds a domain name by either part of the ID or part of the name
+func (c *Client) FindDNSDomain(search string) (*DNSDomain, error) {
+	domains, err := c.ListDNSDomains()
+	if err != nil {
+		return nil, err
+	}
+
+	found := -1
+
+	for i, domain := range domains {
+		if strings.Contains(domain.ID, search) || strings.Contains(domain.Name, search) {
+			if found != -1 {
+				return nil, fmt.Errorf("unable to find %s because there were multiple matches", search)
+			}
+			found = i
+		}
+	}
+
+	if found == -1 {
+		return nil, fmt.Errorf("unable to find %s, zero matches", search)
+	}
+
+	return &domains[found], nil
 }
 
 // CreateDNSDomain registers a new Domain

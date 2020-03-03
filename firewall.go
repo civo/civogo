@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"strings"
 )
 
 // Firewall represents list of rule in Civo's infrastructure
@@ -59,6 +60,31 @@ func (c *Client) ListFirewalls() ([]Firewall, error) {
 	}
 
 	return firewall, nil
+}
+
+// FindFirewall finds a firewall by either part of the ID or part of the name
+func (c *Client) FindFirewall(search string) (*Firewall, error) {
+	firewalls, err := c.ListFirewalls()
+	if err != nil {
+		return nil, err
+	}
+
+	found := -1
+
+	for i, firewall := range firewalls {
+		if strings.Contains(firewall.ID, search) || strings.Contains(firewall.Name, search) {
+			if found != -1 {
+				return nil, fmt.Errorf("unable to find %s because there were multiple matches", search)
+			}
+			found = i
+		}
+	}
+
+	if found == -1 {
+		return nil, fmt.Errorf("unable to find %s, zero matches", search)
+	}
+
+	return &firewalls[found], nil
 }
 
 // NewFirewall creates a new firewall record

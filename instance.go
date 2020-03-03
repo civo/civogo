@@ -97,6 +97,31 @@ func (c *Client) ListAllInstances() ([]Instance, error) {
 	return instances.Items, nil
 }
 
+// FindInstance finds a instance by either part of the ID or part of the hostname
+func (c *Client) FindInstance(search string) (*Instance, error) {
+	instances, err := c.ListAllInstances()
+	if err != nil {
+		return nil, err
+	}
+
+	found := -1
+
+	for i, instance := range instances {
+		if strings.Contains(instance.ID, search) || strings.Contains(instance.Hostname, search) {
+			if found != -1 {
+				return nil, fmt.Errorf("unable to find %s because there were multiple matches", search)
+			}
+			found = i
+		}
+	}
+
+	if found == -1 {
+		return nil, fmt.Errorf("unable to find %s, zero matches", search)
+	}
+
+	return &instances[found], nil
+}
+
 // GetInstance returns a single Instance by its full ID
 func (c *Client) GetInstance(id string) (*Instance, error) {
 	resp, err := c.SendGetRequest("/v2/instances/" + id)

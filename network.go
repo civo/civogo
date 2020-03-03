@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 )
 
 // Network represents a private network for instances to connect to
@@ -73,6 +74,31 @@ func (c *Client) ListNetworks() ([]Network, error) {
 	}
 
 	return networks, nil
+}
+
+// FindNetwork finds a network by either part of the ID or part of the name
+func (c *Client) FindNetwork(search string) (*Network, error) {
+	networks, err := c.ListNetworks()
+	if err != nil {
+		return nil, err
+	}
+
+	found := -1
+
+	for i, network := range networks {
+		if strings.Contains(network.ID, search) || strings.Contains(network.Name, search) {
+			if found != -1 {
+				return nil, fmt.Errorf("unable to find %s because there were multiple matches", search)
+			}
+			found = i
+		}
+	}
+
+	if found == -1 {
+		return nil, fmt.Errorf("unable to find %s, zero matches", search)
+	}
+
+	return &networks[found], nil
 }
 
 // RenameNetwork renames an existing private network

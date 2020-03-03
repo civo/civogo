@@ -22,6 +22,43 @@ func TestDNSListDomains(t *testing.T) {
 	}
 }
 
+func TestFindDNSDomain(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/dns": `[{"id": "12345", "account_id": "1", "name": "example.com"}, {"id": "12346", "account_id": "1", "name": "example.net"}]`,
+	})
+	defer server.Close()
+
+	got, _ := client.FindDNSDomain("45")
+	if got.ID != "12345" {
+		t.Errorf("Expected %s, got %s", "12345", got.ID)
+	}
+
+	got, _ = client.FindDNSDomain("46")
+	if got.ID != "12346" {
+		t.Errorf("Expected %s, got %s", "12346", got.ID)
+	}
+
+	got, _ = client.FindDNSDomain("com")
+	if got.ID != "12345" {
+		t.Errorf("Expected %s, got %s", "12345", got.ID)
+	}
+
+	got, _ = client.FindDNSDomain("net")
+	if got.ID != "12346" {
+		t.Errorf("Expected %s, got %s", "12346", got.ID)
+	}
+
+	_, err := client.FindDNSDomain("example")
+	if err.Error() != "unable to find example because there were multiple matches" {
+		t.Errorf("Expected %s, got %s", "unable to find example because there were multiple matches", err.Error())
+	}
+
+	_, err = client.FindDNSDomain("missing")
+	if err.Error() != "unable to find missing, zero matches" {
+		t.Errorf("Expected %s, got %s", "unable to find missing, zero matches", err.Error())
+	}
+}
+
 func TestCreateDomain(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/dns": `{"id": "12345", "account_id": "1", "name": "example.com"}`,

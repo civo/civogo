@@ -20,6 +20,43 @@ func TestListInstances(t *testing.T) {
 	}
 }
 
+func TestFindInstance(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/instances": `{"page": 1, "per_page": 20, "pages": 2, "items":[{"id": "12345", "hostname": "foo.example.com"}, {"id":"67890", "hostname": "bar.zip.com"}]}`,
+	})
+	defer server.Close()
+
+	got, _ := client.FindInstance("45")
+	if got.ID != "12345" {
+		t.Errorf("Expected %s, got %s", "12345", got.ID)
+	}
+
+	got, _ = client.FindInstance("89")
+	if got.ID != "67890" {
+		t.Errorf("Expected %s, got %s", "67890", got.ID)
+	}
+
+	got, _ = client.FindInstance("foo")
+	if got.ID != "12345" {
+		t.Errorf("Expected %s, got %s", "12345", got.ID)
+	}
+
+	got, _ = client.FindInstance("bar")
+	if got.ID != "67890" {
+		t.Errorf("Expected %s, got %s", "67890", got.ID)
+	}
+
+	_, err := client.FindInstance("com")
+	if err.Error() != "unable to find com because there were multiple matches" {
+		t.Errorf("Expected %s, got %s", "unable to find com because there were multiple matches", err.Error())
+	}
+
+	_, err = client.FindInstance("missing")
+	if err.Error() != "unable to find missing, zero matches" {
+		t.Errorf("Expected %s, got %s", "unable to find missing, zero matches", err.Error())
+	}
+}
+
 func TestListInstancesWithPage(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/instances?page=2&per_page=10": `{"page": 1, "per_page": 20, "pages": 2, "items":[{"id": "12345", "hostname": "foo.example.com"}]}`,
@@ -69,7 +106,7 @@ func TestNewInstanceConfig(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/networks":  `[{"id": "1", "default": true, "name": "Default Network"}]`,
 		"/v2/templates": `[{"id": "2", "code": "centos-7"},{"id": "3", "code": "ubuntu-18.04"}]`,
-		"/v2/sshkeys":   `{"items":[{"id": "4", "name": "RSA Key"}]}`,
+		"/v2/sshkeys":   `{"items":[{"id": "4", "name": "RSA Key", "default": true}]}`,
 	})
 	defer server.Close()
 
@@ -110,7 +147,7 @@ func TestCreateInstance(t *testing.T) {
 		"/v2/sshkeys": map[string]string{
 			"requestBody":  "",
 			"method":       "GET",
-			"responseBody": `{"items":[{"id": "4", "name": "RSA Key"}]}`,
+			"responseBody": `{"items":[{"id": "4", "name": "RSA Key", "default": true}]}`,
 		},
 		"/v2/instances": map[string]string{
 			"requestBody":  "count=1&hostname=foo.example.com&initial_user=civo&network_id=1&public_ip_required=true&region=lon1&reverse_dns=&script=&size=g2.xsmall&snapshot_id=&ssh_key_id=4&tags=&template_id=3",

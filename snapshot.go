@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -59,6 +60,31 @@ func (c *Client) ListSnapshots() ([]Snapshot, error) {
 	}
 
 	return snapshots, nil
+}
+
+// FindSnapshot finds a snapshot by either part of the ID or part of the name
+func (c *Client) FindSnapshot(search string) (*Snapshot, error) {
+	snapshots, err := c.ListSnapshots()
+	if err != nil {
+		return nil, err
+	}
+
+	found := -1
+
+	for i, snapshot := range snapshots {
+		if strings.Contains(snapshot.ID, search) || strings.Contains(snapshot.Name, search) {
+			if found != -1 {
+				return nil, fmt.Errorf("unable to find %s because there were multiple matches", search)
+			}
+			found = i
+		}
+	}
+
+	if found == -1 {
+		return nil, fmt.Errorf("unable to find %s, zero matches", search)
+	}
+
+	return &snapshots[found], nil
 }
 
 // DeleteSnapshot deletes a snapshot

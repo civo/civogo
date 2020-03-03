@@ -107,6 +107,46 @@ func TestListKubernetesClusters(t *testing.T) {
 	}
 }
 
+func TestFindKubernetesCluster(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/kubernetes/clusters": `[
+			{ "id": "69a23478-a89e-41d2-97b1-6f4c341cee70", "name": "your-first-cluster-name", "version": "2", "status": "ACTIVE", "ready": true, "num_target_nodes": 1, "target_nodes_size": "g2.xsmall", "built_at": "2019-09-23T13:04:23.000+01:00", "kubeconfig": "YAML_VERSION_OF_KUBECONFIG_HERE\n", "kubernetes_version": "0.8.1", "api_endpoint": "https://your.cluster.ip.address:6443", "dns_entry": "69a23478-a89e-41d2-97b1-6f4c341cee70.k8s.civo.com", "tags": [], "created_at": "2019-09-23T13:02:59.000+01:00", "instances": [{ "hostname": "kube-master-HEXDIGITS", "size": "g2.xsmall", "region": "lon1", "created_at": "2019-09-23T13:03:00.000+01:00", "status": "ACTIVE", "firewall_id": "5f0ba9ed-5ca7-4e14-9a09-449a84196d64", "public_ip": "your.cluster.ip.address", "tags": ["civo-kubernetes:installed", "civo-kubernetes:master"] }], "installed_applications": [{ "application": "Traefik", "title": null, "version": "(default)", "dependencies": null, "maintainer": "@Rancher_Labs", "description": "A reverse proxy/load-balancer that's easy, dynamic, automatic, fast, full-featured, open source, production proven and provides metrics.", "post_install": "Some documentation here\n", "installed": true, "url": "https://traefik.io", "category": "architecture", "updated_at": "2019-09-23T13:02:59.000+01:00", "image_url": "https://api.civo.com/k3s-marketplace/traefik.png", "plan": null, "configuration": {} }] },
+			{ "id": "d1cd0b71-5da1-492e-9d0d-a46ccdaae2fa", "name": "your-second-cluster-name", "version": "2", "status": "ACTIVE", "ready": true, "num_target_nodes": 1, "target_nodes_size": "g2.xsmall", "built_at": "2019-09-23T13:04:23.000+01:00", "kubeconfig": "YAML_VERSION_OF_KUBECONFIG_HERE\n", "kubernetes_version": "0.8.1", "api_endpoint": "https://your.cluster.ip.address:6443", "dns_entry": "69a23478-a89e-41d2-97b1-6f4c341cee70.k8s.civo.com", "tags": [], "created_at": "2019-09-23T13:02:59.000+01:00", "instances": [{ "hostname": "kube-master-HEXDIGITS", "size": "g2.xsmall", "region": "lon1", "created_at": "2019-09-23T13:03:00.000+01:00", "status": "ACTIVE", "firewall_id": "5f0ba9ed-5ca7-4e14-9a09-449a84196d64", "public_ip": "your.cluster.ip.address", "tags": ["civo-kubernetes:installed", "civo-kubernetes:master"] }], "installed_applications": [{ "application": "Traefik", "title": null, "version": "(default)", "dependencies": null, "maintainer": "@Rancher_Labs", "description": "A reverse proxy/load-balancer that's easy, dynamic, automatic, fast, full-featured, open source, production proven and provides metrics.", "post_install": "Some documentation here\n", "installed": true, "url": "https://traefik.io", "category": "architecture", "updated_at": "2019-09-23T13:02:59.000+01:00", "image_url": "https://api.civo.com/k3s-marketplace/traefik.png", "plan": null, "configuration": {} }] }
+		]`,
+	})
+	defer server.Close()
+
+	got, err := client.FindKubernetesCluster("69a23478")
+	if got.ID != "69a23478-a89e-41d2-97b1-6f4c341cee70" {
+		t.Errorf("Expected %s, got %s", "69a23478-a89e-41d2-97b1-6f4c341cee70", got.ID)
+	}
+
+	got, _ = client.FindKubernetesCluster("d1cd0b71")
+	if got.ID != "d1cd0b71-5da1-492e-9d0d-a46ccdaae2fa" {
+		t.Errorf("Expected %s, got %s", "d1cd0b71-5da1-492e-9d0d-a46ccdaae2fa", got.ID)
+	}
+
+	got, _ = client.FindKubernetesCluster("first")
+	if got.ID != "69a23478-a89e-41d2-97b1-6f4c341cee70" {
+		t.Errorf("Expected %s, got %s", "69a23478-a89e-41d2-97b1-6f4c341cee70", got.ID)
+	}
+
+	got, _ = client.FindKubernetesCluster("second")
+	if got.ID != "d1cd0b71-5da1-492e-9d0d-a46ccdaae2fa" {
+		t.Errorf("Expected %s, got %s", "d1cd0b71-5da1-492e-9d0d-a46ccdaae2fa", got.ID)
+	}
+
+	_, err = client.FindKubernetesCluster("cluster")
+	if err.Error() != "unable to find cluster because there were multiple matches" {
+		t.Errorf("Expected %s, got %s", "unable to find cluster because there were multiple matches", err.Error())
+	}
+
+	_, err = client.FindKubernetesCluster("missing")
+	if err.Error() != "unable to find missing, zero matches" {
+		t.Errorf("Expected %s, got %s", "unable to find missing, zero matches", err.Error())
+	}
+}
+
 func TestNewKubernetesClusters(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/kubernetes/clusters": `{

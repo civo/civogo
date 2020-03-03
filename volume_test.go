@@ -30,6 +30,62 @@ func TestListVolumes(t *testing.T) {
 	}
 }
 
+func TestFindVolume(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/volumes": `[
+			{
+				"id": "12345",
+				"name": "my-volume",
+				"instance_id": "null",
+				"mountpoint": "null",
+				"openstack_id": "null",
+				"size_gb": 25,
+				"bootable": false
+			},
+			{
+				"id": "67890",
+				"name": "other-volume",
+				"instance_id": "null",
+				"mountpoint": "null",
+				"openstack_id": "null",
+				"size_gb": 25,
+				"bootable": false
+			}
+		]`,
+	})
+	defer server.Close()
+
+	got, err := client.FindVolume("34")
+	if got.ID != "12345" {
+		t.Errorf("Expected %s, got %s", "12345", got.ID)
+	}
+
+	got, _ = client.FindVolume("89")
+	if got.ID != "67890" {
+		t.Errorf("Expected %s, got %s", "67890", got.ID)
+	}
+
+	got, _ = client.FindVolume("my")
+	if got.ID != "12345" {
+		t.Errorf("Expected %s, got %s", "12345", got.ID)
+	}
+
+	got, _ = client.FindVolume("other")
+	if got.ID != "67890" {
+		t.Errorf("Expected %s, got %s", "67890", got.ID)
+	}
+
+	_, err = client.FindVolume("volume")
+	if err.Error() != "unable to find volume because there were multiple matches" {
+		t.Errorf("Expected %s, got %s", "unable to find volume because there were multiple matches", err.Error())
+	}
+
+	_, err = client.FindVolume("missing")
+	if err.Error() != "unable to find missing, zero matches" {
+		t.Errorf("Expected %s, got %s", "unable to find missing, zero matches", err.Error())
+	}
+}
+
 func TestNewVolume(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/volumes/": `{

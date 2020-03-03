@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"strings"
 )
 
 // Webhook is a representation of a saved webhook callback from changes in Civo
@@ -52,6 +53,31 @@ func (c *Client) ListWebhooks() ([]Webhook, error) {
 	}
 
 	return webhook, nil
+}
+
+// FindWebhook finds a webhook by either part of the ID or part of the name
+func (c *Client) FindWebhook(search string) (*Webhook, error) {
+	webhooks, err := c.ListWebhooks()
+	if err != nil {
+		return nil, err
+	}
+
+	found := -1
+
+	for i, webhook := range webhooks {
+		if strings.Contains(webhook.ID, search) || strings.Contains(webhook.URL, search) {
+			if found != -1 {
+				return nil, fmt.Errorf("unable to find %s because there were multiple matches", search)
+			}
+			found = i
+		}
+	}
+
+	if found == -1 {
+		return nil, fmt.Errorf("unable to find %s, zero matches", search)
+	}
+
+	return &webhooks[found], nil
 }
 
 // UpdateWebhook updates a webhook

@@ -22,6 +22,43 @@ func TestListFirewalls(t *testing.T) {
 	}
 }
 
+func TestFindFirewall(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/firewalls": `[{"id": "12345", "name": "web-instance", "rules_count": "3", "instances_count": "10", "region": "lon1"}, {"id": "67789", "name": "web-node", "rules_count": "1", "instances_count": "2", "region": "lon1"}]`,
+	})
+	defer server.Close()
+
+	got, _ := client.FindFirewall("45")
+	if got.ID != "12345" {
+		t.Errorf("Expected %s, got %s", "12345", got.ID)
+	}
+
+	got, _ = client.FindFirewall("89")
+	if got.ID != "67789" {
+		t.Errorf("Expected %s, got %s", "67789", got.ID)
+	}
+
+	got, _ = client.FindFirewall("inst")
+	if got.ID != "12345" {
+		t.Errorf("Expected %s, got %s", "12345", got.ID)
+	}
+
+	got, _ = client.FindFirewall("nod")
+	if got.ID != "67789" {
+		t.Errorf("Expected %s, got %s", "67789", got.ID)
+	}
+
+	_, err := client.FindFirewall("web")
+	if err.Error() != "unable to find web because there were multiple matches" {
+		t.Errorf("Expected %s, got %s", "unable to find web because there were multiple matches", err.Error())
+	}
+
+	_, err = client.FindFirewall("missing")
+	if err.Error() != "unable to find missing, zero matches" {
+		t.Errorf("Expected %s, got %s", "unable to find missing, zero matches", err.Error())
+	}
+}
+
 func TestNewFirewall(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/firewalls/": `{

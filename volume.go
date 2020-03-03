@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -46,6 +47,31 @@ func (c *Client) ListVolumes() ([]Volume, error) {
 	}
 
 	return volumes, nil
+}
+
+// FindVolume finds a volume by either part of the ID or part of the name
+func (c *Client) FindVolume(search string) (*Volume, error) {
+	volumes, err := c.ListVolumes()
+	if err != nil {
+		return nil, err
+	}
+
+	found := -1
+
+	for i, volume := range volumes {
+		if strings.Contains(volume.ID, search) || strings.Contains(volume.Name, search) {
+			if found != -1 {
+				return nil, fmt.Errorf("unable to find %s because there were multiple matches", search)
+			}
+			found = i
+		}
+	}
+
+	if found == -1 {
+		return nil, fmt.Errorf("unable to find %s, zero matches", search)
+	}
+
+	return &volumes[found], nil
 }
 
 // NewVolume creates a new volume
