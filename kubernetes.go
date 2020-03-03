@@ -7,7 +7,8 @@ import (
 	"time"
 )
 
-type KubernetesInstances struct {
+// KubernetesInstance represents a single node/master within a Kubernetes cluster
+type KubernetesInstance struct {
 	Hostname   string    `json:"hostname"`
 	Size       string    `json:"size"`
 	Region     string    `json:"region"`
@@ -18,7 +19,9 @@ type KubernetesInstances struct {
 	Tags       []string  `json:"tags"`
 }
 
-type KubernetesApplications struct {
+// KubernetesInstalledApplication is an application within our marketplace available for
+// installation
+type KubernetesInstalledApplication struct {
 	Application   string            `json:"application"`
 	Title         string            `json:"title,omitempty"`
 	Version       string            `json:"version"`
@@ -27,33 +30,35 @@ type KubernetesApplications struct {
 	Description   string            `json:"description"`
 	PostInstall   string            `json:"post_install"`
 	Installed     bool              `json:"installed"`
-	Url           string            `json:"url"`
+	URL           string            `json:"url"`
 	Category      string            `json:"category"`
 	UpdatedAt     time.Time         `json:"updated_at"`
-	ImageUrl      string            `json:"image_url"`
+	ImageURL      string            `json:"image_url"`
 	Plan          string            `json:"plan,omitempty"`
 	Configuration map[string]string `json:"configuration,omitempty"`
 }
 
+// KubernetesCluster is a Kubernetes k3s cluster
 type KubernetesCluster struct {
-	ID                    string                   `json:"id"`
-	Name                  string                   `json:"name"`
-	Version               string                   `json:"version"`
-	Status                string                   `json:"status"`
-	Ready                 bool                     `json:"ready"`
-	NumTargetNode         int                      `json:"num_target_nodes"`
-	TargetNodeSize        string                   `json:"target_nodes_size"`
-	BuiltAt               time.Time                `json:"built_at"`
-	KubeConfig            string                   `json:"kubeconfig"`
-	KubernetesVersion     string                   `json:"kubernetes_version"`
-	ApiEndPoint           string                   `json:"api_endpoint"`
-	DnsEntry              string                   `json:"dns_entry"`
-	Tags                  []string                 `json:"tags"`
-	CreatedAt             time.Time                `json:"created_at"`
-	Instances             []KubernetesInstances    `json:"instances"`
-	InstalledApplications []KubernetesApplications `json:"installed_applications"`
+	ID                    string                           `json:"id"`
+	Name                  string                           `json:"name"`
+	Version               string                           `json:"version"`
+	Status                string                           `json:"status"`
+	Ready                 bool                             `json:"ready"`
+	NumTargetNode         int                              `json:"num_target_nodes"`
+	TargetNodeSize        string                           `json:"target_nodes_size"`
+	BuiltAt               time.Time                        `json:"built_at"`
+	KubeConfig            string                           `json:"kubeconfig"`
+	KubernetesVersion     string                           `json:"kubernetes_version"`
+	APIEndPoint           string                           `json:"api_endpoint"`
+	DNSEntry              string                           `json:"dns_entry"`
+	Tags                  []string                         `json:"tags"`
+	CreatedAt             time.Time                        `json:"created_at"`
+	Instances             []KubernetesInstance             `json:"instances"`
+	InstalledApplications []KubernetesInstalledApplication `json:"installed_applications"`
 }
 
+// KubernetesClusterConfig is used to create a new cluster
 type KubernetesClusterConfig struct {
 	Name              string `form:"name"`
 	NumTargetNodes    int    `form:"num_target_nodes"`
@@ -63,15 +68,20 @@ type KubernetesClusterConfig struct {
 	Applications      string `form:"applications"`
 }
 
+// KubernetesPlanConfiguration is a value within a configuration for
+// an application's plan
 type KubernetesPlanConfiguration struct {
 	Value string `json:"value"`
 }
 
+// KubernetesMarketplacePlan is a plan for
 type KubernetesMarketplacePlan struct {
 	Label         string                                 `json:"label"`
 	Configuration map[string]KubernetesPlanConfiguration `json:"configuration"`
 }
 
+// KubernetesMarketplaceApplication is an application within our marketplace
+// available for installation
 type KubernetesMarketplaceApplication struct {
 	Name         string                      `json:"name"`
 	Title        string                      `json:"title,omitempty"`
@@ -81,18 +91,19 @@ type KubernetesMarketplaceApplication struct {
 	Maintainer   string                      `json:"maintainer"`
 	Description  string                      `json:"description"`
 	PostInstall  string                      `json:"post_install"`
-	Url          string                      `json:"url"`
+	URL          string                      `json:"url"`
 	Category     string                      `json:"category"`
 	Plans        []KubernetesMarketplacePlan `json:"plans"`
 }
 
+// KubernetesVersion represents an available version of k3s to install
 type KubernetesVersion struct {
 	Version string `json:"version"`
 	Type    string `json:"type"`
 	Default bool   `json:"default,omitempty"`
 }
 
-// ListKubernetesCluster returns all cluster of kubernetes in the account
+// ListKubernetesClusters returns all cluster of kubernetes in the account
 func (c *Client) ListKubernetesClusters() ([]KubernetesCluster, error) {
 	resp, err := c.SendGetRequest("/v2/kubernetes/clusters")
 	if err != nil {
@@ -107,7 +118,7 @@ func (c *Client) ListKubernetesClusters() ([]KubernetesCluster, error) {
 	return kubernetes, nil
 }
 
-// NewKubernetesCluster create a new cluster of kubernetes
+// NewKubernetesClusters create a new cluster of kubernetes
 func (c *Client) NewKubernetesClusters(kc *KubernetesClusterConfig) (*KubernetesCluster, error) {
 	body, err := c.SendPostRequest("/v2/kubernetes/clusters", kc)
 	if err != nil {
@@ -122,7 +133,7 @@ func (c *Client) NewKubernetesClusters(kc *KubernetesClusterConfig) (*Kubernetes
 	return kubernetes, nil
 }
 
-// GetKubernetesCluster returns a single kubernetes cluster by its full ID
+// GetKubernetesClusters returns a single kubernetes cluster by its full ID
 func (c *Client) GetKubernetesClusters(id string) (*KubernetesCluster, error) {
 	resp, err := c.SendGetRequest(fmt.Sprintf("/v2/kubernetes/clusters/%s", id))
 	if err != nil {
@@ -135,7 +146,7 @@ func (c *Client) GetKubernetesClusters(id string) (*KubernetesCluster, error) {
 }
 
 // UpdateKubernetesCluster update a single kubernetes cluster by its full ID
-func (c *Client) UpdateKubernetesClusters(id string, i *KubernetesClusterConfig) (*KubernetesCluster, error) {
+func (c *Client) UpdateKubernetesCluster(id string, i *KubernetesClusterConfig) (*KubernetesCluster, error) {
 	params := map[string]interface{}{
 		"name":             i.Name,
 		"num_target_nodes": i.NumTargetNodes,
@@ -153,7 +164,7 @@ func (c *Client) UpdateKubernetesClusters(id string, i *KubernetesClusterConfig)
 	return kubernetes, nil
 }
 
-//ListKubernetesMarketplace returns all application inside marketplace
+// ListKubernetesMarketplaceApplications returns all application inside marketplace
 func (c *Client) ListKubernetesMarketplaceApplications() ([]KubernetesMarketplaceApplication, error) {
 	resp, err := c.SendGetRequest("/v2/kubernetes/applications")
 	if err != nil {
@@ -169,7 +180,7 @@ func (c *Client) ListKubernetesMarketplaceApplications() ([]KubernetesMarketplac
 }
 
 // DeleteKubernetesCluster deletes a cluster
-func (c *Client) DeleteKubernetesClusters(id string) (*SimpleResponse, error) {
+func (c *Client) DeleteKubernetesCluster(id string) (*SimpleResponse, error) {
 	resp, err := c.SendDeleteRequest(fmt.Sprintf("/v2/kubernetes/clusters/%s", id))
 	if err != nil {
 		return nil, err
@@ -179,7 +190,7 @@ func (c *Client) DeleteKubernetesClusters(id string) (*SimpleResponse, error) {
 }
 
 // RecycleKubernetesCluster create a new cluster of kubernetes
-func (c *Client) RecycleKubernetesClusters(id string, hostname string) (*SimpleResponse, error) {
+func (c *Client) RecycleKubernetesCluster(id string, hostname string) (*SimpleResponse, error) {
 	body, err := c.SendPostRequest(fmt.Sprintf("/v2/kubernetes/clusters/%s", id), map[string]string{
 		"hostname": hostname,
 	})
@@ -190,7 +201,7 @@ func (c *Client) RecycleKubernetesClusters(id string, hostname string) (*SimpleR
 	return c.DecodeSimpleResponse(body)
 }
 
-// VersionKubernetesCluster returns all version of kubernetes in the cloud
+// ListAvailableKubernetesVersions returns all version of kubernetes available
 func (c *Client) ListAvailableKubernetesVersions() ([]KubernetesVersion, error) {
 	resp, err := c.SendGetRequest("/v2/kubernetes/versions")
 	if err != nil {
