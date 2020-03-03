@@ -74,11 +74,11 @@ func TestListKubernetesClusters(t *testing.T) {
 		TargetNodeSize:    "g2.xsmall",
 		KubeConfig:        "YAML_VERSION_OF_KUBECONFIG_HERE\n",
 		KubernetesVersion: "0.8.1",
-		ApiEndPoint:       "https://your.cluster.ip.address:6443",
-		DnsEntry:          "69a23478-a89e-41d2-97b1-6f4c341cee70.k8s.civo.com",
+		APIEndPoint:       "https://your.cluster.ip.address:6443",
+		DNSEntry:          "69a23478-a89e-41d2-97b1-6f4c341cee70.k8s.civo.com",
 		CreatedAt:         createAt,
 		Tags:              []string{},
-		Instances: []KubernetesInstances{{
+		Instances: []KubernetesInstance{{
 			Hostname:   "kube-master-HEXDIGITS",
 			Size:       "g2.xsmall",
 			Region:     "lon1",
@@ -88,17 +88,17 @@ func TestListKubernetesClusters(t *testing.T) {
 			PublicIP:   "your.cluster.ip.address",
 			Tags:       []string{"civo-kubernetes:installed", "civo-kubernetes:master"},
 		}},
-		InstalledApplications: []KubernetesApplications{{
+		InstalledApplications: []KubernetesInstalledApplication{{
 			Application:   "Traefik",
 			Version:       "(default)",
 			Maintainer:    "@Rancher_Labs",
 			Description:   "A reverse proxy/load-balancer that's easy, dynamic, automatic, fast, full-featured, open source, production proven and provides metrics.",
 			PostInstall:   "Some documentation here\n",
-			Url:           "https://traefik.io",
+			URL:           "https://traefik.io",
 			UpdatedAt:     updateAt,
 			Installed:     true,
 			Category:      "architecture",
-			ImageUrl:      "https://api.civo.com/k3s-marketplace/traefik.png",
+			ImageURL:      "https://api.civo.com/k3s-marketplace/traefik.png",
 			Configuration: map[string]string{},
 		}},
 	}}
@@ -185,11 +185,11 @@ func TestNewKubernetesClusters(t *testing.T) {
 		TargetNodeSize:    "g2.xsmall",
 		KubeConfig:        "YAML_VERSION_OF_KUBECONFIG_HERE\n",
 		KubernetesVersion: "0.8.1",
-		ApiEndPoint:       "https://your.cluster.ip.address:6443",
-		DnsEntry:          "69a23478-a89e-41d2-97b1-6f4c341cee70.k8s.civo.com",
+		APIEndPoint:       "https://your.cluster.ip.address:6443",
+		DNSEntry:          "69a23478-a89e-41d2-97b1-6f4c341cee70.k8s.civo.com",
 		CreatedAt:         createAt,
 		Tags:              []string{},
-		Instances: []KubernetesInstances{{
+		Instances: []KubernetesInstance{{
 			Hostname:   "kube-master-HEXDIGITS",
 			Size:       "g2.xsmall",
 			Region:     "lon1",
@@ -199,17 +199,17 @@ func TestNewKubernetesClusters(t *testing.T) {
 			PublicIP:   "your.cluster.ip.address",
 			Tags:       []string{"civo-kubernetes:installed", "civo-kubernetes:master"},
 		}},
-		InstalledApplications: []KubernetesApplications{{
+		InstalledApplications: []KubernetesInstalledApplication{{
 			Application:   "Traefik",
 			Version:       "(default)",
 			Maintainer:    "@Rancher_Labs",
 			Description:   "A reverse proxy/load-balancer that's easy, dynamic, automatic, fast, full-featured, open source, production proven and provides metrics.",
 			PostInstall:   "Some documentation here\n",
-			Url:           "https://traefik.io",
+			URL:           "https://traefik.io",
 			UpdatedAt:     updateAt,
 			Installed:     true,
 			Category:      "architecture",
-			ImageUrl:      "https://api.civo.com/k3s-marketplace/traefik.png",
+			ImageURL:      "https://api.civo.com/k3s-marketplace/traefik.png",
 			Configuration: map[string]string{},
 		}},
 	}
@@ -288,11 +288,11 @@ func TestGetKubernetesClusters(t *testing.T) {
 		TargetNodeSize:    "g2.xsmall",
 		KubeConfig:        "YAML_VERSION_OF_KUBECONFIG_HERE\n",
 		KubernetesVersion: "0.8.1",
-		ApiEndPoint:       "https://your.cluster.ip.address:6443",
-		DnsEntry:          "69a23478-a89e-41d2-97b1-6f4c341cee70.k8s.civo.com",
+		APIEndPoint:       "https://your.cluster.ip.address:6443",
+		DNSEntry:          "69a23478-a89e-41d2-97b1-6f4c341cee70.k8s.civo.com",
 		CreatedAt:         createAt,
 		Tags:              []string{},
-		Instances: []KubernetesInstances{{
+		Instances: []KubernetesInstance{{
 			Hostname:   "kube-master-HEXDIGITS",
 			Size:       "g2.xsmall",
 			Region:     "lon1",
@@ -302,17 +302,17 @@ func TestGetKubernetesClusters(t *testing.T) {
 			PublicIP:   "your.cluster.ip.address",
 			Tags:       []string{"civo-kubernetes:installed", "civo-kubernetes:master"},
 		}},
-		InstalledApplications: []KubernetesApplications{{
+		InstalledApplications: []KubernetesInstalledApplication{{
 			Application:   "Traefik",
 			Version:       "(default)",
 			Maintainer:    "@Rancher_Labs",
 			Description:   "A reverse proxy/load-balancer that's easy, dynamic, automatic, fast, full-featured, open source, production proven and provides metrics.",
 			PostInstall:   "Some documentation here\n",
-			Url:           "https://traefik.io",
+			URL:           "https://traefik.io",
 			UpdatedAt:     updateAt,
 			Installed:     true,
 			Category:      "architecture",
-			ImageUrl:      "https://api.civo.com/k3s-marketplace/traefik.png",
+			ImageURL:      "https://api.civo.com/k3s-marketplace/traefik.png",
 			Configuration: map[string]string{},
 		}},
 	}
@@ -374,7 +374,7 @@ func TestUpdateKubernetesClusters(t *testing.T) {
 		NumTargetNodes: 6,
 	}
 
-	got, err := client.UpdateKubernetesClusters("69a23478-a89e-41d2-97b1-6f4c341cee70", cfg)
+	got, err := client.UpdateKubernetesCluster("69a23478-a89e-41d2-97b1-6f4c341cee70", cfg)
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
@@ -396,11 +396,11 @@ func TestUpdateKubernetesClusters(t *testing.T) {
 		TargetNodeSize:    "g2.xsmall",
 		KubeConfig:        "YAML_VERSION_OF_KUBECONFIG_HERE\n",
 		KubernetesVersion: "0.8.1",
-		ApiEndPoint:       "https://your.cluster.ip.address:6443",
-		DnsEntry:          "69a23478-a89e-41d2-97b1-6f4c341cee70.k8s.civo.com",
+		APIEndPoint:       "https://your.cluster.ip.address:6443",
+		DNSEntry:          "69a23478-a89e-41d2-97b1-6f4c341cee70.k8s.civo.com",
 		CreatedAt:         createAt,
 		Tags:              []string{},
-		Instances: []KubernetesInstances{{
+		Instances: []KubernetesInstance{{
 			Hostname:   "kube-master-HEXDIGITS",
 			Size:       "g2.xsmall",
 			Region:     "lon1",
@@ -410,17 +410,17 @@ func TestUpdateKubernetesClusters(t *testing.T) {
 			PublicIP:   "your.cluster.ip.address",
 			Tags:       []string{"civo-kubernetes:installed", "civo-kubernetes:master"},
 		}},
-		InstalledApplications: []KubernetesApplications{{
+		InstalledApplications: []KubernetesInstalledApplication{{
 			Application:   "Traefik",
 			Version:       "(default)",
 			Maintainer:    "@Rancher_Labs",
 			Description:   "A reverse proxy/load-balancer that's easy, dynamic, automatic, fast, full-featured, open source, production proven and provides metrics.",
 			PostInstall:   "Some documentation here\n",
-			Url:           "https://traefik.io",
+			URL:           "https://traefik.io",
 			UpdatedAt:     updateAt,
 			Installed:     true,
 			Category:      "architecture",
-			ImageUrl:      "https://api.civo.com/k3s-marketplace/traefik.png",
+			ImageURL:      "https://api.civo.com/k3s-marketplace/traefik.png",
 			Configuration: map[string]string{},
 		}},
 	}
@@ -475,7 +475,7 @@ func TestKubernetesMarketplaceApplication(t *testing.T) {
 		Maintainer:   "hello@civo.com",
 		Description:  "MariaDB is a community-developed fork of MySQL intended to remain free under the GNU GPL.",
 		PostInstall:  "Instructions go here\n",
-		Url:          "https://mariadb.com",
+		URL:          "https://mariadb.com",
 		Category:     "database",
 		Plans: []KubernetesMarketplacePlan{{
 			Label:         "5GB",
@@ -495,7 +495,7 @@ func TestDeleteKubernetesClusters(t *testing.T) {
 		"/v2/kubernetes/clusters/12346": `{"result": "success"}`,
 	})
 	defer server.Close()
-	got, err := client.DeleteKubernetesClusters("12346")
+	got, err := client.DeleteKubernetesCluster("12346")
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
@@ -513,7 +513,7 @@ func TestRecycleKubernetesClusters(t *testing.T) {
 	})
 	defer server.Close()
 
-	got, err := client.RecycleKubernetesClusters("12346", "test-hostname")
+	got, err := client.RecycleKubernetesCluster("12346", "test-hostname")
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
