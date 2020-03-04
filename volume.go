@@ -9,6 +9,7 @@ import (
 )
 
 // Volume is a block of attachable storage for our IAAS products
+// https://www.civo.com/api/volumes
 type Volume struct {
 	ID            string    `json:"id"`
 	Name          string    `json:"name"`
@@ -34,6 +35,7 @@ type VolumeConfig struct {
 }
 
 // ListVolumes returns all volumes owned by the calling API account
+// https://www.civo.com/api/volumes#list-volumes
 func (c *Client) ListVolumes() ([]Volume, error) {
 	resp, err := c.SendGetRequest("/v2/volumes")
 	if err != nil {
@@ -78,6 +80,7 @@ func (c *Client) FindVolume(search string) (*Volume, error) {
 }
 
 // NewVolume creates a new volume
+// https://www.civo.com/api/volumes#create-a-new-volume
 func (c *Client) NewVolume(v *VolumeConfig) (*VolumeResult, error) {
 	body, err := c.SendPostRequest("/v2/volumes/", v)
 	if err != nil {
@@ -93,6 +96,7 @@ func (c *Client) NewVolume(v *VolumeConfig) (*VolumeResult, error) {
 }
 
 // ResizeVolume resizes a volume
+// https://www.civo.com/api/volumes#resizing-a-volume
 func (c *Client) ResizeVolume(id string, size int) (*SimpleResponse, error) {
 	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/volumes/%s/resize", id), map[string]int{
 		"size_gb": size,
@@ -105,7 +109,8 @@ func (c *Client) ResizeVolume(id string, size int) (*SimpleResponse, error) {
 	return response, err
 }
 
-// AttachVolume attaches a volume to an intance
+// AttachVolume attaches a volume to an instance
+// https://www.civo.com/api/volumes#attach-a-volume-to-an-instance
 func (c *Client) AttachVolume(id string, instance string) (*SimpleResponse, error) {
 	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/volumes/%s/attach", id), map[string]string{
 		"instance_id": instance,
@@ -119,6 +124,7 @@ func (c *Client) AttachVolume(id string, instance string) (*SimpleResponse, erro
 }
 
 // DetachVolume attach volume from any instances
+// https://www.civo.com/api/volumes#attach-a-volume-to-an-instance
 func (c *Client) DetachVolume(id string) (*SimpleResponse, error) {
 	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/volumes/%s/detach", id), "")
 	if err != nil {
@@ -130,6 +136,7 @@ func (c *Client) DetachVolume(id string) (*SimpleResponse, error) {
 }
 
 // DeleteVolume deletes a volumes
+// https://www.civo.com/api/volumes#deleting-a-volume
 func (c *Client) DeleteVolume(id string) (*SimpleResponse, error) {
 	resp, err := c.SendDeleteRequest(fmt.Sprintf("/v2/volumes/%s", id))
 	if err != nil {
