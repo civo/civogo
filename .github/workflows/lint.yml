@@ -1,11 +1,11 @@
 on: [push, pull_request]
-name: Test
+name: Lint
 jobs:
   test:
     strategy:
       matrix:
-        go-version: [1.12.x, 1.13.x, 1.14.x]
-        platform: [ubuntu-latest, macos-latest, windows-latest]
+        go-version: [1.14.x]
+        platform: [ubuntu-latest]
     runs-on: ${{ matrix.platform }}
     steps:
     - name: Install Go
@@ -14,7 +14,5 @@ jobs:
         go-version: ${{ matrix.go-version }}
     - name: Checkout code
       uses: actions/checkout@v1
-    - name: Test
-      run: go test ./...
-    - name: Ensure correctly formatted
-      run: test -z "$(gofmt -l $(find . -type f -name '*.go'))"
+    - name: Lint
+      uses: actions-contrib/golangci-lint@v1
