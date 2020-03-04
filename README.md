@@ -6,7 +6,7 @@
 
 Civogo is a Go client library for accessing the Civo cloud API.
 
-You can view the client API docs at [http://godoc.org/github.com/civo/civogo](http://godoc.org/github.com/civo/civogo) and view the API documentation at [https://api.civo.com](https://api.civo.com)
+You can view the client API docs at [https://pkg.go.dev/github.com/civo/civogo](https://pkg.go.dev/github.com/civo/civogo) and view the API documentation at [https://api.civo.com](https://api.civo.com)
 
 
 ## Install
