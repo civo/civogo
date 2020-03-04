@@ -104,8 +104,9 @@ func (c *Client) FindNetwork(search string) (*Network, error) {
 }
 
 // RenameNetwork renames an existing private network
-func (c *Client) RenameNetwork(r *NetworkConfig, id string) (*NetworkResult, error) {
-	body, err := c.SendPutRequest("/v2/networks/"+id, r)
+func (c *Client) RenameNetwork(label, id string) (*NetworkResult, error) {
+	nc := networkConfig{Label: label}
+	body, err := c.SendPutRequest("/v2/networks/"+id, nc)
 	if err != nil {
 		return nil, err
 	}

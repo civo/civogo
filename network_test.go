@@ -31,8 +31,7 @@ func TestNewNetwork(t *testing.T) {
 	})
 	defer server.Close()
 
-	cfg := &NetworkConfig{Label: "private-net"}
-	got, err := client.NewNetwork(cfg)
+	got, err := client.NewNetwork("private-net")
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
@@ -137,8 +136,7 @@ func TestRenameNetwork(t *testing.T) {
 	})
 	defer server.Close()
 
-	cfg := &NetworkConfig{Label: "private-net"}
-	got, err := client.RenameNetwork(cfg, "76cc107f-fbef-4e2b-b97f-f5d34f4075d3")
+	got, err := client.RenameNetwork("private-net", "76cc107f-fbef-4e2b-b97f-f5d34f4075d3")
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
