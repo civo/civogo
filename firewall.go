@@ -16,16 +16,15 @@ type Firewall struct {
 	Region         string `json:"region"`
 }
 
+// FirewallResult is the response from the Civo Firewall APIs
 type FirewallResult struct {
 	ID     string `json:"id"`
 	Name   string `json:"name"`
 	Result string `json:"result"`
 }
 
-type FirewallConfig struct {
-	Name string `from:"name"`
-}
-
+// FirewallRule represents a single rule for a given firewall, regarding
+// which ports to open and which protocol, to which CIDR
 type FirewallRule struct {
 	ID         string   `json:"id"`
 	FirewallID string   `json:"firewall_id"`
@@ -37,6 +36,7 @@ type FirewallRule struct {
 	Label      string   `json:"label,omitempty"`
 }
 
+// FirewallRuleConfig is how you specify the details when creating a new rule
 type FirewallRuleConfig struct {
 	FirewallID string   `from:"firewall_id"`
 	Protocol   string   `from:"protocol"`
@@ -45,6 +45,10 @@ type FirewallRuleConfig struct {
 	Cidr       []string `from:"cidr"`
 	Direction  string   `from:"direction"`
 	Label      string   `json:"label,omitempty"`
+}
+
+type firewallConfig struct {
+	Name string `from:"name"`
 }
 
 // ListFirewalls returns all firewall owned by the calling API account
@@ -88,8 +92,9 @@ func (c *Client) FindFirewall(search string) (*Firewall, error) {
 }
 
 // NewFirewall creates a new firewall record
-func (c *Client) NewFirewall(r *FirewallConfig) (*FirewallResult, error) {
-	body, err := c.SendPostRequest("/v2/firewalls/", r)
+func (c *Client) NewFirewall(name string) (*FirewallResult, error) {
+	fw := firewallConfig{Name: name}
+	body, err := c.SendPostRequest("/v2/firewalls/", fw)
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +117,7 @@ func (c *Client) DeleteFirewall(id string) (*SimpleResponse, error) {
 	return c.DecodeSimpleResponse(resp)
 }
 
-// NewRecord creates a new DNS record
+// NewFirewallRule creates a new rule within a firewall
 func (c *Client) NewFirewallRule(r *FirewallRuleConfig) (*FirewallRule, error) {
 	if len(r.FirewallID) == 0 {
 		return nil, fmt.Errorf("the firewall ID is empty")
@@ -147,8 +152,8 @@ func (c *Client) ListFirewallRules(id string) ([]FirewallRule, error) {
 }
 
 // DeleteFirewallRule deletes an firewall
-func (c *Client) DeleteFirewallRule(id string, id_rule string) (*SimpleResponse, error) {
-	resp, err := c.SendDeleteRequest(fmt.Sprintf("/v2/firewalls/%s/rules/%s", id, id_rule))
+func (c *Client) DeleteFirewallRule(id string, ruleID string) (*SimpleResponse, error) {
+	resp, err := c.SendDeleteRequest(fmt.Sprintf("/v2/firewalls/%s/rules/%s", id, ruleID))
 	if err != nil {
 		return nil, err
 	}

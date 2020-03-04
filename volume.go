@@ -8,6 +8,7 @@ import (
 	"time"
 )
 
+// Volume is a block of attachable storage for our IAAS products
 type Volume struct {
 	ID         string    `json:"id"`
 	Name       string    `json:"name"`
@@ -18,12 +19,14 @@ type Volume struct {
 	CreatedAt  time.Time `json:"created_at"`
 }
 
+// VolumeResult is the response from one of our simple API calls
 type VolumeResult struct {
 	ID     string `json:"id"`
 	Name   string `json:"name"`
 	Result string `json:"result"`
 }
 
+// VolumeConfig are the settings required to create a new Volume
 type VolumeConfig struct {
 	Name     string `form:"name"`
 	SizeGB   int    `form:"size_gb"`

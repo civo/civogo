@@ -18,10 +18,11 @@ type Network struct {
 	Label   string `json:"label"`
 }
 
-type NetworkConfig struct {
+type networkConfig struct {
 	Label string `form:"label"`
 }
 
+// NetworkResult represents the result from a network create/update call
 type NetworkResult struct {
 	ID     string `json:"id"`
 	Label  string `json:"label"`
@@ -47,8 +48,9 @@ func (c *Client) GetDefaultNetwork() (*Network, error) {
 }
 
 // NewNetwork creates a new private network
-func (c *Client) NewNetwork(r *NetworkConfig) (*NetworkResult, error) {
-	body, err := c.SendPostRequest("/v2/networks", r)
+func (c *Client) NewNetwork(label string) (*NetworkResult, error) {
+	nc := networkConfig{Label: label}
+	body, err := c.SendPostRequest("/v2/networks", nc)
 	if err != nil {
 		return nil, err
 	}
