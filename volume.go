@@ -10,13 +10,13 @@ import (
 
 // Volume is a block of attachable storage for our IAAS products
 type Volume struct {
-	ID         string    `json:"id"`
-	Name       string    `json:"name"`
-	InstanceID string    `json:"instance_id"`
-	MountPoint string    `json:"mountpoint"`
-	SizeGB     int       `json:"size_gb"`
-	Bootable   bool      `json:"bootable"`
-	CreatedAt  time.Time `json:"created_at"`
+	ID            string    `json:"id"`
+	Name          string    `json:"name"`
+	InstanceID    string    `json:"instance_id"`
+	MountPoint    string    `json:"mountpoint"`
+	SizeGigabytes int       `json:"size_gb"`
+	Bootable      bool      `json:"bootable"`
+	CreatedAt     time.Time `json:"created_at"`
 }
 
 // VolumeResult is the response from one of our simple API calls
@@ -28,9 +28,9 @@ type VolumeResult struct {
 
 // VolumeConfig are the settings required to create a new Volume
 type VolumeConfig struct {
-	Name     string `form:"name"`
-	SizeGB   int    `form:"size_gb"`
-	Bootable bool   `form:"bootable"`
+	Name          string `form:"name"`
+	SizeGigabytes int    `form:"size_gb"`
+	Bootable      bool   `form:"bootable"`
 }
 
 // ListVolumes returns all volumes owned by the calling API account

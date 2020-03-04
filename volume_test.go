@@ -24,7 +24,7 @@ func TestListVolumes(t *testing.T) {
 		t.Errorf("Request returned an error: %s", err)
 		return
 	}
-	expected := []Volume{{ID: "12345", InstanceID: "null", Name: "my-volume", MountPoint: "null", SizeGB: 25, Bootable: false}}
+	expected := []Volume{{ID: "12345", InstanceID: "null", Name: "my-volume", MountPoint: "null", SizeGigabytes: 25, Bootable: false}}
 	if !reflect.DeepEqual(got, expected) {
 		t.Errorf("Expected %+v, got %+v", expected, got)
 	}
@@ -96,7 +96,7 @@ func TestNewVolume(t *testing.T) {
 	})
 	defer server.Close()
 
-	cfg := &VolumeConfig{Name: "my-volume", SizeGB: 25, Bootable: false}
+	cfg := &VolumeConfig{Name: "my-volume", SizeGigabytes: 25, Bootable: false}
 	got, err := client.NewVolume(cfg)
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
