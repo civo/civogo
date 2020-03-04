@@ -19,4 +19,4 @@ jobs:
     - name: Ensure correctly formatted
       run: test -z "$(gofmt -l $(find . -type f -name '*.go'))"
     - name: Lint
-      run: go get -u golang.org/x/lint/golint && golint
+      uses: actions-contrib/golangci-lint@v1
