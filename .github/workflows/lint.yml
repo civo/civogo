@@ -14,5 +14,13 @@ jobs:
         go-version: ${{ matrix.go-version }}
     - name: Checkout code
       uses: actions/checkout@v1
-    - name: Lint
-      uses: actions-contrib/golangci-lint@v1
+    - name: setup env
+      run: |
+        echo "::set-env name=GOPATH::$(go env GOPATH)"
+        echo "::add-path::$(go env GOPATH)/bin"
+      shell: bash
+    - name: lint
+      run: |
+        go env
+        go install golang.org/x/lint/golint
+        golint ./...
