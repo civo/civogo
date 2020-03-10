@@ -193,8 +193,8 @@ func (c *Client) CreateInstance(config *InstanceConfig) (*Instance, error) {
 }
 
 // SetInstanceTags sets the tags for the specified instance
-func (c *Client) SetInstanceTags(id, tags string) (*SimpleResponse, error) {
-	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/tags", id), map[string]string{
+func (c *Client) SetInstanceTags(i *Instance, tags string) (*SimpleResponse, error) {
+	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/tags", i.ID), map[string]string{
 		"tags": tags,
 	})
 	if err != nil {
@@ -211,6 +211,7 @@ func (c *Client) UpdateInstance(i *Instance) (*SimpleResponse, error) {
 		"hostname":    i.Hostname,
 		"reverse_dns": i.ReverseDNS,
 		"notes":       i.Notes,
+		"tags":        i.Tags,
 	}
 
 	if i.Notes == "" {
