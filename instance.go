@@ -42,6 +42,11 @@ type Instance struct {
 	CreatedAt                time.Time `json:"created_at"`
 }
 
+// InstanceConsole represents a link to a webconsole for an instances
+type InstanceConsole struct {
+	URL string `json:"url"`
+}
+
 // PaginatedInstanceList returns a paginated list of Instance object
 type PaginatedInstanceList struct {
 	Page    int        `json:"page"`
@@ -279,6 +284,18 @@ func (c *Client) StartInstance(id string) (*SimpleResponse, error) {
 
 	response, err := c.DecodeSimpleResponse(resp)
 	return response, err
+}
+
+// GetInstanceConsoleURL gets the web URL for an instance's console
+func (c *Client) GetInstanceConsoleURL(id string) (string, error) {
+	resp, err := c.SendGetRequest(fmt.Sprintf("/v2/instances/%s/console", id))
+	if err != nil {
+		return "", err
+	}
+
+	console := InstanceConsole{}
+	err = json.NewDecoder(bytes.NewReader(resp)).Decode(&console)
+	return console.URL, err
 }
 
 // UpgradeInstance resizes the instance up to the new specification

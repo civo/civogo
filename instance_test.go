@@ -331,6 +331,23 @@ func TestMovePublicIPToInstance(t *testing.T) {
 	EnsureSuccessfulSimpleResponse(t, got, err)
 }
 
+func TestGetInstanceConsoleURL(t *testing.T) {
+	client, server, _ := NewAdvancedClientForTesting(map[string]map[string]string{
+		"/v2/instances/12345/console": map[string]string{
+			"requestBody":  ``,
+			"responseBody": `{"url": "https://console.example.com/12345"}`,
+			"method":       "GET",
+		},
+	})
+	defer server.Close()
+
+	got, _ := client.GetInstanceConsoleURL("12345")
+
+	if got != "https://console.example.com/12345" {
+		t.Errorf("Expected %s, got %s", "https://console.example.com/12345", got)
+	}
+}
+
 func TestSetInstanceFirewall(t *testing.T) {
 	client, server, _ := NewAdvancedClientForTesting(map[string]map[string]string{
 		"/v2/instances/12345/firewall": map[string]string{
