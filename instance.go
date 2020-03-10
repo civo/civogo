@@ -211,7 +211,6 @@ func (c *Client) UpdateInstance(i *Instance) (*SimpleResponse, error) {
 		"hostname":    i.Hostname,
 		"reverse_dns": i.ReverseDNS,
 		"notes":       i.Notes,
-		"tags":        i.Tags,
 	}
 
 	if i.Notes == "" {

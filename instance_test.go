@@ -195,7 +195,7 @@ func TestSetInstanceTags(t *testing.T) {
 	})
 	defer server.Close()
 
-	got, err := client.SetInstanceTags("12345", "prod lamp")
+	got, err := client.SetInstanceTags(&Instance{ID: "12345"}, "prod lamp")
 	EnsureSuccessfulSimpleResponse(t, got, err)
 }
 
