@@ -3,6 +3,7 @@ package civogo
 import (
 	"reflect"
 	"testing"
+	"time"
 )
 
 func TestDNSListDomains(t *testing.T) {
@@ -198,6 +199,51 @@ func TestListDNSRecords(t *testing.T) {
 	expected := []DNSRecord{
 		{ID: "12345", AccountID: "1", DNSDomainID: "1111", Name: "www", Value: "10.0.0.0", Type: DNSRecordTypeCName, TTL: 600},
 		{ID: "12346", AccountID: "1", DNSDomainID: "1111", Name: "mail", Value: "10.0.0.1", Type: DNSRecordTypeMX, TTL: 600, Priority: 10},
+	}
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Expected %+v, got %+v", expected, got)
+	}
+}
+
+func TestUpdateDNSRecord(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/dns/edc5dacf-a2ad-4757-41ee-c12f06259c70/records/76cc107f-fbef-4e2b-b97f-f5d34f4075d3": `{
+		  "id": "76cc107f-fbef-4e2b-b97f-f5d34f4075d3",
+		  "created_at": "2019-04-11T12:47:56.000+01:00",
+		  "updated_at": "2019-04-11T12:47:56.000+01:00",
+		  "account_id": null,
+		  "domain_id": "edc5dacf-a2ad-4757-41ee-c12f06259c70",
+		  "name": "email",
+		  "value": "10.0.0.1",
+		  "type": "mx",
+		  "priority": 10,
+		  "ttl": 600
+		}`,
+	})
+	defer server.Close()
+	rc := &DNSRecordConfig{DNSDomainID: "edc5dacf-a2ad-4757-41ee-c12f06259c70", Name: "email"}
+	d := &DNSDomain{ID: "edc5dacf-a2ad-4757-41ee-c12f06259c70", AccountID: "1", Name: "example.com"}
+	r := &DNSRecord{ID: "76cc107f-fbef-4e2b-b97f-f5d34f4075d3", AccountID: "1", Name: "www"}
+	got, err := client.UpdateDNSRecord(rc, d, r)
+
+	if err != nil {
+		t.Errorf("Request returned an error: %s", err)
+		return
+	}
+
+	createdAt, _ := time.Parse(time.RFC3339, "2019-04-11T12:47:56.000+01:00")
+	updateAt, _ := time.Parse(time.RFC3339, "2019-04-11T12:47:56.000+01:00")
+
+	expected := &DNSRecord{
+		ID:          "76cc107f-fbef-4e2b-b97f-f5d34f4075d3",
+		DNSDomainID: "edc5dacf-a2ad-4757-41ee-c12f06259c70",
+		Name:        "email",
+		Value:       "10.0.0.1",
+		Type:        "mx",
+		Priority:    10,
+		TTL:         600,
+		CreatedAt:   createdAt,
+		UpdatedAt:   updateAt,
 	}
 	if !reflect.DeepEqual(got, expected) {
 		t.Errorf("Expected %+v, got %+v", expected, got)
