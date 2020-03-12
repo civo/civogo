@@ -215,15 +215,15 @@ func (c *Client) ListDNSRecords(dnsDomainID string) ([]DNSRecord, error) {
 	return rs, nil
 }
 
-// GetDNSRecord returns the Record that matches the name and the domainID
-func (c *Client) GetDNSRecord(domainID, name string) (*DNSRecord, error) {
+// GetDNSRecord returns the Record that matches the domain ID and domain record ID
+func (c *Client) GetDNSRecord(domainID, domainRecordID string) (*DNSRecord, error) {
 	rs, err := c.ListDNSRecords(domainID)
 	if err != nil {
 		return nil, err
 	}
 
 	for _, r := range rs {
-		if r.Name == name {
+		if r.ID == domainRecordID {
 			return &r, nil
 		}
 	}
