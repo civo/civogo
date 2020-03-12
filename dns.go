@@ -232,6 +232,22 @@ func (c *Client) GetDNSRecord(domainID, name string) (*DNSRecord, error) {
 	return nil, ErrDNSRecordNotFound
 }
 
+// UpdateDNSRecord updates the DNS record
+func (c *Client) UpdateDNSRecord(rc *DNSRecordConfig, r *DNSRecord) (*DNSRecord, error) {
+	url := fmt.Sprintf("/v2/dns/%s/records/%s", r.DNSDomainID, r.ID)
+	body, err := c.SendPutRequest(url, rc)
+	if err != nil {
+		return nil, err
+	}
+
+	var dnsRecord = &DNSRecord{}
+	if err := json.NewDecoder(bytes.NewReader(body)).Decode(dnsRecord); err != nil {
+		return nil, err
+	}
+
+	return dnsRecord, nil
+}
+
 // DeleteDNSRecord deletes the DNS record
 func (c *Client) DeleteDNSRecord(r *DNSRecord) (*SimpleResponse, error) {
 	if len(r.ID) == 0 {
