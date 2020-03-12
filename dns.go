@@ -45,12 +45,11 @@ type DNSRecord struct {
 // none of the fields are mandatory and will be automatically
 // set with default values
 type DNSRecordConfig struct {
-	DNSDomainID string        `form:"-"`
-	Type        DNSRecordType `form:"type"`
-	Name        string        `form:"name"`
-	Value       string        `form:"value"`
-	Priority    int           `form:"priority"`
-	TTL         int           `form:"ttl"`
+	Type     DNSRecordType `form:"type"`
+	Name     string        `form:"name"`
+	Value    string        `form:"value"`
+	Priority int           `form:"priority"`
+	TTL      int           `form:"ttl"`
 }
 
 const (
@@ -180,12 +179,12 @@ func (c *Client) DeleteDNSDomain(d *DNSDomain) (*SimpleResponse, error) {
 }
 
 // CreateDNSRecord creates a new DNS record
-func (c *Client) CreateDNSRecord(r *DNSRecordConfig) (*DNSRecord, error) {
-	if len(r.DNSDomainID) == 0 {
+func (c *Client) CreateDNSRecord(domainID string, r *DNSRecordConfig) (*DNSRecord, error) {
+	if len(domainID) == 0 {
 		return nil, fmt.Errorf("r.DomainID is empty")
 	}
 
-	url := fmt.Sprintf("/v2/dns/%s/records", r.DNSDomainID)
+	url := fmt.Sprintf("/v2/dns/%s/records", domainID)
 	body, err := c.SendPostRequest(url, r)
 	if err != nil {
 		return nil, err
@@ -233,7 +232,7 @@ func (c *Client) GetDNSRecord(domainID, name string) (*DNSRecord, error) {
 }
 
 // UpdateDNSRecord updates the DNS record
-func (c *Client) UpdateDNSRecord(rc *DNSRecordConfig, r *DNSRecord) (*DNSRecord, error) {
+func (c *Client) UpdateDNSRecord(r *DNSRecord, rc *DNSRecordConfig) (*DNSRecord, error) {
 	url := fmt.Sprintf("/v2/dns/%s/records/%s", r.DNSDomainID, r.ID)
 	body, err := c.SendPutRequest(url, rc)
 	if err != nil {

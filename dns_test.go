@@ -152,8 +152,8 @@ func TestNewRecord(t *testing.T) {
 	})
 	defer server.Close()
 
-	cfg := &DNSRecordConfig{DNSDomainID: "12346", Name: "mail", Type: DNSRecordTypeMX, Value: "10.0.0.1", Priority: 10}
-	got, err := client.CreateDNSRecord(cfg)
+	cfg := &DNSRecordConfig{Name: "mail", Type: DNSRecordTypeMX, Value: "10.0.0.1", Priority: 10}
+	got, err := client.CreateDNSRecord("12346", cfg)
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
@@ -258,9 +258,9 @@ func TestUpdateDNSRecord(t *testing.T) {
 		}`,
 	})
 	defer server.Close()
-	rc := &DNSRecordConfig{DNSDomainID: "edc5dacf-a2ad-4757-41ee-c12f06259c70", Name: "email"}
+	rc := &DNSRecordConfig{Name: "email"}
 	r := &DNSRecord{ID: "76cc107f-fbef-4e2b-b97f-f5d34f4075d3", AccountID: "1", Name: "www", DNSDomainID: "edc5dacf-a2ad-4757-41ee-c12f06259c70"}
-	got, err := client.UpdateDNSRecord(rc, r)
+	got, err := client.UpdateDNSRecord(r, rc)
 
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
