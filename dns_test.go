@@ -3,6 +3,7 @@ package civogo
 import (
 	"reflect"
 	"testing"
+	"time"
 )
 
 func TestDNSListDomains(t *testing.T) {
@@ -19,6 +20,43 @@ func TestDNSListDomains(t *testing.T) {
 	expected := []DNSDomain{{ID: "12345", AccountID: "1", Name: "example.com"}, {ID: "12346", AccountID: "1", Name: "example.net"}}
 	if !reflect.DeepEqual(got, expected) {
 		t.Errorf("Expected %+v, got %+v", expected, got)
+	}
+}
+
+func TestFindDNSDomain(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/dns": `[{"id": "12345", "account_id": "1", "name": "example.com"}, {"id": "12346", "account_id": "1", "name": "example.net"}]`,
+	})
+	defer server.Close()
+
+	got, _ := client.FindDNSDomain("45")
+	if got.ID != "12345" {
+		t.Errorf("Expected %s, got %s", "12345", got.ID)
+	}
+
+	got, _ = client.FindDNSDomain("46")
+	if got.ID != "12346" {
+		t.Errorf("Expected %s, got %s", "12346", got.ID)
+	}
+
+	got, _ = client.FindDNSDomain("com")
+	if got.ID != "12345" {
+		t.Errorf("Expected %s, got %s", "12345", got.ID)
+	}
+
+	got, _ = client.FindDNSDomain("net")
+	if got.ID != "12346" {
+		t.Errorf("Expected %s, got %s", "12346", got.ID)
+	}
+
+	_, err := client.FindDNSDomain("example")
+	if err.Error() != "unable to find example because there were multiple matches" {
+		t.Errorf("Expected %s, got %s", "unable to find example because there were multiple matches", err.Error())
+	}
+
+	_, err = client.FindDNSDomain("missing")
+	if err.Error() != "unable to find missing, zero matches" {
+		t.Errorf("Expected %s, got %s", "unable to find missing, zero matches", err.Error())
 	}
 }
 
@@ -114,8 +152,8 @@ func TestNewRecord(t *testing.T) {
 	})
 	defer server.Close()
 
-	cfg := &DNSRecordConfig{DNSDomainID: "12346", Name: "mail", Type: DNSRecordTypeMX, Value: "10.0.0.1", Priority: 10}
-	got, err := client.CreateDNSRecord(cfg)
+	cfg := &DNSRecordConfig{Name: "mail", Type: DNSRecordTypeMX, Value: "10.0.0.1", Priority: 10}
+	got, err := client.CreateDNSRecord("12346", cfg)
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
@@ -198,6 +236,50 @@ func TestListDNSRecords(t *testing.T) {
 	expected := []DNSRecord{
 		{ID: "12345", AccountID: "1", DNSDomainID: "1111", Name: "www", Value: "10.0.0.0", Type: DNSRecordTypeCName, TTL: 600},
 		{ID: "12346", AccountID: "1", DNSDomainID: "1111", Name: "mail", Value: "10.0.0.1", Type: DNSRecordTypeMX, TTL: 600, Priority: 10},
+	}
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Expected %+v, got %+v", expected, got)
+	}
+}
+
+func TestUpdateDNSRecord(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/dns/edc5dacf-a2ad-4757-41ee-c12f06259c70/records/76cc107f-fbef-4e2b-b97f-f5d34f4075d3": `{
+		  "id": "76cc107f-fbef-4e2b-b97f-f5d34f4075d3",
+		  "created_at": "2019-04-11T12:47:56.000+01:00",
+		  "updated_at": "2019-04-11T12:47:56.000+01:00",
+		  "account_id": null,
+		  "domain_id": "edc5dacf-a2ad-4757-41ee-c12f06259c70",
+		  "name": "email",
+		  "value": "10.0.0.1",
+		  "type": "mx",
+		  "priority": 10,
+		  "ttl": 600
+		}`,
+	})
+	defer server.Close()
+	rc := &DNSRecordConfig{Name: "email"}
+	r := &DNSRecord{ID: "76cc107f-fbef-4e2b-b97f-f5d34f4075d3", AccountID: "1", Name: "www", DNSDomainID: "edc5dacf-a2ad-4757-41ee-c12f06259c70"}
+	got, err := client.UpdateDNSRecord(r, rc)
+
+	if err != nil {
+		t.Errorf("Request returned an error: %s", err)
+		return
+	}
+
+	createdAt, _ := time.Parse(time.RFC3339, "2019-04-11T12:47:56.000+01:00")
+	updateAt, _ := time.Parse(time.RFC3339, "2019-04-11T12:47:56.000+01:00")
+
+	expected := &DNSRecord{
+		ID:          "76cc107f-fbef-4e2b-b97f-f5d34f4075d3",
+		DNSDomainID: "edc5dacf-a2ad-4757-41ee-c12f06259c70",
+		Name:        "email",
+		Value:       "10.0.0.1",
+		Type:        "mx",
+		Priority:    10,
+		TTL:         600,
+		CreatedAt:   createdAt,
+		UpdatedAt:   updateAt,
 	}
 	if !reflect.DeepEqual(got, expected) {
 		t.Errorf("Expected %+v, got %+v", expected, got)

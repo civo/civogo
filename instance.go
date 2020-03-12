@@ -42,6 +42,11 @@ type Instance struct {
 	CreatedAt                time.Time `json:"created_at"`
 }
 
+// InstanceConsole represents a link to a webconsole for an instances
+type InstanceConsole struct {
+	URL string `json:"url"`
+}
+
 // PaginatedInstanceList returns a paginated list of Instance object
 type PaginatedInstanceList struct {
 	Page    int        `json:"page"`
@@ -95,6 +100,31 @@ func (c *Client) ListAllInstances() ([]Instance, error) {
 	}
 
 	return instances.Items, nil
+}
+
+// FindInstance finds a instance by either part of the ID or part of the hostname
+func (c *Client) FindInstance(search string) (*Instance, error) {
+	instances, err := c.ListAllInstances()
+	if err != nil {
+		return nil, err
+	}
+
+	found := -1
+
+	for i, instance := range instances {
+		if strings.Contains(instance.ID, search) || strings.Contains(instance.Hostname, search) {
+			if found != -1 {
+				return nil, fmt.Errorf("unable to find %s because there were multiple matches", search)
+			}
+			found = i
+		}
+	}
+
+	if found == -1 {
+		return nil, fmt.Errorf("unable to find %s, zero matches", search)
+	}
+
+	return &instances[found], nil
 }
 
 // GetInstance returns a single Instance by its full ID
@@ -163,8 +193,8 @@ func (c *Client) CreateInstance(config *InstanceConfig) (*Instance, error) {
 }
 
 // SetInstanceTags sets the tags for the specified instance
-func (c *Client) SetInstanceTags(id, tags string) (*SimpleResponse, error) {
-	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/tags", id), map[string]string{
+func (c *Client) SetInstanceTags(i *Instance, tags string) (*SimpleResponse, error) {
+	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/tags", i.ID), map[string]string{
 		"tags": tags,
 	})
 	if err != nil {
@@ -254,6 +284,18 @@ func (c *Client) StartInstance(id string) (*SimpleResponse, error) {
 
 	response, err := c.DecodeSimpleResponse(resp)
 	return response, err
+}
+
+// GetInstanceConsoleURL gets the web URL for an instance's console
+func (c *Client) GetInstanceConsoleURL(id string) (string, error) {
+	resp, err := c.SendGetRequest(fmt.Sprintf("/v2/instances/%s/console", id))
+	if err != nil {
+		return "", err
+	}
+
+	console := InstanceConsole{}
+	err = json.NewDecoder(bytes.NewReader(resp)).Decode(&console)
+	return console.URL, err
 }
 
 // UpgradeInstance resizes the instance up to the new specification

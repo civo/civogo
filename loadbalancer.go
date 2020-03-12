@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"strings"
 )
 
 // LoadBalancerBackend represents a backend instance being load-balanced
@@ -67,6 +68,31 @@ func (c *Client) ListLoadBalancers() ([]LoadBalancer, error) {
 	}
 
 	return loadbalancer, nil
+}
+
+// FindLoadBalancer finds a load balancer by either part of the ID or part of the name
+func (c *Client) FindLoadBalancer(search string) (*LoadBalancer, error) {
+	lbs, err := c.ListLoadBalancers()
+	if err != nil {
+		return nil, err
+	}
+
+	found := -1
+
+	for i, lb := range lbs {
+		if strings.Contains(lb.ID, search) || strings.Contains(lb.Hostname, search) {
+			if found != -1 {
+				return nil, fmt.Errorf("unable to find %s because there were multiple matches", search)
+			}
+			found = i
+		}
+	}
+
+	if found == -1 {
+		return nil, fmt.Errorf("unable to find %s, zero matches", search)
+	}
+
+	return &lbs[found], nil
 }
 
 // CreateLoadBalancer creates a new load balancer

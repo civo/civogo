@@ -31,8 +31,7 @@ func TestNewNetwork(t *testing.T) {
 	})
 	defer server.Close()
 
-	cfg := &NetworkConfig{Label: "private-net"}
-	got, err := client.NewNetwork(cfg)
+	got, err := client.NewNetwork("private-net")
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
@@ -73,6 +72,60 @@ func TestListNetworks(t *testing.T) {
 	}
 }
 
+func TestFindNetwork(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/networks": `[
+			{
+				"id": "12345",
+				"name": "my-net",
+				"region": "lon1",
+				"default": false,
+				"cidr": "0.0.0.0/0",
+				"label": "development"
+			},
+			{
+				"id": "67890",
+				"name": "other-net",
+				"region": "lon1",
+				"default": false,
+				"cidr": "0.0.0.0/0",
+				"label": "development"
+			}
+			]`,
+	})
+	defer server.Close()
+
+	got, err := client.FindNetwork("34")
+	if got.ID != "12345" {
+		t.Errorf("Expected %s, got %s", "12345", got.ID)
+	}
+
+	got, _ = client.FindNetwork("89")
+	if got.ID != "67890" {
+		t.Errorf("Expected %s, got %s", "67890", got.ID)
+	}
+
+	got, _ = client.FindNetwork("my")
+	if got.ID != "12345" {
+		t.Errorf("Expected %s, got %s", "12345", got.ID)
+	}
+
+	got, _ = client.FindNetwork("other")
+	if got.ID != "67890" {
+		t.Errorf("Expected %s, got %s", "67890", got.ID)
+	}
+
+	_, err = client.FindNetwork("net")
+	if err.Error() != "unable to find net because there were multiple matches" {
+		t.Errorf("Expected %s, got %s", "unable to find net because there were multiple matches", err.Error())
+	}
+
+	_, err = client.FindNetwork("missing")
+	if err.Error() != "unable to find missing, zero matches" {
+		t.Errorf("Expected %s, got %s", "unable to find missing, zero matches", err.Error())
+	}
+}
+
 func TestRenameNetwork(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/networks/76cc107f-fbef-4e2b-b97f-f5d34f4075d3": `{
@@ -83,8 +136,7 @@ func TestRenameNetwork(t *testing.T) {
 	})
 	defer server.Close()
 
-	cfg := &NetworkConfig{Label: "private-net"}
-	got, err := client.RenameNetwork(cfg, "76cc107f-fbef-4e2b-b97f-f5d34f4075d3")
+	got, err := client.RenameNetwork("private-net", "76cc107f-fbef-4e2b-b97f-f5d34f4075d3")
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return

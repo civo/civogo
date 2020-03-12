@@ -24,9 +24,65 @@ func TestListVolumes(t *testing.T) {
 		t.Errorf("Request returned an error: %s", err)
 		return
 	}
-	expected := []Volume{{ID: "12345", InstanceID: "null", Name: "my-volume", MountPoint: "null", SizeGB: 25, Bootable: false}}
+	expected := []Volume{{ID: "12345", InstanceID: "null", Name: "my-volume", MountPoint: "null", SizeGigabytes: 25, Bootable: false}}
 	if !reflect.DeepEqual(got, expected) {
 		t.Errorf("Expected %+v, got %+v", expected, got)
+	}
+}
+
+func TestFindVolume(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/volumes": `[
+			{
+				"id": "12345",
+				"name": "my-volume",
+				"instance_id": "null",
+				"mountpoint": "null",
+				"openstack_id": "null",
+				"size_gb": 25,
+				"bootable": false
+			},
+			{
+				"id": "67890",
+				"name": "other-volume",
+				"instance_id": "null",
+				"mountpoint": "null",
+				"openstack_id": "null",
+				"size_gb": 25,
+				"bootable": false
+			}
+		]`,
+	})
+	defer server.Close()
+
+	got, err := client.FindVolume("34")
+	if got.ID != "12345" {
+		t.Errorf("Expected %s, got %s", "12345", got.ID)
+	}
+
+	got, _ = client.FindVolume("89")
+	if got.ID != "67890" {
+		t.Errorf("Expected %s, got %s", "67890", got.ID)
+	}
+
+	got, _ = client.FindVolume("my")
+	if got.ID != "12345" {
+		t.Errorf("Expected %s, got %s", "12345", got.ID)
+	}
+
+	got, _ = client.FindVolume("other")
+	if got.ID != "67890" {
+		t.Errorf("Expected %s, got %s", "67890", got.ID)
+	}
+
+	_, err = client.FindVolume("volume")
+	if err.Error() != "unable to find volume because there were multiple matches" {
+		t.Errorf("Expected %s, got %s", "unable to find volume because there were multiple matches", err.Error())
+	}
+
+	_, err = client.FindVolume("missing")
+	if err.Error() != "unable to find missing, zero matches" {
+		t.Errorf("Expected %s, got %s", "unable to find missing, zero matches", err.Error())
 	}
 }
 
@@ -40,7 +96,7 @@ func TestNewVolume(t *testing.T) {
 	})
 	defer server.Close()
 
-	cfg := &VolumeConfig{Name: "my-volume", SizeGB: 25, Bootable: false}
+	cfg := &VolumeConfig{Name: "my-volume", SizeGigabytes: 25, Bootable: false}
 	got, err := client.NewVolume(cfg)
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)

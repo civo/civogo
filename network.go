@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 )
 
 // Network represents a private network for instances to connect to
@@ -17,10 +18,11 @@ type Network struct {
 	Label   string `json:"label"`
 }
 
-type NetworkConfig struct {
+type networkConfig struct {
 	Label string `form:"label"`
 }
 
+// NetworkResult represents the result from a network create/update call
 type NetworkResult struct {
 	ID     string `json:"id"`
 	Label  string `json:"label"`
@@ -46,8 +48,9 @@ func (c *Client) GetDefaultNetwork() (*Network, error) {
 }
 
 // NewNetwork creates a new private network
-func (c *Client) NewNetwork(r *NetworkConfig) (*NetworkResult, error) {
-	body, err := c.SendPostRequest("/v2/networks", r)
+func (c *Client) NewNetwork(label string) (*NetworkResult, error) {
+	nc := networkConfig{Label: label}
+	body, err := c.SendPostRequest("/v2/networks", nc)
 	if err != nil {
 		return nil, err
 	}
@@ -75,9 +78,35 @@ func (c *Client) ListNetworks() ([]Network, error) {
 	return networks, nil
 }
 
+// FindNetwork finds a network by either part of the ID or part of the name
+func (c *Client) FindNetwork(search string) (*Network, error) {
+	networks, err := c.ListNetworks()
+	if err != nil {
+		return nil, err
+	}
+
+	found := -1
+
+	for i, network := range networks {
+		if strings.Contains(network.ID, search) || strings.Contains(network.Name, search) {
+			if found != -1 {
+				return nil, fmt.Errorf("unable to find %s because there were multiple matches", search)
+			}
+			found = i
+		}
+	}
+
+	if found == -1 {
+		return nil, fmt.Errorf("unable to find %s, zero matches", search)
+	}
+
+	return &networks[found], nil
+}
+
 // RenameNetwork renames an existing private network
-func (c *Client) RenameNetwork(r *NetworkConfig, id string) (*NetworkResult, error) {
-	body, err := c.SendPutRequest("/v2/networks/"+id, r)
+func (c *Client) RenameNetwork(label, id string) (*NetworkResult, error) {
+	nc := networkConfig{Label: label}
+	body, err := c.SendPutRequest("/v2/networks/"+id, nc)
 	if err != nil {
 		return nil, err
 	}

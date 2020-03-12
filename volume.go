@@ -4,32 +4,38 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 )
 
+// Volume is a block of attachable storage for our IAAS products
+// https://www.civo.com/api/volumes
 type Volume struct {
-	ID         string    `json:"id"`
-	Name       string    `json:"name"`
-	InstanceID string    `json:"instance_id"`
-	MountPoint string    `json:"mountpoint"`
-	SizeGB     int       `json:"size_gb"`
-	Bootable   bool      `json:"bootable"`
-	CreatedAt  time.Time `json:"created_at"`
+	ID            string    `json:"id"`
+	Name          string    `json:"name"`
+	InstanceID    string    `json:"instance_id"`
+	MountPoint    string    `json:"mountpoint"`
+	SizeGigabytes int       `json:"size_gb"`
+	Bootable      bool      `json:"bootable"`
+	CreatedAt     time.Time `json:"created_at"`
 }
 
+// VolumeResult is the response from one of our simple API calls
 type VolumeResult struct {
 	ID     string `json:"id"`
 	Name   string `json:"name"`
 	Result string `json:"result"`
 }
 
+// VolumeConfig are the settings required to create a new Volume
 type VolumeConfig struct {
-	Name     string `form:"name"`
-	SizeGB   int    `form:"size_gb"`
-	Bootable bool   `form:"bootable"`
+	Name          string `form:"name"`
+	SizeGigabytes int    `form:"size_gb"`
+	Bootable      bool   `form:"bootable"`
 }
 
 // ListVolumes returns all volumes owned by the calling API account
+// https://www.civo.com/api/volumes#list-volumes
 func (c *Client) ListVolumes() ([]Volume, error) {
 	resp, err := c.SendGetRequest("/v2/volumes")
 	if err != nil {
@@ -48,7 +54,33 @@ func (c *Client) ListVolumes() ([]Volume, error) {
 	return volumes, nil
 }
 
+// FindVolume finds a volume by either part of the ID or part of the name
+func (c *Client) FindVolume(search string) (*Volume, error) {
+	volumes, err := c.ListVolumes()
+	if err != nil {
+		return nil, err
+	}
+
+	found := -1
+
+	for i, volume := range volumes {
+		if strings.Contains(volume.ID, search) || strings.Contains(volume.Name, search) {
+			if found != -1 {
+				return nil, fmt.Errorf("unable to find %s because there were multiple matches", search)
+			}
+			found = i
+		}
+	}
+
+	if found == -1 {
+		return nil, fmt.Errorf("unable to find %s, zero matches", search)
+	}
+
+	return &volumes[found], nil
+}
+
 // NewVolume creates a new volume
+// https://www.civo.com/api/volumes#create-a-new-volume
 func (c *Client) NewVolume(v *VolumeConfig) (*VolumeResult, error) {
 	body, err := c.SendPostRequest("/v2/volumes/", v)
 	if err != nil {
@@ -64,6 +96,7 @@ func (c *Client) NewVolume(v *VolumeConfig) (*VolumeResult, error) {
 }
 
 // ResizeVolume resizes a volume
+// https://www.civo.com/api/volumes#resizing-a-volume
 func (c *Client) ResizeVolume(id string, size int) (*SimpleResponse, error) {
 	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/volumes/%s/resize", id), map[string]int{
 		"size_gb": size,
@@ -76,7 +109,8 @@ func (c *Client) ResizeVolume(id string, size int) (*SimpleResponse, error) {
 	return response, err
 }
 
-// AttachVolume attaches a volume to an intance
+// AttachVolume attaches a volume to an instance
+// https://www.civo.com/api/volumes#attach-a-volume-to-an-instance
 func (c *Client) AttachVolume(id string, instance string) (*SimpleResponse, error) {
 	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/volumes/%s/attach", id), map[string]string{
 		"instance_id": instance,
@@ -90,6 +124,7 @@ func (c *Client) AttachVolume(id string, instance string) (*SimpleResponse, erro
 }
 
 // DetachVolume attach volume from any instances
+// https://www.civo.com/api/volumes#attach-a-volume-to-an-instance
 func (c *Client) DetachVolume(id string) (*SimpleResponse, error) {
 	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/volumes/%s/detach", id), "")
 	if err != nil {
@@ -101,6 +136,7 @@ func (c *Client) DetachVolume(id string) (*SimpleResponse, error) {
 }
 
 // DeleteVolume deletes a volumes
+// https://www.civo.com/api/volumes#deleting-a-volume
 func (c *Client) DeleteVolume(id string) (*SimpleResponse, error) {
 	resp, err := c.SendDeleteRequest(fmt.Sprintf("/v2/volumes/%s", id))
 	if err != nil {

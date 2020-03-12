@@ -80,6 +80,62 @@ func TestListWebhooks(t *testing.T) {
 	}
 }
 
+func TestFindWebhook(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/webhooks": `[
+			{
+				"id": "12345",
+				"events": ["*"],
+				"url": "https://my.example.com/webhook",
+				"secret": "DfeFUON8gorc5Zj0hk4GT1M9QImnRL6J",
+				"disabled": false,
+				"failures": 0,
+				"last_failure_reason": ""
+			},
+			{
+				"id": "67890",
+				"events": ["*"],
+				"url": "https://other.example.com/webhook",
+				"secret": "DfeFUON8gorc5Zj0hk4GT1M9QImnRL6J",
+				"disabled": false,
+				"failures": 0,
+				"last_failure_reason": ""
+			}
+		]`,
+	})
+	defer server.Close()
+
+	got, err := client.FindWebhook("34")
+	if got.ID != "12345" {
+		t.Errorf("Expected %s, got %s", "12345", got.ID)
+	}
+
+	got, _ = client.FindWebhook("89")
+	if got.ID != "67890" {
+		t.Errorf("Expected %s, got %s", "67890", got.ID)
+	}
+
+	got, _ = client.FindWebhook("my")
+	if got.ID != "12345" {
+		t.Errorf("Expected %s, got %s", "12345", got.ID)
+	}
+
+	got, _ = client.FindWebhook("other")
+	if got.ID != "67890" {
+		t.Errorf("Expected %s, got %s", "67890", got.ID)
+	}
+
+	_, err = client.FindWebhook("example")
+	if err.Error() != "unable to find example because there were multiple matches" {
+		t.Errorf("Expected %s, got %s", "unable to find example because there were multiple matches", err.Error())
+	}
+
+	_, err = client.FindWebhook("missing")
+	if err.Error() != "unable to find missing, zero matches" {
+		t.Errorf("Expected %s, got %s", "unable to find missing, zero matches", err.Error())
+	}
+}
+
 func TestUpdateWebhook(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/webhooks/b8de2e4e-72f4-4911-83ee-f4fc030fc4a2": `{

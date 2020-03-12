@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -44,12 +45,11 @@ type DNSRecord struct {
 // none of the fields are mandatory and will be automatically
 // set with default values
 type DNSRecordConfig struct {
-	DNSDomainID string        `form:"-"`
-	Type        DNSRecordType `form:"type"`
-	Name        string        `form:"name"`
-	Value       string        `form:"value"`
-	Priority    int           `form:"priority"`
-	TTL         int           `form:"ttl"`
+	Type     DNSRecordType `form:"type"`
+	Name     string        `form:"name"`
+	Value    string        `form:"value"`
+	Priority int           `form:"priority"`
+	TTL      int           `form:"ttl"`
 }
 
 const (
@@ -83,13 +83,38 @@ func (c *Client) ListDNSDomains() ([]DNSDomain, error) {
 		return nil, err
 	}
 
-	var ds = make([]DNSDomain, 0)
-	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&ds); err != nil {
+	var domains = make([]DNSDomain, 0)
+	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&domains); err != nil {
 		return nil, err
 
 	}
 
-	return ds, nil
+	return domains, nil
+}
+
+// FindDNSDomain finds a domain name by either part of the ID or part of the name
+func (c *Client) FindDNSDomain(search string) (*DNSDomain, error) {
+	domains, err := c.ListDNSDomains()
+	if err != nil {
+		return nil, err
+	}
+
+	found := -1
+
+	for i, domain := range domains {
+		if strings.Contains(domain.ID, search) || strings.Contains(domain.Name, search) {
+			if found != -1 {
+				return nil, fmt.Errorf("unable to find %s because there were multiple matches", search)
+			}
+			found = i
+		}
+	}
+
+	if found == -1 {
+		return nil, fmt.Errorf("unable to find %s, zero matches", search)
+	}
+
+	return &domains[found], nil
 }
 
 // CreateDNSDomain registers a new Domain
@@ -154,12 +179,12 @@ func (c *Client) DeleteDNSDomain(d *DNSDomain) (*SimpleResponse, error) {
 }
 
 // CreateDNSRecord creates a new DNS record
-func (c *Client) CreateDNSRecord(r *DNSRecordConfig) (*DNSRecord, error) {
-	if len(r.DNSDomainID) == 0 {
+func (c *Client) CreateDNSRecord(domainID string, r *DNSRecordConfig) (*DNSRecord, error) {
+	if len(domainID) == 0 {
 		return nil, fmt.Errorf("r.DomainID is empty")
 	}
 
-	url := fmt.Sprintf("/v2/dns/%s/records", r.DNSDomainID)
+	url := fmt.Sprintf("/v2/dns/%s/records", domainID)
 	body, err := c.SendPostRequest(url, r)
 	if err != nil {
 		return nil, err
@@ -204,6 +229,22 @@ func (c *Client) GetDNSRecord(domainID, name string) (*DNSRecord, error) {
 	}
 
 	return nil, ErrDNSRecordNotFound
+}
+
+// UpdateDNSRecord updates the DNS record
+func (c *Client) UpdateDNSRecord(r *DNSRecord, rc *DNSRecordConfig) (*DNSRecord, error) {
+	url := fmt.Sprintf("/v2/dns/%s/records/%s", r.DNSDomainID, r.ID)
+	body, err := c.SendPutRequest(url, rc)
+	if err != nil {
+		return nil, err
+	}
+
+	var dnsRecord = &DNSRecord{}
+	if err := json.NewDecoder(bytes.NewReader(body)).Decode(dnsRecord); err != nil {
+		return nil, err
+	}
+
+	return dnsRecord, nil
 }
 
 // DeleteDNSRecord deletes the DNS record

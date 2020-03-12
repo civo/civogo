@@ -1,12 +1,12 @@
 # Civogo - The Golang client library for Civo
 
-[![GoDoc](https://godoc.org/github.com/civo/civogo?status.svg)](https://godoc.org/github.com/civo/civogo)
+[![go.dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat-square)](https://pkg.go.dev/github.com/civo/civogo?tab=doc)
 [![Build Status](https://github.com/civo/civogo/workflows/Test/badge.svg)](https://github.com/civo/civogo/actions)
-
+[![Lint](https://github.com/civo/civogo/workflows/Lint/badge.svg)](https://github.com/civo/civogo/actions)
 
 Civogo is a Go client library for accessing the Civo cloud API.
 
-You can view the client API docs at [http://godoc.org/github.com/civo/civogo](http://godoc.org/github.com/civo/civogo) and view the API documentation at [https://api.civo.com](https://api.civo.com)
+You can view the client API docs at [https://pkg.go.dev/github.com/civo/civogo](https://pkg.go.dev/github.com/civo/civogo) and view the API documentation at [https://api.civo.com](https://api.civo.com)
 
 
 ## Install
