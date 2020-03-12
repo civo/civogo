@@ -222,9 +222,8 @@ func TestUpdateDNSRecord(t *testing.T) {
 	})
 	defer server.Close()
 	rc := &DNSRecordConfig{DNSDomainID: "edc5dacf-a2ad-4757-41ee-c12f06259c70", Name: "email"}
-	d := &DNSDomain{ID: "edc5dacf-a2ad-4757-41ee-c12f06259c70", AccountID: "1", Name: "example.com"}
-	r := &DNSRecord{ID: "76cc107f-fbef-4e2b-b97f-f5d34f4075d3", AccountID: "1", Name: "www"}
-	got, err := client.UpdateDNSRecord(rc, d, r)
+	r := &DNSRecord{ID: "76cc107f-fbef-4e2b-b97f-f5d34f4075d3", AccountID: "1", Name: "www", DNSDomainID: "edc5dacf-a2ad-4757-41ee-c12f06259c70"}
+	got, err := client.UpdateDNSRecord(rc, r)
 
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)

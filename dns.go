@@ -207,19 +207,19 @@ func (c *Client) GetDNSRecord(domainID, name string) (*DNSRecord, error) {
 }
 
 // UpdateDNSRecord updates the DNS record
-func (c *Client) UpdateDNSRecord(rc *DNSRecordConfig, d *DNSDomain, r *DNSRecord) (*DNSRecord, error) {
-	url := fmt.Sprintf("/v2/dns/%s/records/%s", d.ID, r.ID)
+func (c *Client) UpdateDNSRecord(rc *DNSRecordConfig, r *DNSRecord) (*DNSRecord, error) {
+	url := fmt.Sprintf("/v2/dns/%s/records/%s", r.DNSDomainID, r.ID)
 	body, err := c.SendPutRequest(url, rc)
 	if err != nil {
 		return nil, err
 	}
 
-	var dnsDomain = &DNSRecord{}
-	if err := json.NewDecoder(bytes.NewReader(body)).Decode(dnsDomain); err != nil {
+	var dnsRecord = &DNSRecord{}
+	if err := json.NewDecoder(bytes.NewReader(body)).Decode(dnsRecord); err != nil {
 		return nil, err
 	}
 
-	return dnsDomain, nil
+	return dnsRecord, nil
 }
 
 // DeleteDNSRecord deletes the DNS record
