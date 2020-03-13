@@ -94,7 +94,7 @@ func (c *Client) FindFirewall(search string) (*Firewall, error) {
 // NewFirewall creates a new firewall record
 func (c *Client) NewFirewall(name string) (*FirewallResult, error) {
 	fw := firewallConfig{Name: name}
-	body, err := c.SendPostRequest("/v2/firewalls/", fw)
+	body, err := c.SendPostRequest("/v2/firewalls", fw)
 	if err != nil {
 		return nil, err
 	}

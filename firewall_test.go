@@ -61,7 +61,7 @@ func TestFindFirewall(t *testing.T) {
 
 func TestNewFirewall(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
-		"/v2/firewalls/": `{
+		"/v2/firewalls": `{
 			"id": "76cc107f-fbef-4e2b-b97f-f5d34f4075d3",
 			"name": "fw-mail",
 			"result": "success"
