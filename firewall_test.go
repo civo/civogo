@@ -7,7 +7,7 @@ import (
 
 func TestListFirewalls(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
-		"/v2/firewalls": `[{"id": "12345", "name": "instance-123456", "rules_count": "3", "instances_count": "10", "region": "lon1"}, {"id": "67789", "name": "instance-7890", "rules_count": "1", "instances_count": "2", "region": "lon1"}]`,
+		"/v2/firewalls": `[{"id": "12345", "name": "instance-123456", "rules_count": 3, "instances_count": 10, "region": "lon1"}, {"id": "67789", "name": "instance-7890", "rules_count": 1, "instances_count": 2, "region": "lon1"}]`,
 	})
 	defer server.Close()
 	got, err := client.ListFirewalls()
@@ -24,7 +24,7 @@ func TestListFirewalls(t *testing.T) {
 
 func TestFindFirewall(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
-		"/v2/firewalls": `[{"id": "12345", "name": "web-instance", "rules_count": "3", "instances_count": "10", "region": "lon1"}, {"id": "67789", "name": "web-node", "rules_count": "1", "instances_count": "2", "region": "lon1"}]`,
+		"/v2/firewalls": `[{"id": "12345", "name": "web-instance", "rules_count": 3, "instances_count": 10, "region": "lon1"}, {"id": "67789", "name": "web-node", "rules_count": 1, "instances_count": 2, "region": "lon1"}]`,
 	})
 	defer server.Close()
 
