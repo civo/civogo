@@ -16,7 +16,7 @@ func TestListFirewalls(t *testing.T) {
 		t.Errorf("Request returned an error: %s", err)
 		return
 	}
-	expected := []Firewall{{ID: "12345", Name: "instance-123456", RulesCount: "3", InstancesCount: "10", Region: "lon1"}, {ID: "67789", Name: "instance-7890", RulesCount: "1", InstancesCount: "2", Region: "lon1"}}
+	expected := []Firewall{{ID: "12345", Name: "instance-123456", RulesCount: 3, InstancesCount: 10, Region: "lon1"}, {ID: "67789", Name: "instance-7890", RulesCount: 1, InstancesCount: 2, Region: "lon1"}}
 	if !reflect.DeepEqual(got, expected) {
 		t.Errorf("Expected %+v, got %+v", expected, got)
 	}

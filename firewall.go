@@ -11,8 +11,8 @@ import (
 type Firewall struct {
 	ID             string `json:"id"`
 	Name           string `json:"name"`
-	RulesCount     string `json:"rules_count"`
-	InstancesCount string `json:"instances_count"`
+	RulesCount     int    `json:"rules_count"`
+	InstancesCount int    `json:"instances_count"`
 	Region         string `json:"region"`
 }
 
@@ -38,17 +38,17 @@ type FirewallRule struct {
 
 // FirewallRuleConfig is how you specify the details when creating a new rule
 type FirewallRuleConfig struct {
-	FirewallID string   `from:"firewall_id"`
-	Protocol   string   `from:"protocol"`
-	StartPort  string   `from:"start_port"`
-	EndPort    string   `from:"end_port"`
-	Cidr       []string `from:"cidr"`
-	Direction  string   `from:"direction"`
-	Label      string   `json:"label,omitempty"`
+	FirewallID string   `form:"firewall_id"`
+	Protocol   string   `form:"protocol"`
+	StartPort  string   `form:"start_port"`
+	EndPort    string   `form:"end_port"`
+	Cidr       []string `form:"cidr"`
+	Direction  string   `form:"direction"`
+	Label      string   `form:"label,omitempty"`
 }
 
 type firewallConfig struct {
-	Name string `from:"name"`
+	Name string `form:"name"`
 }
 
 // ListFirewalls returns all firewall owned by the calling API account
