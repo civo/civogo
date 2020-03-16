@@ -16,9 +16,9 @@ type LoadBalancerBackend struct {
 
 // LoadBalancerBackendConfig is the configuration for creating backends
 type LoadBalancerBackendConfig struct {
-	InstanceID string `from:"instance_id"`
-	Protocol   string `from:"protocol"`
-	Port       int    `from:"port"`
+	InstanceID string `form:"instance_id"`
+	Protocol   string `form:"protocol"`
+	Port       int    `form:"port"`
 }
 
 // LoadBalancer represents a load balancer configuration within Civo
@@ -41,17 +41,17 @@ type LoadBalancer struct {
 
 // LoadBalancerConfig represents a load balancer to be created
 type LoadBalancerConfig struct {
-	Hostname                string `from:"hostname"`
-	Protocol                string `from:"protocol"`
-	TLSCertificate          string `from:"tls_certificate"`
-	TLSKey                  string `from:"tls_key"`
-	Policy                  string `from:"policy"`
-	Port                    int    `from:"port"`
-	MaxRequestSize          int    `from:"max_request_size"`
-	HealthCheckPath         string `from:"health_check_path"`
-	FailTimeout             int    `from:"fail_timeout"`
-	MaxConns                int    `from:"max_conns"`
-	IgnoreInvalidBackendTLS bool   `from:"ignore_invalid_backend_tls"`
+	Hostname                string `form:"hostname"`
+	Protocol                string `form:"protocol"`
+	TLSCertificate          string `form:"tls_certificate"`
+	TLSKey                  string `form:"tls_key"`
+	Policy                  string `form:"policy"`
+	Port                    int    `form:"port"`
+	MaxRequestSize          int    `form:"max_request_size"`
+	HealthCheckPath         string `form:"health_check_path"`
+	FailTimeout             int    `form:"fail_timeout"`
+	MaxConns                int    `form:"max_conns"`
+	IgnoreInvalidBackendTLS bool   `form:"ignore_invalid_backend_tls"`
 	Backends                []LoadBalancerBackendConfig
 }
 
