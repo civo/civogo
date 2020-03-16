@@ -151,6 +151,31 @@ func (c *Client) ListFirewallRules(id string) ([]FirewallRule, error) {
 	return firewallRule, nil
 }
 
+// FindFirewallRule finds a firewall Rule by ID or part of the same
+func (c *Client) FindFirewallRule(firewallID string, search string) (*FirewallRule, error) {
+	firewallsRules, err := c.ListFirewallRules(firewallID)
+	if err != nil {
+		return nil, err
+	}
+
+	found := -1
+
+	for i, firewallRule := range firewallsRules {
+		if strings.Contains(firewallRule.ID, search) {
+			if found != -1 {
+				return nil, fmt.Errorf("unable to find %s because there were multiple matches", search)
+			}
+			found = i
+		}
+	}
+
+	if found == -1 {
+		return nil, fmt.Errorf("unable to find %s, zero matches", search)
+	}
+
+	return &firewallsRules[found], nil
+}
+
 // DeleteFirewallRule deletes an firewall
 func (c *Client) DeleteFirewallRule(id string, ruleID string) (*SimpleResponse, error) {
 	resp, err := c.SendDeleteRequest(fmt.Sprintf("/v2/firewalls/%s/rules/%s", id, ruleID))
