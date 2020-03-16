@@ -27,7 +27,7 @@ type LoadBalancer struct {
 	DefaultHostname         bool   `json:"default_hostname"`
 	Hostname                string `json:"hostname"`
 	Protocol                string `json:"protocol"`
-	Port                    string `json:"port"`
+	Port                    int    `json:"port"`
 	MaxRequestSize          int    `json:"max_request_size"`
 	TLSCertificate          string `json:"tls_certificate"`
 	TLSKey                  string `json:"tls_key"`
@@ -46,7 +46,7 @@ type LoadBalancerConfig struct {
 	TLSCertificate          string `from:"tls_certificate"`
 	TLSKey                  string `from:"tls_key"`
 	Policy                  string `from:"policy"`
-	Port                    string `from:"port"`
+	Port                    int    `from:"port"`
 	MaxRequestSize          int    `from:"max_request_size"`
 	HealthCheckPath         string `from:"health_check_path"`
 	FailTimeout             int    `from:"fail_timeout"`
