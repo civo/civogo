@@ -152,8 +152,8 @@ func (c *Client) ListFirewallRules(id string) ([]FirewallRule, error) {
 }
 
 // FindFirewallRule finds a firewall Rule by ID or part of the same
-func (c *Client) FindFirewallRule(idFirewall string, search string) (*FirewallRule, error) {
-	firewallsRules, err := c.ListFirewallRules(idFirewall)
+func (c *Client) FindFirewallRule(firewallID string, search string) (*FirewallRule, error) {
+	firewallsRules, err := c.ListFirewallRules(firewallID)
 	if err != nil {
 		return nil, err
 	}
