@@ -210,22 +210,22 @@ func TestFindFirewallRule(t *testing.T) {
 	})
 	defer server.Close()
 
-	got, _ := client.FindFirewallRules("22", "21")
+	got, _ := client.FindFirewallRule("22", "21")
 	if got.ID != "21" {
 		t.Errorf("Expected %s, got %s", "1", got.ID)
 	}
 
-	got, _ = client.FindFirewallRules("22", "22")
+	got, _ = client.FindFirewallRule("22", "22")
 	if got.ID != "22" {
 		t.Errorf("Expected %s, got %s", "2", got.ID)
 	}
 
-	_, err := client.FindFirewallRules("22", "2")
+	_, err := client.FindFirewallRule("22", "2")
 	if err.Error() != "unable to find 2 because there were multiple matches" {
 		t.Errorf("Expected %s, got %s", "unable to find 2 because there were multiple matches", err.Error())
 	}
 
-	_, err = client.FindFirewallRules("22", "missing")
+	_, err = client.FindFirewallRule("22", "missing")
 	if err.Error() != "unable to find missing, zero matches" {
 		t.Errorf("Expected %s, got %s", "unable to find missing, zero matches", err.Error())
 	}
