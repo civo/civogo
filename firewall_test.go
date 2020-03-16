@@ -180,6 +180,57 @@ func TestNewFirewallRule(t *testing.T) {
 	}
 }
 
+func TestFindFirewallRule(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/firewalls/22/rules": `[{
+			"id": "21",
+			"firewall_id": "22",
+			"openstack_security_group_rule_id": null,
+			"protocol": "tcp",
+			"start_port": "443",
+			"end_port": "443",
+			"cidr": [
+			  "0.0.0.0/0"
+			],
+			"direction": "ingress",
+			"label": "My Rule"
+		  },{
+			"id": "22",
+			"firewall_id": "22",
+			"openstack_security_group_rule_id": null,
+			"protocol": "tcp",
+			"start_port": "80",
+			"end_port": "80",
+			"cidr": [
+			  "0.0.0.0/0"
+			],
+			"direction": "ingress",
+			"label": "My Rule"
+		  }]`,
+	})
+	defer server.Close()
+
+	got, _ := client.FindFirewallRules("22", "21")
+	if got.ID != "21" {
+		t.Errorf("Expected %s, got %s", "1", got.ID)
+	}
+
+	got, _ = client.FindFirewallRules("22", "22")
+	if got.ID != "22" {
+		t.Errorf("Expected %s, got %s", "2", got.ID)
+	}
+
+	_, err := client.FindFirewallRules("22", "2")
+	if err.Error() != "unable to find 2 because there were multiple matches" {
+		t.Errorf("Expected %s, got %s", "unable to find 2 because there were multiple matches", err.Error())
+	}
+
+	_, err = client.FindFirewallRules("22", "missing")
+	if err.Error() != "unable to find missing, zero matches" {
+		t.Errorf("Expected %s, got %s", "unable to find missing, zero matches", err.Error())
+	}
+}
+
 func TestListFirewallRules(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/firewalls/22/rules": `[{
