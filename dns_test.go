@@ -292,7 +292,7 @@ func TestGetRecord(t *testing.T) {
 	})
 
 	defer server.Close()
-	got, err := client.GetDNSRecord("1111", "mail")
+	got, err := client.GetDNSRecord("1111", "12346")
 
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
