@@ -31,6 +31,7 @@ type Client struct {
 type HTTPError struct {
 	Code   int
 	Status string
+	Body   string
 }
 
 // Result is the result of a SimpleResponse
@@ -169,11 +170,12 @@ func (c *Client) sendRequest(req *http.Request) ([]byte, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode >= 300 {
-		return nil, HTTPError{Code: resp.StatusCode, Status: resp.Status}
-	}
 
 	body, err := ioutil.ReadAll(resp.Body)
+	if resp.StatusCode >= 300 {
+		return nil, HTTPError{Code: resp.StatusCode, Status: resp.Status, Body: string(body)}
+	}
+
 	c.LastJSONResponse = string(body)
 	return body, err
 }
