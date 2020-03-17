@@ -72,7 +72,7 @@ func NewClientWithURL(apiKey string, civoAPIURL string) (*Client, error) {
 
 // NewClient initializes a Client connecting to the production API
 func NewClient(apiKey string) (*Client, error) {
-	return NewClientWithURL(apiKey, "https://api.civo.com")
+	return NewClientWithURL(apiKey, "https://api-staging.civo.com")
 }
 
 // NewAdvancedClientForTesting initializes a Client connecting to a local test server and allows for specifying methods
@@ -161,7 +161,7 @@ func (c *Client) prepareClientURL(requestURL string) *url.URL {
 func (c *Client) sendRequest(req *http.Request) ([]byte, error) {
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("User-Agent", c.UserAgent)
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", fmt.Sprintf("bearer %s", c.APIKey))
 
 	resp, err := c.httpClient.Do(req)
@@ -191,17 +191,12 @@ func (c *Client) SendGetRequest(requestURL string) ([]byte, error) {
 // SendPostRequest sends a correctly authenticated post request to the API server
 func (c *Client) SendPostRequest(requestURL string, params interface{}) ([]byte, error) {
 	u := c.prepareClientURL(requestURL)
-	values, err := form.EncodeToValues(params)
-	if err != nil {
-		return nil, err
-	}
 
-	body := values.Encode()
-	if body == "=" {
-		body = ""
-	}
+	// we create a new buffer and encode everything to json to send it in the request
+	buf := new(bytes.Buffer)
+	json.NewEncoder(buf).Encode(params)
 
-	req, err := http.NewRequest("POST", u.String(), strings.NewReader(body))
+	req, err := http.NewRequest("POST", u.String(), buf)
 	if err != nil {
 		return nil, err
 	}

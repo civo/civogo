@@ -38,17 +38,17 @@ type FirewallRule struct {
 
 // FirewallRuleConfig is how you specify the details when creating a new rule
 type FirewallRuleConfig struct {
-	FirewallID string   `form:"firewall_id"`
-	Protocol   string   `form:"protocol"`
-	StartPort  string   `form:"start_port"`
-	EndPort    string   `form:"end_port"`
-	Cidr       []string `form:"cidr"`
-	Direction  string   `form:"direction"`
-	Label      string   `form:"label,omitempty"`
+	FirewallID string   `json:"firewall_id"`
+	Protocol   string   `json:"protocol"`
+	StartPort  string   `json:"start_port"`
+	EndPort    string   `json:"end_port"`
+	Cidr       []string `json:"cidr"`
+	Direction  string   `json:"direction"`
+	Label      string   `json:"label,omitempty"`
 }
 
 type firewallConfig struct {
-	Name string `form:"name"`
+	Name string `json:"name"`
 }
 
 // ListFirewalls returns all firewall owned by the calling API account
