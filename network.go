@@ -19,7 +19,7 @@ type Network struct {
 }
 
 type networkConfig struct {
-	Label string `form:"label"`
+	Label string `json:"label"`
 }
 
 // NetworkResult represents the result from a network create/update call

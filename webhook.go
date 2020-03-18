@@ -20,9 +20,9 @@ type Webhook struct {
 
 // WebhookConfig represents the options required for creating a new webhook
 type WebhookConfig struct {
-	Events []string `form:"events"`
-	URL    string   `form:"url"`
-	Secret string   `form:"secret"`
+	Events []string `json:"events"`
+	URL    string   `json:"url"`
+	Secret string   `json:"secret"`
 }
 
 // CreateWebhook creates a new webhook

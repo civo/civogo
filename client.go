@@ -10,8 +10,6 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"strings"
-
-	"github.com/ajg/form"
 )
 
 // Version represents the version of the CLI
@@ -206,17 +204,12 @@ func (c *Client) SendPostRequest(requestURL string, params interface{}) ([]byte,
 // SendPutRequest sends a correctly authenticated put request to the API server
 func (c *Client) SendPutRequest(requestURL string, params interface{}) ([]byte, error) {
 	u := c.prepareClientURL(requestURL)
-	values, err := form.EncodeToValues(params)
-	if err != nil {
-		return nil, err
-	}
 
-	body := values.Encode()
-	if body == "=" {
-		body = ""
-	}
+	// we create a new buffer and encode everything to json to send it in the request
+	buf := new(bytes.Buffer)
+	json.NewEncoder(buf).Encode(params)
 
-	req, err := http.NewRequest("PUT", u.String(), strings.NewReader(body))
+	req, err := http.NewRequest("PUT", u.String(), buf)
 	if err != nil {
 		return nil, err
 	}
