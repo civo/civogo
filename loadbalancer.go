@@ -16,9 +16,9 @@ type LoadBalancerBackend struct {
 
 // LoadBalancerBackendConfig is the configuration for creating backends
 type LoadBalancerBackendConfig struct {
-	InstanceID string `from:"instance_id"`
-	Protocol   string `from:"protocol"`
-	Port       int    `from:"port"`
+	InstanceID string `json:"instance_id"`
+	Protocol   string `json:"protocol"`
+	Port       int    `json:"port"`
 }
 
 // LoadBalancer represents a load balancer configuration within Civo
@@ -41,18 +41,18 @@ type LoadBalancer struct {
 
 // LoadBalancerConfig represents a load balancer to be created
 type LoadBalancerConfig struct {
-	Hostname                string `from:"hostname"`
-	Protocol                string `from:"protocol"`
-	TLSCertificate          string `from:"tls_certificate"`
-	TLSKey                  string `from:"tls_key"`
-	Policy                  string `from:"policy"`
-	Port                    int    `from:"port"`
-	MaxRequestSize          int    `from:"max_request_size"`
-	HealthCheckPath         string `from:"health_check_path"`
-	FailTimeout             int    `from:"fail_timeout"`
-	MaxConns                int    `from:"max_conns"`
-	IgnoreInvalidBackendTLS bool   `from:"ignore_invalid_backend_tls"`
-	Backends                []LoadBalancerBackendConfig
+	Hostname                string                      `json:"hostname"`
+	Protocol                string                      `json:"protocol"`
+	TLSCertificate          string                      `json:"tls_certificate"`
+	TLSKey                  string                      `json:"tls_key"`
+	Policy                  string                      `json:"policy"`
+	Port                    int                         `json:"port"`
+	MaxRequestSize          int                         `json:"max_request_size"`
+	HealthCheckPath         string                      `json:"health_check_path"`
+	FailTimeout             int                         `json:"fail_timeout"`
+	MaxConns                int                         `json:"max_conns"`
+	IgnoreInvalidBackendTLS bool                        `json:"ignore_invalid_backend_tls"`
+	Backends                []LoadBalancerBackendConfig `json:"backends"`
 }
 
 // ListLoadBalancers returns all load balancers owned by the calling API account
