@@ -215,7 +215,7 @@ func TestSetInstanceTags(t *testing.T) {
 func TestUpdateInstance(t *testing.T) {
 	client, server, _ := NewAdvancedClientForTesting(map[string]map[string]string{
 		"/v2/instances/12345": {
-			"requestBody":  `hostname=dummy.example.com&notes=my+notes&reverse_dns=dummy-reverse.example.com`,
+			"requestBody":  `{"hostname":"dummy.example.com","notes":"my notes","reverse_dns":"dummy-reverse.example.com"}`,
 			"method":       "PUT",
 			"responseBody": `{"result": "success"}`,
 		},
