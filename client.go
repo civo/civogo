@@ -90,8 +90,7 @@ func NewAdvancedClientForTesting(responses map[string]map[string]string) (*Clien
 			if strings.Contains(req.URL.String(), url) &&
 				req.Method == criteria["method"] {
 				if criteria["method"] == "PUT" || criteria["method"] == "POST" || criteria["method"] == "PATCH" {
-
-					if string(body) == criteria["requestBody"] {
+					if strings.TrimSpace(string(body)) == strings.TrimSpace(criteria["requestBody"]) {
 						responseSent = true
 						rw.Write([]byte(criteria["responseBody"]))
 					}
