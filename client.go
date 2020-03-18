@@ -70,7 +70,7 @@ func NewClientWithURL(apiKey string, civoAPIURL string) (*Client, error) {
 
 // NewClient initializes a Client connecting to the production API
 func NewClient(apiKey string) (*Client, error) {
-	return NewClientWithURL(apiKey, "https://api-staging.civo.com")
+	return NewClientWithURL(apiKey, "https://api.civo.com")
 }
 
 // NewAdvancedClientForTesting initializes a Client connecting to a local test server and allows for specifying methods
