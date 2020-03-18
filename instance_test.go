@@ -232,146 +232,145 @@ func TestUpdateInstance(t *testing.T) {
 	EnsureSuccessfulSimpleResponse(t, got, err)
 }
 
-//
-//func TestDeleteInstance(t *testing.T) {
-//	client, server, _ := NewAdvancedClientForTesting(map[string]map[string]string{
-//		"/v2/instances/12345": {
-//			"requestBody":  ``,
-//			"method":       "DELETE",
-//			"responseBody": `{"result": "success"}`,
-//		},
-//	})
-//	defer server.Close()
-//
-//	got, err := client.DeleteInstance("12345")
-//	EnsureSuccessfulSimpleResponse(t, got, err)
-//}
-//
-//func TestRebootInstance(t *testing.T) {
-//	client, server, _ := NewAdvancedClientForTesting(map[string]map[string]string{
-//		"/v2/instances/12345/hard_reboots": {
-//			"requestBody":  ``,
-//			"method":       "POST",
-//			"responseBody": `{"result": "success"}`,
-//		},
-//	})
-//	defer server.Close()
-//
-//	got, err := client.RebootInstance("12345")
-//	EnsureSuccessfulSimpleResponse(t, got, err)
-//}
-//
-//func TestHardRebootInstance(t *testing.T) {
-//	client, server, _ := NewAdvancedClientForTesting(map[string]map[string]string{
-//		"/v2/instances/12345/hard_reboots": {
-//			"requestBody":  ``,
-//			"method":       "POST",
-//			"responseBody": `{"result": "success"}`,
-//		},
-//	})
-//	defer server.Close()
-//
-//	got, err := client.HardRebootInstance("12345")
-//	EnsureSuccessfulSimpleResponse(t, got, err)
-//}
-//
-//func TestSoftRebootInstance(t *testing.T) {
-//	client, server, _ := NewAdvancedClientForTesting(map[string]map[string]string{
-//		"/v2/instances/12345/soft_reboots": {
-//			"requestBody":  ``,
-//			"method":       "POST",
-//			"responseBody": `{"result": "success"}`,
-//		},
-//	})
-//	defer server.Close()
-//
-//	got, err := client.SoftRebootInstance("12345")
-//	EnsureSuccessfulSimpleResponse(t, got, err)
-//}
-//
-//func TestStopInstance(t *testing.T) {
-//	client, server, _ := NewAdvancedClientForTesting(map[string]map[string]string{
-//		"/v2/instances/12345/stop": {
-//			"requestBody":  ``,
-//			"method":       "PUT",
-//			"responseBody": `{"result": "success"}`,
-//		},
-//	})
-//	defer server.Close()
-//
-//	got, err := client.StopInstance("12345")
-//	EnsureSuccessfulSimpleResponse(t, got, err)
-//}
-//
-//func TestStartInstance(t *testing.T) {
-//	client, server, _ := NewAdvancedClientForTesting(map[string]map[string]string{
-//		"/v2/instances/12345/start": {
-//			"requestBody":  ``,
-//			"method":       "PUT",
-//			"responseBody": `{"result": "success"}`,
-//		},
-//	})
-//	defer server.Close()
-//
-//	got, err := client.StartInstance("12345")
-//	EnsureSuccessfulSimpleResponse(t, got, err)
-//}
-//
-//func TestUpgradeInstance(t *testing.T) {
-//	client, server, _ := NewAdvancedClientForTesting(map[string]map[string]string{
-//		"/v2/instances/12345/resize": {
-//			"requestBody":  `size=g99.huge`,
-//			"method":       "PUT",
-//			"responseBody": `{"result": "success"}`,
-//		},
-//	})
-//	defer server.Close()
-//
-//	got, err := client.UpgradeInstance("12345", "g99.huge")
-//	EnsureSuccessfulSimpleResponse(t, got, err)
-//}
-//
-//func TestMovePublicIPToInstance(t *testing.T) {
-//	client, server, _ := NewAdvancedClientForTesting(map[string]map[string]string{
-//		"/v2/instances/12345/ip/1.2.3.4": {
-//			"requestBody":  ``,
-//			"method":       "PUT",
-//			"responseBody": `{"result": "success"}`,
-//		},
-//	})
-//	defer server.Close()
-//
-//	got, err := client.MovePublicIPToInstance("12345", "1.2.3.4")
-//	EnsureSuccessfulSimpleResponse(t, got, err)
-//}
-//
-//func TestGetInstanceConsoleURL(t *testing.T) {
-//	client, server, _ := NewAdvancedClientForTesting(map[string]map[string]string{
-//		"/v2/instances/12345/console": {
-//			"requestBody":  ``,
-//			"responseBody": `{"url": "https://console.example.com/12345"}`,
-//			"method":       "GET",
-//		},
-//	})
-//	defer server.Close()
-//
-//	got, _ := client.GetInstanceConsoleURL("12345")
-//
-//	if got != "https://console.example.com/12345" {
-//		t.Errorf("Expected %s, got %s", "https://console.example.com/12345", got)
-//	}
-//}
-//
-//func TestSetInstanceFirewall(t *testing.T) {
-//	client, server, _ := NewAdvancedClientForTesting(map[string]map[string]string{
-//		"/v2/instances/12345/firewall": {
-//			"requestBody":  `firewall_id=67890`,
-//			"method":       "PUT",
-//			"responseBody": `{"result": "success"}`,
-//		},
-//	})
-//	defer server.Close()
-//
-//	got, err := client.SetInstanceFirewall("12345", "67890")
-//	EnsureSuccessfulSimpleResponse(t, got, err)
-//}
+func TestDeleteInstance(t *testing.T) {
+	client, server, _ := NewAdvancedClientForTesting(map[string]map[string]string{
+		"/v2/instances/12345": {
+			"requestBody":  ``,
+			"method":       "DELETE",
+			"responseBody": `{"result": "success"}`,
+		},
+	})
+	defer server.Close()
+
+	got, err := client.DeleteInstance("12345")
+	EnsureSuccessfulSimpleResponse(t, got, err)
+}
+
+func TestRebootInstance(t *testing.T) {
+	client, server, _ := NewAdvancedClientForTesting(map[string]map[string]string{
+		"/v2/instances/12345/hard_reboots": {
+			"requestBody":  `""`,
+			"method":       "POST",
+			"responseBody": `{"result": "success"}`,
+		},
+	})
+	defer server.Close()
+
+	got, err := client.RebootInstance("12345")
+	EnsureSuccessfulSimpleResponse(t, got, err)
+}
+
+func TestHardRebootInstance(t *testing.T) {
+	client, server, _ := NewAdvancedClientForTesting(map[string]map[string]string{
+		"/v2/instances/12345/hard_reboots": {
+			"requestBody":  `""`,
+			"method":       "POST",
+			"responseBody": `{"result": "success"}`,
+		},
+	})
+	defer server.Close()
+
+	got, err := client.HardRebootInstance("12345")
+	EnsureSuccessfulSimpleResponse(t, got, err)
+}
+
+func TestSoftRebootInstance(t *testing.T) {
+	client, server, _ := NewAdvancedClientForTesting(map[string]map[string]string{
+		"/v2/instances/12345/soft_reboots": {
+			"requestBody":  `""`,
+			"method":       "POST",
+			"responseBody": `{"result": "success"}`,
+		},
+	})
+	defer server.Close()
+
+	got, err := client.SoftRebootInstance("12345")
+	EnsureSuccessfulSimpleResponse(t, got, err)
+}
+
+func TestStopInstance(t *testing.T) {
+	client, server, _ := NewAdvancedClientForTesting(map[string]map[string]string{
+		"/v2/instances/12345/stop": {
+			"requestBody":  `""`,
+			"method":       "PUT",
+			"responseBody": `{"result": "success"}`,
+		},
+	})
+	defer server.Close()
+
+	got, err := client.StopInstance("12345")
+	EnsureSuccessfulSimpleResponse(t, got, err)
+}
+
+func TestStartInstance(t *testing.T) {
+	client, server, _ := NewAdvancedClientForTesting(map[string]map[string]string{
+		"/v2/instances/12345/start": {
+			"requestBody":  `""`,
+			"method":       "PUT",
+			"responseBody": `{"result": "success"}`,
+		},
+	})
+	defer server.Close()
+
+	got, err := client.StartInstance("12345")
+	EnsureSuccessfulSimpleResponse(t, got, err)
+}
+
+func TestUpgradeInstance(t *testing.T) {
+	client, server, _ := NewAdvancedClientForTesting(map[string]map[string]string{
+		"/v2/instances/12345/resize": {
+			"requestBody":  `{"size":"g99.huge"}`,
+			"method":       "PUT",
+			"responseBody": `{"result": "success"}`,
+		},
+	})
+	defer server.Close()
+
+	got, err := client.UpgradeInstance("12345", "g99.huge")
+	EnsureSuccessfulSimpleResponse(t, got, err)
+}
+
+func TestMovePublicIPToInstance(t *testing.T) {
+	client, server, _ := NewAdvancedClientForTesting(map[string]map[string]string{
+		"/v2/instances/12345/ip/1.2.3.4": {
+			"requestBody":  `""`,
+			"method":       "PUT",
+			"responseBody": `{"result": "success"}`,
+		},
+	})
+	defer server.Close()
+
+	got, err := client.MovePublicIPToInstance("12345", "1.2.3.4")
+	EnsureSuccessfulSimpleResponse(t, got, err)
+}
+
+func TestGetInstanceConsoleURL(t *testing.T) {
+	client, server, _ := NewAdvancedClientForTesting(map[string]map[string]string{
+		"/v2/instances/12345/console": {
+			"requestBody":  `""`,
+			"responseBody": `{"url": "https://console.example.com/12345"}`,
+			"method":       "GET",
+		},
+	})
+	defer server.Close()
+
+	got, _ := client.GetInstanceConsoleURL("12345")
+
+	if got != "https://console.example.com/12345" {
+		t.Errorf("Expected %s, got %s", "https://console.example.com/12345", got)
+	}
+}
+
+func TestSetInstanceFirewall(t *testing.T) {
+	client, server, _ := NewAdvancedClientForTesting(map[string]map[string]string{
+		"/v2/instances/12345/firewall": {
+			"requestBody":  `{"firewall_id":"67890"}`,
+			"method":       "PUT",
+			"responseBody": `{"result": "success"}`,
+		},
+	})
+	defer server.Close()
+
+	got, err := client.SetInstanceFirewall("12345", "67890")
+	EnsureSuccessfulSimpleResponse(t, got, err)
+}

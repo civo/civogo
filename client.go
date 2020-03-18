@@ -190,10 +190,9 @@ func (c *Client) SendPostRequest(requestURL string, params interface{}) ([]byte,
 	u := c.prepareClientURL(requestURL)
 
 	// we create a new buffer and encode everything to json to send it in the request
-	buf := new(bytes.Buffer)
-	json.NewEncoder(buf).Encode(params)
+	jsonValue, _ := json.Marshal(params)
 
-	req, err := http.NewRequest("POST", u.String(), buf)
+	req, err := http.NewRequest("POST", u.String(), bytes.NewBuffer(jsonValue))
 	if err != nil {
 		return nil, err
 	}
@@ -205,10 +204,9 @@ func (c *Client) SendPutRequest(requestURL string, params interface{}) ([]byte, 
 	u := c.prepareClientURL(requestURL)
 
 	// we create a new buffer and encode everything to json to send it in the request
-	buf := new(bytes.Buffer)
-	json.NewEncoder(buf).Encode(params)
+	jsonValue, _ := json.Marshal(params)
 
-	req, err := http.NewRequest("PUT", u.String(), buf)
+	req, err := http.NewRequest("PUT", u.String(), bytes.NewBuffer(jsonValue))
 	if err != nil {
 		return nil, err
 	}
