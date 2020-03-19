@@ -29,6 +29,7 @@ type Client struct {
 type HTTPError struct {
 	Code   int
 	Status string
+	Reason string
 }
 
 // Result is the result of a SimpleResponse
@@ -46,7 +47,7 @@ type SimpleResponse struct {
 const ResultSuccess = "success"
 
 func (e HTTPError) Error() string {
-	return fmt.Sprintf("%d: %s", e.Code, e.Status)
+	return fmt.Sprintf("%d: %s, %s", e.Code, e.Status, e.Reason)
 }
 
 // NewClientWithURL initializes a Client with a specific API URL
@@ -166,12 +167,14 @@ func (c *Client) sendRequest(req *http.Request) ([]byte, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode >= 300 {
-		return nil, HTTPError{Code: resp.StatusCode, Status: resp.Status}
-	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 	c.LastJSONResponse = string(body)
+
+	if resp.StatusCode >= 300 {
+		return nil, HTTPError{Code: resp.StatusCode, Status: resp.Status, Reason: string(body)}
+	}
+
 	return body, err
 }
 
