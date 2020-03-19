@@ -167,8 +167,8 @@ func (c *Client) sendRequest(req *http.Request) ([]byte, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	
-  	body, err := ioutil.ReadAll(resp.Body)
+
+	body, err := ioutil.ReadAll(resp.Body)
 	c.LastJSONResponse = string(body)
 
 	if resp.StatusCode >= 300 {
