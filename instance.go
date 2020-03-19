@@ -59,20 +59,20 @@ type PaginatedInstanceList struct {
 // none of the fields are mandatory and will be automatically
 // set with default values
 type InstanceConfig struct {
-	Count            int      `form:"count"`
-	Hostname         string   `form:"hostname"`
-	ReverseDNS       string   `form:"reverse_dns"`
-	Size             string   `form:"size"`
-	Region           string   `form:"region"`
-	PublicIPRequired bool     `form:"public_ip_required"`
-	NetworkID        string   `form:"network_id"`
-	TemplateID       string   `form:"template_id"`
-	SnapshotID       string   `form:"snapshot_id"`
-	InitialUser      string   `form:"initial_user"`
-	SSHKeyID         string   `form:"ssh_key_id"`
-	Script           string   `form:"script"`
-	Tags             []string `form:"-"`
-	TagsList         string   `form:"tags"`
+	Count            int      `json:"count"`
+	Hostname         string   `json:"hostname"`
+	ReverseDNS       string   `json:"reverse_dns"`
+	Size             string   `json:"size"`
+	Region           string   `json:"region"`
+	PublicIPRequired bool     `json:"public_ip_required"`
+	NetworkID        string   `json:"network_id"`
+	TemplateID       string   `json:"template_id"`
+	SnapshotID       string   `json:"snapshot_id"`
+	InitialUser      string   `json:"initial_user"`
+	SSHKeyID         string   `json:"ssh_key_id"`
+	Script           string   `json:"script"`
+	Tags             []string `json:"-"`
+	TagsList         string   `json:"tags"`
 }
 
 // ListInstances returns a page of Instances owned by the calling API account

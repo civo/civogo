@@ -26,7 +26,7 @@ type Snapshot struct {
 
 // SnapshotConfig represents the options required for creating a new snapshot
 type SnapshotConfig struct {
-	InstanceID string `form:"instance_id"`
+	InstanceID string `json:"instance_id"`
 	Safe       bool   `from:"safe"`
 	Cron       string `from:"cron_timing"`
 }

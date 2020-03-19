@@ -61,12 +61,12 @@ type KubernetesCluster struct {
 
 // KubernetesClusterConfig is used to create a new cluster
 type KubernetesClusterConfig struct {
-	Name              string `form:"name"`
-	NumTargetNodes    int    `form:"num_target_nodes"`
-	TargetNodesSize   string `form:"target_nodes_size"`
-	KubernetesVersion string `form:"kubernetes_version"`
-	Tags              string `form:"tags"`
-	Applications      string `form:"applications"`
+	Name              string `json:"name"`
+	NumTargetNodes    int    `json:"num_target_nodes"`
+	TargetNodesSize   string `json:"target_nodes_size"`
+	KubernetesVersion string `json:"kubernetes_version"`
+	Tags              string `json:"tags"`
+	Applications      string `json:"applications"`
 }
 
 // KubernetesPlanConfiguration is a value within a configuration for

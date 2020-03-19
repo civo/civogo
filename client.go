@@ -10,8 +10,6 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"strings"
-
-	"github.com/ajg/form"
 )
 
 // Version represents the version of the CLI
@@ -31,7 +29,7 @@ type Client struct {
 type HTTPError struct {
 	Code   int
 	Status string
-	Body   string
+	Reason string
 }
 
 // Result is the result of a SimpleResponse
@@ -49,7 +47,7 @@ type SimpleResponse struct {
 const ResultSuccess = "success"
 
 func (e HTTPError) Error() string {
-	return fmt.Sprintf("%d: %s", e.Code, e.Status)
+	return fmt.Sprintf("%d: %s, %s", e.Code, e.Status, e.Reason)
 }
 
 // NewClientWithURL initializes a Client with a specific API URL
@@ -93,8 +91,7 @@ func NewAdvancedClientForTesting(responses map[string]map[string]string) (*Clien
 			if strings.Contains(req.URL.String(), url) &&
 				req.Method == criteria["method"] {
 				if criteria["method"] == "PUT" || criteria["method"] == "POST" || criteria["method"] == "PATCH" {
-
-					if string(body) == criteria["requestBody"] {
+					if strings.TrimSpace(string(body)) == strings.TrimSpace(criteria["requestBody"]) {
 						responseSent = true
 						rw.Write([]byte(criteria["responseBody"]))
 					}
@@ -162,7 +159,7 @@ func (c *Client) prepareClientURL(requestURL string) *url.URL {
 func (c *Client) sendRequest(req *http.Request) ([]byte, error) {
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("User-Agent", c.UserAgent)
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", fmt.Sprintf("bearer %s", c.APIKey))
 
 	resp, err := c.httpClient.Do(req)
@@ -172,11 +169,12 @@ func (c *Client) sendRequest(req *http.Request) ([]byte, error) {
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
+	c.LastJSONResponse = string(body)
+
 	if resp.StatusCode >= 300 {
-		return nil, HTTPError{Code: resp.StatusCode, Status: resp.Status, Body: string(body)}
+		return nil, HTTPError{Code: resp.StatusCode, Status: resp.Status, Reason: string(body)}
 	}
 
-	c.LastJSONResponse = string(body)
 	return body, err
 }
 
@@ -193,17 +191,11 @@ func (c *Client) SendGetRequest(requestURL string) ([]byte, error) {
 // SendPostRequest sends a correctly authenticated post request to the API server
 func (c *Client) SendPostRequest(requestURL string, params interface{}) ([]byte, error) {
 	u := c.prepareClientURL(requestURL)
-	values, err := form.EncodeToValues(params)
-	if err != nil {
-		return nil, err
-	}
 
-	body := values.Encode()
-	if body == "=" {
-		body = ""
-	}
+	// we create a new buffer and encode everything to json to send it in the request
+	jsonValue, _ := json.Marshal(params)
 
-	req, err := http.NewRequest("POST", u.String(), strings.NewReader(body))
+	req, err := http.NewRequest("POST", u.String(), bytes.NewBuffer(jsonValue))
 	if err != nil {
 		return nil, err
 	}
@@ -213,17 +205,11 @@ func (c *Client) SendPostRequest(requestURL string, params interface{}) ([]byte,
 // SendPutRequest sends a correctly authenticated put request to the API server
 func (c *Client) SendPutRequest(requestURL string, params interface{}) ([]byte, error) {
 	u := c.prepareClientURL(requestURL)
-	values, err := form.EncodeToValues(params)
-	if err != nil {
-		return nil, err
-	}
 
-	body := values.Encode()
-	if body == "=" {
-		body = ""
-	}
+	// we create a new buffer and encode everything to json to send it in the request
+	jsonValue, _ := json.Marshal(params)
 
-	req, err := http.NewRequest("PUT", u.String(), strings.NewReader(body))
+	req, err := http.NewRequest("PUT", u.String(), bytes.NewBuffer(jsonValue))
 	if err != nil {
 		return nil, err
 	}

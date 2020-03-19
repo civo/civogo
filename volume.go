@@ -29,9 +29,9 @@ type VolumeResult struct {
 
 // VolumeConfig are the settings required to create a new Volume
 type VolumeConfig struct {
-	Name          string `form:"name"`
-	SizeGigabytes int    `form:"size_gb"`
-	Bootable      bool   `form:"bootable"`
+	Name          string `json:"name"`
+	SizeGigabytes int    `json:"size_gb"`
+	Bootable      bool   `json:"bootable"`
 }
 
 // ListVolumes returns all volumes owned by the calling API account

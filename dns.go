@@ -21,7 +21,7 @@ type DNSDomain struct {
 }
 
 type dnsDomainConfig struct {
-	Name string `form:"name"`
+	Name string `json:"name"`
 }
 
 // DNSRecordType represents the allowed record types: a, cname, mx or txt
@@ -45,11 +45,11 @@ type DNSRecord struct {
 // none of the fields are mandatory and will be automatically
 // set with default values
 type DNSRecordConfig struct {
-	Type     DNSRecordType `form:"type"`
-	Name     string        `form:"name"`
-	Value    string        `form:"value"`
-	Priority int           `form:"priority"`
-	TTL      int           `form:"ttl"`
+	Type     DNSRecordType `json:"type"`
+	Name     string        `json:"name"`
+	Value    string        `json:"value"`
+	Priority int           `json:"priority"`
+	TTL      int           `json:"ttl"`
 }
 
 const (
