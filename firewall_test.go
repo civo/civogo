@@ -94,6 +94,23 @@ func TestNewFirewall(t *testing.T) {
 	}
 }
 
+func TestRenameFirewall(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/firewalls/12346": `{"result": "success"}`,
+	})
+	defer server.Close()
+	got, err := client.RenameFirewall("12346", "new_name")
+	if err != nil {
+		t.Errorf("Request returned an error: %s", err)
+		return
+	}
+
+	expected := &SimpleResponse{Result: "success"}
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Expected %+v, got %+v", expected, got)
+	}
+}
+
 func TestDeleteFirewall(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/firewalls/12346": `{"result": "success"}`,
