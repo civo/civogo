@@ -107,6 +107,18 @@ func (c *Client) NewFirewall(name string) (*FirewallResult, error) {
 	return result, nil
 }
 
+// RenameFirewall rename firewall
+func (c *Client) RenameFirewall(id string, name string) (*SimpleResponse, error) {
+	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/firewalls/%s", id), map[string]string{
+		"name": name,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return c.DecodeSimpleResponse(resp)
+}
+
 // DeleteFirewall deletes an firewall
 func (c *Client) DeleteFirewall(id string) (*SimpleResponse, error) {
 	resp, err := c.SendDeleteRequest("/v2/firewalls/" + id)
