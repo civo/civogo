@@ -1,44 +1,53 @@
 package civogo
 
 import (
+	"reflect"
 	"testing"
 )
 
-func TestGetDefaultSSHKey(t *testing.T) {
+func TestNewSSHKey(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
-		"/v2/sshkeys": `{"items":[{"id": "12345", "name": "RSA Key", "default": true}]}`,
+		"/v2/sshkeys": `{
+		  "result": "success",
+		  "id": "730c960f-a51f-44e5-9c21-bd135d015d12"
+		}`,
 	})
 	defer server.Close()
-
-	got, err := client.GetDefaultSSHKey()
+	got, err := client.NewSSHKey("test", "730c960f-a51f-44e5-9c21-bd135d015d12")
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
 	}
-	if got.ID != "12345" {
-		t.Errorf("Expected %s, got %s", "12345", got.ID)
+
+	expected := &SimpleResponse{Result: "success", ID: "730c960f-a51f-44e5-9c21-bd135d015d12"}
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Expected %+v, got %+v", expected, got)
 	}
 }
 
 func TestListSSHKeys(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
-		"/v2/sshkeys": `{"page": 1, "per_page": 25, "items":[{"id": "12345", "name": "RSA Key", "default": true}]}`,
+		"/v2/sshkeys": `[
+			{"id": "12345", "name": "RSA Key", "fingerprint": "SHA256:SS4+2d7Zl1Pt5Bc9af9NubyA0yI+fdopOUlEhUoEna0" },
+			{"id": "33567", "name": "RSA Key", "fingerprint": "SHA256:SS4+87asdf795Bc9af9NubyA0yI+fdopOUlEhUoEna0" }]`,
 	})
 	defer server.Close()
 
-	got, err := client.ListSSHKeys(1, 25)
+	got, err := client.ListSSHKeys()
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
 	}
-	if got.Items[0].ID != "12345" {
-		t.Errorf("Expected %s, got %s", "12345", got.Items[0].ID)
+	if got[0].ID != "12345" {
+		t.Errorf("Expected %s, got %s", "12345", got[0].ID)
 	}
 }
 
 func TestFindSSHKey(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
-		"/v2/sshkeys": `{"page": 1, "per_page": 25, "items":[{"id": "12345", "name": "RSA Key", "default": true},{"id": "67890", "name": "DSS Key", "default": true}]}`,
+		"/v2/sshkeys": `[
+			{"id": "12345", "name": "RSA Key", "fingerprint": "SHA256:SS4+2d7Zl1Pt5Bc9af9NubyA0yI+fdopOUlEhUoEna0" },
+			{"id": "233567", "name": "Test", "fingerprint": "SHA256:SS4+87asdf795Bc9af9NubyA0yI+fdopOUlEhUoEna0" }]`,
 	})
 	defer server.Close()
 
@@ -47,24 +56,14 @@ func TestFindSSHKey(t *testing.T) {
 		t.Errorf("Expected %s, got %s", "12345", got.ID)
 	}
 
-	got, _ = client.FindSSHKey("89")
-	if got.ID != "67890" {
-		t.Errorf("Expected %s, got %s", "67890", got.ID)
-	}
-
 	got, _ = client.FindSSHKey("RSA")
 	if got.ID != "12345" {
 		t.Errorf("Expected %s, got %s", "12345", got.ID)
 	}
 
-	got, _ = client.FindSSHKey("DSS")
-	if got.ID != "67890" {
-		t.Errorf("Expected %s, got %s", "67890", got.ID)
-	}
-
-	_, err = client.FindSSHKey("Key")
-	if err.Error() != "unable to find Key because there were multiple matches" {
-		t.Errorf("Expected %s, got %s", "unable to find Key because there were multiple matches", err.Error())
+	_, err = client.FindSSHKey("23")
+	if err.Error() != "unable to find 23 because there were multiple matches" {
+		t.Errorf("Expected %s, got %s", "unable to find 23 because there were multiple matches", err.Error())
 	}
 
 	_, err = client.FindSSHKey("missing")

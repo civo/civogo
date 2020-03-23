@@ -37,6 +37,7 @@ type Result string
 
 // SimpleResponse is a structure that returns success and/or any error
 type SimpleResponse struct {
+	ID           string `json:"id"`
 	Result       Result `json:"result"`
 	ErrorCode    string `json:"code"`
 	ErrorReason  string `json:"reason"`

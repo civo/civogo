@@ -124,9 +124,6 @@ func TestNewInstanceConfig(t *testing.T) {
 	if got.TemplateID != "3" {
 		t.Errorf("Expected %s, got %s", "3", got.TemplateID)
 	}
-	if got.SSHKeyID != "4" {
-		t.Errorf("Expected %s, got %s", "3", got.TemplateID)
-	}
 	if got.Count != 1 {
 		t.Errorf("Expected %d, got %d", 1, got.Count)
 	}
