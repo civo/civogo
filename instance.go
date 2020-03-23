@@ -141,14 +141,6 @@ func (c *Client) GetInstance(id string) (*Instance, error) {
 
 // NewInstanceConfig returns an initialized config for a new instance
 func (c *Client) NewInstanceConfig() (*InstanceConfig, error) {
-	var sshKeyID string
-	sshKey, err := c.GetDefaultSSHKey()
-	if err == nil {
-		sshKeyID = sshKey.ID
-	} else {
-		sshKeyID = ""
-	}
-
 	network, err := c.GetDefaultNetwork()
 	if err != nil {
 		return nil, err
@@ -170,7 +162,7 @@ func (c *Client) NewInstanceConfig() (*InstanceConfig, error) {
 		TemplateID:       template.ID,
 		SnapshotID:       "",
 		InitialUser:      "civo",
-		SSHKeyID:         sshKeyID,
+		SSHKeyID:         "",
 		Script:           "",
 		Tags:             []string{""},
 	}, nil
