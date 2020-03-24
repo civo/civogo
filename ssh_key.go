@@ -29,7 +29,7 @@ func (c *Client) ListSSHKeys() ([]SSHKey, error) {
 	return sshKeys, nil
 }
 
-// NewSSHKey creates a new ssh key record
+// NewSSHKey creates a new SSH key record
 func (c *Client) NewSSHKey(name string, publicKey string) (*SimpleResponse, error) {
 	resp, err := c.SendPostRequest("/v2/sshkeys", map[string]string{
 		"name":       name,
@@ -42,9 +42,9 @@ func (c *Client) NewSSHKey(name string, publicKey string) (*SimpleResponse, erro
 	return c.DecodeSimpleResponse(resp)
 }
 
-// UpdateSSHKey update a ssk key record
-func (c *Client) UpdateSSHKey(name string, sshID string) (*SSHKey, error) {
-	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/sshkeys/%s", sshID), map[string]string{
+// UpdateSSHKey update a SSH key record
+func (c *Client) UpdateSSHKey(name string, sshKeyID string) (*SSHKey, error) {
+	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/sshkeys/%s", sshKeyID), map[string]string{
 		"name": name,
 	})
 	if err != nil {
@@ -84,7 +84,7 @@ func (c *Client) FindSSHKey(search string) (*SSHKey, error) {
 	return &keys[found], nil
 }
 
-// DeleteFirewallRule deletes an firewall
+// DeleteSSHKey deletes an SSH key
 func (c *Client) DeleteSSHKey(id string) (*SimpleResponse, error) {
 	resp, err := c.SendDeleteRequest(fmt.Sprintf("/v2/sshkeys/%s", id))
 	if err != nil {
