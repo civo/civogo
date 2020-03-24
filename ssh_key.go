@@ -11,7 +11,7 @@ import (
 type SSHKey struct {
 	ID          string `json:"id"`
 	Name        string `json:"name"`
-	FingerPrint string `json:"fingerprint"`
+	Fingerprint string `json:"fingerprint"`
 }
 
 // ListSSHKeys list all SSH key for an account
@@ -59,7 +59,7 @@ func (c *Client) UpdateSSHKey(name string, sshKeyID string) (*SSHKey, error) {
 	return result, nil
 }
 
-// FindSSHKey finds a SSH key by either part of the ID or part of the name
+// FindSSHKey finds an SSH key by either part of the ID or part of the name
 func (c *Client) FindSSHKey(search string) (*SSHKey, error) {
 	keys, err := c.ListSSHKeys()
 	if err != nil {
