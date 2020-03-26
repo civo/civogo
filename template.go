@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 )
 
 // Template represents a Template for launching instances from
@@ -11,8 +12,8 @@ type Template struct {
 	ID               string `json:"id"`
 	Code             string `json:"code"`
 	Name             string `json:"name"`
-	AccountID        string `json:"account_id"`
-	ImageID          string `json:"image_id"`
+	AccountID        string `json:"account_id,omitempty"`
+	ImageID          string `json:"image_id,omitempty"`
 	VolumeID         string `json:"volume_id"`
 	ShortDescription string `json:"short_description"`
 	Description      string `json:"description"`
@@ -20,20 +21,80 @@ type Template struct {
 	CloudConfig      string `json:"cloud_config"`
 }
 
-// GetTemplateByCode finds the Template for an account with the specified code
-func (c *Client) GetTemplateByCode(code string) (*Template, error) {
+// ListTemplates return all template in system
+func (c *Client) ListTemplates() ([]Template, error) {
 	resp, err := c.SendGetRequest("/v2/templates")
 	if err != nil {
 		return nil, err
 	}
 
 	templates := make([]Template, 0)
-	err = json.NewDecoder(bytes.NewReader(resp)).Decode(&templates)
-	for _, template := range templates {
+	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&templates); err != nil {
+		return nil, err
+	}
+
+	return templates, nil
+}
+
+// NewTemplate this function will create a new template for the current user
+func (c *Client) NewTemplate(conf *Template) (*SimpleResponse, error) {
+	if conf.ImageID == "" {
+		if conf.VolumeID == "" {
+			return nil, errors.New("if image id is not present, volume id must be")
+		}
+	}
+
+	resp, err := c.SendPostRequest("/v2/templates", conf)
+	if err != nil {
+		return nil, err
+	}
+
+	return c.DecodeSimpleResponse(resp)
+}
+
+// NewTemplate this function will create a new template for the current user
+func (c *Client) UpdateTemplate(id string, conf *Template) (*Template, error) {
+	if conf.ImageID == "" {
+		if conf.VolumeID == "" {
+			return nil, errors.New("if image id is not present, volume id must be")
+		}
+	}
+
+	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/templates/%s", id), conf)
+	if err != nil {
+		return nil, err
+	}
+
+	template := &Template{}
+	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(template); err != nil {
+		return nil, err
+	}
+
+	return template, nil
+}
+
+// GetTemplateByCode finds the Template for an account with the specified code
+func (c *Client) GetTemplateByCode(code string) (*Template, error) {
+	resp, err := c.ListTemplates()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, template := range resp {
 		if template.Code == code {
 			return &template, nil
 		}
 	}
 
-	return nil, errors.New("Template not found")
+	return nil, errors.New("template not found")
+}
+
+// DeleteTemplate deletes requested template
+func (c *Client) DeleteTemplate(id string) (*SimpleResponse, error) {
+	resp, err := c.SendDeleteRequest(fmt.Sprintf("/v2/templates/%s", id))
+	if err != nil {
+		return nil, err
+	}
+
+	return c.DecodeSimpleResponse(resp)
 }
