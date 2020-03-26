@@ -52,7 +52,7 @@ func (c *Client) NewTemplate(conf *Template) (*SimpleResponse, error) {
 	return c.DecodeSimpleResponse(resp)
 }
 
-// NewTemplate this function will create a new template for the current user
+// UpdateTemplate this function will update a template for the current user
 func (c *Client) UpdateTemplate(id string, conf *Template) (*Template, error) {
 	if conf.ImageID == "" {
 		if conf.VolumeID == "" {
