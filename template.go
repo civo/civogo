@@ -36,12 +36,10 @@ func (c *Client) ListTemplates() ([]Template, error) {
 	return templates, nil
 }
 
-// NewTemplate this function will create a new template for the current user
+// NewTemplate will create a new template for the current user
 func (c *Client) NewTemplate(conf *Template) (*SimpleResponse, error) {
-	if conf.ImageID == "" {
-		if conf.VolumeID == "" {
-			return nil, errors.New("if image id is not present, volume id must be")
-		}
+	if conf.ImageID == "" && conf.VolumeID == "" {
+		return nil, errors.New("if image id is not present, volume id must be")
 	}
 
 	resp, err := c.SendPostRequest("/v2/templates", conf)
@@ -52,12 +50,10 @@ func (c *Client) NewTemplate(conf *Template) (*SimpleResponse, error) {
 	return c.DecodeSimpleResponse(resp)
 }
 
-// UpdateTemplate this function will update a template for the current user
+// UpdateTemplate will update a template for the current user
 func (c *Client) UpdateTemplate(id string, conf *Template) (*Template, error) {
-	if conf.ImageID == "" {
-		if conf.VolumeID == "" {
-			return nil, errors.New("if image id is not present, volume id must be")
-		}
+	if conf.ImageID == "" && conf.VolumeID == "" {
+		return nil, errors.New("if image id is not present, volume id must be")
 	}
 
 	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/templates/%s", id), conf)
