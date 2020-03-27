@@ -64,7 +64,7 @@ type InstanceConfig struct {
 	ReverseDNS       string   `json:"reverse_dns"`
 	Size             string   `json:"size"`
 	Region           string   `json:"region"`
-	PublicIPRequired bool     `json:"public_ip_required"`
+	PublicIPRequired string   `json:"public_ip_required"`
 	NetworkID        string   `json:"network_id"`
 	TemplateID       string   `json:"template_id"`
 	SnapshotID       string   `json:"snapshot_id"`
@@ -157,7 +157,7 @@ func (c *Client) NewInstanceConfig() (*InstanceConfig, error) {
 		ReverseDNS:       "",
 		Size:             "g2.xsmall",
 		Region:           "lon1",
-		PublicIPRequired: true,
+		PublicIPRequired: "true",
 		NetworkID:        network.ID,
 		TemplateID:       template.ID,
 		SnapshotID:       "",
