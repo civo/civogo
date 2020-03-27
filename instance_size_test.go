@@ -55,3 +55,40 @@ func TestListInstanceSizes(t *testing.T) {
 		t.Errorf("Expected %s, got %s", "Micro - 1GB RAM, 1 CPU Core, 25GB SSD Disk", got[0].Description)
 	}
 }
+
+func TestGetInstanceSizeByName(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/sizes": `[
+			{
+			"id": "fa8b75fa-4da6-4ab0-8b1e-fa6e78f7a6aa",
+			"name": "g2.xsmall",
+			"nice_name": "Extra Small",
+			"cpu_cores": 1,
+			"ram_mb": 1024,
+			"disk_gb": 25,
+			"description": "Extra Small - 1GB RAM, 1 CPU Core, 25GB SSD Disk",
+			"selectable": true
+		  },
+		  {
+			"id": "2859cc60-a2d8-4a95-b1c9-3ecdb14ddca3",
+			"name": "g2.small",
+			"nice_name": "Small",
+			"cpu_cores": 1,
+			"ram_mb": 2048,
+			"disk_gb": 25,
+			"description": "Small - 2GB RAM, 1 CPU Core, 25GB SSD Disk",
+			"selectable": true
+		  }
+		]`,
+	})
+	defer server.Close()
+
+	got, err := client.GetInstanceSizeByName("g2.xsmall")
+	if err != nil {
+		t.Errorf("Request returned an error: %s", err)
+		return
+	}
+	if got.ID != "fa8b75fa-4da6-4ab0-8b1e-fa6e78f7a6aa" {
+		t.Errorf("Expected %s, got %s", "fa8b75fa-4da6-4ab0-8b1e-fa6e78f7a6aa", got.ID)
+	}
+}

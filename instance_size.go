@@ -3,6 +3,7 @@ package civogo
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 )
 
 // InstanceSize represents an available size for instances to launch
@@ -17,7 +18,7 @@ type InstanceSize struct {
 	Selectable    bool   `json:"selectable"`
 }
 
-// ListInstanceSizes returns all availble sizes of instances
+// ListInstanceSizes returns all available sizes of instances
 func (c *Client) ListInstanceSizes() ([]InstanceSize, error) {
 	resp, err := c.SendGetRequest("/v2/sizes")
 	if err != nil {
@@ -30,4 +31,20 @@ func (c *Client) ListInstanceSizes() ([]InstanceSize, error) {
 	}
 
 	return sizes, nil
+}
+
+// GetInstanceSizeByName finds the instance size by the name
+func (c *Client) GetInstanceSizeByName(name string) (*InstanceSize, error) {
+	resp, err := c.ListInstanceSizes()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, size := range resp {
+		if size.Name == name {
+			return &size, nil
+		}
+	}
+
+	return nil, errors.New("instances size not found")
 }
