@@ -39,7 +39,7 @@ type KubernetesInstalledApplication struct {
 	Configuration map[string]string `json:"configuration,omitempty"`
 }
 
-// KubernetesCluster is a Kubernetes k3s cluster
+// KubernetesItem is a Kubernetes item inside the cluster
 type KubernetesItem struct {
 	ID                    string                           `json:"id"`
 	Name                  string                           `json:"name"`
@@ -59,6 +59,7 @@ type KubernetesItem struct {
 	InstalledApplications []KubernetesInstalledApplication `json:"installed_applications"`
 }
 
+// KubernetesCluster is a Kubernetes k3s cluster
 type KubernetesCluster struct {
 	Page    int              `json:"page"`
 	PerPage int              `json:"per_page"`
