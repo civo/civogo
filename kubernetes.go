@@ -40,7 +40,7 @@ type KubernetesInstalledApplication struct {
 }
 
 // KubernetesCluster is a Kubernetes k3s cluster
-type KubernetesCluster struct {
+type KubernetesItem struct {
 	ID                    string                           `json:"id"`
 	Name                  string                           `json:"name"`
 	Version               string                           `json:"version"`
@@ -57,6 +57,13 @@ type KubernetesCluster struct {
 	CreatedAt             time.Time                        `json:"created_at"`
 	Instances             []KubernetesInstance             `json:"instances"`
 	InstalledApplications []KubernetesInstalledApplication `json:"installed_applications"`
+}
+
+type KubernetesCluster struct {
+	Page    int              `json:"page"`
+	PerPage int              `json:"per_page"`
+	Pages   int              `json:"pages"`
+	Items   []KubernetesItem `json:"items"`
 }
 
 // KubernetesClusterConfig is used to create a new cluster
@@ -105,13 +112,13 @@ type KubernetesVersion struct {
 }
 
 // ListKubernetesClusters returns all cluster of kubernetes in the account
-func (c *Client) ListKubernetesClusters() ([]KubernetesCluster, error) {
+func (c *Client) ListKubernetesClusters() (*KubernetesCluster, error) {
 	resp, err := c.SendGetRequest("/v2/kubernetes/clusters")
 	if err != nil {
 		return nil, err
 	}
 
-	kubernetes := make([]KubernetesCluster, 0)
+	kubernetes := &KubernetesCluster{}
 	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&kubernetes); err != nil {
 		return nil, err
 	}
@@ -120,7 +127,7 @@ func (c *Client) ListKubernetesClusters() ([]KubernetesCluster, error) {
 }
 
 // FindKubernetesCluster finds a Kubernetes cluster by either part of the ID or part of the name
-func (c *Client) FindKubernetesCluster(search string) (*KubernetesCluster, error) {
+func (c *Client) FindKubernetesCluster(search string) (*KubernetesItem, error) {
 	clusters, err := c.ListKubernetesClusters()
 	if err != nil {
 		return nil, err
@@ -128,7 +135,7 @@ func (c *Client) FindKubernetesCluster(search string) (*KubernetesCluster, error
 
 	found := -1
 
-	for i, cluster := range clusters {
+	for i, cluster := range clusters.Items {
 		if strings.Contains(cluster.ID, search) || strings.Contains(cluster.Name, search) {
 			if found != -1 {
 				return nil, fmt.Errorf("unable to find %s because there were multiple matches", search)
@@ -141,17 +148,17 @@ func (c *Client) FindKubernetesCluster(search string) (*KubernetesCluster, error
 		return nil, fmt.Errorf("unable to find %s, zero matches", search)
 	}
 
-	return &clusters[found], nil
+	return &clusters.Items[found], nil
 }
 
 // NewKubernetesClusters create a new cluster of kubernetes
-func (c *Client) NewKubernetesClusters(kc *KubernetesClusterConfig) (*KubernetesCluster, error) {
+func (c *Client) NewKubernetesClusters(kc *KubernetesClusterConfig) (*KubernetesItem, error) {
 	body, err := c.SendPostRequest("/v2/kubernetes/clusters", kc)
 	if err != nil {
 		return nil, err
 	}
 
-	kubernetes := &KubernetesCluster{}
+	kubernetes := &KubernetesItem{}
 	if err := json.NewDecoder(bytes.NewReader(body)).Decode(kubernetes); err != nil {
 		return nil, err
 	}
@@ -160,19 +167,19 @@ func (c *Client) NewKubernetesClusters(kc *KubernetesClusterConfig) (*Kubernetes
 }
 
 // GetKubernetesClusters returns a single kubernetes cluster by its full ID
-func (c *Client) GetKubernetesClusters(id string) (*KubernetesCluster, error) {
+func (c *Client) GetKubernetesClusters(id string) (*KubernetesItem, error) {
 	resp, err := c.SendGetRequest(fmt.Sprintf("/v2/kubernetes/clusters/%s", id))
 	if err != nil {
 		return nil, err
 	}
 
-	kubernetes := &KubernetesCluster{}
+	kubernetes := &KubernetesItem{}
 	err = json.NewDecoder(bytes.NewReader(resp)).Decode(kubernetes)
 	return kubernetes, nil
 }
 
 // UpdateKubernetesCluster update a single kubernetes cluster by its full ID
-func (c *Client) UpdateKubernetesCluster(id string, i *KubernetesClusterConfig) (*KubernetesCluster, error) {
+func (c *Client) UpdateKubernetesCluster(id string, i *KubernetesClusterConfig) (*KubernetesItem, error) {
 	params := map[string]interface{}{
 		"name":             i.Name,
 		"num_target_nodes": i.NumTargetNodes,
@@ -185,7 +192,7 @@ func (c *Client) UpdateKubernetesCluster(id string, i *KubernetesClusterConfig) 
 		return nil, err
 	}
 
-	kubernetes := &KubernetesCluster{}
+	kubernetes := &KubernetesItem{}
 	err = json.NewDecoder(bytes.NewReader(resp)).Decode(kubernetes)
 	return kubernetes, nil
 }
