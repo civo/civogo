@@ -175,7 +175,9 @@ func (c *Client) GetKubernetesClusters(id string) (*KubernetesItem, error) {
 	}
 
 	kubernetes := &KubernetesItem{}
-	err = json.NewDecoder(bytes.NewReader(resp)).Decode(kubernetes)
+	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(kubernetes); err != nil {
+		return nil, err
+	}
 	return kubernetes, nil
 }
 
@@ -194,7 +196,9 @@ func (c *Client) UpdateKubernetesCluster(id string, i *KubernetesClusterConfig) 
 	}
 
 	kubernetes := &KubernetesItem{}
-	err = json.NewDecoder(bytes.NewReader(resp)).Decode(kubernetes)
+	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(kubernetes); err != nil {
+		return nil, err
+	}
 	return kubernetes, nil
 }
 
