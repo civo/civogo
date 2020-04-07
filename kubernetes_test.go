@@ -8,7 +8,7 @@ import (
 
 func TestListKubernetesClusters(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
-		"/v2/kubernetes/clusters": `[{
+		"/v2/kubernetes/clusters": `{"page":1,"per_page":20,"pages":1,"items":[{
 		  "id": "69a23478-a89e-41d2-97b1-6f4c341cee70",
 		  "name": "your-cluster-name",
 		  "version": "2",
@@ -49,7 +49,7 @@ func TestListKubernetesClusters(t *testing.T) {
 			"plan": null,
 			"configuration": {}
 		  }]
-		}]`,
+		}]}`,
 	})
 	defer server.Close()
 	got, err := client.ListKubernetesClusters()
@@ -63,45 +63,52 @@ func TestListKubernetesClusters(t *testing.T) {
 	createAtInstance, _ := time.Parse(time.RFC3339, "2019-09-23T13:03:00.000+01:00")
 	updateAt, _ := time.Parse(time.RFC3339, "2019-09-23T13:02:59.000+01:00")
 
-	expected := []KubernetesCluster{{
-		ID:                "69a23478-a89e-41d2-97b1-6f4c341cee70",
-		Name:              "your-cluster-name",
-		Version:           "2",
-		Status:            "ACTIVE",
-		BuiltAt:           buildAt,
-		Ready:             true,
-		NumTargetNode:     1,
-		TargetNodeSize:    "g2.xsmall",
-		KubeConfig:        "YAML_VERSION_OF_KUBECONFIG_HERE\n",
-		KubernetesVersion: "0.8.1",
-		APIEndPoint:       "https://your.cluster.ip.address:6443",
-		DNSEntry:          "69a23478-a89e-41d2-97b1-6f4c341cee70.k8s.civo.com",
-		CreatedAt:         createAt,
-		Tags:              []string{},
-		Instances: []KubernetesInstance{{
-			Hostname:   "kube-master-HEXDIGITS",
-			Size:       "g2.xsmall",
-			Region:     "lon1",
-			CreatedAt:  createAtInstance,
-			Status:     "ACTIVE",
-			FirewallID: "5f0ba9ed-5ca7-4e14-9a09-449a84196d64",
-			PublicIP:   "your.cluster.ip.address",
-			Tags:       []string{"civo-kubernetes:installed", "civo-kubernetes:master"},
-		}},
-		InstalledApplications: []KubernetesInstalledApplication{{
-			Application:   "Traefik",
-			Version:       "(default)",
-			Maintainer:    "@Rancher_Labs",
-			Description:   "A reverse proxy/load-balancer that's easy, dynamic, automatic, fast, full-featured, open source, production proven and provides metrics.",
-			PostInstall:   "Some documentation here\n",
-			URL:           "https://traefik.io",
-			UpdatedAt:     updateAt,
-			Installed:     true,
-			Category:      "architecture",
-			ImageURL:      "https://api.civo.com/k3s-marketplace/traefik.png",
-			Configuration: map[string]string{},
-		}},
-	}}
+	expected := &PaginatedKubernetesClusters{
+		Page:    1,
+		PerPage: 20,
+		Pages:   1,
+		Items: []KubernetesCluster{
+			{
+				ID:                "69a23478-a89e-41d2-97b1-6f4c341cee70",
+				Name:              "your-cluster-name",
+				Version:           "2",
+				Status:            "ACTIVE",
+				BuiltAt:           buildAt,
+				Ready:             true,
+				NumTargetNode:     1,
+				TargetNodeSize:    "g2.xsmall",
+				KubeConfig:        "YAML_VERSION_OF_KUBECONFIG_HERE\n",
+				KubernetesVersion: "0.8.1",
+				APIEndPoint:       "https://your.cluster.ip.address:6443",
+				DNSEntry:          "69a23478-a89e-41d2-97b1-6f4c341cee70.k8s.civo.com",
+				CreatedAt:         createAt,
+				Tags:              []string{},
+				Instances: []KubernetesInstance{{
+					Hostname:   "kube-master-HEXDIGITS",
+					Size:       "g2.xsmall",
+					Region:     "lon1",
+					CreatedAt:  createAtInstance,
+					Status:     "ACTIVE",
+					FirewallID: "5f0ba9ed-5ca7-4e14-9a09-449a84196d64",
+					PublicIP:   "your.cluster.ip.address",
+					Tags:       []string{"civo-kubernetes:installed", "civo-kubernetes:master"},
+				}},
+				InstalledApplications: []KubernetesInstalledApplication{{
+					Application:   "Traefik",
+					Version:       "(default)",
+					Maintainer:    "@Rancher_Labs",
+					Description:   "A reverse proxy/load-balancer that's easy, dynamic, automatic, fast, full-featured, open source, production proven and provides metrics.",
+					PostInstall:   "Some documentation here\n",
+					URL:           "https://traefik.io",
+					UpdatedAt:     updateAt,
+					Installed:     true,
+					Category:      "architecture",
+					ImageURL:      "https://api.civo.com/k3s-marketplace/traefik.png",
+					Configuration: map[string]string{},
+				}},
+			},
+		},
+	}
 	if !reflect.DeepEqual(got, expected) {
 		t.Errorf("Expected %+v, got %+v", expected, got)
 	}
@@ -109,10 +116,10 @@ func TestListKubernetesClusters(t *testing.T) {
 
 func TestFindKubernetesCluster(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
-		"/v2/kubernetes/clusters": `[
+		"/v2/kubernetes/clusters": `{"page":1,"per_page":20,"pages":1,"items":[
 			{ "id": "69a23478-a89e-41d2-97b1-6f4c341cee70", "name": "your-first-cluster-name", "version": "2", "status": "ACTIVE", "ready": true, "num_target_nodes": 1, "target_nodes_size": "g2.xsmall", "built_at": "2019-09-23T13:04:23.000+01:00", "kubeconfig": "YAML_VERSION_OF_KUBECONFIG_HERE\n", "kubernetes_version": "0.8.1", "api_endpoint": "https://your.cluster.ip.address:6443", "dns_entry": "69a23478-a89e-41d2-97b1-6f4c341cee70.k8s.civo.com", "tags": [], "created_at": "2019-09-23T13:02:59.000+01:00", "instances": [{ "hostname": "kube-master-HEXDIGITS", "size": "g2.xsmall", "region": "lon1", "created_at": "2019-09-23T13:03:00.000+01:00", "status": "ACTIVE", "firewall_id": "5f0ba9ed-5ca7-4e14-9a09-449a84196d64", "public_ip": "your.cluster.ip.address", "tags": ["civo-kubernetes:installed", "civo-kubernetes:master"] }], "installed_applications": [{ "application": "Traefik", "title": null, "version": "(default)", "dependencies": null, "maintainer": "@Rancher_Labs", "description": "A reverse proxy/load-balancer that's easy, dynamic, automatic, fast, full-featured, open source, production proven and provides metrics.", "post_install": "Some documentation here\n", "installed": true, "url": "https://traefik.io", "category": "architecture", "updated_at": "2019-09-23T13:02:59.000+01:00", "image_url": "https://api.civo.com/k3s-marketplace/traefik.png", "plan": null, "configuration": {} }] },
 			{ "id": "d1cd0b71-5da1-492e-9d0d-a46ccdaae2fa", "name": "your-second-cluster-name", "version": "2", "status": "ACTIVE", "ready": true, "num_target_nodes": 1, "target_nodes_size": "g2.xsmall", "built_at": "2019-09-23T13:04:23.000+01:00", "kubeconfig": "YAML_VERSION_OF_KUBECONFIG_HERE\n", "kubernetes_version": "0.8.1", "api_endpoint": "https://your.cluster.ip.address:6443", "dns_entry": "69a23478-a89e-41d2-97b1-6f4c341cee70.k8s.civo.com", "tags": [], "created_at": "2019-09-23T13:02:59.000+01:00", "instances": [{ "hostname": "kube-master-HEXDIGITS", "size": "g2.xsmall", "region": "lon1", "created_at": "2019-09-23T13:03:00.000+01:00", "status": "ACTIVE", "firewall_id": "5f0ba9ed-5ca7-4e14-9a09-449a84196d64", "public_ip": "your.cluster.ip.address", "tags": ["civo-kubernetes:installed", "civo-kubernetes:master"] }], "installed_applications": [{ "application": "Traefik", "title": null, "version": "(default)", "dependencies": null, "maintainer": "@Rancher_Labs", "description": "A reverse proxy/load-balancer that's easy, dynamic, automatic, fast, full-featured, open source, production proven and provides metrics.", "post_install": "Some documentation here\n", "installed": true, "url": "https://traefik.io", "category": "architecture", "updated_at": "2019-09-23T13:02:59.000+01:00", "image_url": "https://api.civo.com/k3s-marketplace/traefik.png", "plan": null, "configuration": {} }] }
-		]`,
+		]}`,
 	})
 	defer server.Close()
 

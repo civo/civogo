@@ -39,7 +39,7 @@ type KubernetesInstalledApplication struct {
 	Configuration map[string]string `json:"configuration,omitempty"`
 }
 
-// KubernetesCluster is a Kubernetes k3s cluster
+// KubernetesCluster is a Kubernetes item inside the cluster
 type KubernetesCluster struct {
 	ID                    string                           `json:"id"`
 	Name                  string                           `json:"name"`
@@ -57,6 +57,14 @@ type KubernetesCluster struct {
 	CreatedAt             time.Time                        `json:"created_at"`
 	Instances             []KubernetesInstance             `json:"instances"`
 	InstalledApplications []KubernetesInstalledApplication `json:"installed_applications"`
+}
+
+// PaginatedKubernetesClusters is a Kubernetes k3s cluster
+type PaginatedKubernetesClusters struct {
+	Page    int                 `json:"page"`
+	PerPage int                 `json:"per_page"`
+	Pages   int                 `json:"pages"`
+	Items   []KubernetesCluster `json:"items"`
 }
 
 // KubernetesClusterConfig is used to create a new cluster
@@ -105,13 +113,13 @@ type KubernetesVersion struct {
 }
 
 // ListKubernetesClusters returns all cluster of kubernetes in the account
-func (c *Client) ListKubernetesClusters() ([]KubernetesCluster, error) {
+func (c *Client) ListKubernetesClusters() (*PaginatedKubernetesClusters, error) {
 	resp, err := c.SendGetRequest("/v2/kubernetes/clusters")
 	if err != nil {
 		return nil, err
 	}
 
-	kubernetes := make([]KubernetesCluster, 0)
+	kubernetes := &PaginatedKubernetesClusters{}
 	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&kubernetes); err != nil {
 		return nil, err
 	}
@@ -128,7 +136,7 @@ func (c *Client) FindKubernetesCluster(search string) (*KubernetesCluster, error
 
 	found := -1
 
-	for i, cluster := range clusters {
+	for i, cluster := range clusters.Items {
 		if strings.Contains(cluster.ID, search) || strings.Contains(cluster.Name, search) {
 			if found != -1 {
 				return nil, fmt.Errorf("unable to find %s because there were multiple matches", search)
@@ -141,7 +149,7 @@ func (c *Client) FindKubernetesCluster(search string) (*KubernetesCluster, error
 		return nil, fmt.Errorf("unable to find %s, zero matches", search)
 	}
 
-	return &clusters[found], nil
+	return &clusters.Items[found], nil
 }
 
 // NewKubernetesClusters create a new cluster of kubernetes
@@ -167,7 +175,9 @@ func (c *Client) GetKubernetesClusters(id string) (*KubernetesCluster, error) {
 	}
 
 	kubernetes := &KubernetesCluster{}
-	err = json.NewDecoder(bytes.NewReader(resp)).Decode(kubernetes)
+	if err = json.NewDecoder(bytes.NewReader(resp)).Decode(kubernetes); err != nil {
+		return nil, err
+	}
 	return kubernetes, nil
 }
 
@@ -186,7 +196,9 @@ func (c *Client) UpdateKubernetesCluster(id string, i *KubernetesClusterConfig) 
 	}
 
 	kubernetes := &KubernetesCluster{}
-	err = json.NewDecoder(bytes.NewReader(resp)).Decode(kubernetes)
+	if err = json.NewDecoder(bytes.NewReader(resp)).Decode(kubernetes); err != nil {
+		return nil, err
+	}
 	return kubernetes, nil
 }
 
@@ -198,7 +210,7 @@ func (c *Client) ListKubernetesMarketplaceApplications() ([]KubernetesMarketplac
 	}
 
 	kubernetes := make([]KubernetesMarketplaceApplication, 0)
-	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&kubernetes); err != nil {
+	if err = json.NewDecoder(bytes.NewReader(resp)).Decode(&kubernetes); err != nil {
 		return nil, err
 	}
 
@@ -235,7 +247,7 @@ func (c *Client) ListAvailableKubernetesVersions() ([]KubernetesVersion, error) 
 	}
 
 	kubernetes := make([]KubernetesVersion, 0)
-	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&kubernetes); err != nil {
+	if err = json.NewDecoder(bytes.NewReader(resp)).Decode(&kubernetes); err != nil {
 		return nil, err
 	}
 
