@@ -63,11 +63,11 @@ func TestListKubernetesClusters(t *testing.T) {
 	createAtInstance, _ := time.Parse(time.RFC3339, "2019-09-23T13:03:00.000+01:00")
 	updateAt, _ := time.Parse(time.RFC3339, "2019-09-23T13:02:59.000+01:00")
 
-	expected := &KubernetesCluster{
+	expected := &PaginatedKubernetesClusters{
 		Page:    1,
 		PerPage: 20,
 		Pages:   1,
-		Items: []KubernetesItem{
+		Items: []KubernetesCluster{
 			{
 				ID:                "69a23478-a89e-41d2-97b1-6f4c341cee70",
 				Name:              "your-cluster-name",
@@ -221,7 +221,7 @@ func TestNewKubernetesClusters(t *testing.T) {
 	createAtInstance, _ := time.Parse(time.RFC3339, "2019-09-23T13:03:00.000+01:00")
 	updateAt, _ := time.Parse(time.RFC3339, "2019-09-23T13:02:59.000+01:00")
 
-	expected := &KubernetesItem{
+	expected := &KubernetesCluster{
 		ID:                "69a23478-a89e-41d2-97b1-6f4c341cee70",
 		Name:              "your-cluster-name",
 		Version:           "2",
@@ -324,7 +324,7 @@ func TestGetKubernetesClusters(t *testing.T) {
 	createAtInstance, _ := time.Parse(time.RFC3339, "2019-09-23T13:03:00.000+01:00")
 	updateAt, _ := time.Parse(time.RFC3339, "2019-09-23T13:02:59.000+01:00")
 
-	expected := &KubernetesItem{
+	expected := &KubernetesCluster{
 		ID:                "69a23478-a89e-41d2-97b1-6f4c341cee70",
 		Name:              "your-cluster-name",
 		Version:           "2",
@@ -432,7 +432,7 @@ func TestUpdateKubernetesClusters(t *testing.T) {
 	createAtInstance, _ := time.Parse(time.RFC3339, "2019-09-23T13:03:00.000+01:00")
 	updateAt, _ := time.Parse(time.RFC3339, "2019-09-23T13:02:59.000+01:00")
 
-	expected := &KubernetesItem{
+	expected := &KubernetesCluster{
 		ID:                "69a23478-a89e-41d2-97b1-6f4c341cee70",
 		Name:              "cluster-name",
 		Version:           "2",

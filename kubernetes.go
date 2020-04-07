@@ -39,8 +39,8 @@ type KubernetesInstalledApplication struct {
 	Configuration map[string]string `json:"configuration,omitempty"`
 }
 
-// KubernetesItem is a Kubernetes item inside the cluster
-type KubernetesItem struct {
+// KubernetesCluster is a Kubernetes item inside the cluster
+type KubernetesCluster struct {
 	ID                    string                           `json:"id"`
 	Name                  string                           `json:"name"`
 	Version               string                           `json:"version"`
@@ -59,12 +59,12 @@ type KubernetesItem struct {
 	InstalledApplications []KubernetesInstalledApplication `json:"installed_applications"`
 }
 
-// KubernetesCluster is a Kubernetes k3s cluster
-type KubernetesCluster struct {
-	Page    int              `json:"page"`
-	PerPage int              `json:"per_page"`
-	Pages   int              `json:"pages"`
-	Items   []KubernetesItem `json:"items"`
+// PaginatedKubernetesClusters is a Kubernetes k3s cluster
+type PaginatedKubernetesClusters struct {
+	Page    int                 `json:"page"`
+	PerPage int                 `json:"per_page"`
+	Pages   int                 `json:"pages"`
+	Items   []KubernetesCluster `json:"items"`
 }
 
 // KubernetesClusterConfig is used to create a new cluster
@@ -113,13 +113,13 @@ type KubernetesVersion struct {
 }
 
 // ListKubernetesClusters returns all cluster of kubernetes in the account
-func (c *Client) ListKubernetesClusters() (*KubernetesCluster, error) {
+func (c *Client) ListKubernetesClusters() (*PaginatedKubernetesClusters, error) {
 	resp, err := c.SendGetRequest("/v2/kubernetes/clusters")
 	if err != nil {
 		return nil, err
 	}
 
-	kubernetes := &KubernetesCluster{}
+	kubernetes := &PaginatedKubernetesClusters{}
 	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&kubernetes); err != nil {
 		return nil, err
 	}
@@ -128,7 +128,7 @@ func (c *Client) ListKubernetesClusters() (*KubernetesCluster, error) {
 }
 
 // FindKubernetesCluster finds a Kubernetes cluster by either part of the ID or part of the name
-func (c *Client) FindKubernetesCluster(search string) (*KubernetesItem, error) {
+func (c *Client) FindKubernetesCluster(search string) (*KubernetesCluster, error) {
 	clusters, err := c.ListKubernetesClusters()
 	if err != nil {
 		return nil, err
@@ -153,13 +153,13 @@ func (c *Client) FindKubernetesCluster(search string) (*KubernetesItem, error) {
 }
 
 // NewKubernetesClusters create a new cluster of kubernetes
-func (c *Client) NewKubernetesClusters(kc *KubernetesClusterConfig) (*KubernetesItem, error) {
+func (c *Client) NewKubernetesClusters(kc *KubernetesClusterConfig) (*KubernetesCluster, error) {
 	body, err := c.SendPostRequest("/v2/kubernetes/clusters", kc)
 	if err != nil {
 		return nil, err
 	}
 
-	kubernetes := &KubernetesItem{}
+	kubernetes := &KubernetesCluster{}
 	if err := json.NewDecoder(bytes.NewReader(body)).Decode(kubernetes); err != nil {
 		return nil, err
 	}
@@ -168,21 +168,21 @@ func (c *Client) NewKubernetesClusters(kc *KubernetesClusterConfig) (*Kubernetes
 }
 
 // GetKubernetesClusters returns a single kubernetes cluster by its full ID
-func (c *Client) GetKubernetesClusters(id string) (*KubernetesItem, error) {
+func (c *Client) GetKubernetesClusters(id string) (*KubernetesCluster, error) {
 	resp, err := c.SendGetRequest(fmt.Sprintf("/v2/kubernetes/clusters/%s", id))
 	if err != nil {
 		return nil, err
 	}
 
-	kubernetes := &KubernetesItem{}
-	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(kubernetes); err != nil {
+	kubernetes := &KubernetesCluster{}
+	if err = json.NewDecoder(bytes.NewReader(resp)).Decode(kubernetes); err != nil {
 		return nil, err
 	}
 	return kubernetes, nil
 }
 
 // UpdateKubernetesCluster update a single kubernetes cluster by its full ID
-func (c *Client) UpdateKubernetesCluster(id string, i *KubernetesClusterConfig) (*KubernetesItem, error) {
+func (c *Client) UpdateKubernetesCluster(id string, i *KubernetesClusterConfig) (*KubernetesCluster, error) {
 	params := map[string]interface{}{
 		"name":             i.Name,
 		"num_target_nodes": i.NumTargetNodes,
@@ -195,8 +195,8 @@ func (c *Client) UpdateKubernetesCluster(id string, i *KubernetesClusterConfig) 
 		return nil, err
 	}
 
-	kubernetes := &KubernetesItem{}
-	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(kubernetes); err != nil {
+	kubernetes := &KubernetesCluster{}
+	if err = json.NewDecoder(bytes.NewReader(resp)).Decode(kubernetes); err != nil {
 		return nil, err
 	}
 	return kubernetes, nil
@@ -210,7 +210,7 @@ func (c *Client) ListKubernetesMarketplaceApplications() ([]KubernetesMarketplac
 	}
 
 	kubernetes := make([]KubernetesMarketplaceApplication, 0)
-	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&kubernetes); err != nil {
+	if err = json.NewDecoder(bytes.NewReader(resp)).Decode(&kubernetes); err != nil {
 		return nil, err
 	}
 
@@ -247,7 +247,7 @@ func (c *Client) ListAvailableKubernetesVersions() ([]KubernetesVersion, error) 
 	}
 
 	kubernetes := make([]KubernetesVersion, 0)
-	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&kubernetes); err != nil {
+	if err = json.NewDecoder(bytes.NewReader(resp)).Decode(&kubernetes); err != nil {
 		return nil, err
 	}
 
