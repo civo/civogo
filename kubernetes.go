@@ -73,6 +73,7 @@ type KubernetesClusterConfig struct {
 	NumTargetNodes    int    `json:"num_target_nodes"`
 	TargetNodesSize   string `json:"target_nodes_size"`
 	KubernetesVersion string `json:"kubernetes_version"`
+	NodeDestroy       string `json:"node_destroy"`
 	Tags              string `json:"tags"`
 	Applications      string `json:"applications"`
 }
@@ -185,6 +186,7 @@ func (c *Client) GetKubernetesClusters(id string) (*KubernetesCluster, error) {
 func (c *Client) UpdateKubernetesCluster(id string, i *KubernetesClusterConfig) (*KubernetesCluster, error) {
 	params := map[string]interface{}{
 		"name":             i.Name,
+		"node_destroy":     i.NodeDestroy,
 		"num_target_nodes": i.NumTargetNodes,
 		"version":          i.KubernetesVersion,
 		"applications":     i.Applications,
