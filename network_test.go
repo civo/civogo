@@ -89,7 +89,7 @@ func TestFindNetwork(t *testing.T) {
 				"region": "lon1",
 				"default": false,
 				"cidr": "0.0.0.0/0",
-				"label": "development"
+				"label": "production"
 			}
 			]`,
 	})
@@ -111,6 +111,11 @@ func TestFindNetwork(t *testing.T) {
 	}
 
 	got, _ = client.FindNetwork("other")
+	if got.ID != "67890" {
+		t.Errorf("Expected %s, got %s", "67890", got.ID)
+	}
+
+	got, err = client.FindNetwork("production")
 	if got.ID != "67890" {
 		t.Errorf("Expected %s, got %s", "67890", got.ID)
 	}
