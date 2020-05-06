@@ -88,7 +88,7 @@ func (c *Client) FindNetwork(search string) (*Network, error) {
 	found := -1
 
 	for i, network := range networks {
-		if strings.Contains(network.ID, search) || strings.Contains(network.Name, search) {
+		if strings.Contains(network.ID, search) || strings.Contains(network.Name, search) || strings.Contains(network.Label, search) {
 			if found != -1 {
 				return nil, fmt.Errorf("unable to find %s because there were multiple matches", search)
 			}
