@@ -96,7 +96,7 @@ type KubernetesMarketplaceApplication struct {
 	Name         string                      `json:"name"`
 	Title        string                      `json:"title,omitempty"`
 	Version      string                      `json:"version"`
-	Default      string                      `json:"default,omitempty"`
+	Default      bool                        `json:"default,omitempty"`
 	Dependencies []string                    `json:"dependencies,omitempty"`
 	Maintainer   string                      `json:"maintainer"`
 	Description  string                      `json:"description"`
