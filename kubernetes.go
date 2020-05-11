@@ -39,6 +39,7 @@ type KubernetesInstalledApplication struct {
 	Configuration map[string]ApplicationConfiguration `json:"configuration,omitempty"`
 }
 
+// ApplicationConfiguration is a configuration for installed application
 type ApplicationConfiguration map[string]string
 
 // KubernetesCluster is a Kubernetes item inside the cluster
