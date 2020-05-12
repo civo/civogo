@@ -104,7 +104,7 @@ func TestListKubernetesClusters(t *testing.T) {
 					Installed:     true,
 					Category:      "architecture",
 					ImageURL:      "https://api.civo.com/k3s-marketplace/traefik.png",
-					Configuration: map[string]string{},
+					Configuration: map[string]ApplicationConfiguration{},
 				}},
 			},
 		},
@@ -257,7 +257,7 @@ func TestNewKubernetesClusters(t *testing.T) {
 			Installed:     true,
 			Category:      "architecture",
 			ImageURL:      "https://api.civo.com/k3s-marketplace/traefik.png",
-			Configuration: map[string]string{},
+			Configuration: map[string]ApplicationConfiguration{},
 		}},
 	}
 
@@ -360,7 +360,7 @@ func TestGetKubernetesClusters(t *testing.T) {
 			Installed:     true,
 			Category:      "architecture",
 			ImageURL:      "https://api.civo.com/k3s-marketplace/traefik.png",
-			Configuration: map[string]string{},
+			Configuration: map[string]ApplicationConfiguration{},
 		}},
 	}
 
@@ -468,7 +468,7 @@ func TestUpdateKubernetesClusters(t *testing.T) {
 			Installed:     true,
 			Category:      "architecture",
 			ImageURL:      "https://api.civo.com/k3s-marketplace/traefik.png",
-			Configuration: map[string]string{},
+			Configuration: map[string]ApplicationConfiguration{},
 		}},
 	}
 

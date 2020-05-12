@@ -23,21 +23,24 @@ type KubernetesInstance struct {
 // KubernetesInstalledApplication is an application within our marketplace available for
 // installation
 type KubernetesInstalledApplication struct {
-	Application   string            `json:"application"`
-	Title         string            `json:"title,omitempty"`
-	Version       string            `json:"version"`
-	Dependencies  []string          `json:"dependencies,omitempty"`
-	Maintainer    string            `json:"maintainer"`
-	Description   string            `json:"description"`
-	PostInstall   string            `json:"post_install"`
-	Installed     bool              `json:"installed"`
-	URL           string            `json:"url"`
-	Category      string            `json:"category"`
-	UpdatedAt     time.Time         `json:"updated_at"`
-	ImageURL      string            `json:"image_url"`
-	Plan          string            `json:"plan,omitempty"`
-	Configuration map[string]string `json:"configuration,omitempty"`
+	Application   string                              `json:"application"`
+	Title         string                              `json:"title,omitempty"`
+	Version       string                              `json:"version"`
+	Dependencies  []string                            `json:"dependencies,omitempty"`
+	Maintainer    string                              `json:"maintainer"`
+	Description   string                              `json:"description"`
+	PostInstall   string                              `json:"post_install"`
+	Installed     bool                                `json:"installed"`
+	URL           string                              `json:"url"`
+	Category      string                              `json:"category"`
+	UpdatedAt     time.Time                           `json:"updated_at"`
+	ImageURL      string                              `json:"image_url"`
+	Plan          string                              `json:"plan,omitempty"`
+	Configuration map[string]ApplicationConfiguration `json:"configuration,omitempty"`
 }
+
+// ApplicationConfiguration is a configuration for installed application
+type ApplicationConfiguration map[string]string
 
 // KubernetesCluster is a Kubernetes item inside the cluster
 type KubernetesCluster struct {
