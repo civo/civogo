@@ -9,7 +9,7 @@ import (
 
 // Errors raised by package civogo
 var (
-	ResponseDecodeFailedError = constError("Failed to decode the simple response expected from the API")
+	ResponseDecodeFailedError = constError("ResponseDecodeFailed")
 	ListInstanceSizesError    = constError("Failed to get the instances size list from the API")
 	KubernetesClusterError    = constError("KubernetesClusterError")
 
@@ -68,7 +68,8 @@ func decodeERROR(err error) error {
 	var msg strings.Builder
 
 	if err := json.Unmarshal(byt, &dat); err != nil {
-		panic(err)
+		err := errors.New("Failed to decode the response expected from the API")
+		return ResponseDecodeFailedError.wrap(err)
 	}
 
 	if _, ok := dat["reason"]; ok {
