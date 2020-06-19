@@ -56,6 +56,7 @@ type KubernetesCluster struct {
 	KubernetesVersion     string                           `json:"kubernetes_version"`
 	APIEndPoint           string                           `json:"api_endpoint"`
 	DNSEntry              string                           `json:"dns_entry"`
+	UpgradeAvailableTo    string                           `json:"upgrade_available_to"`
 	Tags                  []string                         `json:"tags"`
 	CreatedAt             time.Time                        `json:"created_at"`
 	Instances             []KubernetesInstance             `json:"instances"`
