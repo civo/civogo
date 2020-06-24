@@ -189,11 +189,11 @@ func (c *Client) GetKubernetesClusters(id string) (*KubernetesCluster, error) {
 // UpdateKubernetesCluster update a single kubernetes cluster by its full ID
 func (c *Client) UpdateKubernetesCluster(id string, i *KubernetesClusterConfig) (*KubernetesCluster, error) {
 	params := map[string]interface{}{
-		"name":             i.Name,
-		"node_destroy":     i.NodeDestroy,
-		"num_target_nodes": i.NumTargetNodes,
-		"version":          i.KubernetesVersion,
-		"applications":     i.Applications,
+		"name":               i.Name,
+		"node_destroy":       i.NodeDestroy,
+		"num_target_nodes":   i.NumTargetNodes,
+		"kubernetes_version": i.KubernetesVersion,
+		"applications":       i.Applications,
 	}
 
 	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/kubernetes/clusters/%s", id), params)
