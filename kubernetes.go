@@ -55,6 +55,7 @@ type KubernetesCluster struct {
 	KubeConfig            string                           `json:"kubeconfig"`
 	KubernetesVersion     string                           `json:"kubernetes_version"`
 	APIEndPoint           string                           `json:"api_endpoint"`
+	MasterIP              string                           `json:"master_ip"`
 	DNSEntry              string                           `json:"dns_entry"`
 	UpgradeAvailableTo    string                           `json:"upgrade_available_to"`
 	Tags                  []string                         `json:"tags"`
