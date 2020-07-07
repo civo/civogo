@@ -38,9 +38,14 @@ type Instance struct {
 	OpenstackImageID         string    `json:"openstack_image_id"`
 	RescuePassword           string    `json:"rescue_password"`
 	VolumeBacked             bool      `json:"volume_backed"`
+	CPUCores                 int       `json:"cpu_cores"`
+	RAMMegabytes             int       `json:"ram_mb"`
+	DiskGigabytes            int       `json:"disk_gb"`
 	Script                   string    `json:"script"`
 	CreatedAt                time.Time `json:"created_at"`
 }
+
+//"cpu_cores":1,"ram_mb":2048,"disk_gb":25
 
 // InstanceConsole represents a link to a webconsole for an instances
 type InstanceConsole struct {

@@ -10,14 +10,17 @@ import (
 
 // KubernetesInstance represents a single node/master within a Kubernetes cluster
 type KubernetesInstance struct {
-	Hostname   string    `json:"hostname"`
-	Size       string    `json:"size"`
-	Region     string    `json:"region"`
-	CreatedAt  time.Time `json:"created_at"`
-	Status     string    `json:"status"`
-	FirewallID string    `json:"firewall_id"`
-	PublicIP   string    `json:"public_ip"`
-	Tags       []string  `json:"tags"`
+	Hostname      string    `json:"hostname"`
+	Size          string    `json:"size"`
+	Region        string    `json:"region"`
+	CreatedAt     time.Time `json:"created_at"`
+	Status        string    `json:"status"`
+	FirewallID    string    `json:"firewall_id"`
+	PublicIP      string    `json:"public_ip"`
+	CPUCores      int       `json:"cpu_cores"`
+	RAMMegabytes  int       `json:"ram_mb"`
+	DiskGigabytes int       `json:"disk_gb"`
+	Tags          []string  `json:"tags"`
 }
 
 // KubernetesInstalledApplication is an application within our marketplace available for
