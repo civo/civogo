@@ -16,7 +16,7 @@ type Region struct {
 func (c *Client) ListRegions() ([]Region, error) {
 	resp, err := c.SendGetRequest("/v2/regions")
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	regions := make([]Region, 0)

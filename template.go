@@ -25,7 +25,7 @@ type Template struct {
 func (c *Client) ListTemplates() ([]Template, error) {
 	resp, err := c.SendGetRequest("/v2/templates")
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	templates := make([]Template, 0)
@@ -44,7 +44,7 @@ func (c *Client) NewTemplate(conf *Template) (*SimpleResponse, error) {
 
 	resp, err := c.SendPostRequest("/v2/templates", conf)
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	return c.DecodeSimpleResponse(resp)
@@ -58,7 +58,7 @@ func (c *Client) UpdateTemplate(id string, conf *Template) (*Template, error) {
 
 	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/templates/%s", id), conf)
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	template := &Template{}
@@ -73,7 +73,7 @@ func (c *Client) UpdateTemplate(id string, conf *Template) (*Template, error) {
 func (c *Client) GetTemplateByCode(code string) (*Template, error) {
 	resp, err := c.ListTemplates()
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	for _, template := range resp {
@@ -89,7 +89,7 @@ func (c *Client) GetTemplateByCode(code string) (*Template, error) {
 func (c *Client) DeleteTemplate(id string) (*SimpleResponse, error) {
 	resp, err := c.SendDeleteRequest(fmt.Sprintf("/v2/templates/%s", id))
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	return c.DecodeSimpleResponse(resp)

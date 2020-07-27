@@ -39,11 +39,7 @@ type VolumeConfig struct {
 func (c *Client) ListVolumes() ([]Volume, error) {
 	resp, err := c.SendGetRequest("/v2/volumes")
 	if err != nil {
-		return nil, err
-	}
-
-	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	var volumes = make([]Volume, 0)
@@ -58,7 +54,7 @@ func (c *Client) ListVolumes() ([]Volume, error) {
 func (c *Client) FindVolume(search string) (*Volume, error) {
 	volumes, err := c.ListVolumes()
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	found := -1
@@ -84,7 +80,7 @@ func (c *Client) FindVolume(search string) (*Volume, error) {
 func (c *Client) NewVolume(v *VolumeConfig) (*VolumeResult, error) {
 	body, err := c.SendPostRequest("/v2/volumes/", v)
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	var result = &VolumeResult{}
@@ -102,7 +98,7 @@ func (c *Client) ResizeVolume(id string, size int) (*SimpleResponse, error) {
 		"size_gb": size,
 	})
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	response, err := c.DecodeSimpleResponse(resp)
@@ -116,7 +112,7 @@ func (c *Client) AttachVolume(id string, instance string) (*SimpleResponse, erro
 		"instance_id": instance,
 	})
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	response, err := c.DecodeSimpleResponse(resp)
@@ -128,7 +124,7 @@ func (c *Client) AttachVolume(id string, instance string) (*SimpleResponse, erro
 func (c *Client) DetachVolume(id string) (*SimpleResponse, error) {
 	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/volumes/%s/detach", id), "")
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	response, err := c.DecodeSimpleResponse(resp)
@@ -140,7 +136,7 @@ func (c *Client) DetachVolume(id string) (*SimpleResponse, error) {
 func (c *Client) DeleteVolume(id string) (*SimpleResponse, error) {
 	resp, err := c.SendDeleteRequest(fmt.Sprintf("/v2/volumes/%s", id))
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	return c.DecodeSimpleResponse(resp)
