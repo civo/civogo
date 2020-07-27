@@ -291,7 +291,6 @@ func decodeERROR(err error) error {
 	}
 
 	switch dat["code"] {
-	// Kuberenetes Error
 	case "database_kubernetes_cluster_invalid":
 		err := errors.New(msg.String())
 		return DatabaseKubernetesClusterInvalidError.wrap(err)
@@ -850,7 +849,6 @@ func decodeERROR(err error) error {
 	case "database_kubernetes_node_not_found":
 		err := errors.New(msg.String())
 		return DatabaseKubernetesNodeNotFoundError.wrap(err)
-	// Instances Error
 	case "database_instance_already_in_rescue_state":
 		err := errors.New(msg.String())
 		return DatabaseInstanceAlreadyinRescueStateError.wrap(err)
