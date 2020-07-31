@@ -125,7 +125,7 @@ type KubernetesVersion struct {
 func (c *Client) ListKubernetesClusters() (*PaginatedKubernetesClusters, error) {
 	resp, err := c.SendGetRequest("/v2/kubernetes/clusters")
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	kubernetes := &PaginatedKubernetesClusters{}
@@ -140,7 +140,7 @@ func (c *Client) ListKubernetesClusters() (*PaginatedKubernetesClusters, error) 
 func (c *Client) FindKubernetesCluster(search string) (*KubernetesCluster, error) {
 	clusters, err := c.ListKubernetesClusters()
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	found := -1
@@ -165,7 +165,7 @@ func (c *Client) FindKubernetesCluster(search string) (*KubernetesCluster, error
 func (c *Client) NewKubernetesClusters(kc *KubernetesClusterConfig) (*KubernetesCluster, error) {
 	body, err := c.SendPostRequest("/v2/kubernetes/clusters", kc)
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	kubernetes := &KubernetesCluster{}
@@ -180,7 +180,7 @@ func (c *Client) NewKubernetesClusters(kc *KubernetesClusterConfig) (*Kubernetes
 func (c *Client) GetKubernetesClusters(id string) (*KubernetesCluster, error) {
 	resp, err := c.SendGetRequest(fmt.Sprintf("/v2/kubernetes/clusters/%s", id))
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	kubernetes := &KubernetesCluster{}
@@ -202,7 +202,7 @@ func (c *Client) UpdateKubernetesCluster(id string, i *KubernetesClusterConfig) 
 
 	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/kubernetes/clusters/%s", id), params)
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	kubernetes := &KubernetesCluster{}
@@ -216,7 +216,7 @@ func (c *Client) UpdateKubernetesCluster(id string, i *KubernetesClusterConfig) 
 func (c *Client) ListKubernetesMarketplaceApplications() ([]KubernetesMarketplaceApplication, error) {
 	resp, err := c.SendGetRequest("/v2/kubernetes/applications")
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	kubernetes := make([]KubernetesMarketplaceApplication, 0)
@@ -231,7 +231,7 @@ func (c *Client) ListKubernetesMarketplaceApplications() ([]KubernetesMarketplac
 func (c *Client) DeleteKubernetesCluster(id string) (*SimpleResponse, error) {
 	resp, err := c.SendDeleteRequest(fmt.Sprintf("/v2/kubernetes/clusters/%s", id))
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	return c.DecodeSimpleResponse(resp)
@@ -243,7 +243,7 @@ func (c *Client) RecycleKubernetesCluster(id string, hostname string) (*SimpleRe
 		"hostname": hostname,
 	})
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	return c.DecodeSimpleResponse(body)
@@ -253,7 +253,7 @@ func (c *Client) RecycleKubernetesCluster(id string, hostname string) (*SimpleRe
 func (c *Client) ListAvailableKubernetesVersions() ([]KubernetesVersion, error) {
 	resp, err := c.SendGetRequest("/v2/kubernetes/versions")
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	kubernetes := make([]KubernetesVersion, 0)

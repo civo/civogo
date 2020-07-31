@@ -33,7 +33,7 @@ type NetworkResult struct {
 func (c *Client) GetDefaultNetwork() (*Network, error) {
 	resp, err := c.SendGetRequest("/v2/networks")
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	networks := make([]Network, 0)
@@ -52,7 +52,7 @@ func (c *Client) NewNetwork(label string) (*NetworkResult, error) {
 	nc := networkConfig{Label: label}
 	body, err := c.SendPostRequest("/v2/networks", nc)
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	var result = &NetworkResult{}
@@ -67,7 +67,7 @@ func (c *Client) NewNetwork(label string) (*NetworkResult, error) {
 func (c *Client) ListNetworks() ([]Network, error) {
 	resp, err := c.SendGetRequest("/v2/networks")
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	networks := make([]Network, 0)
@@ -82,7 +82,7 @@ func (c *Client) ListNetworks() ([]Network, error) {
 func (c *Client) FindNetwork(search string) (*Network, error) {
 	networks, err := c.ListNetworks()
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	found := -1
@@ -108,7 +108,7 @@ func (c *Client) RenameNetwork(label, id string) (*NetworkResult, error) {
 	nc := networkConfig{Label: label}
 	body, err := c.SendPutRequest("/v2/networks/"+id, nc)
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	var result = &NetworkResult{}
@@ -123,7 +123,7 @@ func (c *Client) RenameNetwork(label, id string) (*NetworkResult, error) {
 func (c *Client) DeleteNetwork(id string) (*SimpleResponse, error) {
 	resp, err := c.SendDeleteRequest(fmt.Sprintf("/v2/networks/%s", id))
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	return c.DecodeSimpleResponse(resp)

@@ -111,6 +111,50 @@ func MyListAllInstances(client *civogo.Client) ([]civogo.Instance, error) {
 }
 ```
 
+## Error handler
+​
+In the latest version of the library we have added a new way to handle errors.
+Below are some examples of how to use the new error handler, and the complete list of errors is [here](errors.go).
+​
+This is an example of how to make use of the new errors, suppose we want to create a new Kubernetes cluster, and do it this way but choose a name that already exists within the clusters that we have:
+​
+```go
+// kubernetes config
+configK8s := &civogo.KubernetesClusterConfig{
+    NumTargetNodes: 5,
+    Name: "existent-name",
+}
+// Send to create the cluster
+resp, err := client.NewKubernetesClusters(configK8s)
+if err != nil {
+     if errors.Is(err, civogo.DatabaseKubernetesClusterDuplicateError) {
+     // add some actions
+     }
+}
+```
+The following lines are new:
+​
+```go
+if err != nil {
+     if errors.Is(err, civogo.DatabaseKubernetesClusterDuplicateError) {
+     // add some actions
+     }
+}
+```
+In this way. we can make decisions faster based on known errors, and we know what to expect. There is also the option of being able to say this to account for some errors but not others:
+​
+```go
+if err != nil {
+     if errors.Is(err, civogo.DatabaseKubernetesClusterDuplicateError) {
+     // add some actions
+     }
+     if errors.Is(err, civogo.UnknowError) {
+         // exit with error
+     }
+}
+```
+We can use `UnknownError` for errors that are not defined.
+
 ## Contributing
 
 If you want to get involved, we'd love to receive a pull request - or an offer to help over our KUBE100 Slack channel. Please see the [contribution guidelines](CONTRIBUTING.md).

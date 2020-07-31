@@ -89,7 +89,7 @@ func (c *Client) ListInstances(page int, perPage int) (*PaginatedInstanceList, e
 
 	resp, err := c.SendGetRequest(url)
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	PaginatedInstances := PaginatedInstanceList{}
@@ -101,7 +101,7 @@ func (c *Client) ListInstances(page int, perPage int) (*PaginatedInstanceList, e
 func (c *Client) ListAllInstances() ([]Instance, error) {
 	instances, err := c.ListInstances(1, 99999999)
 	if err != nil {
-		return []Instance{}, err
+		return []Instance{}, decodeERROR(err)
 	}
 
 	return instances.Items, nil
@@ -111,7 +111,7 @@ func (c *Client) ListAllInstances() ([]Instance, error) {
 func (c *Client) FindInstance(search string) (*Instance, error) {
 	instances, err := c.ListAllInstances()
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	found := -1
@@ -136,7 +136,7 @@ func (c *Client) FindInstance(search string) (*Instance, error) {
 func (c *Client) GetInstance(id string) (*Instance, error) {
 	resp, err := c.SendGetRequest("/v2/instances/" + id)
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	instance := Instance{}
@@ -148,12 +148,12 @@ func (c *Client) GetInstance(id string) (*Instance, error) {
 func (c *Client) NewInstanceConfig() (*InstanceConfig, error) {
 	network, err := c.GetDefaultNetwork()
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	template, err := c.GetTemplateByCode("ubuntu-18.04")
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	return &InstanceConfig{
@@ -178,7 +178,7 @@ func (c *Client) CreateInstance(config *InstanceConfig) (*Instance, error) {
 	config.TagsList = strings.Join(config.Tags, " ")
 	body, err := c.SendPostRequest("/v2/instances", config)
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	var instance Instance
@@ -195,7 +195,7 @@ func (c *Client) SetInstanceTags(i *Instance, tags string) (*SimpleResponse, err
 		"tags": tags,
 	})
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	response, err := c.DecodeSimpleResponse(resp)
@@ -216,7 +216,7 @@ func (c *Client) UpdateInstance(i *Instance) (*SimpleResponse, error) {
 
 	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s", i.ID), params)
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	response, err := c.DecodeSimpleResponse(resp)
@@ -227,7 +227,7 @@ func (c *Client) UpdateInstance(i *Instance) (*SimpleResponse, error) {
 func (c *Client) DeleteInstance(id string) (*SimpleResponse, error) {
 	resp, err := c.SendDeleteRequest("/v2/instances/" + id)
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	response, err := c.DecodeSimpleResponse(resp)
@@ -243,7 +243,7 @@ func (c *Client) RebootInstance(id string) (*SimpleResponse, error) {
 func (c *Client) HardRebootInstance(id string) (*SimpleResponse, error) {
 	resp, err := c.SendPostRequest(fmt.Sprintf("/v2/instances/%s/hard_reboots", id), "")
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	response, err := c.DecodeSimpleResponse(resp)
@@ -254,7 +254,7 @@ func (c *Client) HardRebootInstance(id string) (*SimpleResponse, error) {
 func (c *Client) SoftRebootInstance(id string) (*SimpleResponse, error) {
 	resp, err := c.SendPostRequest(fmt.Sprintf("/v2/instances/%s/soft_reboots", id), "")
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	response, err := c.DecodeSimpleResponse(resp)
@@ -265,7 +265,7 @@ func (c *Client) SoftRebootInstance(id string) (*SimpleResponse, error) {
 func (c *Client) StopInstance(id string) (*SimpleResponse, error) {
 	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/stop", id), "")
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	response, err := c.DecodeSimpleResponse(resp)
@@ -276,7 +276,7 @@ func (c *Client) StopInstance(id string) (*SimpleResponse, error) {
 func (c *Client) StartInstance(id string) (*SimpleResponse, error) {
 	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/start", id), "")
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	response, err := c.DecodeSimpleResponse(resp)
@@ -287,7 +287,7 @@ func (c *Client) StartInstance(id string) (*SimpleResponse, error) {
 func (c *Client) GetInstanceConsoleURL(id string) (string, error) {
 	resp, err := c.SendGetRequest(fmt.Sprintf("/v2/instances/%s/console", id))
 	if err != nil {
-		return "", err
+		return "", decodeERROR(err)
 	}
 
 	console := InstanceConsole{}
@@ -302,7 +302,7 @@ func (c *Client) UpgradeInstance(id, newSize string) (*SimpleResponse, error) {
 		"size": newSize,
 	})
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	response, err := c.DecodeSimpleResponse(resp)
@@ -313,7 +313,7 @@ func (c *Client) UpgradeInstance(id, newSize string) (*SimpleResponse, error) {
 func (c *Client) MovePublicIPToInstance(id, ipAddress string) (*SimpleResponse, error) {
 	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/ip/%s", id, ipAddress), "")
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	response, err := c.DecodeSimpleResponse(resp)
@@ -326,7 +326,7 @@ func (c *Client) SetInstanceFirewall(id, firewallID string) (*SimpleResponse, er
 		"firewall_id": firewallID,
 	})
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	response, err := c.DecodeSimpleResponse(resp)

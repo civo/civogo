@@ -55,7 +55,7 @@ type firewallConfig struct {
 func (c *Client) ListFirewalls() ([]Firewall, error) {
 	resp, err := c.SendGetRequest("/v2/firewalls")
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	firewall := make([]Firewall, 0)
@@ -70,7 +70,7 @@ func (c *Client) ListFirewalls() ([]Firewall, error) {
 func (c *Client) FindFirewall(search string) (*Firewall, error) {
 	firewalls, err := c.ListFirewalls()
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	found := -1
@@ -96,7 +96,7 @@ func (c *Client) NewFirewall(name string) (*FirewallResult, error) {
 	fw := firewallConfig{Name: name}
 	body, err := c.SendPostRequest("/v2/firewalls", fw)
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	result := &FirewallResult{}
@@ -113,7 +113,7 @@ func (c *Client) RenameFirewall(id string, name string) (*SimpleResponse, error)
 		"name": name,
 	})
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	return c.DecodeSimpleResponse(resp)
@@ -123,7 +123,7 @@ func (c *Client) RenameFirewall(id string, name string) (*SimpleResponse, error)
 func (c *Client) DeleteFirewall(id string) (*SimpleResponse, error) {
 	resp, err := c.SendDeleteRequest("/v2/firewalls/" + id)
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	return c.DecodeSimpleResponse(resp)
@@ -137,7 +137,7 @@ func (c *Client) NewFirewallRule(r *FirewallRuleConfig) (*FirewallRule, error) {
 
 	resp, err := c.SendPostRequest(fmt.Sprintf("/v2/firewalls/%s/rules", r.FirewallID), r)
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	rule := &FirewallRule{}
@@ -152,7 +152,7 @@ func (c *Client) NewFirewallRule(r *FirewallRuleConfig) (*FirewallRule, error) {
 func (c *Client) ListFirewallRules(id string) ([]FirewallRule, error) {
 	resp, err := c.SendGetRequest(fmt.Sprintf("/v2/firewalls/%s/rules", id))
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	firewallRule := make([]FirewallRule, 0)
@@ -167,7 +167,7 @@ func (c *Client) ListFirewallRules(id string) ([]FirewallRule, error) {
 func (c *Client) FindFirewallRule(firewallID string, search string) (*FirewallRule, error) {
 	firewallsRules, err := c.ListFirewallRules(firewallID)
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	found := -1
@@ -192,7 +192,7 @@ func (c *Client) FindFirewallRule(firewallID string, search string) (*FirewallRu
 func (c *Client) DeleteFirewallRule(id string, ruleID string) (*SimpleResponse, error) {
 	resp, err := c.SendDeleteRequest(fmt.Sprintf("/v2/firewalls/%s/rules/%s", id, ruleID))
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	return c.DecodeSimpleResponse(resp)

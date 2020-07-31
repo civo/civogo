@@ -36,7 +36,7 @@ func (c *Client) CreateSnapshot(name string, r *SnapshotConfig) (*Snapshot, erro
 	url := fmt.Sprintf("/v2/snapshots/%s", name)
 	body, err := c.SendPutRequest(url, r)
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	var n = &Snapshot{}
@@ -51,7 +51,7 @@ func (c *Client) CreateSnapshot(name string, r *SnapshotConfig) (*Snapshot, erro
 func (c *Client) ListSnapshots() ([]Snapshot, error) {
 	resp, err := c.SendGetRequest("/v2/snapshots")
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	snapshots := make([]Snapshot, 0)
@@ -66,7 +66,7 @@ func (c *Client) ListSnapshots() ([]Snapshot, error) {
 func (c *Client) FindSnapshot(search string) (*Snapshot, error) {
 	snapshots, err := c.ListSnapshots()
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	found := -1
@@ -91,7 +91,7 @@ func (c *Client) FindSnapshot(search string) (*Snapshot, error) {
 func (c *Client) DeleteSnapshot(name string) (*SimpleResponse, error) {
 	resp, err := c.SendDeleteRequest(fmt.Sprintf("/v2/snapshots/%s", name))
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	return c.DecodeSimpleResponse(resp)

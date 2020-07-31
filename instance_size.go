@@ -21,7 +21,7 @@ type InstanceSize struct {
 func (c *Client) ListInstanceSizes() ([]InstanceSize, error) {
 	resp, err := c.SendGetRequest("/v2/sizes")
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	sizes := make([]InstanceSize, 0)
