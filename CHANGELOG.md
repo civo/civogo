@@ -1,4 +1,13 @@
 
+0.2.14
+=============
+2020-08-11
+
+* Added FindTemplate fucntion to the template module (59a86819)
+* Update the change log (4cc1b488)
+* Revert "Update the change log" (21b44c0e)
+* Update the change log (8cfac7bc)
+
 0.2.13
 =============
 2020-08-11

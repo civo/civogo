@@ -1,3 +1,42 @@
+- semver: 0.2.14
+  date: 2020-08-11T10:29:53.947378-04:00
+  packager: ""
+  changes:
+  - commit: 59a86819f532221f86fe0482eb5a6786c3253b85
+    note: Added FindTemplate fucntion to the template module
+    author:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+    committer:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+  - commit: 4cc1b488aa148a9733b6e2d3309264df8e57ba87
+    note: Update the change log
+    author:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+    committer:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+  - commit: 21b44c0e538c42e386ababbdaec877e28ca2d0e1
+    note: |-
+      Revert "Update the change log"
+
+      This reverts commit 8cfac7bccda269767dad34f431659476da3718a5.
+    author:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+    committer:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+  - commit: 8cfac7bccda269767dad34f431659476da3718a5
+    note: Update the change log
+    author:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+    committer:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
 - semver: 0.2.13
   date: 2020-08-11T10:28:29.544518-04:00
   packager: ""
