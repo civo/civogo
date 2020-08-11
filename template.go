@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"strings"
 )
 
 // Template represents a Template for launching instances from
@@ -84,31 +83,6 @@ func (c *Client) GetTemplateByCode(code string) (*Template, error) {
 	}
 
 	return nil, errors.New("template not found")
-}
-
-// FindTemplate finds a template by either part of the ID or part of the code
-func (c *Client) FindTemplate(search string) (*Template, error) {
-	resp, err := c.ListTemplates()
-	if err != nil {
-		return nil, decodeERROR(err)
-	}
-
-	found := -1
-
-	for i, template := range resp {
-		if strings.Contains(template.ID, search) || strings.Contains(template.Code, search) {
-			if found != -1 {
-				return nil, fmt.Errorf("unable to find %s because there were multiple matches", search)
-			}
-			found = i
-		}
-	}
-
-	if found == -1 {
-		return nil, fmt.Errorf("unable to find %s, zero matches", search)
-	}
-
-	return &resp[found], nil
 }
 
 // DeleteTemplate deletes requested template
