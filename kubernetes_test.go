@@ -146,12 +146,12 @@ func TestFindKubernetesCluster(t *testing.T) {
 	}
 
 	_, err = client.FindKubernetesCluster("cluster")
-	if err.Error() != "unable to find cluster because there were multiple matches" {
+	if err.Error() != "MultipleMatchesError: unable to find cluster because there were multiple matches" {
 		t.Errorf("Expected %s, got %s", "unable to find cluster because there were multiple matches", err.Error())
 	}
 
 	_, err = client.FindKubernetesCluster("missing")
-	if err.Error() != "unable to find missing, zero matches" {
+	if err.Error() != "ZeroMatchesError: unable to find missing, zero matches" {
 		t.Errorf("Expected %s, got %s", "unable to find missing, zero matches", err.Error())
 	}
 }

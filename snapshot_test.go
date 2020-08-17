@@ -152,12 +152,12 @@ func TestFindSnapshot(t *testing.T) {
 	}
 
 	_, err = client.FindSnapshot("backup")
-	if err.Error() != "unable to find backup because there were multiple matches" {
+	if err.Error() != "MultipleMatchesError: unable to find backup because there were multiple matches" {
 		t.Errorf("Expected %s, got %s", "unable to find backup because there were multiple matches", err.Error())
 	}
 
 	_, err = client.FindSnapshot("missing")
-	if err.Error() != "unable to find missing, zero matches" {
+	if err.Error() != "ZeroMatchesError: unable to find missing, zero matches" {
 		t.Errorf("Expected %s, got %s", "unable to find missing, zero matches", err.Error())
 	}
 }

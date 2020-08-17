@@ -49,12 +49,12 @@ func TestFindFirewall(t *testing.T) {
 	}
 
 	_, err := client.FindFirewall("web")
-	if err.Error() != "unable to find web because there were multiple matches" {
+	if err.Error() != "MultipleMatchesError: unable to find web because there were multiple matches" {
 		t.Errorf("Expected %s, got %s", "unable to find web because there were multiple matches", err.Error())
 	}
 
 	_, err = client.FindFirewall("missing")
-	if err.Error() != "unable to find missing, zero matches" {
+	if err.Error() != "ZeroMatchesError: unable to find missing, zero matches" {
 		t.Errorf("Expected %s, got %s", "unable to find missing, zero matches", err.Error())
 	}
 }
@@ -238,12 +238,12 @@ func TestFindFirewallRule(t *testing.T) {
 	}
 
 	_, err := client.FindFirewallRule("22", "2")
-	if err.Error() != "unable to find 2 because there were multiple matches" {
+	if err.Error() != "MultipleMatchesError: unable to find 2 because there were multiple matches" {
 		t.Errorf("Expected %s, got %s", "unable to find 2 because there were multiple matches", err.Error())
 	}
 
 	_, err = client.FindFirewallRule("22", "missing")
-	if err.Error() != "unable to find missing, zero matches" {
+	if err.Error() != "ZeroMatchesError: unable to find missing, zero matches" {
 		t.Errorf("Expected %s, got %s", "unable to find missing, zero matches", err.Error())
 	}
 }

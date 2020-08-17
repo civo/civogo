@@ -62,12 +62,12 @@ func TestFindSSHKey(t *testing.T) {
 	}
 
 	_, err = client.FindSSHKey("23")
-	if err.Error() != "unable to find 23 because there were multiple matches" {
+	if err.Error() != "MultipleMatchesError: unable to find 23 because there were multiple matches" {
 		t.Errorf("Expected %s, got %s", "unable to find 23 because there were multiple matches", err.Error())
 	}
 
 	_, err = client.FindSSHKey("missing")
-	if err.Error() != "unable to find missing, zero matches" {
+	if err.Error() != "ZeroMatchesError: unable to find missing, zero matches" {
 		t.Errorf("Expected %s, got %s", "unable to find missing, zero matches", err.Error())
 	}
 }

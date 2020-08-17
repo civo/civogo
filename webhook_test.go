@@ -126,12 +126,12 @@ func TestFindWebhook(t *testing.T) {
 	}
 
 	_, err = client.FindWebhook("example")
-	if err.Error() != "unable to find example because there were multiple matches" {
+	if err.Error() != "MultipleMatchesError: unable to find example because there were multiple matches" {
 		t.Errorf("Expected %s, got %s", "unable to find example because there were multiple matches", err.Error())
 	}
 
 	_, err = client.FindWebhook("missing")
-	if err.Error() != "unable to find missing, zero matches" {
+	if err.Error() != "ZeroMatchesError: unable to find missing, zero matches" {
 		t.Errorf("Expected %s, got %s", "unable to find missing, zero matches", err.Error())
 	}
 }

@@ -76,12 +76,12 @@ func TestFindVolume(t *testing.T) {
 	}
 
 	_, err = client.FindVolume("volume")
-	if err.Error() != "unable to find volume because there were multiple matches" {
+	if err.Error() != "MultipleMatchesError: unable to find volume because there were multiple matches" {
 		t.Errorf("Expected %s, got %s", "unable to find volume because there were multiple matches", err.Error())
 	}
 
 	_, err = client.FindVolume("missing")
-	if err.Error() != "unable to find missing, zero matches" {
+	if err.Error() != "ZeroMatchesError: unable to find missing, zero matches" {
 		t.Errorf("Expected %s, got %s", "unable to find missing, zero matches", err.Error())
 	}
 }

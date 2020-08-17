@@ -50,13 +50,13 @@ func TestFindDNSDomain(t *testing.T) {
 	}
 
 	_, err := client.FindDNSDomain("example")
-	if err.Error() != "unable to find example because there were multiple matches" {
-		t.Errorf("Expected %s, got %s", "unable to find example because there were multiple matches", err.Error())
+	if err.Error() != "MultipleMatchesError: unable to find example because there were multiple matches" {
+		t.Errorf("Expected %s, got %s", "MultipleMatchesError: unable to find example because there were multiple matches", err.Error())
 	}
 
 	_, err = client.FindDNSDomain("missing")
-	if err.Error() != "unable to find missing, zero matches" {
-		t.Errorf("Expected %s, got %s", "unable to find missing, zero matches", err.Error())
+	if err.Error() != "ZeroMatchesError: unable to find missing, zero matches" {
+		t.Errorf("Expected %s, got %s", "ZeroMatchesError: unable to find missing, zero matches", err.Error())
 	}
 }
 
