@@ -3,6 +3,8 @@
 =============
 2020-08-17
 
+* Updated all test (d8b73535)
+* Update Change log (63a3ae56)
 * Added constant errors to the lib (4095fdfc)
 
 0.2.14

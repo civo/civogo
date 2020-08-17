@@ -1,7 +1,23 @@
 - semver: 0.2.15
-  date: 2020-08-17T12:50:39.66517-04:00
+  date: 2020-08-17T13:05:12.794955-04:00
   packager: ""
   changes:
+  - commit: d8b735350335f4d83b5aca63df666c0e0301c716
+    note: Updated all test
+    author:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+    committer:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+  - commit: 63a3ae563a9598e217d72f4556b498a689b27db1
+    note: Update Change log
+    author:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+    committer:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
   - commit: 4095fdfc81941f24ec77f72fe6b85a8c5f320667
     note: Added constant errors to the lib
     author:
