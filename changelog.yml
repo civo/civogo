@@ -1,3 +1,15 @@
+- semver: 0.2.15
+  date: 2020-08-17T12:50:39.66517-04:00
+  packager: ""
+  changes:
+  - commit: 4095fdfc81941f24ec77f72fe6b85a8c5f320667
+    note: Added constant errors to the lib
+    author:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+    committer:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
 - semver: 0.2.14
   date: 2020-08-11T10:29:53.947378-04:00
   packager: ""
