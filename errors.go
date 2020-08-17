@@ -11,6 +11,10 @@ import (
 var (
 	ResponseDecodeFailedError = constError("ResponseDecodeFailed")
 	DisabledServiceError      = constError("DisabledServiceError")
+	NoAPIKeySuppliedError     = constError("NoAPIKeySuppliedError")
+	MultipleMatchesError      = constError("MultipleMatchesError")
+	ZeroMatchesError          = constError("ZeroMatchesError")
+	IDisEmptyError            = constError("IDisEmptyError")
 
 	CivoStatsdRecordFailedError = constError("CivoStatsdRecordFailedError")
 	AuthenticationFailedError   = constError("AuthenticationFailedError")

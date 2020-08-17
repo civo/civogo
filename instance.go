@@ -119,14 +119,16 @@ func (c *Client) FindInstance(search string) (*Instance, error) {
 	for i, instance := range instances {
 		if strings.Contains(instance.ID, search) || strings.Contains(instance.Hostname, search) {
 			if found != -1 {
-				return nil, fmt.Errorf("unable to find %s because there were multiple matches", search)
+				err := fmt.Errorf("unable to find %s because there were multiple matches", search)
+				return nil, MultipleMatchesError.wrap(err)
 			}
 			found = i
 		}
 	}
 
 	if found == -1 {
-		return nil, fmt.Errorf("unable to find %s, zero matches", search)
+		err := fmt.Errorf("unable to find %s, zero matches", search)
+		return nil, ZeroMatchesError.wrap(err)
 	}
 
 	return &instances[found], nil

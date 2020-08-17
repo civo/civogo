@@ -78,14 +78,16 @@ func (c *Client) FindFirewall(search string) (*Firewall, error) {
 	for i, firewall := range firewalls {
 		if strings.Contains(firewall.ID, search) || strings.Contains(firewall.Name, search) {
 			if found != -1 {
-				return nil, fmt.Errorf("unable to find %s because there were multiple matches", search)
+				err := fmt.Errorf("unable to find %s because there were multiple matches", search)
+				return nil, MultipleMatchesError.wrap(err)
 			}
 			found = i
 		}
 	}
 
 	if found == -1 {
-		return nil, fmt.Errorf("unable to find %s, zero matches", search)
+		err := fmt.Errorf("unable to find %s, zero matches", search)
+		return nil, ZeroMatchesError.wrap(err)
 	}
 
 	return &firewalls[found], nil
@@ -132,7 +134,8 @@ func (c *Client) DeleteFirewall(id string) (*SimpleResponse, error) {
 // NewFirewallRule creates a new rule within a firewall
 func (c *Client) NewFirewallRule(r *FirewallRuleConfig) (*FirewallRule, error) {
 	if len(r.FirewallID) == 0 {
-		return nil, fmt.Errorf("the firewall ID is empty")
+		err := fmt.Errorf("the firewall ID is empty")
+		return nil, IDisEmptyError.wrap(err)
 	}
 
 	resp, err := c.SendPostRequest(fmt.Sprintf("/v2/firewalls/%s/rules", r.FirewallID), r)
@@ -175,14 +178,16 @@ func (c *Client) FindFirewallRule(firewallID string, search string) (*FirewallRu
 	for i, firewallRule := range firewallsRules {
 		if strings.Contains(firewallRule.ID, search) {
 			if found != -1 {
-				return nil, fmt.Errorf("unable to find %s because there were multiple matches", search)
+				err := fmt.Errorf("unable to find %s because there were multiple matches", search)
+				return nil, MultipleMatchesError.wrap(err)
 			}
 			found = i
 		}
 	}
 
 	if found == -1 {
-		return nil, fmt.Errorf("unable to find %s, zero matches", search)
+		err := fmt.Errorf("unable to find %s, zero matches", search)
+		return nil, ZeroMatchesError.wrap(err)
 	}
 
 	return &firewallsRules[found], nil

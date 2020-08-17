@@ -24,7 +24,7 @@ func (c *Client) ListCharges(from, to time.Time) ([]Charge, error) {
 
 	resp, err := c.SendGetRequest(url)
 	if err != nil {
-		return nil, err
+		return nil, decodeERROR(err)
 	}
 
 	charges := make([]Charge, 0)

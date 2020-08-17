@@ -90,14 +90,16 @@ func (c *Client) FindNetwork(search string) (*Network, error) {
 	for i, network := range networks {
 		if strings.Contains(network.ID, search) || strings.Contains(network.Name, search) || strings.Contains(network.Label, search) {
 			if found != -1 {
-				return nil, fmt.Errorf("unable to find %s because there were multiple matches", search)
+				err := fmt.Errorf("unable to find %s because there were multiple matches", search)
+				return nil, MultipleMatchesError.wrap(err)
 			}
 			found = i
 		}
 	}
 
 	if found == -1 {
-		return nil, fmt.Errorf("unable to find %s, zero matches", search)
+		err := fmt.Errorf("unable to find %s, zero matches", search)
+		return nil, ZeroMatchesError.wrap(err)
 	}
 
 	return &networks[found], nil

@@ -104,14 +104,16 @@ func (c *Client) FindDNSDomain(search string) (*DNSDomain, error) {
 	for i, domain := range domains {
 		if strings.Contains(domain.ID, search) || strings.Contains(domain.Name, search) {
 			if found != -1 {
-				return nil, fmt.Errorf("unable to find %s because there were multiple matches", search)
+				err := fmt.Errorf("unable to find %s because there were multiple matches", search)
+				return nil, MultipleMatchesError.wrap(err)
 			}
 			found = i
 		}
 	}
 
 	if found == -1 {
-		return nil, fmt.Errorf("unable to find %s, zero matches", search)
+		err := fmt.Errorf("unable to find %s, zero matches", search)
+		return nil, ZeroMatchesError.wrap(err)
 	}
 
 	return &domains[found], nil
@@ -250,11 +252,13 @@ func (c *Client) UpdateDNSRecord(r *DNSRecord, rc *DNSRecordConfig) (*DNSRecord,
 // DeleteDNSRecord deletes the DNS record
 func (c *Client) DeleteDNSRecord(r *DNSRecord) (*SimpleResponse, error) {
 	if len(r.ID) == 0 {
-		return nil, fmt.Errorf("ID is empty")
+		err := fmt.Errorf("ID is empty")
+		return nil, IDisEmptyError.wrap(err)
 	}
 
 	if len(r.DNSDomainID) == 0 {
-		return nil, fmt.Errorf("DNSDomainID is empty")
+		err := fmt.Errorf("DNSDomainID is empty")
+		return nil, IDisEmptyError.wrap(err)
 	}
 
 	url := fmt.Sprintf("/v2/dns/%s/records/%s", r.DNSDomainID, r.ID)

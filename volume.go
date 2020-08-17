@@ -62,14 +62,16 @@ func (c *Client) FindVolume(search string) (*Volume, error) {
 	for i, volume := range volumes {
 		if strings.Contains(volume.ID, search) || strings.Contains(volume.Name, search) {
 			if found != -1 {
-				return nil, fmt.Errorf("unable to find %s because there were multiple matches", search)
+				err := fmt.Errorf("unable to find %s because there were multiple matches", search)
+				return nil, MultipleMatchesError.wrap(err)
 			}
 			found = i
 		}
 	}
 
 	if found == -1 {
-		return nil, fmt.Errorf("unable to find %s, zero matches", search)
+		err := fmt.Errorf("unable to find %s, zero matches", search)
+		return nil, ZeroMatchesError.wrap(err)
 	}
 
 	return &volumes[found], nil

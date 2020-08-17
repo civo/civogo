@@ -82,14 +82,16 @@ func (c *Client) FindLoadBalancer(search string) (*LoadBalancer, error) {
 	for i, lb := range lbs {
 		if strings.Contains(lb.ID, search) || strings.Contains(lb.Hostname, search) {
 			if found != -1 {
-				return nil, fmt.Errorf("unable to find %s because there were multiple matches", search)
+				err := fmt.Errorf("unable to find %s because there were multiple matches", search)
+				return nil, MultipleMatchesError.wrap(err)
 			}
 			found = i
 		}
 	}
 
 	if found == -1 {
-		return nil, fmt.Errorf("unable to find %s, zero matches", search)
+		err := fmt.Errorf("unable to find %s, zero matches", search)
+		return nil, ZeroMatchesError.wrap(err)
 	}
 
 	return &lbs[found], nil

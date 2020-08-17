@@ -148,14 +148,16 @@ func (c *Client) FindKubernetesCluster(search string) (*KubernetesCluster, error
 	for i, cluster := range clusters.Items {
 		if strings.Contains(cluster.ID, search) || strings.Contains(cluster.Name, search) {
 			if found != -1 {
-				return nil, fmt.Errorf("unable to find %s because there were multiple matches", search)
+				err := fmt.Errorf("unable to find %s because there were multiple matches", search)
+				return nil, MultipleMatchesError.wrap(err)
 			}
 			found = i
 		}
 	}
 
 	if found == -1 {
-		return nil, fmt.Errorf("unable to find %s, zero matches", search)
+		err := fmt.Errorf("unable to find %s, zero matches", search)
+		return nil, ZeroMatchesError.wrap(err)
 	}
 
 	return &clusters.Items[found], nil
