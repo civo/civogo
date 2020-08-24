@@ -1,3 +1,15 @@
+- semver: 0.2.16
+  date: 2020-08-24T15:12:40.179278-04:00
+  packager: ""
+  changes:
+  - commit: 7a0e384f1a206b5e2947bfdb13d80cc6f36ace21
+    note: improved error handling in the library
+    author:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+    committer:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
 - semver: 0.2.15
   date: 2020-08-17T13:05:12.794955-04:00
   packager: ""
