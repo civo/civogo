@@ -54,16 +54,19 @@ type DNSRecordConfig struct {
 
 const (
 	// DNSRecordTypeA represents an A record
-	DNSRecordTypeA = "a"
+	DNSRecordTypeA = "A"
 
 	// DNSRecordTypeCName represents an CNAME record
-	DNSRecordTypeCName = "cname"
+	DNSRecordTypeCName = "CNAME"
 
 	// DNSRecordTypeMX represents an MX record
-	DNSRecordTypeMX = "mx"
+	DNSRecordTypeMX = "MX"
+
+	// DNSRecordTypeSRV represents an SRV record
+	DNSRecordTypeSRV = "SRV"
 
 	// DNSRecordTypeTXT represents an TXT record
-	DNSRecordTypeTXT = "txt"
+	DNSRecordTypeTXT = "TXT"
 )
 
 var (
