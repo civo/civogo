@@ -145,7 +145,7 @@ func TestNewRecord(t *testing.T) {
 			"domain_id": "12346",
 			"name": "mail",
 			"value": "10.0.0.1",
-			"type": "mx",
+			"type": "MX",
 			"priority": 10,
 			"ttl": 600
 		}`,
@@ -164,7 +164,7 @@ func TestNewRecord(t *testing.T) {
 		DNSDomainID: "12346",
 		Name:        "mail",
 		Value:       "10.0.0.1",
-		Type:        "mx",
+		Type:        "MX",
 		Priority:    10,
 		TTL:         600,
 	}
@@ -224,7 +224,7 @@ func TestDeleteRecord(t *testing.T) {
 
 func TestListDNSRecords(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
-		"/v2/dns/1111/records": `[{"id": "12345", "domain_id":"1111", "account_id": "1", "name": "www", "type": "cname", "value": "10.0.0.0", "ttl": 600}, {"id": "12346", "account_id": "1", "domain_id":"1111", "name": "mail", "type": "mx", "value": "10.0.0.1", "ttl": 600, "priority": 10}]`,
+		"/v2/dns/1111/records": `[{"id": "12345", "domain_id":"1111", "account_id": "1", "name": "www", "type": "CNAME", "value": "10.0.0.0", "ttl": 600}, {"id": "12346", "account_id": "1", "domain_id":"1111", "name": "mail", "type": "MX", "value": "10.0.0.1", "ttl": 600, "priority": 10}]`,
 	})
 	defer server.Close()
 	got, err := client.ListDNSRecords("1111")
@@ -252,7 +252,7 @@ func TestUpdateDNSRecord(t *testing.T) {
 		  "domain_id": "edc5dacf-a2ad-4757-41ee-c12f06259c70",
 		  "name": "email",
 		  "value": "10.0.0.1",
-		  "type": "mx",
+		  "type": "MX",
 		  "priority": 10,
 		  "ttl": 600
 		}`,
@@ -275,7 +275,7 @@ func TestUpdateDNSRecord(t *testing.T) {
 		DNSDomainID: "edc5dacf-a2ad-4757-41ee-c12f06259c70",
 		Name:        "email",
 		Value:       "10.0.0.1",
-		Type:        "mx",
+		Type:        "MX",
 		Priority:    10,
 		TTL:         600,
 		CreatedAt:   createdAt,
@@ -288,7 +288,7 @@ func TestUpdateDNSRecord(t *testing.T) {
 
 func TestGetRecord(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
-		"/v2/dns/1111/records": `[{"id": "12345", "domain_id":"1111", "account_id": "1", "name": "www", "type": "cname", "value": "10.0.0.0", "ttl": 600}, {"id": "12346", "account_id": "1", "domain_id":"1111", "name": "mail", "type": "mx", "value": "10.0.0.1", "ttl": 600, "priority": 10}]`,
+		"/v2/dns/1111/records": `[{"id": "12345", "domain_id":"1111", "account_id": "1", "name": "www", "type": "CNAME", "value": "10.0.0.0", "ttl": 600}, {"id": "12346", "account_id": "1", "domain_id":"1111", "name": "mail", "type": "MX", "value": "10.0.0.1", "ttl": 600, "priority": 10}]`,
 	})
 
 	defer server.Close()
