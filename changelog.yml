@@ -1,3 +1,15 @@
+- semver: 0.2.17
+  date: 2020-09-12T22:13:00.519993-04:00
+  packager: ""
+  changes:
+  - commit: 6e3d7b1e23638f3e547dfbf46721b73156de5f5b
+    note: Added new record type to DNS
+    author:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+    committer:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
 - semver: 0.2.16
   date: 2020-08-24T15:12:40.179278-04:00
   packager: ""
