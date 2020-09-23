@@ -239,6 +239,9 @@ var (
 	DatabaseTemplateParseRequestError       = constError("DatabaseTemplateParseRequestError")
 	ParameterValueMissingError              = constError("ParameterValueMissingError")
 
+	AccountNotEnabledIncCardError     = constError("AccountNotEnabledIncCardError")
+	AccountNotEnabledWithoutCardError = constError("AccountNotEnabledWithoutCardError")
+
 	UnknowError = constError("Unknow Error")
 )
 
@@ -902,6 +905,12 @@ func decodeERROR(err error) error {
 		case "database_instance_not_in_openstack":
 			err := errors.New(msg.String())
 			return DatabaseInstanceNotInOpenStackError.wrap(err)
+		case "account_not_enabled_inc_card":
+			err := errors.New(msg.String())
+			return AccountNotEnabledIncCardError.wrap(err)
+		case "account_not_enabled_without_card":
+			err := errors.New(msg.String())
+			return AccountNotEnabledWithoutCardError.wrap(err)
 		default:
 			return UnknowError
 		}
