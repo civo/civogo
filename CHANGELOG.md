@@ -1,4 +1,11 @@
 
+0.2.18
+=============
+2020-09-23
+
+* Added two more error to the error handler (c1e74133)
+* Fixed error in the DNS test (b0996760)
+
 0.2.17
 =============
 2020-09-13
