@@ -1,4 +1,10 @@
 
+0.2.19
+=============
+2020-09-25
+
+* Fixed an error in the struct of the creation of intances (e7cd9f3b)
+
 0.2.18
 =============
 2020-09-23
