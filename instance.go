@@ -69,7 +69,7 @@ type InstanceConfig struct {
 	ReverseDNS       string   `json:"reverse_dns"`
 	Size             string   `json:"size"`
 	Region           string   `json:"region"`
-	PublicIPRequired string   `json:"public_ip_required"`
+	PublicIPRequired string   `json:"public_ip"`
 	NetworkID        string   `json:"network_id"`
 	TemplateID       string   `json:"template_id"`
 	SnapshotID       string   `json:"snapshot_id"`
