@@ -85,24 +85,31 @@ func (c *Client) FindNetwork(search string) (*Network, error) {
 		return nil, decodeERROR(err)
 	}
 
-	found := -1
+	exactMatch := false
+	partialMatchesCount := 0
+	result := Network{}
 
-	for i, network := range networks {
-		if strings.Contains(network.ID, search) || strings.Contains(network.Name, search) || strings.Contains(network.Label, search) {
-			if found != -1 {
-				err := fmt.Errorf("unable to find %s because there were multiple matches", search)
-				return nil, MultipleMatchesError.wrap(err)
+	for _, value := range networks {
+		if value.Name == search || value.ID == search || value.Label == search {
+			exactMatch = true
+			result = value
+		} else if strings.Contains(value.Name, search) || strings.Contains(value.ID, search) || strings.Contains(value.Label, search) {
+			if exactMatch == false {
+				result = value
+				partialMatchesCount++
 			}
-			found = i
 		}
 	}
 
-	if found == -1 {
+	if exactMatch || partialMatchesCount == 1 {
+		return &result, nil
+	} else if partialMatchesCount > 1 {
+		err := fmt.Errorf("unable to find %s because there were multiple matches", search)
+		return nil, MultipleMatchesError.wrap(err)
+	} else {
 		err := fmt.Errorf("unable to find %s, zero matches", search)
 		return nil, ZeroMatchesError.wrap(err)
 	}
-
-	return &networks[found], nil
 }
 
 // RenameNetwork renames an existing private network

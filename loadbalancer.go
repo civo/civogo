@@ -77,24 +77,31 @@ func (c *Client) FindLoadBalancer(search string) (*LoadBalancer, error) {
 		return nil, decodeERROR(err)
 	}
 
-	found := -1
+	exactMatch := false
+	partialMatchesCount := 0
+	result := LoadBalancer{}
 
-	for i, lb := range lbs {
-		if strings.Contains(lb.ID, search) || strings.Contains(lb.Hostname, search) {
-			if found != -1 {
-				err := fmt.Errorf("unable to find %s because there were multiple matches", search)
-				return nil, MultipleMatchesError.wrap(err)
+	for _, value := range lbs {
+		if value.Hostname == search || value.ID == search {
+			exactMatch = true
+			result = value
+		} else if strings.Contains(value.Hostname, search) || strings.Contains(value.ID, search) {
+			if exactMatch == false {
+				result = value
+				partialMatchesCount++
 			}
-			found = i
 		}
 	}
 
-	if found == -1 {
+	if exactMatch || partialMatchesCount == 1 {
+		return &result, nil
+	} else if partialMatchesCount > 1 {
+		err := fmt.Errorf("unable to find %s because there were multiple matches", search)
+		return nil, MultipleMatchesError.wrap(err)
+	} else {
 		err := fmt.Errorf("unable to find %s, zero matches", search)
 		return nil, ZeroMatchesError.wrap(err)
 	}
-
-	return &lbs[found], nil
 }
 
 // CreateLoadBalancer creates a new load balancer

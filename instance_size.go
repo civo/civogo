@@ -3,6 +3,8 @@ package civogo
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"strings"
 )
 
 // InstanceSize represents an available size for instances to launch
@@ -30,4 +32,38 @@ func (c *Client) ListInstanceSizes() ([]InstanceSize, error) {
 	}
 
 	return sizes, nil
+}
+
+// FindInstanceSizes finds a instance size name by either part of the ID or part of the name
+func (c *Client) FindInstanceSizes(search string) (*InstanceSize, error) {
+	instanceSize, err := c.ListInstanceSizes()
+	if err != nil {
+		return nil, decodeERROR(err)
+	}
+
+	exactMatch := false
+	partialMatchesCount := 0
+	result := InstanceSize{}
+
+	for _, value := range instanceSize {
+		if value.Name == search || value.ID == search {
+			exactMatch = true
+			result = value
+		} else if strings.Contains(value.Name, search) || strings.Contains(value.ID, search) {
+			if exactMatch == false {
+				result = value
+				partialMatchesCount++
+			}
+		}
+	}
+
+	if exactMatch || partialMatchesCount == 1 {
+		return &result, nil
+	} else if partialMatchesCount > 1 {
+		err := fmt.Errorf("unable to find %s because there were multiple matches", search)
+		return nil, MultipleMatchesError.wrap(err)
+	} else {
+		err := fmt.Errorf("unable to find %s, zero matches", search)
+		return nil, ZeroMatchesError.wrap(err)
+	}
 }

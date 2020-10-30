@@ -69,24 +69,31 @@ func (c *Client) FindSnapshot(search string) (*Snapshot, error) {
 		return nil, decodeERROR(err)
 	}
 
-	found := -1
+	exactMatch := false
+	partialMatchesCount := 0
+	result := Snapshot{}
 
-	for i, snapshot := range snapshots {
-		if strings.Contains(snapshot.ID, search) || strings.Contains(snapshot.Name, search) {
-			if found != -1 {
-				err := fmt.Errorf("unable to find %s because there were multiple matches", search)
-				return nil, MultipleMatchesError.wrap(err)
+	for _, value := range snapshots {
+		if value.Name == search || value.ID == search {
+			exactMatch = true
+			result = value
+		} else if strings.Contains(value.Name, search) || strings.Contains(value.ID, search) {
+			if exactMatch == false {
+				result = value
+				partialMatchesCount++
 			}
-			found = i
 		}
 	}
 
-	if found == -1 {
+	if exactMatch || partialMatchesCount == 1 {
+		return &result, nil
+	} else if partialMatchesCount > 1 {
+		err := fmt.Errorf("unable to find %s because there were multiple matches", search)
+		return nil, MultipleMatchesError.wrap(err)
+	} else {
 		err := fmt.Errorf("unable to find %s, zero matches", search)
 		return nil, ZeroMatchesError.wrap(err)
 	}
-
-	return &snapshots[found], nil
 }
 
 // DeleteSnapshot deletes a snapshot

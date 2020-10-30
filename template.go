@@ -88,29 +88,36 @@ func (c *Client) GetTemplateByCode(code string) (*Template, error) {
 
 // FindTemplate finds a template by either part of the ID or part of the code
 func (c *Client) FindTemplate(search string) (*Template, error) {
-	resp, err := c.ListTemplates()
+	templateList, err := c.ListTemplates()
 	if err != nil {
 		return nil, decodeERROR(err)
 	}
 
-	found := -1
+	exactMatch := false
+	partialMatchesCount := 0
+	result := Template{}
 
-	for i, template := range resp {
-		if strings.Contains(template.ID, search) || strings.Contains(template.Code, search) {
-			if found != -1 {
-				err := fmt.Errorf("unable to find %s because there were multiple matches", search)
-				return nil, MultipleMatchesError.wrap(err)
+	for _, value := range templateList {
+		if value.Code == search || value.ID == search {
+			exactMatch = true
+			result = value
+		} else if strings.Contains(value.Code, search) || strings.Contains(value.ID, search) {
+			if exactMatch == false {
+				result = value
+				partialMatchesCount++
 			}
-			found = i
 		}
 	}
 
-	if found == -1 {
+	if exactMatch || partialMatchesCount == 1 {
+		return &result, nil
+	} else if partialMatchesCount > 1 {
+		err := fmt.Errorf("unable to find %s because there were multiple matches", search)
+		return nil, MultipleMatchesError.wrap(err)
+	} else {
 		err := fmt.Errorf("unable to find %s, zero matches", search)
 		return nil, ZeroMatchesError.wrap(err)
 	}
-
-	return &resp[found], nil
 }
 
 // DeleteTemplate deletes requested template

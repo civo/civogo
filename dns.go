@@ -102,24 +102,31 @@ func (c *Client) FindDNSDomain(search string) (*DNSDomain, error) {
 		return nil, decodeERROR(err)
 	}
 
-	found := -1
+	exactMatch := false
+	partialMatchesCount := 0
+	result := DNSDomain{}
 
-	for i, domain := range domains {
-		if strings.Contains(domain.ID, search) || strings.Contains(domain.Name, search) {
-			if found != -1 {
-				err := fmt.Errorf("unable to find %s because there were multiple matches", search)
-				return nil, MultipleMatchesError.wrap(err)
+	for _, value := range domains {
+		if value.Name == search || value.ID == search {
+			exactMatch = true
+			result = value
+		} else if strings.Contains(value.Name, search) || strings.Contains(value.ID, search) {
+			if exactMatch == false {
+				result = value
+				partialMatchesCount++
 			}
-			found = i
 		}
 	}
 
-	if found == -1 {
+	if exactMatch || partialMatchesCount == 1 {
+		return &result, nil
+	} else if partialMatchesCount > 1 {
+		err := fmt.Errorf("unable to find %s because there were multiple matches", search)
+		return nil, MultipleMatchesError.wrap(err)
+	} else {
 		err := fmt.Errorf("unable to find %s, zero matches", search)
 		return nil, ZeroMatchesError.wrap(err)
 	}
-
-	return &domains[found], nil
 }
 
 // CreateDNSDomain registers a new Domain

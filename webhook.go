@@ -62,24 +62,31 @@ func (c *Client) FindWebhook(search string) (*Webhook, error) {
 		return nil, decodeERROR(err)
 	}
 
-	found := -1
+	exactMatch := false
+	partialMatchesCount := 0
+	result := Webhook{}
 
-	for i, webhook := range webhooks {
-		if strings.Contains(webhook.ID, search) || strings.Contains(webhook.URL, search) {
-			if found != -1 {
-				err := fmt.Errorf("unable to find %s because there were multiple matches", search)
-				return nil, MultipleMatchesError.wrap(err)
+	for _, value := range webhooks {
+		if value.URL == search || value.ID == search {
+			exactMatch = true
+			result = value
+		} else if strings.Contains(value.URL, search) || strings.Contains(value.ID, search) {
+			if exactMatch == false {
+				result = value
+				partialMatchesCount++
 			}
-			found = i
 		}
 	}
 
-	if found == -1 {
+	if exactMatch || partialMatchesCount == 1 {
+		return &result, nil
+	} else if partialMatchesCount > 1 {
+		err := fmt.Errorf("unable to find %s because there were multiple matches", search)
+		return nil, MultipleMatchesError.wrap(err)
+	} else {
 		err := fmt.Errorf("unable to find %s, zero matches", search)
 		return nil, ZeroMatchesError.wrap(err)
 	}
-
-	return &webhooks[found], nil
 }
 
 // UpdateWebhook updates a webhook

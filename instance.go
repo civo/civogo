@@ -114,24 +114,31 @@ func (c *Client) FindInstance(search string) (*Instance, error) {
 		return nil, decodeERROR(err)
 	}
 
-	found := -1
+	exactMatch := false
+	partialMatchesCount := 0
+	result := Instance{}
 
-	for i, instance := range instances {
-		if strings.Contains(instance.ID, search) || strings.Contains(instance.Hostname, search) {
-			if found != -1 {
-				err := fmt.Errorf("unable to find %s because there were multiple matches", search)
-				return nil, MultipleMatchesError.wrap(err)
+	for _, value := range instances {
+		if value.Hostname == search || value.ID == search {
+			exactMatch = true
+			result = value
+		} else if strings.Contains(value.Hostname, search) || strings.Contains(value.ID, search) {
+			if exactMatch == false {
+				result = value
+				partialMatchesCount++
 			}
-			found = i
 		}
 	}
 
-	if found == -1 {
+	if exactMatch || partialMatchesCount == 1 {
+		return &result, nil
+	} else if partialMatchesCount > 1 {
+		err := fmt.Errorf("unable to find %s because there were multiple matches", search)
+		return nil, MultipleMatchesError.wrap(err)
+	} else {
 		err := fmt.Errorf("unable to find %s, zero matches", search)
 		return nil, ZeroMatchesError.wrap(err)
 	}
-
-	return &instances[found], nil
 }
 
 // GetInstance returns a single Instance by its full ID
