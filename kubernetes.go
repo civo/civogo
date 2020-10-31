@@ -248,7 +248,7 @@ func (c *Client) DeleteKubernetesCluster(id string) (*SimpleResponse, error) {
 
 // RecycleKubernetesCluster create a new cluster of kubernetes
 func (c *Client) RecycleKubernetesCluster(id string, hostname string) (*SimpleResponse, error) {
-	body, err := c.SendPostRequest(fmt.Sprintf("/v2/kubernetes/clusters/%s", id), map[string]string{
+	body, err := c.SendPostRequest(fmt.Sprintf("/v2/kubernetes/clusters/%s/recycle", id), map[string]string{
 		"hostname": hostname,
 	})
 	if err != nil {
