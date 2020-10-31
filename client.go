@@ -13,8 +13,8 @@ import (
 	"strings"
 )
 
-// Version represents the version of the CLI
-const Version = "0.0.1"
+// Version represents the version of the civogo lib
+const Version = "0.2.21"
 
 // Client is the means of connecting to the Civo API service
 type Client struct {
@@ -63,11 +63,17 @@ func NewClientWithURL(apiKey string, civoAPIURL string) (*Client, error) {
 		return nil, err
 	}
 
+	var httpTransport = &http.Transport{
+		Proxy: http.ProxyFromEnvironment,
+	}
+
 	client := &Client{
-		BaseURL:    parsedURL,
-		UserAgent:  "civogo/" + Version,
-		APIKey:     apiKey,
-		httpClient: &http.Client{},
+		BaseURL:   parsedURL,
+		UserAgent: "civogo/" + Version,
+		APIKey:    apiKey,
+		httpClient: &http.Client{
+			Transport: httpTransport,
+		},
 	}
 	return client, nil
 }
