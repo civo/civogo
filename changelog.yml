@@ -1,7 +1,25 @@
 - semver: 0.2.20
-  date: 2020-10-30T18:45:13.129015-04:00
+  date: 2020-10-30T23:17:23.204365-04:00
   packager: ""
   changes:
+  - commit: 405567d04342264662a1b2534c7625f2dfc6c20d
+    note: |-
+      Fixed the recycle option in Kubernetes
+      Close #43
+    author:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+    committer:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+  - commit: 4b69a79706e406f55059e5001b56c48d851c71bf
+    note: Update Change log
+    author:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+    committer:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
   - commit: 8ac5d69e54e7a2062a658fcb408c9c3df36bbcb4
     note: Updated all find function to all command
     author:
