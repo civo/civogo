@@ -1,4 +1,10 @@
 
+0.2.21
+=============
+2020-10-31
+
+* Added option to use proxy if is present in the system (3c3da053)
+
 0.2.20
 =============
 2020-10-31

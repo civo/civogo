@@ -1,3 +1,15 @@
+- semver: 0.2.21
+  date: 2020-10-31T12:06:58.99252-04:00
+  packager: ""
+  changes:
+  - commit: 3c3da053c9c572c0cf8fa53fbdb34fb66ecadf76
+    note: Added option to use proxy if is present in the system
+    author:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+    committer:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
 - semver: 0.2.20
   date: 2020-10-30T23:17:23.204365-04:00
   packager: ""
