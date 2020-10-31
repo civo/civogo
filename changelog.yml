@@ -1,3 +1,15 @@
+- semver: 0.2.20
+  date: 2020-10-30T18:45:13.129015-04:00
+  packager: ""
+  changes:
+  - commit: 8ac5d69e54e7a2062a658fcb408c9c3df36bbcb4
+    note: Updated all find function to all command
+    author:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+    committer:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
 - semver: 0.2.19
   date: 2020-09-25T13:27:05.29025-04:00
   packager: ""

@@ -1,4 +1,10 @@
 
+0.2.20
+=============
+2020-10-30
+
+* Updated all find function to all command (8ac5d69e)
+
 0.2.19
 =============
 2020-09-25
