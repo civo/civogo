@@ -242,6 +242,8 @@ var (
 	AccountNotEnabledIncCardError     = constError("AccountNotEnabledIncCardError")
 	AccountNotEnabledWithoutCardError = constError("AccountNotEnabledWithoutCardError")
 
+	AuthenticationError = constError("AuthenticationError")
+
 	UnknowError = constError("Unknow Error")
 )
 
@@ -911,6 +913,9 @@ func decodeERROR(err error) error {
 		case "account_not_enabled_without_card":
 			err := errors.New(msg.String())
 			return AccountNotEnabledWithoutCardError.wrap(err)
+		case "requires_authentication":
+			err := errors.New(msg.String())
+			return AuthenticationError.wrap(err)
 		default:
 			return UnknowError
 		}
