@@ -1,4 +1,11 @@
 
+0.2.22
+=============
+2020-11-18
+
+* Fixed lint check in the actions (346fe0ff)
+* Fixed some bugs in the error handler (a0333a83)
+
 0.2.21
 =============
 2020-10-31

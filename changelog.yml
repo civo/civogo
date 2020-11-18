@@ -1,3 +1,27 @@
+- semver: 0.2.22
+  date: 2020-11-17T20:43:25.380127-05:00
+  packager: ""
+  changes:
+  - commit: 346fe0ff40991b8d166dee7bc68048925f20e0ce
+    note: |-
+      Fixed lint check in the actions
+      Close #47
+    author:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+    committer:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+  - commit: a0333a838477b52afbe49d784c04c3a1a9c324d8
+    note: |-
+      Fixed some bugs in the error handler
+      Close #44 #45
+    author:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+    committer:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
 - semver: 0.2.21
   date: 2020-10-31T12:06:58.99252-04:00
   packager: ""
