@@ -242,7 +242,8 @@ var (
 	AccountNotEnabledIncCardError     = constError("AccountNotEnabledIncCardError")
 	AccountNotEnabledWithoutCardError = constError("AccountNotEnabledWithoutCardError")
 
-	UnknowError = constError("Unknow Error")
+	UnknowError         = constError("UnknownError")
+	AuthenticationError = constError("AuthenticationError")
 )
 
 type constError string
@@ -307,6 +308,11 @@ func decodeERROR(err error) error {
 		if err := json.Unmarshal(byt, &dat); err != nil {
 			err := errors.New("Failed to decode the response expected from the API")
 			return ResponseDecodeFailedError.wrap(err)
+		}
+
+		if _, ok := dat["result"]; ok {
+			err := errors.New("Authentication Error")
+			return AuthenticationError.wrap(err)
 		}
 
 		if _, ok := dat["reason"]; ok {
