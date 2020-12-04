@@ -310,7 +310,7 @@ func decodeERROR(err error) error {
 			return ResponseDecodeFailedError.wrap(err)
 		}
 
-		if _, ok := dat["result"]; ok {
+		if dat["result"] == "requires_authentication" {
 			err := errors.New("Authentication Error")
 			return AuthenticationError.wrap(err)
 		}
