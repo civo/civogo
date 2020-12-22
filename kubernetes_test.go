@@ -140,6 +140,11 @@ func TestFindKubernetesCluster(t *testing.T) {
 		t.Errorf("Expected %s, got %s", "69a23478-a89e-41d2-97b1-6f4c341cee70", got.ID)
 	}
 
+	got, _ = client.FindKubernetesCluster("YOUR-FIRST-CLUSTER-NAME")
+	if got.ID != "69a23478-a89e-41d2-97b1-6f4c341cee70" {
+		t.Errorf("Expected %s, got %s", "69a23478-a89e-41d2-97b1-6f4c341cee70", got.ID)
+	}
+
 	got, _ = client.FindKubernetesCluster("second")
 	if got.ID != "d1cd0b71-5da1-492e-9d0d-a46ccdaae2fa" {
 		t.Errorf("Expected %s, got %s", "d1cd0b71-5da1-492e-9d0d-a46ccdaae2fa", got.ID)
