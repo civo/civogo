@@ -148,10 +148,10 @@ func (c *Client) FindKubernetesCluster(search string) (*KubernetesCluster, error
 	result := KubernetesCluster{}
 
 	for _, value := range clusters.Items {
-		if value.Name == search || value.ID == search {
+		if strings.EqualFold(value.Name, search) || value.ID == search {
 			exactMatch = true
 			result = value
-		} else if strings.Contains(value.Name, search) || strings.Contains(value.ID, search) {
+		} else if strings.Contains(strings.ToUpper(value.Name), strings.ToUpper(search)) || strings.Contains(value.ID, search) {
 			if exactMatch == false {
 				result = value
 				partialMatchesCount++
