@@ -21,6 +21,7 @@ type Client struct {
 	BaseURL          *url.URL
 	UserAgent        string
 	APIKey           string
+	Region           string
 	LastJSONResponse string
 
 	httpClient *http.Client
@@ -53,7 +54,7 @@ func (e HTTPError) Error() string {
 }
 
 // NewClientWithURL initializes a Client with a specific API URL
-func NewClientWithURL(apiKey string, civoAPIURL string) (*Client, error) {
+func NewClientWithURL(apiKey, civoAPIURL, region string) (*Client, error) {
 	if apiKey == "" {
 		err := errors.New("no API Key supplied, this is required")
 		return nil, NoAPIKeySuppliedError.wrap(err)
@@ -71,6 +72,7 @@ func NewClientWithURL(apiKey string, civoAPIURL string) (*Client, error) {
 		BaseURL:   parsedURL,
 		UserAgent: "civogo/" + Version,
 		APIKey:    apiKey,
+		Region:    region,
 		httpClient: &http.Client{
 			Transport: httpTransport,
 		},
@@ -79,8 +81,8 @@ func NewClientWithURL(apiKey string, civoAPIURL string) (*Client, error) {
 }
 
 // NewClient initializes a Client connecting to the production API
-func NewClient(apiKey string) (*Client, error) {
-	return NewClientWithURL(apiKey, "https://api.civo.com")
+func NewClient(apiKey, region string) (*Client, error) {
+	return NewClientWithURL(apiKey, "https://api.civo.com", region)
 }
 
 // NewAdvancedClientForTesting initializes a Client connecting to a local test server and allows for specifying methods
@@ -152,7 +154,7 @@ func NewClientForTesting(responses map[string]string) (*Client, *httptest.Server
 
 // NewClientForTestingWithServer initializes a Client connecting to a passed-in local test server
 func NewClientForTestingWithServer(server *httptest.Server) (*Client, error) {
-	client, err := NewClientWithURL("TEST-API-KEY", server.URL)
+	client, err := NewClientWithURL("TEST-API-KEY", server.URL, "TEST")
 	if err != nil {
 		return nil, err
 	}
@@ -170,6 +172,13 @@ func (c *Client) sendRequest(req *http.Request) ([]byte, error) {
 	req.Header.Set("User-Agent", c.UserAgent)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", fmt.Sprintf("bearer %s", c.APIKey))
+
+	if req.Method == "GET" || req.Method == "DELETE" {
+		// add the region param
+		param := req.URL.Query()
+		param.Add("region", c.Region)
+		req.URL.RawQuery = param.Encode()
+	}
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
@@ -194,6 +203,7 @@ func (c *Client) SendGetRequest(requestURL string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return c.sendRequest(req)
 }
 
@@ -232,6 +242,7 @@ func (c *Client) SendDeleteRequest(requestURL string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return c.sendRequest(req)
 }
 

@@ -244,6 +244,7 @@ var (
 
 	UnknowError         = constError("UnknownError")
 	AuthenticationError = constError("AuthenticationError")
+	InternalServerError = constError("InternalServerError")
 )
 
 type constError string
@@ -308,6 +309,11 @@ func decodeERROR(err error) error {
 		if err := json.Unmarshal(byt, &dat); err != nil {
 			err := errors.New("Failed to decode the response expected from the API")
 			return ResponseDecodeFailedError.wrap(err)
+		}
+
+		if dat["status"].(float64) == 500 {
+			err := errors.New("Internal Server Error")
+			return InternalServerError.wrap(err)
 		}
 
 		if dat["result"] == "requires_authentication" {
