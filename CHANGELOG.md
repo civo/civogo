@@ -1,4 +1,11 @@
 
+0.2.24
+=============
+2021-02-08
+
+* Feature/add region (#50) (19e61587)
+* Clusternames should be considered case insensitive (#49) (dfcbfaec)
+
 0.2.23
 =============
 2020-12-04

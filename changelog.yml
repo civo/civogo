@@ -1,3 +1,35 @@
+- semver: 0.2.24
+  date: 2021-02-08T10:24:07.356152-05:00
+  packager: ""
+  changes:
+  - commit: 19e61587c19d7e959a5fb67bc43d2e673c0cb4da
+    note: |-
+      Feature/add region (#50)
+
+      * Added the region to the client, also add new error to the handler and add region to kubernetes
+      * Update the civogo lib to use region in all request
+    author:
+      name: Alejandro J. Nuñez Madrazo
+      email: alejandro@civo.com
+    committer:
+      name: GitHub
+      email: noreply@github.com
+  - commit: dfcbfaecabd8590f6ce0cbd49fddd32f61075b4f
+    note: |-
+      Clusternames should be considered case insensitive (#49)
+
+      This commit makes the following changes:
+      * FindKubernetesCluster is case insensitive now
+      * Test FindKubernetesCluster for case insensitivity
+
+      The current implementation is not optimal though, as the fuzzy matching does not fully support Unicode.
+      However this should fix most issues for now.
+    author:
+      name: Björn Heinrichs
+      email: BjoernAkAManf@users.noreply.github.com
+    committer:
+      name: GitHub
+      email: noreply@github.com
 - semver: 0.2.23
   date: 2020-12-04T12:13:57.915006-05:00
   packager: ""
