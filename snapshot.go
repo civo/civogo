@@ -29,12 +29,12 @@ type SnapshotConfig struct {
 	InstanceID string `json:"instance_id"`
 	Safe       bool   `json:"safe"`
 	Cron       string `json:"cron_timing"`
+	Region     string `json:"region"`
 }
 
 // CreateSnapshot create a new or update an old snapshot
 func (c *Client) CreateSnapshot(name string, r *SnapshotConfig) (*Snapshot, error) {
-	url := fmt.Sprintf("/v2/snapshots/%s", name)
-	body, err := c.SendPutRequest(url, r)
+	body, err := c.SendPutRequest(fmt.Sprintf("/v2/snapshots/%s", name), r)
 	if err != nil {
 		return nil, decodeERROR(err)
 	}

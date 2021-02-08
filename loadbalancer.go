@@ -42,6 +42,7 @@ type LoadBalancer struct {
 // LoadBalancerConfig represents a load balancer to be created
 type LoadBalancerConfig struct {
 	Hostname                string                      `json:"hostname"`
+	Region                  string                      `json:"region"`
 	Protocol                string                      `json:"protocol"`
 	TLSCertificate          string                      `json:"tls_certificate"`
 	TLSKey                  string                      `json:"tls_key"`

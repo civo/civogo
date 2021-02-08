@@ -78,10 +78,12 @@ type PaginatedKubernetesClusters struct {
 // KubernetesClusterConfig is used to create a new cluster
 type KubernetesClusterConfig struct {
 	Name              string `json:"name"`
+	Region            string `json:"region,omitempty"`
 	NumTargetNodes    int    `json:"num_target_nodes"`
 	TargetNodesSize   string `json:"target_nodes_size"`
 	KubernetesVersion string `json:"kubernetes_version"`
 	NodeDestroy       string `json:"node_destroy"`
+	NetworkID         string `json:"network_id"`
 	Tags              string `json:"tags"`
 	Applications      string `json:"applications"`
 }
@@ -172,6 +174,7 @@ func (c *Client) FindKubernetesCluster(search string) (*KubernetesCluster, error
 
 // NewKubernetesClusters create a new cluster of kubernetes
 func (c *Client) NewKubernetesClusters(kc *KubernetesClusterConfig) (*KubernetesCluster, error) {
+	kc.Region = c.Region
 	body, err := c.SendPostRequest("/v2/kubernetes/clusters", kc)
 	if err != nil {
 		return nil, decodeERROR(err)
@@ -201,15 +204,8 @@ func (c *Client) GetKubernetesClusters(id string) (*KubernetesCluster, error) {
 
 // UpdateKubernetesCluster update a single kubernetes cluster by its full ID
 func (c *Client) UpdateKubernetesCluster(id string, i *KubernetesClusterConfig) (*KubernetesCluster, error) {
-	params := map[string]interface{}{
-		"name":               i.Name,
-		"node_destroy":       i.NodeDestroy,
-		"num_target_nodes":   i.NumTargetNodes,
-		"kubernetes_version": i.KubernetesVersion,
-		"applications":       i.Applications,
-	}
-
-	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/kubernetes/clusters/%s", id), params)
+	i.Region = c.Region
+	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/kubernetes/clusters/%s", id), i)
 	if err != nil {
 		return nil, decodeERROR(err)
 	}

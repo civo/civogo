@@ -13,7 +13,6 @@ type Firewall struct {
 	Name           string `json:"name"`
 	RulesCount     int    `json:"rules_count"`
 	InstancesCount int    `json:"instances_count"`
-	Region         string `json:"region"`
 }
 
 // FirewallResult is the response from the Civo Firewall APIs
@@ -39,6 +38,7 @@ type FirewallRule struct {
 // FirewallRuleConfig is how you specify the details when creating a new rule
 type FirewallRuleConfig struct {
 	FirewallID string   `json:"firewall_id"`
+	Region     string   `json:"region"`
 	Protocol   string   `json:"protocol"`
 	StartPort  string   `json:"start_port"`
 	EndPort    string   `json:"end_port"`
@@ -47,8 +47,11 @@ type FirewallRuleConfig struct {
 	Label      string   `json:"label,omitempty"`
 }
 
-type firewallConfig struct {
-	Name string `json:"name"`
+// FirewallConfig is how you specify the details when creating a new firewall
+type FirewallConfig struct {
+	Name      string `json:"name"`
+	Region    string `json:"region"`
+	NetworkID string `json:"network_id"`
 }
 
 // ListFirewalls returns all firewall owned by the calling API account
@@ -101,8 +104,8 @@ func (c *Client) FindFirewall(search string) (*Firewall, error) {
 }
 
 // NewFirewall creates a new firewall record
-func (c *Client) NewFirewall(name string) (*FirewallResult, error) {
-	fw := firewallConfig{Name: name}
+func (c *Client) NewFirewall(name, networkid string) (*FirewallResult, error) {
+	fw := FirewallConfig{Name: name, Region: c.Region, NetworkID: networkid}
 	body, err := c.SendPostRequest("/v2/firewalls", fw)
 	if err != nil {
 		return nil, decodeERROR(err)
@@ -117,10 +120,9 @@ func (c *Client) NewFirewall(name string) (*FirewallResult, error) {
 }
 
 // RenameFirewall rename firewall
-func (c *Client) RenameFirewall(id string, name string) (*SimpleResponse, error) {
-	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/firewalls/%s", id), map[string]string{
-		"name": name,
-	})
+func (c *Client) RenameFirewall(id string, f *FirewallConfig) (*SimpleResponse, error) {
+	f.Region = c.Region
+	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/firewalls/%s", id), f)
 	if err != nil {
 		return nil, decodeERROR(err)
 	}
@@ -144,6 +146,8 @@ func (c *Client) NewFirewallRule(r *FirewallRuleConfig) (*FirewallRule, error) {
 		err := fmt.Errorf("the firewall ID is empty")
 		return nil, IDisEmptyError.wrap(err)
 	}
+
+	r.Region = c.Region
 
 	resp, err := c.SendPostRequest(fmt.Sprintf("/v2/firewalls/%s/rules", r.FirewallID), r)
 	if err != nil {
