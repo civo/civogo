@@ -63,6 +63,7 @@ var (
 	DatabaseListingDNSDomainsError      = constError("DatabaseListingDNSDomainsError")
 
 	DatabaseFirewallCreateError           = constError("DatabaseFirewallCreateError")
+	DatabaseFirewallRulesInvalidParams    = constError("DatabaseFirewallRulesInvalidParams")
 	DatabaseFirewallDuplicateNameError    = constError("DatabaseFirewallDuplicateNameError")
 	DatabaseFirewallMismatchError         = constError("DatabaseFirewallMismatchError")
 	DatabaseFirewallNotFoundError         = constError("DatabaseFirewallNotFoundError")
@@ -311,9 +312,11 @@ func decodeERROR(err error) error {
 			return ResponseDecodeFailedError.wrap(err)
 		}
 
-		if dat["status"].(float64) == 500 {
-			err := errors.New("Internal Server Error")
-			return InternalServerError.wrap(err)
+		if _, ok := dat["status"].(float64); ok {
+			if dat["status"].(float64) == 500 {
+				err := errors.New("Internal Server Error")
+				return InternalServerError.wrap(err)
+			}
 		}
 
 		if dat["result"] == "requires_authentication" {
@@ -443,6 +446,9 @@ func decodeERROR(err error) error {
 		case "database_firewall_duplicate_name":
 			err := errors.New(msg.String())
 			return DatabaseFirewallDuplicateNameError.wrap(err)
+		case "database_firewall_rules_invalid_params":
+			err := errors.New(msg.String())
+			return DatabaseFirewallRulesInvalidParams.wrap(err)
 		case "database_firewall_mismatch":
 			err := errors.New(msg.String())
 			return DatabaseFirewallMismatchError.wrap(err)

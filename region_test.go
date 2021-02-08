@@ -6,7 +6,7 @@ import (
 
 func TestListRegions(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
-		"/v2/regions": `[{"code":"lon1", "name": "London 1", "default": true}]`,
+		"/v2/regions": `[{"code":"NYC1","name":"New York 1","type":"civostack","out_of_capacity":false,"country":"us","country_name":"United States","features":{"iaas":false,"kubernetes":true}},{"code":"SVG1","name":"Stevenage 1","default":true,"type":"openstack","out_of_capacity":true,"country":"uk","country_name":"United Kingdom","features":{"iaas":true,"kubernetes":true}}]`,
 	})
 	defer server.Close()
 
@@ -15,13 +15,29 @@ func TestListRegions(t *testing.T) {
 		t.Errorf("Request returned an error: %s", err)
 		return
 	}
-	if got[0].Code != "lon1" {
-		t.Errorf("Expected %s, got %s", "lon1", got[0].Code)
+	if got[0].Code != "NYC1" {
+		t.Errorf("Expected %s, got %s", "NYC1", got[0].Code)
 	}
-	if got[0].Name != "London 1" {
-		t.Errorf("Expected %s, got %s", "London 1", got[0].Name)
+	if got[0].Name != "New York 1" {
+		t.Errorf("Expected %s, got %s", "New York 1", got[0].Name)
 	}
-	if !got[0].Default {
-		t.Errorf("Expected first result to be the default")
+}
+
+func TestFindRegions(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/regions": `[{"code":"NYC1","name":"New York 1","type":"civostack","out_of_capacity":false,"country":"us","country_name":"United States","features":{"iaas":false,"kubernetes":true}},{"code":"SVG1","name":"Stevenage 1","default":true,"type":"openstack","out_of_capacity":true,"country":"uk","country_name":"United Kingdom","features":{"iaas":true,"kubernetes":true}}]`,
+	})
+	defer server.Close()
+
+	got, err := client.FindRegion("us")
+	if err != nil {
+		t.Errorf("Request returned an error: %s", err)
+		return
+	}
+	if got.Code != "NYC1" {
+		t.Errorf("Expected %s, got %s", "NYC1", got.Code)
+	}
+	if got.Name != "New York 1" {
+		t.Errorf("Expected %s, got %s", "New York 1", got.Name)
 	}
 }

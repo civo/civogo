@@ -12,14 +12,14 @@ import (
 type Network struct {
 	ID      string `json:"id"`
 	Name    string `json:"name"`
-	Region  string `json:"region"`
 	Default bool   `json:"default"`
 	CIDR    string `json:"cidr"`
 	Label   string `json:"label"`
 }
 
 type networkConfig struct {
-	Label string `json:"label"`
+	Label  string `json:"label"`
+	Region string `json:"region"`
 }
 
 // NetworkResult represents the result from a network create/update call
@@ -49,7 +49,7 @@ func (c *Client) GetDefaultNetwork() (*Network, error) {
 
 // NewNetwork creates a new private network
 func (c *Client) NewNetwork(label string) (*NetworkResult, error) {
-	nc := networkConfig{Label: label}
+	nc := networkConfig{Label: label, Region: c.Region}
 	body, err := c.SendPostRequest("/v2/networks", nc)
 	if err != nil {
 		return nil, decodeERROR(err)
@@ -114,7 +114,7 @@ func (c *Client) FindNetwork(search string) (*Network, error) {
 
 // RenameNetwork renames an existing private network
 func (c *Client) RenameNetwork(label, id string) (*NetworkResult, error) {
-	nc := networkConfig{Label: label}
+	nc := networkConfig{Label: label, Region: c.Region}
 	body, err := c.SendPutRequest("/v2/networks/"+id, nc)
 	if err != nil {
 		return nil, decodeERROR(err)

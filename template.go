@@ -13,6 +13,7 @@ type Template struct {
 	ID               string `json:"id"`
 	Code             string `json:"code"`
 	Name             string `json:"name"`
+	Region           string `json:"region"`
 	AccountID        string `json:"account_id,omitempty"`
 	ImageID          string `json:"image_id,omitempty"`
 	VolumeID         string `json:"volume_id"`
