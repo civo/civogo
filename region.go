@@ -3,6 +3,7 @@ package civogo
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 )
@@ -72,4 +73,20 @@ func (c *Client) FindRegion(search string) (*Region, error) {
 		err := fmt.Errorf("unable to find %s, zero matches", search)
 		return nil, ZeroMatchesError.wrap(err)
 	}
+}
+
+// GetDefaultRegion finds the default region for an account
+func (c *Client) GetDefaultRegion() (*Region, error) {
+	allregion, err := c.ListRegions()
+	if err != nil {
+		return nil, decodeERROR(err)
+	}
+
+	for _, region := range allregion {
+		if region.Default {
+			return &region, nil
+		}
+	}
+
+	return nil, errors.New("No default region found")
 }
