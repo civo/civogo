@@ -1,3 +1,23 @@
+- semver: 0.2.25
+  date: 2021-02-09T09:44:06.536166-05:00
+  packager: ""
+  changes:
+  - commit: 79f15aa1d17f1641461787b0acaa41f6f4e71658
+    note: Added default field to the region
+    author:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+    committer:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+  - commit: b45dffe1afcb096985322f20956734e4b80f74d8
+    note: Updated the changelog
+    author:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+    committer:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
 - semver: 0.2.24
   date: 2021-02-08T10:24:07.356152-05:00
   packager: ""

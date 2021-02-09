@@ -1,4 +1,11 @@
 
+0.2.25
+=============
+2021-02-09
+
+* Added default field to the region (79f15aa1)
+* Updated the changelog (b45dffe1)
+
 0.2.24
 =============
 2021-02-08
