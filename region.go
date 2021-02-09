@@ -16,6 +16,7 @@ type Region struct {
 	Country       string  `json:"country"`
 	CountryName   string  `json:"country_name"`
 	Features      Feature `json:"features"`
+	Default       bool    `json:"default"`
 }
 
 // Feature represent a all feature inside a region
