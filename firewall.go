@@ -13,6 +13,7 @@ type Firewall struct {
 	Name           string `json:"name"`
 	RulesCount     int    `json:"rules_count"`
 	InstancesCount int    `json:"instances_count"`
+	NetworkID      string `json:"network_id"`
 }
 
 // FirewallResult is the response from the Civo Firewall APIs
