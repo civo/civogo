@@ -1,3 +1,31 @@
+- semver: 0.2.27
+  date: 2021-02-09T22:42:04.838372-05:00
+  packager: ""
+  changes:
+  - commit: f173564c6be0f5b7d6e72d4274bf902afdc0280d
+    note: Added network to the firewall struct
+    author:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+    committer:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+  - commit: e2bd46f772f32145e74633c0973c7edccf776b8e
+    note: Added GetDefaultRegion to the region
+    author:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+    committer:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+  - commit: 9c6173fb794c52dc6c33d1dd6f4117bb7d6cf2a3
+    note: Updated the changelog
+    author:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+    committer:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
 - semver: 0.2.25
   date: 2021-02-09T09:44:06.536166-05:00
   packager: ""

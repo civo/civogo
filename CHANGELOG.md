@@ -1,4 +1,12 @@
 
+0.2.27
+=============
+2021-02-10
+
+* Added network to the firewall struct (f173564c)
+* Added GetDefaultRegion to the region (e2bd46f7)
+* Updated the changelog (9c6173fb)
+
 0.2.25
 =============
 2021-02-09
