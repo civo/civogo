@@ -148,7 +148,7 @@ if err != nil {
      if errors.Is(err, civogo.DatabaseKubernetesClusterDuplicateError) {
      // add some actions
      }
-     if errors.Is(err, civogo.UnknowError) {
+     if errors.Is(err, civogo.UnknownError) {
          // exit with error
      }
 }
