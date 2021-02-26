@@ -27,7 +27,7 @@ type KubernetesInstance struct {
 // installation
 type KubernetesInstalledApplication struct {
 	Application   string                              `json:"application"`
-	Title         string                              `json:"title,omitempty"`
+	Name          string                              `json:"name,omitempty"`
 	Version       string                              `json:"version"`
 	Dependencies  []string                            `json:"dependencies,omitempty"`
 	Maintainer    string                              `json:"maintainer"`
