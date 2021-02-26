@@ -1,3 +1,31 @@
+- semver: 0.2.28
+  date: 2021-02-26T08:50:19.797178-05:00
+  packager: ""
+  changes:
+  - commit: 1e9c4c700ffaa9b0fc037ca667e3610f47871e06
+    note: Merge branch 'master' of https://github.com/civo/civogo
+    author:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+    committer:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+  - commit: ff8a577c5c93b2258016910721533fa98de080f8
+    note: Fixed error in the struct for InstalledApplication in kubernetes
+    author:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+    committer:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+  - commit: 0cf2bd6e0417c94bf0461137d7aaa2298874bb8d
+    note: Updated the changelog
+    author:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+    committer:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
 - semver: 0.2.27
   date: 2021-02-09T22:42:04.838372-05:00
   packager: ""

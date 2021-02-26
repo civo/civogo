@@ -1,4 +1,12 @@
 
+0.2.28
+=============
+2021-02-26
+
+* Merge branch 'master' of https://github.com/civo/civogo (1e9c4c70)
+* Fixed error in the struct for InstalledApplication in kubernetes (ff8a577c)
+* Updated the changelog (0cf2bd6e)
+
 0.2.27
 =============
 2021-02-10
