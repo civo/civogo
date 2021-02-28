@@ -1,3 +1,15 @@
+- semver: 0.2.39
+  date: 2021-02-28T18:05:17.30745-05:00
+  packager: ""
+  changes:
+  - commit: 43e5e9a89fb7bdf03d65682afebe0f07fade2b43
+    note: Added new fields to kubernetes struct
+    author:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+    committer:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
 - semver: 0.2.28
   date: 2021-02-26T08:50:19.797178-05:00
   packager: ""
