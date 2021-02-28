@@ -49,6 +49,7 @@ type ApplicationConfiguration map[string]string
 type KubernetesCluster struct {
 	ID                    string                           `json:"id"`
 	Name                  string                           `json:"name"`
+	GeneratedName         string                           `json:"generated_name"`
 	Version               string                           `json:"version"`
 	Status                string                           `json:"status"`
 	Ready                 bool                             `json:"ready"`
@@ -61,6 +62,8 @@ type KubernetesCluster struct {
 	MasterIP              string                           `json:"master_ip"`
 	DNSEntry              string                           `json:"dns_entry"`
 	UpgradeAvailableTo    string                           `json:"upgrade_available_to"`
+	NetworkID             string                           `json:"network_id"`
+	NameSpace             string                           `json:"namespace"`
 	Tags                  []string                         `json:"tags"`
 	CreatedAt             time.Time                        `json:"created_at"`
 	Instances             []KubernetesInstance             `json:"instances"`
