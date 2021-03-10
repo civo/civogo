@@ -1,0 +1,1188 @@
+package civogo
+
+import (
+	"fmt"
+	"math/rand"
+	"strconv"
+	"strings"
+	"time"
+)
+
+// FakeClient is a temporary storage structure for use when you don't want to communicate with a real Civo API server
+type FakeClient struct {
+	LastID        int64
+	Charges       []Charge
+	Domains       []DNSDomain
+	DomainRecords []DNSRecord
+	Firewalls     []Firewall
+	FirewallRules []FirewallRule
+	InstanceSizes []InstanceSize
+	Instances     []Instance
+	Clusters      []KubernetesCluster
+	LoadBalancers []LoadBalancer
+	Networks      []Network
+	Snapshots     []Snapshot
+	Volumes       []Volume
+	SSHKeys       []SSHKey
+	Webhooks      []Webhook
+	Templates     []Template
+	Quota         Quota
+}
+
+// Clienter is the interface the real civogo.Client and civogo.FakeClient implement
+type Clienter interface {
+	// Charges
+	ListCharges(from, to time.Time) ([]Charge, error)
+
+	// DNS
+	ListDNSDomains() ([]DNSDomain, error)
+	FindDNSDomain(search string) (*DNSDomain, error)
+	CreateDNSDomain(name string) (*DNSDomain, error)
+	GetDNSDomain(name string) (*DNSDomain, error)
+	UpdateDNSDomain(d *DNSDomain, name string) (*DNSDomain, error)
+	DeleteDNSDomain(d *DNSDomain) (*SimpleResponse, error)
+	CreateDNSRecord(domainID string, r *DNSRecordConfig) (*DNSRecord, error)
+	ListDNSRecords(dnsDomainID string) ([]DNSRecord, error)
+	GetDNSRecord(domainID, domainRecordID string) (*DNSRecord, error)
+	UpdateDNSRecord(r *DNSRecord, rc *DNSRecordConfig) (*DNSRecord, error)
+	DeleteDNSRecord(r *DNSRecord) (*SimpleResponse, error)
+
+	// Firewalls
+	ListFirewalls() ([]Firewall, error)
+	FindFirewall(search string) (*Firewall, error)
+	NewFirewall(name string) (*FirewallResult, error)
+	RenameFirewall(id string, name string) (*SimpleResponse, error)
+	DeleteFirewall(id string) (*SimpleResponse, error)
+	NewFirewallRule(r *FirewallRuleConfig) (*FirewallRule, error)
+	ListFirewallRules(id string) ([]FirewallRule, error)
+	FindFirewallRule(firewallID string, search string) (*FirewallRule, error)
+	DeleteFirewallRule(id string, ruleID string) (*SimpleResponse, error)
+
+	// Instances
+	ListInstances(page int, perPage int) (*PaginatedInstanceList, error)
+	ListAllInstances() ([]Instance, error)
+	FindInstance(search string) (*Instance, error)
+	GetInstance(id string) (*Instance, error)
+	NewInstanceConfig() (*InstanceConfig, error)
+	CreateInstance(config *InstanceConfig) (*Instance, error)
+	SetInstanceTags(i *Instance, tags string) (*SimpleResponse, error)
+	UpdateInstance(i *Instance) (*SimpleResponse, error)
+	DeleteInstance(id string) (*SimpleResponse, error)
+	RebootInstance(id string) (*SimpleResponse, error)
+	HardRebootInstance(id string) (*SimpleResponse, error)
+	SoftRebootInstance(id string) (*SimpleResponse, error)
+	StopInstance(id string) (*SimpleResponse, error)
+	StartInstance(id string) (*SimpleResponse, error)
+	GetInstanceConsoleURL(id string) (string, error)
+	UpgradeInstance(id, newSize string) (*SimpleResponse, error)
+	MovePublicIPToInstance(id, ipAddress string) (*SimpleResponse, error)
+	SetInstanceFirewall(id, firewallID string) (*SimpleResponse, error)
+
+	// Instance sizes
+	ListInstanceSizes() ([]InstanceSize, error)
+	FindInstanceSizes(search string) (*InstanceSize, error)
+
+	// Clusters
+	ListKubernetesClusters() (*PaginatedKubernetesClusters, error)
+	FindKubernetesCluster(search string) (*KubernetesCluster, error)
+	NewKubernetesClusters(kc *KubernetesClusterConfig) (*KubernetesCluster, error)
+	GetKubernetesCluster(id string) (*KubernetesCluster, error)
+	UpdateKubernetesCluster(id string, i *KubernetesClusterConfig) (*KubernetesCluster, error)
+	ListKubernetesMarketplaceApplications() ([]KubernetesMarketplaceApplication, error)
+	DeleteKubernetesCluster(id string) (*SimpleResponse, error)
+	RecycleKubernetesCluster(id string, hostname string) (*SimpleResponse, error)
+	ListAvailableKubernetesVersions() ([]KubernetesVersion, error)
+
+	// Load balancers
+	ListLoadBalancers() ([]LoadBalancer, error)
+	FindLoadBalancer(search string) (*LoadBalancer, error)
+	CreateLoadBalancer(r *LoadBalancerConfig) (*LoadBalancer, error)
+	UpdateLoadBalancer(id string, r *LoadBalancerConfig) (*LoadBalancer, error)
+	DeleteLoadBalancer(id string) (*SimpleResponse, error)
+
+	// Networks
+	GetDefaultNetwork() (*Network, error)
+	NewNetwork(label string) (*NetworkResult, error)
+	ListNetworks() ([]Network, error)
+	FindNetwork(search string) (*Network, error)
+	RenameNetwork(label, id string) (*NetworkResult, error)
+	DeleteNetwork(id string) (*SimpleResponse, error)
+
+	// Quota
+	GetQuota() (*Quota, error)
+
+	// Regions
+	ListRegions() ([]Region, error)
+
+	// Snapshots
+	CreateSnapshot(name string, r *SnapshotConfig) (*Snapshot, error)
+	ListSnapshots() ([]Snapshot, error)
+	FindSnapshot(search string) (*Snapshot, error)
+	DeleteSnapshot(name string) (*SimpleResponse, error)
+
+	// SSHKeys
+	ListSSHKeys() ([]SSHKey, error)
+	NewSSHKey(name string, publicKey string) (*SimpleResponse, error)
+	UpdateSSHKey(name string, sshKeyID string) (*SSHKey, error)
+	FindSSHKey(search string) (*SSHKey, error)
+	DeleteSSHKey(id string) (*SimpleResponse, error)
+
+	// Templates
+	ListTemplates() ([]Template, error)
+	NewTemplate(conf *Template) (*SimpleResponse, error)
+	UpdateTemplate(id string, conf *Template) (*Template, error)
+	GetTemplateByCode(code string) (*Template, error)
+	FindTemplate(search string) (*Template, error)
+	DeleteTemplate(id string) (*SimpleResponse, error)
+
+	// Volumes
+	ListVolumes() ([]Volume, error)
+	FindVolume(search string) (*Volume, error)
+	NewVolume(v *VolumeConfig) (*VolumeResult, error)
+	ResizeVolume(id string, size int) (*SimpleResponse, error)
+	AttachVolume(id string, instance string) (*SimpleResponse, error)
+	DetachVolume(id string) (*SimpleResponse, error)
+	DeleteVolume(id string) (*SimpleResponse, error)
+
+	// Webhooks
+	CreateWebhook(r *WebhookConfig) (*Webhook, error)
+	ListWebhooks() ([]Webhook, error)
+	FindWebhook(search string) (*Webhook, error)
+	UpdateWebhook(id string, r *WebhookConfig) (*Webhook, error)
+	DeleteWebhook(id string) (*SimpleResponse, error)
+}
+
+// NewFakeClient initializes a Client that doesn't attach to a
+func NewFakeClient() (*FakeClient, error) {
+	return &FakeClient{
+		Quota: Quota{
+			CPUCoreLimit:           10,
+			InstanceCountLimit:     10,
+			RAMMegabytesLimit:      100,
+			DiskGigabytesLimit:     100,
+			DiskVolumeCountLimit:   10,
+			DiskSnapshotCountLimit: 10,
+			PublicIPAddressLimit:   10,
+			NetworkCountLimit:      10,
+			SecurityGroupLimit:     10,
+			SecurityGroupRuleLimit: 10,
+		},
+		InstanceSizes: []InstanceSize{
+			{
+				ID:            "g3.xsmall",
+				Name:          "Extra small",
+				CPUCores:      1,
+				RAMMegabytes:  1024,
+				DiskGigabytes: 10,
+			},
+			{
+				ID:            "g3.small",
+				Name:          "Small",
+				CPUCores:      2,
+				RAMMegabytes:  2048,
+				DiskGigabytes: 20,
+			},
+			{
+				ID:            "g3.medium",
+				Name:          "Medium",
+				CPUCores:      4,
+				RAMMegabytes:  4096,
+				DiskGigabytes: 40,
+			},
+		},
+	}, nil
+}
+
+// ListCharges implemented in a fake way for automated tests
+func (c *FakeClient) ListCharges(from, to time.Time) ([]Charge, error) {
+	return []Charge{}, nil
+}
+
+// ListDNSDomains implemented in a fake way for automated tests
+func (c *FakeClient) ListDNSDomains() ([]DNSDomain, error) {
+	return c.Domains, nil
+}
+
+// FindDNSDomain implemented in a fake way for automated tests
+func (c *FakeClient) FindDNSDomain(search string) (*DNSDomain, error) {
+	for _, domain := range c.Domains {
+		if strings.Contains(domain.Name, search) {
+			return &domain, nil
+		}
+	}
+
+	err := fmt.Errorf("unable to find %s, zero matches", search)
+	return nil, ZeroMatchesError.wrap(err)
+}
+
+// CreateDNSDomain implemented in a fake way for automated tests
+func (c *FakeClient) CreateDNSDomain(name string) (*DNSDomain, error) {
+	domain := DNSDomain{
+		ID:   c.generateID(),
+		Name: name,
+	}
+	c.Domains = append(c.Domains, domain)
+	return &domain, nil
+}
+
+// GetDNSDomain implemented in a fake way for automated tests
+func (c *FakeClient) GetDNSDomain(name string) (*DNSDomain, error) {
+	for _, domain := range c.Domains {
+		if domain.Name == name {
+			return &domain, nil
+		}
+	}
+
+	return nil, ErrDNSDomainNotFound
+}
+
+// UpdateDNSDomain implemented in a fake way for automated tests
+func (c *FakeClient) UpdateDNSDomain(d *DNSDomain, name string) (*DNSDomain, error) {
+	for i, domain := range c.Domains {
+		if domain.Name == d.Name {
+			c.Domains[i] = *d
+			return d, nil
+		}
+	}
+
+	return nil, ErrDNSDomainNotFound
+}
+
+// DeleteDNSDomain implemented in a fake way for automated tests
+func (c *FakeClient) DeleteDNSDomain(d *DNSDomain) (*SimpleResponse, error) {
+	for i, domain := range c.Domains {
+		if domain.Name == d.Name {
+			c.Domains[len(c.Domains)-1], c.Domains[i] = c.Domains[i], c.Domains[len(c.Domains)-1]
+			c.Domains = c.Domains[:len(c.Domains)-1]
+			return &SimpleResponse{Result: "success"}, nil
+		}
+	}
+
+	return nil, ErrDNSDomainNotFound
+}
+
+// CreateDNSRecord implemented in a fake way for automated tests
+func (c *FakeClient) CreateDNSRecord(domainID string, r *DNSRecordConfig) (*DNSRecord, error) {
+	record := DNSRecord{
+		ID:          c.generateID(),
+		DNSDomainID: domainID,
+		Name:        r.Name,
+		Value:       r.Value,
+		Type:        r.Type,
+	}
+
+	c.DomainRecords = append(c.DomainRecords, record)
+	return &record, nil
+}
+
+// ListDNSRecords implemented in a fake way for automated tests
+func (c *FakeClient) ListDNSRecords(dnsDomainID string) ([]DNSRecord, error) {
+	return c.DomainRecords, nil
+}
+
+// GetDNSRecord implemented in a fake way for automated tests
+func (c *FakeClient) GetDNSRecord(domainID, domainRecordID string) (*DNSRecord, error) {
+	for _, record := range c.DomainRecords {
+		if record.ID == domainRecordID && record.DNSDomainID == domainID {
+			return &record, nil
+		}
+	}
+
+	return nil, ErrDNSRecordNotFound
+}
+
+// UpdateDNSRecord implemented in a fake way for automated tests
+func (c *FakeClient) UpdateDNSRecord(r *DNSRecord, rc *DNSRecordConfig) (*DNSRecord, error) {
+	for i, record := range c.DomainRecords {
+		if record.ID == r.ID {
+			record := DNSRecord{
+				ID:          c.generateID(),
+				DNSDomainID: record.DNSDomainID,
+				Name:        rc.Name,
+				Value:       rc.Value,
+				Type:        rc.Type,
+			}
+
+			c.DomainRecords[i] = record
+			return &record, nil
+		}
+	}
+
+	return nil, ErrDNSRecordNotFound
+}
+
+// DeleteDNSRecord implemented in a fake way for automated tests
+func (c *FakeClient) DeleteDNSRecord(r *DNSRecord) (*SimpleResponse, error) {
+	for i, record := range c.DomainRecords {
+		if record.ID == r.ID {
+			c.DomainRecords[len(c.DomainRecords)-1], c.DomainRecords[i] = c.DomainRecords[i], c.DomainRecords[len(c.DomainRecords)-1]
+			c.DomainRecords = c.DomainRecords[:len(c.DomainRecords)-1]
+			return &SimpleResponse{Result: "success"}, nil
+		}
+	}
+
+	return nil, ErrDNSRecordNotFound
+}
+
+// ListFirewalls implemented in a fake way for automated tests
+func (c *FakeClient) ListFirewalls() ([]Firewall, error) {
+	return c.Firewalls, nil
+}
+
+// FindFirewall implemented in a fake way for automated tests
+func (c *FakeClient) FindFirewall(search string) (*Firewall, error) {
+	for _, firewall := range c.Firewalls {
+		if strings.Contains(firewall.Name, search) {
+			return &firewall, nil
+		}
+	}
+
+	err := fmt.Errorf("unable to find %s, zero matches", search)
+	return nil, ZeroMatchesError.wrap(err)
+}
+
+// NewFirewall implemented in a fake way for automated tests
+func (c *FakeClient) NewFirewall(name string) (*FirewallResult, error) {
+	firewall := Firewall{
+		ID:   c.generateID(),
+		Name: name,
+	}
+	c.Firewalls = append(c.Firewalls, firewall)
+
+	return &FirewallResult{
+		ID:     firewall.ID,
+		Name:   firewall.Name,
+		Result: "success",
+	}, nil
+}
+
+// RenameFirewall implemented in a fake way for automated tests
+func (c *FakeClient) RenameFirewall(id string, name string) (*SimpleResponse, error) {
+	for _, firewall := range c.Firewalls {
+		if firewall.ID == id {
+			firewall.Name = name
+			return &SimpleResponse{Result: "success"}, nil
+		}
+	}
+
+	err := fmt.Errorf("unable to find %s, zero matches", id)
+	return nil, ZeroMatchesError.wrap(err)
+}
+
+// DeleteFirewall implemented in a fake way for automated tests
+func (c *FakeClient) DeleteFirewall(id string) (*SimpleResponse, error) {
+	for i, firewall := range c.Firewalls {
+		if firewall.ID == id {
+			c.Firewalls[len(c.Firewalls)-1], c.Firewalls[i] = c.Firewalls[i], c.Firewalls[len(c.Firewalls)-1]
+			c.Firewalls = c.Firewalls[:len(c.Firewalls)-1]
+			return &SimpleResponse{Result: "success"}, nil
+		}
+	}
+
+	return &SimpleResponse{Result: "failed"}, nil
+}
+
+// NewFirewallRule implemented in a fake way for automated tests
+func (c *FakeClient) NewFirewallRule(r *FirewallRuleConfig) (*FirewallRule, error) {
+	rule := FirewallRule{
+		ID:        c.generateID(),
+		Protocol:  r.Protocol,
+		StartPort: r.StartPort,
+		EndPort:   r.EndPort,
+		Cidr:      r.Cidr,
+		Label:     r.Label,
+	}
+	c.FirewallRules = append(c.FirewallRules, rule)
+	return &rule, nil
+}
+
+// ListFirewallRules implemented in a fake way for automated tests
+func (c *FakeClient) ListFirewallRules(id string) ([]FirewallRule, error) {
+	return c.FirewallRules, nil
+}
+
+// FindFirewallRule implemented in a fake way for automated tests
+func (c *FakeClient) FindFirewallRule(firewallID string, search string) (*FirewallRule, error) {
+	for _, rule := range c.FirewallRules {
+		if rule.FirewallID == firewallID && strings.Contains(rule.Label, search) {
+			return &rule, nil
+		}
+	}
+
+	err := fmt.Errorf("unable to find %s, zero matches", search)
+	return nil, ZeroMatchesError.wrap(err)
+}
+
+// DeleteFirewallRule implemented in a fake way for automated tests
+func (c *FakeClient) DeleteFirewallRule(id string, ruleID string) (*SimpleResponse, error) {
+	for i, rule := range c.FirewallRules {
+		if rule.ID == ruleID {
+			c.FirewallRules[len(c.FirewallRules)-1], c.FirewallRules[i] = c.FirewallRules[i], c.FirewallRules[len(c.FirewallRules)-1]
+			c.FirewallRules = c.FirewallRules[:len(c.FirewallRules)-1]
+			return &SimpleResponse{Result: "success"}, nil
+		}
+	}
+
+	return &SimpleResponse{Result: "failed"}, nil
+}
+
+// ListInstances implemented in a fake way for automated tests
+func (c *FakeClient) ListInstances(page int, perPage int) (*PaginatedInstanceList, error) {
+	return &PaginatedInstanceList{
+		Items:   c.Instances,
+		Page:    1,
+		PerPage: 20,
+		Pages:   1,
+	}, nil
+}
+
+// ListAllInstances implemented in a fake way for automated tests
+func (c *FakeClient) ListAllInstances() ([]Instance, error) {
+	return c.Instances, nil
+}
+
+// FindInstance implemented in a fake way for automated tests
+func (c *FakeClient) FindInstance(search string) (*Instance, error) {
+	for _, instance := range c.Instances {
+		if strings.Contains(instance.Hostname, search) {
+			return &instance, nil
+		}
+	}
+
+	err := fmt.Errorf("unable to find %s, zero matches", search)
+	return nil, ZeroMatchesError.wrap(err)
+}
+
+// GetInstance implemented in a fake way for automated tests
+func (c *FakeClient) GetInstance(id string) (*Instance, error) {
+	for _, instance := range c.Instances {
+		if instance.ID == id {
+			return &instance, nil
+		}
+	}
+
+	err := fmt.Errorf("unable to find %s, zero matches", id)
+	return nil, ZeroMatchesError.wrap(err)
+}
+
+// NewInstanceConfig implemented in a fake way for automated tests
+func (c *FakeClient) NewInstanceConfig() (*InstanceConfig, error) {
+	return &InstanceConfig{}, nil
+}
+
+// CreateInstance implemented in a fake way for automated tests
+func (c *FakeClient) CreateInstance(config *InstanceConfig) (*Instance, error) {
+	instance := Instance{
+		ID:          c.generateID(),
+		Hostname:    config.Hostname,
+		Size:        config.Size,
+		Region:      config.Region,
+		TemplateID:  config.TemplateID,
+		InitialUser: config.InitialUser,
+		SSHKey:      config.SSHKeyID,
+		Tags:        config.Tags,
+		PublicIP:    c.generatePublicIP(),
+	}
+	c.Instances = append(c.Instances, instance)
+	return &instance, nil
+}
+
+// SetInstanceTags implemented in a fake way for automated tests
+func (c *FakeClient) SetInstanceTags(i *Instance, tags string) (*SimpleResponse, error) {
+	for _, instance := range c.Instances {
+		if instance.ID == i.ID {
+			instance.Tags = tags
+			return &SimpleResponse{Result: "success"}, nil
+		}
+	}
+
+	return &SimpleResponse{Result: "failed"}, nil
+}
+
+// UpdateInstance implemented in a fake way for automated tests
+func (c *FakeClient) UpdateInstance(i *Instance) (*SimpleResponse, error) {
+	for idx, instance := range c.Instances {
+		if instance.ID == i.ID {
+			c.Instances[idx] = *i
+			return &SimpleResponse{Result: "success"}, nil
+		}
+	}
+
+	return &SimpleResponse{Result: "failed"}, nil
+}
+
+// DeleteInstance implemented in a fake way for automated tests
+func (c *FakeClient) DeleteInstance(id string) (*SimpleResponse, error) {
+	for i, instance := range c.Instances {
+		if instance.ID == id {
+			c.Instances[len(c.Instances)-1], c.Instances[i] = c.Instances[i], c.Instances[len(c.Instances)-1]
+			c.Instances = c.Instances[:len(c.Instances)-1]
+			return &SimpleResponse{Result: "success"}, nil
+		}
+	}
+
+	return &SimpleResponse{Result: "failed"}, nil
+}
+
+// RebootInstance implemented in a fake way for automated tests
+func (c *FakeClient) RebootInstance(id string) (*SimpleResponse, error) {
+	return &SimpleResponse{Result: "success"}, nil
+}
+
+// HardRebootInstance implemented in a fake way for automated tests
+func (c *FakeClient) HardRebootInstance(id string) (*SimpleResponse, error) {
+	return &SimpleResponse{Result: "success"}, nil
+}
+
+// SoftRebootInstance implemented in a fake way for automated tests
+func (c *FakeClient) SoftRebootInstance(id string) (*SimpleResponse, error) {
+	return &SimpleResponse{Result: "success"}, nil
+}
+
+// StopInstance implemented in a fake way for automated tests
+func (c *FakeClient) StopInstance(id string) (*SimpleResponse, error) {
+	return &SimpleResponse{Result: "success"}, nil
+}
+
+// StartInstance implemented in a fake way for automated tests
+func (c *FakeClient) StartInstance(id string) (*SimpleResponse, error) {
+	return &SimpleResponse{Result: "success"}, nil
+}
+
+// GetInstanceConsoleURL implemented in a fake way for automated tests
+func (c *FakeClient) GetInstanceConsoleURL(id string) (string, error) {
+	return fmt.Sprintf("https://console.example.com/%s", id), nil
+}
+
+// UpgradeInstance implemented in a fake way for automated tests
+func (c *FakeClient) UpgradeInstance(id, newSize string) (*SimpleResponse, error) {
+	for _, instance := range c.Instances {
+		if instance.ID == id {
+			instance.Size = newSize
+			return &SimpleResponse{Result: "success"}, nil
+		}
+	}
+
+	return &SimpleResponse{Result: "failed"}, nil
+}
+
+// MovePublicIPToInstance implemented in a fake way for automated tests
+func (c *FakeClient) MovePublicIPToInstance(id, ipAddress string) (*SimpleResponse, error) {
+	oldIndex := -1
+	for idx, instance := range c.Instances {
+		if instance.PublicIP == ipAddress {
+			oldIndex = idx
+		}
+	}
+
+	newIndex := -1
+	for idx, instance := range c.Instances {
+		if instance.ID == id {
+			newIndex = idx
+		}
+	}
+
+	if oldIndex == -1 || newIndex == -1 {
+		return &SimpleResponse{Result: "failed"}, nil
+	}
+
+	c.Instances[newIndex].PublicIP = c.Instances[oldIndex].PublicIP
+	c.Instances[oldIndex].PublicIP = ""
+
+	return &SimpleResponse{Result: "success"}, nil
+}
+
+// SetInstanceFirewall implemented in a fake way for automated tests
+func (c *FakeClient) SetInstanceFirewall(id, firewallID string) (*SimpleResponse, error) {
+	for _, instance := range c.Instances {
+		if instance.ID == id {
+			instance.FirewallID = firewallID
+			return &SimpleResponse{Result: "success"}, nil
+		}
+	}
+
+	return &SimpleResponse{Result: "failed"}, nil
+}
+
+// ListInstanceSizes implemented in a fake way for automated tests
+func (c *FakeClient) ListInstanceSizes() ([]InstanceSize, error) {
+	return c.InstanceSizes, nil
+}
+
+// FindInstanceSizes implemented in a fake way for automated tests
+func (c *FakeClient) FindInstanceSizes(search string) (*InstanceSize, error) {
+	for _, size := range c.InstanceSizes {
+		if strings.Contains(size.Name, search) || size.ID == search {
+			return &size, nil
+		}
+	}
+
+	err := fmt.Errorf("unable to find %s, zero matches", search)
+	return nil, ZeroMatchesError.wrap(err)
+}
+
+// ListKubernetesClusters implemented in a fake way for automated tests
+func (c *FakeClient) ListKubernetesClusters() (*PaginatedKubernetesClusters, error) {
+	return &PaginatedKubernetesClusters{
+		Items:   c.Clusters,
+		Page:    1,
+		PerPage: 10,
+		Pages:   1,
+	}, nil
+}
+
+// FindKubernetesCluster implemented in a fake way for automated tests
+func (c *FakeClient) FindKubernetesCluster(search string) (*KubernetesCluster, error) {
+	for _, cluster := range c.Clusters {
+		if strings.Contains(cluster.Name, search) || cluster.ID == search {
+			return &cluster, nil
+		}
+	}
+
+	err := fmt.Errorf("unable to find %s, zero matches", search)
+	return nil, ZeroMatchesError.wrap(err)
+}
+
+// NewKubernetesClusters implemented in a fake way for automated tests
+func (c *FakeClient) NewKubernetesClusters(kc *KubernetesClusterConfig) (*KubernetesCluster, error) {
+	cluster := KubernetesCluster{
+		ID:             c.generateID(),
+		Name:           kc.Name,
+		MasterIP:       c.generatePublicIP(),
+		NumTargetNode:  kc.NumTargetNodes,
+		TargetNodeSize: kc.TargetNodesSize,
+		Ready:          true,
+		Status:         "ACTIVE",
+	}
+	c.Clusters = append(c.Clusters, cluster)
+	return &cluster, nil
+}
+
+// GetKubernetesCluster implemented in a fake way for automated tests
+func (c *FakeClient) GetKubernetesCluster(id string) (*KubernetesCluster, error) {
+	for _, cluster := range c.Clusters {
+		if cluster.ID == id {
+			return &cluster, nil
+		}
+	}
+
+	err := fmt.Errorf("unable to find %s, zero matches", id)
+	return nil, ZeroMatchesError.wrap(err)
+}
+
+// UpdateKubernetesCluster implemented in a fake way for automated tests
+func (c *FakeClient) UpdateKubernetesCluster(id string, i *KubernetesClusterConfig) (*KubernetesCluster, error) {
+	for _, cluster := range c.Clusters {
+		if cluster.ID == id {
+			cluster.Name = i.Name
+			cluster.NumTargetNode = i.NumTargetNodes
+			cluster.TargetNodeSize = i.TargetNodesSize
+			return &cluster, nil
+		}
+	}
+
+	err := fmt.Errorf("unable to find %s, zero matches", id)
+	return nil, ZeroMatchesError.wrap(err)
+}
+
+// ListKubernetesMarketplaceApplications implemented in a fake way for automated tests
+func (c *FakeClient) ListKubernetesMarketplaceApplications() ([]KubernetesMarketplaceApplication, error) {
+	return []KubernetesMarketplaceApplication{}, nil
+}
+
+// DeleteKubernetesCluster implemented in a fake way for automated tests
+func (c *FakeClient) DeleteKubernetesCluster(id string) (*SimpleResponse, error) {
+	for i, cluster := range c.Clusters {
+		if cluster.ID == id {
+			c.Clusters[len(c.Clusters)-1], c.Clusters[i] = c.Clusters[i], c.Clusters[len(c.Clusters)-1]
+			c.Clusters = c.Clusters[:len(c.Clusters)-1]
+			return &SimpleResponse{Result: "success"}, nil
+		}
+	}
+
+	return &SimpleResponse{Result: "failed"}, nil
+}
+
+// RecycleKubernetesCluster implemented in a fake way for automated tests
+func (c *FakeClient) RecycleKubernetesCluster(id string, hostname string) (*SimpleResponse, error) {
+	return &SimpleResponse{Result: "success"}, nil
+}
+
+// ListAvailableKubernetesVersions implemented in a fake way for automated tests
+func (c *FakeClient) ListAvailableKubernetesVersions() ([]KubernetesVersion, error) {
+	return []KubernetesVersion{
+		{
+			Version: "1.20+k3s1",
+			Type:    "stable",
+		},
+	}, nil
+}
+
+// ListLoadBalancers implemented in a fake way for automated tests
+func (c *FakeClient) ListLoadBalancers() ([]LoadBalancer, error) {
+	return c.LoadBalancers, nil
+}
+
+// FindLoadBalancer implemented in a fake way for automated tests
+func (c *FakeClient) FindLoadBalancer(search string) (*LoadBalancer, error) {
+	for _, lb := range c.LoadBalancers {
+		if strings.Contains(lb.Hostname, search) {
+			return &lb, nil
+		}
+	}
+
+	err := fmt.Errorf("unable to find %s, zero matches", search)
+	return nil, ZeroMatchesError.wrap(err)
+}
+
+// CreateLoadBalancer implemented in a fake way for automated tests
+func (c *FakeClient) CreateLoadBalancer(r *LoadBalancerConfig) (*LoadBalancer, error) {
+	lb := LoadBalancer{
+		ID:       c.generateID(),
+		Hostname: r.Hostname,
+		Protocol: r.Protocol,
+		Port:     r.Port,
+	}
+
+	c.LoadBalancers = append(c.LoadBalancers, lb)
+	return &lb, nil
+}
+
+// UpdateLoadBalancer implemented in a fake way for automated tests
+func (c *FakeClient) UpdateLoadBalancer(id string, r *LoadBalancerConfig) (*LoadBalancer, error) {
+	for _, lb := range c.LoadBalancers {
+		if lb.ID == id {
+			lb.Hostname = r.Hostname
+			lb.Protocol = r.Protocol
+			lb.Port = r.Port
+			return &lb, nil
+		}
+	}
+
+	err := fmt.Errorf("unable to find %s, zero matches", id)
+	return nil, ZeroMatchesError.wrap(err)
+}
+
+// DeleteLoadBalancer implemented in a fake way for automated tests
+func (c *FakeClient) DeleteLoadBalancer(id string) (*SimpleResponse, error) {
+	for i, lb := range c.LoadBalancers {
+		if lb.ID == id {
+			c.LoadBalancers[len(c.LoadBalancers)-1], c.LoadBalancers[i] = c.LoadBalancers[i], c.LoadBalancers[len(c.LoadBalancers)-1]
+			c.LoadBalancers = c.LoadBalancers[:len(c.LoadBalancers)-1]
+			return &SimpleResponse{Result: "success"}, nil
+		}
+	}
+
+	return &SimpleResponse{Result: "failed"}, nil
+}
+
+// GetDefaultNetwork implemented in a fake way for automated tests
+func (c *FakeClient) GetDefaultNetwork() (*Network, error) {
+	for _, network := range c.Networks {
+		if strings.Contains(network.Name, search) {
+			return &network, nil
+		}
+	}
+
+	err := fmt.Errorf("unable to find default network, zero matches")
+	return nil, ZeroMatchesError.wrap(err)
+}
+
+// NewNetwork implemented in a fake way for automated tests
+func (c *FakeClient) NewNetwork(label string) (*NetworkResult, error) {
+	network := Network{
+		ID:   c.generateID(),
+		Name: label,
+	}
+	c.Networks = append(c.Networks, network)
+
+	return &NetworkResult{
+		ID:     network.ID,
+		Label:  network.Name,
+		Result: "success",
+	}, nil
+
+}
+
+// ListNetworks implemented in a fake way for automated tests
+func (c *FakeClient) ListNetworks() ([]Network, error) {
+	return c.Networks, nil
+}
+
+// FindNetwork implemented in a fake way for automated tests
+func (c *FakeClient) FindNetwork(search string) (*Network, error) {
+	for _, network := range c.Networks {
+		if strings.Contains(network.Name, search) {
+			return &network, nil
+		}
+	}
+
+	err := fmt.Errorf("unable to find default network, zero matches")
+	return nil, ZeroMatchesError.wrap(err)
+}
+
+// RenameNetwork implemented in a fake way for automated tests
+func (c *FakeClient) RenameNetwork(label, id string) (*NetworkResult, error) {
+	for _, network := range c.Networks {
+		if network.ID == id {
+			network.Label = label
+			return &NetworkResult{
+				ID:     network.ID,
+				Label:  network.Label,
+				Result: "success",
+			}, nil
+		}
+	}
+
+	err := fmt.Errorf("unable to find default network, zero matches")
+	return nil, ZeroMatchesError.wrap(err)
+}
+
+// DeleteNetwork implemented in a fake way for automated tests
+func (c *FakeClient) DeleteNetwork(id string) (*SimpleResponse, error) {
+	for _, network := range c.Networks {
+		if network.ID == id {
+			c.Networks[len(c.Networks)-1], c.Networks[i] = c.Networks[i], c.Networks[len(c.Networks)-1]
+			c.Networks = c.Networks[:len(c.Networks)-1]
+			return &SimpleResponse{Result: "success"}, nil
+		}
+	}
+
+	return &SimpleResponse{Result: "failed"}, nil
+}
+
+// GetQuota implemented in a fake way for automated tests
+func (c *FakeClient) GetQuota() (*Quota, error) {
+	return &c.Quota, nil
+}
+
+// ListRegions implemented in a fake way for automated tests
+func (c *FakeClient) ListRegions() ([]Region, error) {
+	return []Region{
+		{
+			Code:    "FAKE1",
+			Name:    "Fake testing region",
+			Default: true,
+		},
+	}, nil
+}
+
+// CreateSnapshot implemented in a fake way for automated tests
+func (c *FakeClient) CreateSnapshot(name string, r *SnapshotConfig) (*Snapshot, error) {
+	snapshot := Snapshot{
+		ID:         c.generateID(),
+		Name:       name,
+		InstanceID: r.InstanceID,
+		Cron:       r.Cron,
+	}
+	c.Snapshots = append(c.Snapshots, snapshot)
+
+	return &snapshot, nil
+}
+
+// ListSnapshots implemented in a fake way for automated tests
+func (c *FakeClient) ListSnapshots() ([]Snapshot, error) {
+	return c.Snapshots, nil
+}
+
+// FindSnapshot implemented in a fake way for automated tests
+func (c *FakeClient) FindSnapshot(search string) (*Snapshot, error) {
+	for _, snapshot := range c.Snapshots {
+		if strings.Contains(snapshot.Name, search) {
+			return &snapshot, nil
+		}
+	}
+
+	err := fmt.Errorf("unable to find %s, zero matches", search)
+	return nil, ZeroMatchesError.wrap(err)
+}
+
+// DeleteSnapshot implemented in a fake way for automated tests
+func (c *FakeClient) DeleteSnapshot(name string) (*SimpleResponse, error) {
+	for i, snapshot := range c.Snapshots {
+		if snapshot.ID == id {
+			c.Snapshots[len(c.Snapshots)-1], c.Snapshots[i] = c.Snapshots[i], c.Snapshots[len(c.Snapshots)-1]
+			c.Snapshots = c.Snapshots[:len(c.Snapshots)-1]
+			return &SimpleResponse{Result: "success"}, nil
+		}
+	}
+
+	return &SimpleResponse{Result: "failed"}, nil
+}
+
+// ListSSHKeys implemented in a fake way for automated tests
+func (c *FakeClient) ListSSHKeys() ([]SSHKey, error) {
+	return c.SSHKeys, nil
+}
+
+// NewSSHKey implemented in a fake way for automated tests
+func (c *FakeClient) NewSSHKey(name string, publicKey string) (*SimpleResponse, error) {
+	sshKey := SSHKey{
+		Name:        name,
+		Fingerprint: publicKey, // This is weird, but we're just storing a value
+	}
+	c.SSHKeys = append(c.SSHKeys, sshKey)
+	return &SimpleResponse{Result: "success"}, nil
+}
+
+// UpdateSSHKey implemented in a fake way for automated tests
+func (c *FakeClient) UpdateSSHKey(name string, sshKeyID string) (*SSHKey, error) {
+	for _, sshKey := range c.SSHKeys {
+		if sshKey.ID == sshKeyID {
+			sshKey.Name = name
+			return &sshKey, nil
+		}
+	}
+
+	err := fmt.Errorf("unable to find SSH key %s, zero matches", sshKeyID)
+	return nil, ZeroMatchesError.wrap(err)
+}
+
+// FindSSHKey implemented in a fake way for automated tests
+func (c *FakeClient) FindSSHKey(search string) (*SSHKey, error) {
+	for _, sshKey := range c.SSHKeys {
+		if strings.Contains(sshKey.Name, search) {
+			return &sshKey, nil
+		}
+	}
+
+	err := fmt.Errorf("unable to find SSH key %s, zero matches", search)
+	return nil, ZeroMatchesError.wrap(err)
+}
+
+// DeleteSSHKey implemented in a fake way for automated tests
+func (c *FakeClient) DeleteSSHKey(id string) (*SimpleResponse, error) {
+	for i, sshKey := range c.SSHKeys {
+		if sshKey.ID == id {
+			c.SSHKeys[len(c.SSHKeys)-1], c.SSHKeys[i] = c.SSHKeys[i], c.SSHKeys[len(c.SSHKeys)-1]
+			c.SSHKeys = c.SSHKeys[:len(c.SSHKeys)-1]
+			return &SimpleResponse{Result: "success"}, nil
+		}
+	}
+
+	return &SimpleResponse{Result: "failed"}, nil
+}
+
+// ListTemplates implemented in a fake way for automated tests
+func (c *FakeClient) ListTemplates() ([]Template, error) {
+	return c.Templates, nil
+}
+
+// NewTemplate implemented in a fake way for automated tests
+func (c *FakeClient) NewTemplate(conf *Template) (*SimpleResponse, error) {
+	template := Template{
+		ID:          conf.ID,
+		Name:        conf.Name,
+		CloudConfig: conf.CloudConfig,
+		ImageID:     conf.ImageID,
+	}
+	c.Templates = append(c.Templates, template)
+	return &SimpleResponse{Result: "success"}, nil
+}
+
+// UpdateTemplate implemented in a fake way for automated tests
+func (c *FakeClient) UpdateTemplate(id string, conf *Template) (*Template, error) {
+	for _, template := range c.Templates {
+		if template.ID == id {
+			template.Name = conf.Name
+			template.CloudConfig = conf.CloudConfig
+			template.ImageID = conf.ImageID
+			return &template, nil
+		}
+	}
+
+	err := fmt.Errorf("unable to find SSH key %s, zero matches", id)
+	return nil, ZeroMatchesError.wrap(err)
+}
+
+// GetTemplateByCode implemented in a fake way for automated tests
+func (c *FakeClient) GetTemplateByCode(code string) (*Template, error) {
+	for _, template := range c.Templates {
+		if template.Code == code {
+			return &template, nil
+		}
+	}
+
+	err := fmt.Errorf("unable to find SSH key %s, zero matches", code)
+	return nil, ZeroMatchesError.wrap(err)
+}
+
+// FindTemplate implemented in a fake way for automated tests
+func (c *FakeClient) FindTemplate(search string) (*Template, error) {
+	for _, template := range c.Templates {
+		if strings.Contains(template.Name, search) {
+			return &template, nil
+		}
+	}
+
+	err := fmt.Errorf("unable to find template %s, zero matches", search)
+	return nil, ZeroMatchesError.wrap(err)
+}
+
+// DeleteTemplate implemented in a fake way for automated tests
+func (c *FakeClient) DeleteTemplate(id string) (*SimpleResponse, error) {
+	for i, template := range c.Templates {
+		if template.ID == id {
+			c.Templates[len(c.Templates)-1], c.Templates[i] = c.Templates[i], c.Templates[len(c.Templates)-1]
+			c.Templates = c.Templates[:len(c.Templates)-1]
+			return &SimpleResponse{Result: "success"}, nil
+		}
+	}
+
+	return &SimpleResponse{Result: "failed"}, nil
+}
+
+// ListVolumes implemented in a fake way for automated tests
+func (c *FakeClient) ListVolumes() ([]Volume, error) {
+	return c.Volumes, nil
+}
+
+// FindVolume implemented in a fake way for automated tests
+func (c *FakeClient) FindVolume(search string) (*Volume, error) {
+	for _, volume := range c.Volumes {
+		if strings.Contains(volume.Name, search) {
+			return &volume, nil
+		}
+	}
+
+	err := fmt.Errorf("unable to find volume %s, zero matches", search)
+	return nil, ZeroMatchesError.wrap(err)
+}
+
+// NewVolume implemented in a fake way for automated tests
+func (c *FakeClient) NewVolume(v *VolumeConfig) (*VolumeResult, error) {
+	volume := Volume{
+		ID:            c.generateID(),
+		Name:          v.Name,
+		SizeGigabytes: v.SizeGigabytes,
+	}
+	c.Volumes = append(c.Volumes, volume)
+
+	return &VolumeResult{
+		ID:     volume.ID,
+		Name:   volume.Name,
+		Result: "success",
+	}, nil
+}
+
+// ResizeVolume implemented in a fake way for automated tests
+func (c *FakeClient) ResizeVolume(id string, size int) (*SimpleResponse, error) {
+	for _, volume := range c.Volumes {
+		if volume.ID == id {
+			volume.SizeGigabytes = size
+			return &SimpleResponse{Result: "success"}, nil
+		}
+	}
+
+	err := fmt.Errorf("unable to find volume %s, zero matches", id)
+	return nil, ZeroMatchesError.wrap(err)
+}
+
+// AttachVolume implemented in a fake way for automated tests
+func (c *FakeClient) AttachVolume(id string, instance string) (*SimpleResponse, error) {
+	for _, volume := range c.Volumes {
+		if volume.ID == id {
+			volume.InstanceID = instance
+			return &SimpleResponse{Result: "success"}, nil
+		}
+	}
+
+	err := fmt.Errorf("unable to find volume %s, zero matches", id)
+	return nil, ZeroMatchesError.wrap(err)
+}
+
+// DetachVolume implemented in a fake way for automated tests
+func (c *FakeClient) DetachVolume(id string) (*SimpleResponse, error) {
+	for _, volume := range c.Volumes {
+		if volume.ID == id {
+			volume.InstanceID = ""
+			return &SimpleResponse{Result: "success"}, nil
+		}
+	}
+
+	err := fmt.Errorf("unable to find volume %s, zero matches", id)
+	return nil, ZeroMatchesError.wrap(err)
+}
+
+// DeleteVolume implemented in a fake way for automated tests
+func (c *FakeClient) DeleteVolume(id string) (*SimpleResponse, error) {
+	for i, volume := range c.Volumes {
+		if volume.ID == id {
+			c.Volumes[len(c.Volumes)-1], c.Volumes[i] = c.Volumes[i], c.Volumes[len(c.Volumes)-1]
+			c.Volumes = c.Volumes[:len(c.Volumes)-1]
+			return &SimpleResponse{Result: "success"}, nil
+		}
+	}
+
+	return &SimpleResponse{Result: "failed"}, nil
+}
+
+// CreateWebhook implemented in a fake way for automated tests
+func (c *FakeClient) CreateWebhook(r *WebhookConfig) (*Webhook, error) {
+	webhook := Webhook{
+		ID:     c.generateID(),
+		Events: r.Events,
+		Secret: r.Secret,
+		URL:    r.URL,
+	}
+	c.Webhooks = append(c.Webhooks, webhook)
+
+	return &webhook, nil
+}
+
+// ListWebhooks implemented in a fake way for automated tests
+func (c *FakeClient) ListWebhooks() ([]Webhook, error) {
+	return c.Webhooks, nil
+}
+
+// FindWebhook implemented in a fake way for automated tests
+func (c *FakeClient) FindWebhook(search string) (*Webhook, error) {
+	for _, webhook := range c.Webhooks {
+		if strings.Contains(webhook.Name, search) || strings.Contains(webhook.URL, search) {
+			return &webhook, nil
+		}
+	}
+
+	err := fmt.Errorf("unable to find %s, zero matches", id)
+	return nil, ZeroMatchesError.wrap(err)
+}
+
+// UpdateWebhook implemented in a fake way for automated tests
+func (c *FakeClient) UpdateWebhook(id string, r *WebhookConfig) (*Webhook, error) {
+	for _, webhook := range c.Webhooks {
+		if webhook.ID == id {
+			webhook.Events = r.Events
+			webhook.Secret = r.Secret
+			webhook.URL = r.URL
+
+			return &webhook, nil
+		}
+	}
+
+	err := fmt.Errorf("unable to find %s, zero matches", id)
+	return nil, ZeroMatchesError.wrap(err)
+}
+
+// DeleteWebhook implemented in a fake way for automated tests
+func (c *FakeClient) DeleteWebhook(id string) (*SimpleResponse, error) {
+	for i, webhook := range c.Webhooks {
+		if webhook.ID == id {
+			c.Webhooks[len(c.Webhooks)-1], c.Webhooks[i] = c.Webhooks[i], c.Webhooks[len(c.Webhooks)-1]
+			c.Webhooks = c.Webhooks[:len(c.Webhooks)-1]
+			return &SimpleResponse{Result: "success"}, nil
+		}
+	}
+
+	return &SimpleResponse{Result: "failed"}, nil
+}
+
+func (c *FakeClient) generateID() string {
+	c.LastID++
+	return strconv.FormatInt(c.LastID, 10)
+}
+
+func (c *FakeClient) generatePublicIP() string {
+	s := rand.NewSource(time.Now().UnixNano())
+	r := rand.New(s)
+	return fmt.Sprintf("%v.%v.%v.%v", r.Intn(256), r.Intn(256), r.Intn(256), r.Intn(256))
+}
