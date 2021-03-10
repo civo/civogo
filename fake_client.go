@@ -491,7 +491,7 @@ func (c *FakeClient) CreateInstance(config *InstanceConfig) (*Instance, error) {
 func (c *FakeClient) SetInstanceTags(i *Instance, tags string) (*SimpleResponse, error) {
 	for _, instance := range c.Instances {
 		if instance.ID == i.ID {
-			instance.Tags = tags
+			instance.Tags = strings.Split(tags, " ")
 			return &SimpleResponse{Result: "success"}, nil
 		}
 	}
@@ -779,7 +779,7 @@ func (c *FakeClient) DeleteLoadBalancer(id string) (*SimpleResponse, error) {
 // GetDefaultNetwork implemented in a fake way for automated tests
 func (c *FakeClient) GetDefaultNetwork() (*Network, error) {
 	for _, network := range c.Networks {
-		if strings.Contains(network.Name, search) {
+		if network.Default {
 			return &network, nil
 		}
 	}
@@ -840,7 +840,7 @@ func (c *FakeClient) RenameNetwork(label, id string) (*NetworkResult, error) {
 
 // DeleteNetwork implemented in a fake way for automated tests
 func (c *FakeClient) DeleteNetwork(id string) (*SimpleResponse, error) {
-	for _, network := range c.Networks {
+	for i, network := range c.Networks {
 		if network.ID == id {
 			c.Networks[len(c.Networks)-1], c.Networks[i] = c.Networks[i], c.Networks[len(c.Networks)-1]
 			c.Networks = c.Networks[:len(c.Networks)-1]
@@ -900,7 +900,7 @@ func (c *FakeClient) FindSnapshot(search string) (*Snapshot, error) {
 // DeleteSnapshot implemented in a fake way for automated tests
 func (c *FakeClient) DeleteSnapshot(name string) (*SimpleResponse, error) {
 	for i, snapshot := range c.Snapshots {
-		if snapshot.ID == id {
+		if snapshot.Name == name {
 			c.Snapshots[len(c.Snapshots)-1], c.Snapshots[i] = c.Snapshots[i], c.Snapshots[len(c.Snapshots)-1]
 			c.Snapshots = c.Snapshots[:len(c.Snapshots)-1]
 			return &SimpleResponse{Result: "success"}, nil
@@ -1138,12 +1138,12 @@ func (c *FakeClient) ListWebhooks() ([]Webhook, error) {
 // FindWebhook implemented in a fake way for automated tests
 func (c *FakeClient) FindWebhook(search string) (*Webhook, error) {
 	for _, webhook := range c.Webhooks {
-		if strings.Contains(webhook.Name, search) || strings.Contains(webhook.URL, search) {
+		if strings.Contains(webhook.Secret, search) || strings.Contains(webhook.URL, search) {
 			return &webhook, nil
 		}
 	}
 
-	err := fmt.Errorf("unable to find %s, zero matches", id)
+	err := fmt.Errorf("unable to find %s, zero matches", search)
 	return nil, ZeroMatchesError.wrap(err)
 }
 
