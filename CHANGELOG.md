@@ -1,5 +1,17 @@
+0.2.31
+=============
+2021-03-11
 
-0.2.39
+* Fixed error in definition of NewFirewall for Clienter/FakeClient
+
+0.2.30
+=============
+2021-03-10
+
+* Added FakeClient for using civogo in other utilities' automated tests  (318bdea)
+
+
+0.2.29
 =============
 2021-02-28
 
