@@ -1,3 +1,9 @@
+0.2.32
+=============
+2021-03-11
+
+* Add simple fake tests to ensure FakeClient  conforms to the interface and the pattern works (06e89dd)
+
 0.2.31
 =============
 2021-03-11
