@@ -51,7 +51,7 @@ type Clienter interface {
 	ListFirewalls() ([]Firewall, error)
 	FindFirewall(search string) (*Firewall, error)
 	NewFirewall(name, networkID string) (*FirewallResult, error)
-	RenameFirewall(id string, name string) (*SimpleResponse, error)
+	RenameFirewall(id string, f *FirewallConfig) (*SimpleResponse, error)
 	DeleteFirewall(id string) (*SimpleResponse, error)
 	NewFirewallRule(r *FirewallRuleConfig) (*FirewallRule, error)
 	ListFirewallRules(id string) ([]FirewallRule, error)
@@ -357,10 +357,10 @@ func (c *FakeClient) NewFirewall(name, networkID string) (*FirewallResult, error
 }
 
 // RenameFirewall implemented in a fake way for automated tests
-func (c *FakeClient) RenameFirewall(id string, name string) (*SimpleResponse, error) {
+func (c *FakeClient) RenameFirewall(id string, f *FirewallConfig) (*SimpleResponse, error) {
 	for _, firewall := range c.Firewalls {
 		if firewall.ID == id {
-			firewall.Name = name
+			firewall.Name = f.Name
 			return &SimpleResponse{Result: "success"}, nil
 		}
 	}
@@ -430,9 +430,9 @@ func (c *FakeClient) DeleteFirewallRule(id string, ruleID string) (*SimpleRespon
 func (c *FakeClient) ListInstances(page int, perPage int) (*PaginatedInstanceList, error) {
 	return &PaginatedInstanceList{
 		Items:   c.Instances,
-		Page:    1,
-		PerPage: 20,
-		Pages:   1,
+		Page:    page,
+		PerPage: perPage,
+		Pages:   page,
 	}, nil
 }
 
