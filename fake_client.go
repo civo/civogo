@@ -1040,7 +1040,7 @@ func (c *FakeClient) ListVolumes() ([]Volume, error) {
 // FindVolume implemented in a fake way for automated tests
 func (c *FakeClient) FindVolume(search string) (*Volume, error) {
 	for _, volume := range c.Volumes {
-		if strings.Contains(volume.Name, search) {
+		if strings.Contains(volume.Name, search) || strings.Contains(volume.ID, search) {
 			return &volume, nil
 		}
 	}
