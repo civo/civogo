@@ -358,9 +358,9 @@ func (c *FakeClient) NewFirewall(name, networkID string) (*FirewallResult, error
 
 // RenameFirewall implemented in a fake way for automated tests
 func (c *FakeClient) RenameFirewall(id string, f *FirewallConfig) (*SimpleResponse, error) {
-	for _, firewall := range c.Firewalls {
+	for i, firewall := range c.Firewalls {
 		if firewall.ID == id {
-			firewall.Name = f.Name
+			c.Firewalls[i].Name = f.Name
 			return &SimpleResponse{Result: "success"}, nil
 		}
 	}
@@ -489,9 +489,9 @@ func (c *FakeClient) CreateInstance(config *InstanceConfig) (*Instance, error) {
 
 // SetInstanceTags implemented in a fake way for automated tests
 func (c *FakeClient) SetInstanceTags(i *Instance, tags string) (*SimpleResponse, error) {
-	for _, instance := range c.Instances {
+	for idx, instance := range c.Instances {
 		if instance.ID == i.ID {
-			instance.Tags = strings.Split(tags, " ")
+			c.Instances[idx].Tags = strings.Split(tags, " ")
 			return &SimpleResponse{Result: "success"}, nil
 		}
 	}
@@ -556,9 +556,9 @@ func (c *FakeClient) GetInstanceConsoleURL(id string) (string, error) {
 
 // UpgradeInstance implemented in a fake way for automated tests
 func (c *FakeClient) UpgradeInstance(id, newSize string) (*SimpleResponse, error) {
-	for _, instance := range c.Instances {
+	for idx, instance := range c.Instances {
 		if instance.ID == id {
-			instance.Size = newSize
+			c.Instances[idx].Size = newSize
 			return &SimpleResponse{Result: "success"}, nil
 		}
 	}
@@ -594,9 +594,9 @@ func (c *FakeClient) MovePublicIPToInstance(id, ipAddress string) (*SimpleRespon
 
 // SetInstanceFirewall implemented in a fake way for automated tests
 func (c *FakeClient) SetInstanceFirewall(id, firewallID string) (*SimpleResponse, error) {
-	for _, instance := range c.Instances {
+	for idx, instance := range c.Instances {
 		if instance.ID == id {
-			instance.FirewallID = firewallID
+			c.Instances[idx].FirewallID = firewallID
 			return &SimpleResponse{Result: "success"}, nil
 		}
 	}
@@ -671,12 +671,12 @@ func (c *FakeClient) GetKubernetesCluster(id string) (*KubernetesCluster, error)
 }
 
 // UpdateKubernetesCluster implemented in a fake way for automated tests
-func (c *FakeClient) UpdateKubernetesCluster(id string, i *KubernetesClusterConfig) (*KubernetesCluster, error) {
-	for _, cluster := range c.Clusters {
+func (c *FakeClient) UpdateKubernetesCluster(id string, kc *KubernetesClusterConfig) (*KubernetesCluster, error) {
+	for i, cluster := range c.Clusters {
 		if cluster.ID == id {
-			cluster.Name = i.Name
-			cluster.NumTargetNode = i.NumTargetNodes
-			cluster.TargetNodeSize = i.TargetNodesSize
+			c.Clusters[i].Name = kc.Name
+			c.Clusters[i].NumTargetNode = kc.NumTargetNodes
+			c.Clusters[i].TargetNodeSize = kc.TargetNodesSize
 			return &cluster, nil
 		}
 	}
@@ -749,12 +749,12 @@ func (c *FakeClient) CreateLoadBalancer(r *LoadBalancerConfig) (*LoadBalancer, e
 }
 
 // UpdateLoadBalancer implemented in a fake way for automated tests
-func (c *FakeClient) UpdateLoadBalancer(id string, r *LoadBalancerConfig) (*LoadBalancer, error) {
-	for _, lb := range c.LoadBalancers {
+func (c *FakeClient) UpdateLoadBalancer(id string, lbc *LoadBalancerConfig) (*LoadBalancer, error) {
+	for i, lb := range c.LoadBalancers {
 		if lb.ID == id {
-			lb.Hostname = r.Hostname
-			lb.Protocol = r.Protocol
-			lb.Port = r.Port
+			c.LoadBalancers[i].Hostname = lbc.Hostname
+			c.LoadBalancers[i].Protocol = lbc.Protocol
+			c.LoadBalancers[i].Port = lbc.Port
 			return &lb, nil
 		}
 	}
@@ -823,9 +823,9 @@ func (c *FakeClient) FindNetwork(search string) (*Network, error) {
 
 // RenameNetwork implemented in a fake way for automated tests
 func (c *FakeClient) RenameNetwork(label, id string) (*NetworkResult, error) {
-	for _, network := range c.Networks {
+	for i, network := range c.Networks {
 		if network.ID == id {
-			network.Label = label
+			c.Networks[i].Label = label
 			return &NetworkResult{
 				ID:     network.ID,
 				Label:  network.Label,
@@ -927,9 +927,9 @@ func (c *FakeClient) NewSSHKey(name string, publicKey string) (*SimpleResponse, 
 
 // UpdateSSHKey implemented in a fake way for automated tests
 func (c *FakeClient) UpdateSSHKey(name string, sshKeyID string) (*SSHKey, error) {
-	for _, sshKey := range c.SSHKeys {
+	for i, sshKey := range c.SSHKeys {
 		if sshKey.ID == sshKeyID {
-			sshKey.Name = name
+			c.SSHKeys[i].Name = name
 			return &sshKey, nil
 		}
 	}
@@ -982,11 +982,11 @@ func (c *FakeClient) NewTemplate(conf *Template) (*SimpleResponse, error) {
 
 // UpdateTemplate implemented in a fake way for automated tests
 func (c *FakeClient) UpdateTemplate(id string, conf *Template) (*Template, error) {
-	for _, template := range c.Templates {
+	for i, template := range c.Templates {
 		if template.ID == id {
-			template.Name = conf.Name
-			template.CloudConfig = conf.CloudConfig
-			template.ImageID = conf.ImageID
+			c.Templates[i].Name = conf.Name
+			c.Templates[i].CloudConfig = conf.CloudConfig
+			c.Templates[i].ImageID = conf.ImageID
 			return &template, nil
 		}
 	}
@@ -1067,9 +1067,9 @@ func (c *FakeClient) NewVolume(v *VolumeConfig) (*VolumeResult, error) {
 
 // ResizeVolume implemented in a fake way for automated tests
 func (c *FakeClient) ResizeVolume(id string, size int) (*SimpleResponse, error) {
-	for _, volume := range c.Volumes {
+	for i, volume := range c.Volumes {
 		if volume.ID == id {
-			volume.SizeGigabytes = size
+			c.Volumes[i].SizeGigabytes = size
 			return &SimpleResponse{Result: "success"}, nil
 		}
 	}
@@ -1080,9 +1080,9 @@ func (c *FakeClient) ResizeVolume(id string, size int) (*SimpleResponse, error) 
 
 // AttachVolume implemented in a fake way for automated tests
 func (c *FakeClient) AttachVolume(id string, instance string) (*SimpleResponse, error) {
-	for _, volume := range c.Volumes {
+	for i, volume := range c.Volumes {
 		if volume.ID == id {
-			volume.InstanceID = instance
+			c.Volumes[i].InstanceID = instance
 			return &SimpleResponse{Result: "success"}, nil
 		}
 	}
@@ -1093,9 +1093,9 @@ func (c *FakeClient) AttachVolume(id string, instance string) (*SimpleResponse, 
 
 // DetachVolume implemented in a fake way for automated tests
 func (c *FakeClient) DetachVolume(id string) (*SimpleResponse, error) {
-	for _, volume := range c.Volumes {
+	for i, volume := range c.Volumes {
 		if volume.ID == id {
-			volume.InstanceID = ""
+			c.Volumes[i].InstanceID = ""
 			return &SimpleResponse{Result: "success"}, nil
 		}
 	}
@@ -1149,11 +1149,11 @@ func (c *FakeClient) FindWebhook(search string) (*Webhook, error) {
 
 // UpdateWebhook implemented in a fake way for automated tests
 func (c *FakeClient) UpdateWebhook(id string, r *WebhookConfig) (*Webhook, error) {
-	for _, webhook := range c.Webhooks {
+	for i, webhook := range c.Webhooks {
 		if webhook.ID == id {
-			webhook.Events = r.Events
-			webhook.Secret = r.Secret
-			webhook.URL = r.URL
+			c.Webhooks[i].Events = r.Events
+			c.Webhooks[i].Secret = r.Secret
+			c.Webhooks[i].URL = r.URL
 
 			return &webhook, nil
 		}
