@@ -191,8 +191,8 @@ func (c *Client) NewKubernetesClusters(kc *KubernetesClusterConfig) (*Kubernetes
 	return kubernetes, nil
 }
 
-// GetKubernetesClusters returns a single kubernetes cluster by its full ID
-func (c *Client) GetKubernetesClusters(id string) (*KubernetesCluster, error) {
+// GetKubernetesCluster returns a single kubernetes cluster by its full ID
+func (c *Client) GetKubernetesCluster(id string) (*KubernetesCluster, error) {
 	resp, err := c.SendGetRequest(fmt.Sprintf("/v2/kubernetes/clusters/%s", id))
 	if err != nil {
 		return nil, decodeERROR(err)

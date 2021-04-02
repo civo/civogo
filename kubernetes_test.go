@@ -323,7 +323,7 @@ func TestGetKubernetesClusters(t *testing.T) {
 	})
 	defer server.Close()
 
-	got, err := client.GetKubernetesClusters("69a23478-a89e-41d2-97b1-6f4c341cee70")
+	got, err := client.GetKubernetesCluster("69a23478-a89e-41d2-97b1-6f4c341cee70")
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
