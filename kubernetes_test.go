@@ -125,7 +125,7 @@ func TestFindKubernetesCluster(t *testing.T) {
 	})
 	defer server.Close()
 
-	got, err := client.FindKubernetesCluster("69a23478")
+	got, _ := client.FindKubernetesCluster("69a23478")
 	if got.ID != "69a23478-a89e-41d2-97b1-6f4c341cee70" {
 		t.Errorf("Expected %s, got %s", "69a23478-a89e-41d2-97b1-6f4c341cee70", got.ID)
 	}
@@ -150,7 +150,7 @@ func TestFindKubernetesCluster(t *testing.T) {
 		t.Errorf("Expected %s, got %s", "d1cd0b71-5da1-492e-9d0d-a46ccdaae2fa", got.ID)
 	}
 
-	_, err = client.FindKubernetesCluster("cluster")
+	_, err := client.FindKubernetesCluster("cluster")
 	if err.Error() != "MultipleMatchesError: unable to find cluster because there were multiple matches" {
 		t.Errorf("Expected %s, got %s", "unable to find cluster because there were multiple matches", err.Error())
 	}

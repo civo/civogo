@@ -103,7 +103,7 @@ func (c *Client) FindTemplate(search string) (*Template, error) {
 			exactMatch = true
 			result = value
 		} else if strings.Contains(value.Code, search) || strings.Contains(value.ID, search) {
-			if exactMatch == false {
+			if !exactMatch {
 				result = value
 				partialMatchesCount++
 			}

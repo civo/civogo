@@ -55,7 +55,7 @@ func TestFindVolume(t *testing.T) {
 	})
 	defer server.Close()
 
-	got, err := client.FindVolume("34")
+	got, _ := client.FindVolume("34")
 	if got.ID != "12345" {
 		t.Errorf("Expected %s, got %s", "12345", got.ID)
 	}
@@ -75,7 +75,7 @@ func TestFindVolume(t *testing.T) {
 		t.Errorf("Expected %s, got %s", "67890", got.ID)
 	}
 
-	_, err = client.FindVolume("volume")
+	_, err := client.FindVolume("volume")
 	if err.Error() != "MultipleMatchesError: unable to find volume because there were multiple matches" {
 		t.Errorf("Expected %s, got %s", "unable to find volume because there were multiple matches", err.Error())
 	}

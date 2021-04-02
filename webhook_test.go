@@ -105,7 +105,7 @@ func TestFindWebhook(t *testing.T) {
 	})
 	defer server.Close()
 
-	got, err := client.FindWebhook("34")
+	got, _ := client.FindWebhook("34")
 	if got.ID != "12345" {
 		t.Errorf("Expected %s, got %s", "12345", got.ID)
 	}
@@ -125,7 +125,7 @@ func TestFindWebhook(t *testing.T) {
 		t.Errorf("Expected %s, got %s", "67890", got.ID)
 	}
 
-	_, err = client.FindWebhook("example")
+	_, err := client.FindWebhook("example")
 	if err.Error() != "MultipleMatchesError: unable to find example because there were multiple matches" {
 		t.Errorf("Expected %s, got %s", "unable to find example because there were multiple matches", err.Error())
 	}

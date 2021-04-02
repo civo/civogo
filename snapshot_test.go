@@ -131,7 +131,7 @@ func TestFindSnapshot(t *testing.T) {
 	})
 	defer server.Close()
 
-	got, err := client.FindSnapshot("ff39")
+	got, _ := client.FindSnapshot("ff39")
 	if got.ID != "0ca69adc-ff39-4fc1-8f08-d91434e86fac" {
 		t.Errorf("Expected %s, got %s", "0ca69adc-ff39-4fc1-8f08-d91434e86fac", got.ID)
 	}
@@ -151,7 +151,7 @@ func TestFindSnapshot(t *testing.T) {
 		t.Errorf("Expected %s, got %s", "aadec58e-26f4-43e7-8963-18739519ef76", got.ID)
 	}
 
-	_, err = client.FindSnapshot("backup")
+	_, err := client.FindSnapshot("backup")
 	if err.Error() != "MultipleMatchesError: unable to find backup because there were multiple matches" {
 		t.Errorf("Expected %s, got %s", "unable to find backup because there were multiple matches", err.Error())
 	}

@@ -113,7 +113,7 @@ func NewAdvancedClientForTesting(responses map[string]map[string]string) (*Clien
 			}
 		}
 
-		if responseSent == false {
+		if !responseSent {
 			fmt.Println("Failed to find a matching request!")
 			fmt.Println("Request body:", string(body))
 			fmt.Println("Method:", req.Method)
@@ -139,7 +139,7 @@ func NewClientForTesting(responses map[string]string) (*Client, *httptest.Server
 			}
 		}
 
-		if responseSent == false {
+		if !responseSent {
 			fmt.Println("Failed to find a matching request!")
 			fmt.Println("URL:", req.URL.String())
 

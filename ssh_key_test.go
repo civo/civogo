@@ -51,7 +51,7 @@ func TestFindSSHKey(t *testing.T) {
 	})
 	defer server.Close()
 
-	got, err := client.FindSSHKey("34")
+	got, _ := client.FindSSHKey("34")
 	if got.ID != "12345" {
 		t.Errorf("Expected %s, got %s", "12345", got.ID)
 	}
@@ -61,7 +61,7 @@ func TestFindSSHKey(t *testing.T) {
 		t.Errorf("Expected %s, got %s", "12345", got.ID)
 	}
 
-	_, err = client.FindSSHKey("23")
+	_, err := client.FindSSHKey("23")
 	if err.Error() != "MultipleMatchesError: unable to find 23 because there were multiple matches" {
 		t.Errorf("Expected %s, got %s", "unable to find 23 because there were multiple matches", err.Error())
 	}

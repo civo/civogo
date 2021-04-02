@@ -37,14 +37,14 @@ func (c *Client) GetDefaultNetwork() (*Network, error) {
 	}
 
 	networks := make([]Network, 0)
-	err = json.NewDecoder(bytes.NewReader(resp)).Decode(&networks)
+	json.NewDecoder(bytes.NewReader(resp)).Decode(&networks)
 	for _, network := range networks {
 		if network.Default {
 			return &network, nil
 		}
 	}
 
-	return nil, errors.New("No default network found")
+	return nil, errors.New("no default network found")
 }
 
 // NewNetwork creates a new private network
@@ -94,7 +94,7 @@ func (c *Client) FindNetwork(search string) (*Network, error) {
 			exactMatch = true
 			result = value
 		} else if strings.Contains(value.Name, search) || strings.Contains(value.ID, search) || strings.Contains(value.Label, search) {
-			if exactMatch == false {
+			if !exactMatch {
 				result = value
 				partialMatchesCount++
 			}

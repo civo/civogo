@@ -5,7 +5,7 @@ import (
 )
 
 func TestListInstances(t *testing.T) {
-	client, server, err := NewClientForTesting(map[string]string{
+	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/instances": `{"page": 1, "per_page": 20, "pages": 2, "items":[{"id": "12345", "hostname": "foo.example.com"}]}`,
 	})
 	defer server.Close()

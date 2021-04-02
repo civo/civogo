@@ -71,7 +71,7 @@ func (c *Client) FindWebhook(search string) (*Webhook, error) {
 			exactMatch = true
 			result = value
 		} else if strings.Contains(value.URL, search) || strings.Contains(value.ID, search) {
-			if exactMatch == false {
+			if !exactMatch {
 				result = value
 				partialMatchesCount++
 			}

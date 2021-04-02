@@ -57,7 +57,7 @@ func (c *Client) FindRegion(search string) (*Region, error) {
 			exactMatch = true
 			result = value
 		} else if strings.Contains(value.Name, search) || strings.Contains(value.Code, search) || strings.Contains(value.Country, search) {
-			if exactMatch == false {
+			if !exactMatch {
 				result = value
 				partialMatchesCount++
 			}
@@ -88,5 +88,5 @@ func (c *Client) GetDefaultRegion() (*Region, error) {
 		}
 	}
 
-	return nil, errors.New("No default region found")
+	return nil, errors.New("no default region found")
 }

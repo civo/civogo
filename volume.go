@@ -67,7 +67,7 @@ func (c *Client) FindVolume(search string) (*Volume, error) {
 			exactMatch = true
 			result = value
 		} else if strings.Contains(value.Name, search) || strings.Contains(value.ID, search) {
-			if exactMatch == false {
+			if !exactMatch {
 				result = value
 				partialMatchesCount++
 			}

@@ -87,7 +87,7 @@ func (c *Client) FindLoadBalancer(search string) (*LoadBalancer, error) {
 			exactMatch = true
 			result = value
 		} else if strings.Contains(value.Hostname, search) || strings.Contains(value.ID, search) {
-			if exactMatch == false {
+			if !exactMatch {
 				result = value
 				partialMatchesCount++
 			}

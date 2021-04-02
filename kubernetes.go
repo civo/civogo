@@ -157,7 +157,7 @@ func (c *Client) FindKubernetesCluster(search string) (*KubernetesCluster, error
 			exactMatch = true
 			result = value
 		} else if strings.Contains(strings.ToUpper(value.Name), strings.ToUpper(search)) || strings.Contains(value.ID, search) {
-			if exactMatch == false {
+			if !exactMatch {
 				result = value
 				partialMatchesCount++
 			}

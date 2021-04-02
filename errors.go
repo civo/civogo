@@ -290,15 +290,18 @@ func decodeERROR(err error) error {
 	var msg strings.Builder
 
 	switch err := err.(type) {
-	case net.Error:
-		if err.Timeout() {
-			err := fmt.Errorf("We have a network issue")
+	case *url.Error:
+		if _, ok := err.Err.(net.Error); ok {
+			err := fmt.Errorf("we found a problem connected against the api")
 			return TimeoutError.wrap(err)
 		}
-	case *url.Error:
-		fmt.Println("This is a *url.Error")
-		if err, ok := err.Err.(net.Error); ok && err.Timeout() {
-			err := fmt.Errorf("We have a network issue")
+	case net.Error:
+		if err.Timeout() {
+			err := fmt.Errorf("we found a network issue")
+			return TimeoutError.wrap(err)
+		}
+		if _, ok := err.(*net.DNSError); ok {
+			err := fmt.Errorf("we found a dns issue")
 			return TimeoutError.wrap(err)
 		}
 	case wrapError:
@@ -308,19 +311,19 @@ func decodeERROR(err error) error {
 		byt := []byte(errorData.Reason)
 
 		if err := json.Unmarshal(byt, &dat); err != nil {
-			err := errors.New("Failed to decode the response expected from the API")
+			err := errors.New("failed to decode the response expected from the API")
 			return ResponseDecodeFailedError.wrap(err)
 		}
 
 		if _, ok := dat["status"].(float64); ok {
 			if dat["status"].(float64) == 500 {
-				err := errors.New("Internal Server Error")
+				err := errors.New("internal Server Error")
 				return InternalServerError.wrap(err)
 			}
 		}
 
 		if dat["result"] == "requires_authentication" {
-			err := errors.New("Authentication Error")
+			err := errors.New("authentication Error")
 			return AuthenticationError.wrap(err)
 		}
 

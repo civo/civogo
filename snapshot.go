@@ -78,7 +78,7 @@ func (c *Client) FindSnapshot(search string) (*Snapshot, error) {
 			exactMatch = true
 			result = value
 		} else if strings.Contains(value.Name, search) || strings.Contains(value.ID, search) {
-			if exactMatch == false {
+			if !exactMatch {
 				result = value
 				partialMatchesCount++
 			}

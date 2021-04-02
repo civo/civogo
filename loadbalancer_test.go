@@ -67,7 +67,7 @@ func TestFindLoadBalancer(t *testing.T) {
 	})
 	defer server.Close()
 
-	got, err := client.FindLoadBalancer("542e9eca")
+	got, _ := client.FindLoadBalancer("542e9eca")
 	if got.ID != "542e9eca-539d-45e6-b629-2f905d0b5f93" {
 		t.Errorf("Expected %s, got %s", "542e9eca-539d-45e6-b629-2f905d0b5f93", got.ID)
 	}
@@ -87,7 +87,7 @@ func TestFindLoadBalancer(t *testing.T) {
 		t.Errorf("Expected %s, got %s", "c33051ae-f337-45de-a3a5-004d822deff5", got.ID)
 	}
 
-	_, err = client.FindLoadBalancer("example")
+	_, err := client.FindLoadBalancer("example")
 	if err.Error() != "MultipleMatchesError: unable to find example because there were multiple matches" {
 		t.Errorf("Expected %s, got %s", "unable to find example because there were multiple matches", err.Error())
 	}

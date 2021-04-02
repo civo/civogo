@@ -94,7 +94,7 @@ func TestFindNetwork(t *testing.T) {
 	})
 	defer server.Close()
 
-	got, err := client.FindNetwork("34")
+	got, _ := client.FindNetwork("34")
 	if got.ID != "12345" {
 		t.Errorf("Expected %s, got %s", "12345", got.ID)
 	}
@@ -114,12 +114,12 @@ func TestFindNetwork(t *testing.T) {
 		t.Errorf("Expected %s, got %s", "67890", got.ID)
 	}
 
-	got, err = client.FindNetwork("production")
+	got, _ = client.FindNetwork("production")
 	if got.ID != "67890" {
 		t.Errorf("Expected %s, got %s", "67890", got.ID)
 	}
 
-	_, err = client.FindNetwork("net")
+	_, err := client.FindNetwork("net")
 	if err.Error() != "MultipleMatchesError: unable to find net because there were multiple matches" {
 		t.Errorf("Expected %s, got %s", "unable to find net because there were multiple matches", err.Error())
 	}
