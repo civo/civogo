@@ -80,15 +80,15 @@ type PaginatedKubernetesClusters struct {
 
 // KubernetesClusterConfig is used to create a new cluster
 type KubernetesClusterConfig struct {
-	Name              string `json:"name"`
+	Name              string `json:"name,omitempty"`
 	Region            string `json:"region,omitempty"`
-	NumTargetNodes    int    `json:"num_target_nodes"`
-	TargetNodesSize   string `json:"target_nodes_size"`
-	KubernetesVersion string `json:"kubernetes_version"`
-	NodeDestroy       string `json:"node_destroy"`
-	NetworkID         string `json:"network_id"`
-	Tags              string `json:"tags"`
-	Applications      string `json:"applications"`
+	NumTargetNodes    int    `json:"num_target_nodes,omitempty"`
+	TargetNodesSize   string `json:"target_nodes_size,omitempty"`
+	KubernetesVersion string `json:"kubernetes_version,omitempty"`
+	NodeDestroy       string `json:"node_destroy,omitempty"`
+	NetworkID         string `json:"network_id,omitempty"`
+	Tags              string `json:"tags,omitempty"`
+	Applications      string `json:"applications,omitempty"`
 }
 
 // KubernetesPlanConfiguration is a value within a configuration for
