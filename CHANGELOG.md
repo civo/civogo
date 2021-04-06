@@ -1,4 +1,11 @@
 
+0.2.36
+=============
+2021-04-06
+
+* Added omitempty to kubernetes config, that way we only send the filled fields (af03bb1f)
+* Updated the changelog (dc3ea1df)
+
 0.2.35
 =============
 2021-04-02

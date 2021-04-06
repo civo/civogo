@@ -1,3 +1,23 @@
+- semver: 0.2.36
+  date: 2021-04-06T17:50:34.823396-04:00
+  packager: ""
+  changes:
+  - commit: af03bb1f5ad66e9052487dd0c8a58a6841bf3ccf
+    note: Added omitempty to kubernetes config, that way we only send the filled fields
+    author:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+    committer:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+  - commit: dc3ea1df0ae34e25cc3f58941464de50cc37c1bc
+    note: Updated the changelog
+    author:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+    committer:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
 - semver: 0.2.35
   date: 2021-04-02T09:06:28-04:00
   packager: Andy Jeffries <andy@andyjeffries.co.uk>
