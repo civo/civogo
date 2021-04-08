@@ -1093,7 +1093,7 @@ func (c *FakeClient) GetDiskImage(id string) (*DiskImage, error) {
 	return nil, ZeroMatchesError.wrap(err)
 }
 
-// GetDiskImage implemented in a fake way for automated tests
+// FindDiskImage implemented in a fake way for automated tests
 func (c *FakeClient) FindDiskImage(search string) (*DiskImage, error) {
 	for _, diskimage := range c.DiskImage {
 		if strings.Contains(diskimage.Name, search) || strings.Contains(diskimage.ID, search) {
