@@ -26,6 +26,7 @@ type FakeClient struct {
 	SSHKeys       []SSHKey
 	Webhooks      []Webhook
 	Templates     []Template
+	DiskImage     []DiskImage
 	Quota         Quota
 }
 
@@ -135,6 +136,11 @@ type Clienter interface {
 	FindTemplate(search string) (*Template, error)
 	DeleteTemplate(id string) (*SimpleResponse, error)
 
+	// DiskImages
+	ListDiskImages() ([]DiskImage, error)
+	GetDiskImage(id string) (*DiskImage, error)
+	FindDiskImage(search string) (*DiskImage, error)
+
 	// Volumes
 	ListVolumes() ([]Volume, error)
 	FindVolume(search string) (*Volume, error)
@@ -188,6 +194,44 @@ func NewFakeClient() (*FakeClient, error) {
 				CPUCores:      4,
 				RAMMegabytes:  4096,
 				DiskGigabytes: 40,
+			},
+		},
+		DiskImage: []DiskImage{
+			{
+				ID:           "b82168fe-66f6-4b38-a3b8-5283542d5475",
+				Name:         "centos-7",
+				Version:      "7",
+				State:        "available",
+				Distribution: "centos",
+				Description:  "",
+				Label:        "",
+			},
+			{
+				ID:           "b82168fe-66f6-4b38-a3b8-52835425895",
+				Name:         "debian-9",
+				Version:      "9",
+				State:        "available",
+				Distribution: "debian",
+				Description:  "",
+				Label:        "",
+			},
+			{
+				ID:           "b82168fe-66f6-4b38-a3b8-52835428965",
+				Name:         "debian-10",
+				Version:      "10",
+				State:        "available",
+				Distribution: "debian",
+				Description:  "",
+				Label:        "",
+			},
+			{
+				ID:           "b82168fe-66f6-4b38-a3b8-528354282548",
+				Name:         "ubuntu-20-4",
+				Version:      "20.4",
+				State:        "available",
+				Distribution: "ubuntu",
+				Description:  "",
+				Label:        "",
 			},
 		},
 	}, nil
@@ -1030,6 +1074,35 @@ func (c *FakeClient) DeleteTemplate(id string) (*SimpleResponse, error) {
 	}
 
 	return &SimpleResponse{Result: "failed"}, nil
+}
+
+// ListDiskImages implemented in a fake way for automated tests
+func (c *FakeClient) ListDiskImages() ([]DiskImage, error) {
+	return c.DiskImage, nil
+}
+
+// GetDiskImage implemented in a fake way for automated tests
+func (c *FakeClient) GetDiskImage(id string) (*DiskImage, error) {
+	for k, v := range c.DiskImage {
+		if v.ID == id {
+			return &c.DiskImage[k], nil
+		}
+	}
+
+	err := fmt.Errorf("unable to find disk image %s, zero matches", id)
+	return nil, ZeroMatchesError.wrap(err)
+}
+
+// GetDiskImage implemented in a fake way for automated tests
+func (c *FakeClient) FindDiskImage(search string) (*DiskImage, error) {
+	for _, diskimage := range c.DiskImage {
+		if strings.Contains(diskimage.Name, search) || strings.Contains(diskimage.ID, search) {
+			return &diskimage, nil
+		}
+	}
+
+	err := fmt.Errorf("unable to find volume %s, zero matches", search)
+	return nil, ZeroMatchesError.wrap(err)
 }
 
 // ListVolumes implemented in a fake way for automated tests

@@ -23,6 +23,8 @@ type Instance struct {
 	PublicIP                 string    `json:"public_ip"`
 	PseudoIP                 string    `json:"pseudo_ip"`
 	TemplateID               string    `json:"template_id"`
+	SourceType               string    `json:"source_type"`
+	SourceID                 string    `json:"source_id"`
 	SnapshotID               string    `json:"snapshot_id"`
 	InitialUser              string    `json:"initial_user"`
 	InitialPassword          string    `json:"initial_password"`
@@ -72,6 +74,8 @@ type InstanceConfig struct {
 	PublicIPRequired string   `json:"public_ip"`
 	NetworkID        string   `json:"network_id"`
 	TemplateID       string   `json:"template_id"`
+	SourceType       string   `json:"source_type"`
+	SourceID         string   `json:"source_id"`
 	SnapshotID       string   `json:"snapshot_id"`
 	InitialUser      string   `json:"initial_user"`
 	SSHKeyID         string   `json:"ssh_key_id"`
