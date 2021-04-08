@@ -1,3 +1,15 @@
+- semver: 0.2.37
+  date: 2021-04-08T18:36:06.453078-04:00
+  packager: ""
+  changes:
+  - commit: cd0f7879862db418cffc6ac247592581f172bc54
+    note: Added new methods for DiskImage
+    author:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+    committer:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
 - semver: 0.2.36
   date: 2021-04-06T17:50:34.823396-04:00
   packager: ""
