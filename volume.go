@@ -30,6 +30,7 @@ type VolumeResult struct {
 // VolumeConfig are the settings required to create a new Volume
 type VolumeConfig struct {
 	Name          string `json:"name"`
+	Namespace     string `json:"namespace"`
 	Region        string `json:"region"`
 	SizeGigabytes int    `json:"size_gb"`
 	Bootable      bool   `json:"bootable"`
