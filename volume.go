@@ -15,6 +15,7 @@ type Volume struct {
 	Name          string    `json:"name"`
 	InstanceID    string    `json:"instance_id"`
 	MountPoint    string    `json:"mountpoint"`
+	Status        string    `json:"status"`
 	SizeGigabytes int       `json:"size_gb"`
 	Bootable      bool      `json:"bootable"`
 	CreatedAt     time.Time `json:"created_at"`
