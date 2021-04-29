@@ -143,6 +143,7 @@ type Clienter interface {
 
 	// Volumes
 	ListVolumes() ([]Volume, error)
+	GetVolume(id string) (*Volume, error)
 	FindVolume(search string) (*Volume, error)
 	NewVolume(v *VolumeConfig) (*VolumeResult, error)
 	ResizeVolume(id string, size int) (*SimpleResponse, error)
@@ -1108,6 +1109,18 @@ func (c *FakeClient) FindDiskImage(search string) (*DiskImage, error) {
 // ListVolumes implemented in a fake way for automated tests
 func (c *FakeClient) ListVolumes() ([]Volume, error) {
 	return c.Volumes, nil
+}
+
+// GetVolume implemented in a fake way for automated tests
+func (c *FakeClient) GetVolume(id string) (*Volume, error) {
+	for _, volume := range c.Volumes {
+		if volume.ID == id {
+			return &volume, nil
+		}
+	}
+
+	err := fmt.Errorf("unable to get volume %s", id)
+	return nil, ZeroMatchesError.wrap(err)
 }
 
 // FindVolume implemented in a fake way for automated tests

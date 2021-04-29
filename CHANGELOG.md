@@ -2,6 +2,12 @@
 =============
 2021-04-29
 
+* Added GetVolume call for efficiency
+
+0.2.40
+=============
+2021-04-29
+
 * Added status to Volume
 
 0.2.39

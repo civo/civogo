@@ -53,6 +53,21 @@ func (c *Client) ListVolumes() ([]Volume, error) {
 	return volumes, nil
 }
 
+// GetVolume finds a volume by the full ID
+func (c *Client) GetVolume(id string) (*Volume, error) {
+	resp, err := c.SendGetRequest(fmt.Sprintf("/v2/volumes/%s", id))
+	if err != nil {
+		return nil, decodeERROR(err)
+	}
+
+	var volume = Volume{}
+	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&volume); err != nil {
+		return nil, err
+	}
+
+	return &volume, nil
+}
+
 // FindVolume finds a volume by either part of the ID or part of the name
 func (c *Client) FindVolume(search string) (*Volume, error) {
 	volumes, err := c.ListVolumes()
