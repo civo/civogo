@@ -1,3 +1,9 @@
+0.2.42
+=============
+2021-05-01
+
+* Added cluster_id to NewVolume's VolumeConfig to allow associating a dynamic PVC volume with a cluster for cleanup if the cluster is removed.
+
 0.2.41
 =============
 2021-04-29

@@ -14,6 +14,7 @@ type Volume struct {
 	ID            string    `json:"id"`
 	Name          string    `json:"name"`
 	InstanceID    string    `json:"instance_id"`
+	ClusterID     string    `json:"cluster_id"`
 	MountPoint    string    `json:"mountpoint"`
 	Status        string    `json:"status"`
 	SizeGigabytes int       `json:"size_gb"`
@@ -32,6 +33,7 @@ type VolumeResult struct {
 type VolumeConfig struct {
 	Name          string `json:"name"`
 	Namespace     string `json:"namespace"`
+	ClusterID     string `json:"cluster_id"`
 	Region        string `json:"region"`
 	SizeGigabytes int    `json:"size_gb"`
 	Bootable      bool   `json:"bootable"`
