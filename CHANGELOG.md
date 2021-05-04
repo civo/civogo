@@ -1,32 +1,17 @@
-0.2.42
+
+0.2.43
 =============
-2021-05-01
+2021-05-04
 
-* Added cluster_id to NewVolume's VolumeConfig to allow associating a dynamic PVC volume with a cluster for cleanup if the cluster is removed.
-
-0.2.41
-=============
-2021-04-29
-
-* Added GetVolume call for efficiency
-
-0.2.40
-=============
-2021-04-29
-
-* Added status to Volume
-
-0.2.39
-=============
-2021-04-28
-
-* Added region to volume attach/detach
-
-0.2.38
-=============
-2021-04-28
-
-* Added namespace for volume creation (89995b6)
+* Added change to kubernetes and volume (0f3b7fb6)
+* Add cluster_id to volume creation (47dce610)
+* Fix CHANGELOG (7a917e8e)
+* Add GetVolume call to save always returning then filtering down to a single volume (419cda25)
+* Add Status to volume (4884e404)
+* Added region to volume attach/detach (093df491)
+* Update CHANGELOG for 0.2.38 (9c1df9d1)
+* Update VolumeConfig to have a namespace attribute (89995b6a)
+* Update fake_client.go (d629abae)
 
 0.2.37
 =============

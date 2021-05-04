@@ -1,3 +1,82 @@
+- semver: 0.2.43
+  date: 2021-05-04T14:36:19.830021-04:00
+  packager: ""
+  changes:
+  - commit: 0f3b7fb64f1abf43b0d2cca474d5e99ecf4fdc14
+    note: Added change to kubernetes and volume
+    author:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+    committer:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+  - commit: 47dce610da9a7723127fec2e1eb889aa22149082
+    note: Add cluster_id to volume creation
+    author:
+      name: Andy Jeffries
+      email: andy@andyjeffries.co.uk
+    committer:
+      name: Andy Jeffries
+      email: andy@andyjeffries.co.uk
+  - commit: 7a917e8e0bea22b2562d9d55b4d1e781c4416900
+    note: Fix CHANGELOG
+    author:
+      name: Andy Jeffries
+      email: andy@andyjeffries.co.uk
+    committer:
+      name: Andy Jeffries
+      email: andy@andyjeffries.co.uk
+  - commit: 419cda25a3b238ca9e7e9b8764b0ac8b34580da2
+    note: Add GetVolume call to save always returning then filtering down to a single volume
+    author:
+      name: Andy Jeffries
+      email: andy@andyjeffries.co.uk
+    committer:
+      name: Andy Jeffries
+      email: andy@andyjeffries.co.uk
+  - commit: 4884e404fea291d97a45ef152627546468e1cb5b
+    note: Add Status to volume
+    author:
+      name: Andy Jeffries
+      email: andy@andyjeffries.co.uk
+    committer:
+      name: Andy Jeffries
+      email: andy@andyjeffries.co.uk
+  - commit: 093df491fff19409feba5c1ec00a864761e63f73
+    note: Added region to volume attach/detach
+    author:
+      name: Andy Jeffries
+      email: andy@andyjeffries.co.uk
+    committer:
+      name: Andy Jeffries
+      email: andy@andyjeffries.co.uk
+  - commit: 9c1df9d1265f68cf4e43c71765b2b3a14c6097c9
+    note: Update CHANGELOG for 0.2.38
+    author:
+      name: Andy Jeffries
+      email: andy@andyjeffries.co.uk
+    committer:
+      name: Andy Jeffries
+      email: andy@andyjeffries.co.uk
+  - commit: 89995b6a3c11fa719cf4032fde44ef1aac7235a2
+    note: Update VolumeConfig to have a namespace attribute
+    author:
+      name: Andy Jeffries
+      email: andy@civo.com
+    committer:
+      name: GitHub
+      email: noreply@github.com
+  - commit: d629abae9e8d247bbaad1c7d219818cc12d6dac4
+    note: |-
+      Update fake_client.go
+
+      Change the exported comment
+    author:
+      name: Alejandro J. Nuñez Madrazo
+      email: alejandro@civo.com
+    committer:
+      name: GitHub
+      email: noreply@github.com
 - semver: 0.2.37
   date: 2021-04-08T18:36:06.453078-04:00
   packager: ""
