@@ -10,18 +10,37 @@ import (
 
 // KubernetesInstance represents a single node/master within a Kubernetes cluster
 type KubernetesInstance struct {
-	Hostname      string    `json:"hostname"`
-	Size          string    `json:"size"`
-	Region        string    `json:"region"`
-	CreatedAt     time.Time `json:"created_at"`
-	Status        string    `json:"status"`
-	FirewallID    string    `json:"firewall_id"`
-	PublicIP      string    `json:"public_ip"`
-	CPUCores      int       `json:"cpu_cores"`
-	RAMMegabytes  int       `json:"ram_mb"`
-	DiskGigabytes int       `json:"disk_gb"`
-	Tags          []string  `json:"tags"`
+	ID              string    `json:"id"`
+	Hostname        string    `json:"hostname"`
+	Size            string    `json:"size"`
+	Region          string    `json:"region"`
+	SourceType      string    `json:"source_type"`
+	SourceID        string    `json:"source_id"`
+	InitialUser     string    `json:"initial_user"`
+	InitialPassword string    `json:"initial_password"`
+	Status          string    `json:"status"`
+	FirewallID      string    `json:"firewall_id"`
+	PublicIP        string    `json:"public_ip"`
+	CPUCores        int       `json:"cpu_cores"`
+	RAMMegabytes    int       `json:"ram_mb"`
+	DiskGigabytes   int       `json:"disk_gb"`
+	Tags            []string  `json:"tags"`
+	CreatedAt       time.Time `json:"created_at"`
+	CivoStatsdToken string    `json:"civostatsd_token"`
 }
+
+// KubernetesPool represents a single pool within a Kubernetes cluster
+type KubernetesPool struct {
+	ID            string               `json:"id"`
+	Count         int                  `json:"count"`
+	Size          string               `json:"size"`
+	InstanceNames []string             `json:"instance_names"`
+	Instances     []KubernetesInstance `json:"instances"`
+}
+
+/*
+
+ */
 
 // KubernetesInstalledApplication is an application within our marketplace available for
 // installation
@@ -62,11 +81,13 @@ type KubernetesCluster struct {
 	MasterIP              string                           `json:"master_ip"`
 	DNSEntry              string                           `json:"dns_entry"`
 	UpgradeAvailableTo    string                           `json:"upgrade_available_to"`
+	Legacy                bool                             `json:"legacy"`
 	NetworkID             string                           `json:"network_id"`
 	NameSpace             string                           `json:"namespace"`
 	Tags                  []string                         `json:"tags"`
 	CreatedAt             time.Time                        `json:"created_at"`
 	Instances             []KubernetesInstance             `json:"instances"`
+	Pools                 []KubernetesPool                 `json:"pools"`
 	InstalledApplications []KubernetesInstalledApplication `json:"installed_applications"`
 }
 
