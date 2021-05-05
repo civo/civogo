@@ -38,10 +38,6 @@ type KubernetesPool struct {
 	Instances     []KubernetesInstance `json:"instances"`
 }
 
-/*
-
- */
-
 // KubernetesInstalledApplication is an application within our marketplace available for
 // installation
 type KubernetesInstalledApplication struct {
@@ -113,6 +109,7 @@ type KubernetesClusterConfig struct {
 	Applications      string                        `json:"applications,omitempty"`
 }
 
+//KubernetesClusterPoolConfig is used to create a new cluster pool
 type KubernetesClusterPoolConfig struct {
 	ID    string `json:"id,omitempty"`
 	Count int    `json:"count,omitempty"`
