@@ -51,12 +51,16 @@ func (c *Client) FindRegion(search string) (*Region, error) {
 	exactMatch := false
 	partialMatchesCount := 0
 	result := Region{}
+	search = strings.ToUpper(search)
 
 	for _, value := range allregion {
-		if value.Name == search || value.Code == search {
+		name := strings.ToUpper(value.Name)
+		code := strings.ToUpper(value.Code)
+
+		if name == search || code == search {
 			exactMatch = true
 			result = value
-		} else if strings.Contains(value.Name, search) || strings.Contains(value.Code, search) {
+		} else if strings.Contains(name, search) || strings.Contains(code, search) {
 			if !exactMatch {
 				result = value
 				partialMatchesCount++
