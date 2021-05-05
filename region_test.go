@@ -29,7 +29,7 @@ func TestFindRegions(t *testing.T) {
 	})
 	defer server.Close()
 
-	got, err := client.FindRegion("us")
+	got, err := client.FindRegion("nyc1")
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
