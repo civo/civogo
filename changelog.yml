@@ -1,3 +1,23 @@
+- semver: 0.2.44
+  date: 2021-05-05T15:35:27.258593-04:00
+  packager: ""
+  changes:
+  - commit: 7f556d7baea82d2865473a62227d6cfbb2bacf3b
+    note: Merge branch 'master' of https://github.com/civo/civogo
+    author:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+    committer:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+  - commit: 2459ccd5996ba324d34c314eba018dbd956682c0
+    note: Added the pool option to kubernestes object
+    author:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+    committer:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
 - semver: 0.2.43
   date: 2021-05-04T14:36:19.830021-04:00
   packager: ""

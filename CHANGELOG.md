@@ -1,4 +1,11 @@
 
+0.2.44
+=============
+2021-05-05
+
+* Merge branch 'master' of https://github.com/civo/civogo (7f556d7b)
+* Added the pool option to kubernestes object (2459ccd5)
+
 0.2.43
 =============
 2021-05-04
