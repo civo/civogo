@@ -234,6 +234,7 @@ var (
 	ParameterSizeMissingError               = constError("ParameterSizeMissingError")
 	ParameterVolumeSizeIncorrectError       = constError("ParameterVolumeSizeIncorrectError")
 	ParameterVolumeSizeMustIncreaseError    = constError("ParameterVolumeSizeMustIncreaseError")
+	CannotResizeVolumeError                 = constError("CannotResizeVolumeError")
 	ParameterSnapshotMissingError           = constError("ParameterSnapshotMissingError")
 	ParameterSnapshotIncorrectFormatError   = constError("ParameterSnapshotIncorrectFormatError")
 	ParameterStartPortMissingError          = constError("ParameterStartPortMissingError")
@@ -881,6 +882,9 @@ func decodeERROR(err error) error {
 		case "volume_invalid_size":
 			err := errors.New(msg.String())
 			return VolumeInvalidSizeError.wrap(err)
+		case "cannot_resize_volume":
+			err := errors.New(msg.String())
+			return CannotResizeVolumeError.wrap(err)
 		case "database_kubernetes_application_not_found":
 			err := errors.New(msg.String())
 			return DatabaseKubernetesApplicationNotFoundError.wrap(err)
