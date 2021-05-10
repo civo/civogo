@@ -1,4 +1,11 @@
 
+0.2.45
+=============
+2021-05-10
+
+* Fixed error in the instance controller (a9f4749f)
+* Added new error handler (bfb7b690)
+
 0.2.44
 =============
 2021-05-05

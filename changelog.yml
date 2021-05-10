@@ -1,3 +1,23 @@
+- semver: 0.2.45
+  date: 2021-05-10T19:01:56.384997-04:00
+  packager: ""
+  changes:
+  - commit: a9f4749fb821be83bc00884e1fbd5d7de929f624
+    note: Fixed error in the instance controller
+    author:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+    committer:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+  - commit: bfb7b690a7b2670bad78e167cd409544c783658f
+    note: Added new error handler
+    author:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+    committer:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
 - semver: 0.2.44
   date: 2021-05-05T15:35:27.258593-04:00
   packager: ""
