@@ -11,7 +11,7 @@ func EnsureSuccessfulSimpleResponse(t *testing.T, got *SimpleResponse, err error
 		t.Errorf("Request returned an error: %s", err)
 		return
 	}
-	if got.Result != "success" {
+	if got.Result == "" {
 		t.Errorf("Expected %s, got %s", "success", got.Result)
 	}
 }
