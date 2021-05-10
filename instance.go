@@ -205,7 +205,8 @@ func (c *Client) CreateInstance(config *InstanceConfig) (*Instance, error) {
 // SetInstanceTags sets the tags for the specified instance
 func (c *Client) SetInstanceTags(i *Instance, tags string) (*SimpleResponse, error) {
 	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/tags", i.ID), map[string]string{
-		"tags": tags,
+		"tags":   tags,
+		"region": c.Region,
 	})
 	if err != nil {
 		return nil, decodeERROR(err)
@@ -221,6 +222,7 @@ func (c *Client) UpdateInstance(i *Instance) (*SimpleResponse, error) {
 		"hostname":    i.Hostname,
 		"reverse_dns": i.ReverseDNS,
 		"notes":       i.Notes,
+		"region":      c.Region,
 	}
 
 	if i.Notes == "" {
@@ -312,7 +314,8 @@ func (c *Client) GetInstanceConsoleURL(id string) (string, error) {
 // it's not possible to resize the instance to a smaller size
 func (c *Client) UpgradeInstance(id, newSize string) (*SimpleResponse, error) {
 	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/resize", id), map[string]string{
-		"size": newSize,
+		"size":   newSize,
+		"region": c.Region,
 	})
 	if err != nil {
 		return nil, decodeERROR(err)
@@ -337,6 +340,7 @@ func (c *Client) MovePublicIPToInstance(id, ipAddress string) (*SimpleResponse, 
 func (c *Client) SetInstanceFirewall(id, firewallID string) (*SimpleResponse, error) {
 	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/firewall", id), map[string]string{
 		"firewall_id": firewallID,
+		"region":      c.Region,
 	})
 	if err != nil {
 		return nil, decodeERROR(err)
