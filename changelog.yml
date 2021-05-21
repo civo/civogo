@@ -1,3 +1,23 @@
+- semver: 0.2.46
+  date: 2021-05-21T13:09:09.675418-04:00
+  packager: ""
+  changes:
+  - commit: f99bbb6ae86a8db55f93a0a50afdc5c57d387666
+    note: Added omitempty to some models, to prevent show empty result
+    author:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+    committer:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+  - commit: 63305185fe1c8f3e8ea4979b3a4b6341e3288ee3
+    note: Fixed test for the instance
+    author:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
+    committer:
+      name: Alejandro JNM
+      email: alejandrojnm@gmail.com
 - semver: 0.2.45
   date: 2021-05-10T19:01:56.384997-04:00
   packager: ""

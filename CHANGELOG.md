@@ -1,4 +1,11 @@
 
+0.2.46
+=============
+2021-05-21
+
+* Added omitempty to some models, to prevent show empty result (f99bbb6a)
+* Fixed test for the instance (63305185)
+
 0.2.45
 =============
 2021-05-10
