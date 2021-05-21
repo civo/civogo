@@ -9,13 +9,13 @@ import (
 
 // DiskImage represents a DiskImage for launching instances from
 type DiskImage struct {
-	ID           string `json:"id"`
-	Name         string `json:"name"`
-	Version      string `json:"version"`
-	State        string `json:"state"`
-	Distribution string `json:"distribution"`
-	Description  string `json:"description"`
-	Label        string `json:"label"`
+	ID           string `json:"id,omitempty"`
+	Name         string `json:"name,omitempty"`
+	Version      string `json:"version,omitempty"`
+	State        string `json:"state,omitempty"`
+	Distribution string `json:"distribution,omitempty"`
+	Description  string `json:"description,omitempty"`
+	Label        string `json:"label,omitempty"`
 }
 
 // ListDiskImages return all disk image in system

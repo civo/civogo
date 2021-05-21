@@ -30,15 +30,15 @@ type DNSRecordType string
 // DNSRecord represents a DNS record registered within Civo's infrastructure
 type DNSRecord struct {
 	ID          string        `json:"id"`
-	AccountID   string        `json:"account_id"`
-	DNSDomainID string        `json:"domain_id"`
-	Name        string        `json:"name"`
-	Value       string        `json:"value"`
-	Type        DNSRecordType `json:"type"`
-	Priority    int           `json:"priority"`
-	TTL         int           `json:"ttl"`
-	CreatedAt   time.Time     `json:"created_at"`
-	UpdatedAt   time.Time     `json:"updated_at"`
+	AccountID   string        `json:"account_id,omitempty"`
+	DNSDomainID string        `json:"domain_id,omitempty"`
+	Name        string        `json:"name,omitempty"`
+	Value       string        `json:"value,omitempty"`
+	Type        DNSRecordType `json:"type,omitempty"`
+	Priority    int           `json:"priority,omitempty"`
+	TTL         int           `json:"ttl,omitempty"`
+	CreatedAt   time.Time     `json:"created_at,omitempty"`
+	UpdatedAt   time.Time     `json:"updated_at,omitempty"`
 }
 
 // DNSRecordConfig describes the parameters for a new DNS record

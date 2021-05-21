@@ -24,18 +24,18 @@ type LoadBalancerBackendConfig struct {
 // LoadBalancer represents a load balancer configuration within Civo
 type LoadBalancer struct {
 	ID                      string `json:"id"`
-	DefaultHostname         bool   `json:"default_hostname"`
-	Hostname                string `json:"hostname"`
-	Protocol                string `json:"protocol"`
-	Port                    int    `json:"port"`
-	MaxRequestSize          int    `json:"max_request_size"`
-	TLSCertificate          string `json:"tls_certificate"`
-	TLSKey                  string `json:"tls_key"`
-	Policy                  string `json:"policy"`
-	HealthCheckPath         string `json:"health_check_path"`
-	FailTimeout             int    `json:"fail_timeout"`
-	MaxConns                int    `json:"max_conns"`
-	IgnoreInvalidBackendTLS bool   `json:"ignore_invalid_backend_tls"`
+	DefaultHostname         bool   `json:"default_hostname,omitempty"`
+	Hostname                string `json:"hostname,omitempty"`
+	Protocol                string `json:"protocol,omitempty"`
+	Port                    int    `json:"port,omitempty"`
+	MaxRequestSize          int    `json:"max_request_size,omitempty"`
+	TLSCertificate          string `json:"tls_certificate,omitempty"`
+	TLSKey                  string `json:"tls_key,omitempty"`
+	Policy                  string `json:"policy,omitempty"`
+	HealthCheckPath         string `json:"health_check_path,omitempty"`
+	FailTimeout             int    `json:"fail_timeout,omitempty"`
+	MaxConns                int    `json:"max_conns,omitempty"`
+	IgnoreInvalidBackendTLS bool   `json:"ignore_invalid_backend_tls,omitempty"`
 	Backends                []LoadBalancerBackend
 }
 

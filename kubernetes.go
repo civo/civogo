@@ -11,48 +11,48 @@ import (
 // KubernetesInstance represents a single node/master within a Kubernetes cluster
 type KubernetesInstance struct {
 	ID              string    `json:"id"`
-	Hostname        string    `json:"hostname"`
-	Size            string    `json:"size"`
-	Region          string    `json:"region"`
-	SourceType      string    `json:"source_type"`
-	SourceID        string    `json:"source_id"`
-	InitialUser     string    `json:"initial_user"`
-	InitialPassword string    `json:"initial_password"`
-	Status          string    `json:"status"`
-	FirewallID      string    `json:"firewall_id"`
-	PublicIP        string    `json:"public_ip"`
-	CPUCores        int       `json:"cpu_cores"`
-	RAMMegabytes    int       `json:"ram_mb"`
-	DiskGigabytes   int       `json:"disk_gb"`
-	Tags            []string  `json:"tags"`
-	CreatedAt       time.Time `json:"created_at"`
-	CivoStatsdToken string    `json:"civostatsd_token"`
+	Hostname        string    `json:"hostname,omitempty"`
+	Size            string    `json:"size,omitempty"`
+	Region          string    `json:"region,omitempty"`
+	SourceType      string    `json:"source_type,omitempty"`
+	SourceID        string    `json:"source_id,omitempty"`
+	InitialUser     string    `json:"initial_user,omitempty"`
+	InitialPassword string    `json:"initial_password,omitempty"`
+	Status          string    `json:"status,omitempty"`
+	FirewallID      string    `json:"firewall_id,omitempty"`
+	PublicIP        string    `json:"public_ip,omitempty"`
+	CPUCores        int       `json:"cpu_cores,omitempty"`
+	RAMMegabytes    int       `json:"ram_mb,omitempty"`
+	DiskGigabytes   int       `json:"disk_gb,omitempty"`
+	Tags            []string  `json:"tags,omitempty"`
+	CreatedAt       time.Time `json:"created_at,omitempty"`
+	CivoStatsdToken string    `json:"civostatsd_token,omitempty"`
 }
 
 // KubernetesPool represents a single pool within a Kubernetes cluster
 type KubernetesPool struct {
 	ID            string               `json:"id"`
-	Count         int                  `json:"count"`
-	Size          string               `json:"size"`
-	InstanceNames []string             `json:"instance_names"`
-	Instances     []KubernetesInstance `json:"instances"`
+	Count         int                  `json:"count,omitempty"`
+	Size          string               `json:"size,omitempty"`
+	InstanceNames []string             `json:"instance_names,omitempty"`
+	Instances     []KubernetesInstance `json:"instances,omitempty"`
 }
 
 // KubernetesInstalledApplication is an application within our marketplace available for
 // installation
 type KubernetesInstalledApplication struct {
-	Application   string                              `json:"application"`
+	Application   string                              `json:"application,omitempty"`
 	Name          string                              `json:"name,omitempty"`
-	Version       string                              `json:"version"`
+	Version       string                              `json:"version,omitempty"`
 	Dependencies  []string                            `json:"dependencies,omitempty"`
-	Maintainer    string                              `json:"maintainer"`
-	Description   string                              `json:"description"`
-	PostInstall   string                              `json:"post_install"`
-	Installed     bool                                `json:"installed"`
-	URL           string                              `json:"url"`
-	Category      string                              `json:"category"`
-	UpdatedAt     time.Time                           `json:"updated_at"`
-	ImageURL      string                              `json:"image_url"`
+	Maintainer    string                              `json:"maintainer,omitempty"`
+	Description   string                              `json:"description,omitempty"`
+	PostInstall   string                              `json:"post_install,omitempty"`
+	Installed     bool                                `json:"installed,omitempty"`
+	URL           string                              `json:"url,omitempty"`
+	Category      string                              `json:"category,omitempty"`
+	UpdatedAt     time.Time                           `json:"updated_at,omitempty"`
+	ImageURL      string                              `json:"image_url,omitempty"`
 	Plan          string                              `json:"plan,omitempty"`
 	Configuration map[string]ApplicationConfiguration `json:"configuration,omitempty"`
 }
@@ -63,28 +63,28 @@ type ApplicationConfiguration map[string]string
 // KubernetesCluster is a Kubernetes item inside the cluster
 type KubernetesCluster struct {
 	ID                    string                           `json:"id"`
-	Name                  string                           `json:"name"`
-	GeneratedName         string                           `json:"generated_name"`
-	Version               string                           `json:"version"`
-	Status                string                           `json:"status"`
-	Ready                 bool                             `json:"ready"`
-	NumTargetNode         int                              `json:"num_target_nodes"`
-	TargetNodeSize        string                           `json:"target_nodes_size"`
-	BuiltAt               time.Time                        `json:"built_at"`
-	KubeConfig            string                           `json:"kubeconfig"`
-	KubernetesVersion     string                           `json:"kubernetes_version"`
-	APIEndPoint           string                           `json:"api_endpoint"`
-	MasterIP              string                           `json:"master_ip"`
-	DNSEntry              string                           `json:"dns_entry"`
-	UpgradeAvailableTo    string                           `json:"upgrade_available_to"`
-	Legacy                bool                             `json:"legacy"`
-	NetworkID             string                           `json:"network_id"`
-	NameSpace             string                           `json:"namespace"`
-	Tags                  []string                         `json:"tags"`
-	CreatedAt             time.Time                        `json:"created_at"`
-	Instances             []KubernetesInstance             `json:"instances"`
-	Pools                 []KubernetesPool                 `json:"pools"`
-	InstalledApplications []KubernetesInstalledApplication `json:"installed_applications"`
+	Name                  string                           `json:"name,omitempty"`
+	GeneratedName         string                           `json:"generated_name,omitempty"`
+	Version               string                           `json:"version,omitempty"`
+	Status                string                           `json:"status,omitempty"`
+	Ready                 bool                             `json:"ready,omitempty"`
+	NumTargetNode         int                              `json:"num_target_nodes,omitempty"`
+	TargetNodeSize        string                           `json:"target_nodes_size,omitempty"`
+	BuiltAt               time.Time                        `json:"built_at,omitempty"`
+	KubeConfig            string                           `json:"kubeconfig,omitempty"`
+	KubernetesVersion     string                           `json:"kubernetes_version,omitempty"`
+	APIEndPoint           string                           `json:"api_endpoint,omitempty"`
+	MasterIP              string                           `json:"master_ip,omitempty"`
+	DNSEntry              string                           `json:"dns_entry,omitempty"`
+	UpgradeAvailableTo    string                           `json:"upgrade_available_to,omitempty"`
+	Legacy                bool                             `json:"legacy,omitempty"`
+	NetworkID             string                           `json:"network_id,omitempty"`
+	NameSpace             string                           `json:"namespace,omitempty"`
+	Tags                  []string                         `json:"tags,omitempty"`
+	CreatedAt             time.Time                        `json:"created_at,omitempty"`
+	Instances             []KubernetesInstance             `json:"instances,omitempty"`
+	Pools                 []KubernetesPool                 `json:"pools,omitempty"`
+	InstalledApplications []KubernetesInstalledApplication `json:"installed_applications,omitempty"`
 }
 
 // PaginatedKubernetesClusters is a Kubernetes k3s cluster

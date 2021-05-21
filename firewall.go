@@ -10,10 +10,10 @@ import (
 // Firewall represents list of rule in Civo's infrastructure
 type Firewall struct {
 	ID             string `json:"id"`
-	Name           string `json:"name"`
-	RulesCount     int    `json:"rules_count"`
-	InstancesCount int    `json:"instances_count"`
-	NetworkID      string `json:"network_id"`
+	Name           string `json:"name,omitempty"`
+	RulesCount     int    `json:"rules_count,omitempty"`
+	InstancesCount int    `json:"instances_count,omitempty"`
+	NetworkID      string `json:"network_id,omitempty"`
 }
 
 // FirewallResult is the response from the Civo Firewall APIs

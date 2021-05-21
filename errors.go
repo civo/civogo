@@ -241,6 +241,28 @@ var (
 	DatabaseTemplateParseRequestError       = constError("DatabaseTemplateParseRequestError")
 	ParameterValueMissingError              = constError("ParameterValueMissingError")
 
+	OutOFCapacityError                           = constError("OutOFCapacityError")
+	CannotGetConsoleError                        = constError("CannotGetConsoleError")
+	DatabaseDNSDomainInvalidError                = constError("DatabaseDNSDomainInvalidError")
+	DatabaseFirewallExistsError                  = constError("DatabaseFirewallExistsError")
+	DatabaseKubernetesClusterNoPoolsError        = constError("DatabaseKubernetesClusterNoPoolsError")
+	DatabaseKubernetesClusterInvalidVersionError = constError("DatabaseKubernetesClusterInvalidVersionError")
+	DatabaseNamespacesListError                  = constError("DatabaseNamespacesListError")
+	DatabaseNamespaceCreateError                 = constError("DatabaseNamespaceCreateError")
+	DatabaseNamespaceExistsError                 = constError("DatabaseNamespaceExistsError")
+	DatabaseNamespaceDeleteLastError             = constError("DatabaseNamespaceDeleteLastError")
+	DatabaseNamespaceDeleteWithInstanceError     = constError("DatabaseNamespaceDeleteWithInstanceError")
+	DatabaseNamespaceDuplicateNameError          = constError("DatabaseNamespaceDuplicateNameError")
+	DatabaseNamespaceLookupError                 = constError("DatabaseNamespaceLookupError")
+	DatabaseNamespaceNotFoundError               = constError("DatabaseNamespaceNotFoundError")
+	DatabaseNamespaceSaveError                   = constError("DatabaseNamespaceSaveError")
+	DatabaseQuotaLockFailedError                 = constError("DatabaseQuotaLockFailedError")
+	DatabaseDiskImageNotFoundError               = constError("DatabaseDiskImageNotFoundError")
+	DatabaseDiskImageNotImplementedError         = constError("DatabaseDiskImageNotImplementedError")
+	DatabaseTemplateExistsError                  = constError("DatabaseTemplateExistsError")
+	DatabaseTemplateSaveFailedError              = constError("DatabaseTemplateSaveFailedError")
+	KubernetesClusterInvalidNameError            = constError("KubernetesClusterInvalidNameError")
+
 	AccountNotEnabledIncCardError     = constError("AccountNotEnabledIncCardError")
 	AccountNotEnabledWithoutCardError = constError("AccountNotEnabledWithoutCardError")
 
@@ -936,6 +958,71 @@ func decodeERROR(err error) error {
 		case "account_not_enabled_without_card":
 			err := errors.New(msg.String())
 			return AccountNotEnabledWithoutCardError.wrap(err)
+		case "out_of_capacity":
+			err := errors.New(msg.String())
+			return OutOFCapacityError.wrap(err)
+		case "cannot_get_console":
+			err := errors.New(msg.String())
+			return CannotGetConsoleError.wrap(err)
+		case "database_dns_domain_invalid":
+			err := errors.New(msg.String())
+			return DatabaseDNSDomainInvalidError.wrap(err)
+
+		case "database_firewall_exists":
+			err := errors.New(msg.String())
+			return DatabaseFirewallExistsError.wrap(err)
+		case "database_kubernetes_cluster_no_pools":
+			err := errors.New(msg.String())
+			return DatabaseKubernetesClusterNoPoolsError.wrap(err)
+		case "database_kubernetes_cluster_invalid_version":
+			err := errors.New(msg.String())
+			return DatabaseKubernetesClusterInvalidVersionError.wrap(err)
+		case "database_namespaces_list":
+			err := errors.New(msg.String())
+			return DatabaseNamespacesListError.wrap(err)
+		case "database_namespace_create":
+			err := errors.New(msg.String())
+			return DatabaseNamespaceCreateError.wrap(err)
+		case "database_namespace_exists":
+			err := errors.New(msg.String())
+			return DatabaseNamespaceExistsError.wrap(err)
+		case "database_namespace_delete_last":
+			err := errors.New(msg.String())
+			return DatabaseNamespaceDeleteLastError.wrap(err)
+		case "database_namespace_delete_with_instance":
+			err := errors.New(msg.String())
+			return DatabaseNamespaceDeleteWithInstanceError.wrap(err)
+		case "database_namespace_duplicate_name":
+			err := errors.New(msg.String())
+			return DatabaseNamespaceDuplicateNameError.wrap(err)
+		case "database_namespace_lookup":
+			err := errors.New(msg.String())
+			return DatabaseNamespaceLookupError.wrap(err)
+		case "database_namespace_not_found":
+			err := errors.New(msg.String())
+			return DatabaseNamespaceNotFoundError.wrap(err)
+		case "database_namespace_save":
+			err := errors.New(msg.String())
+			return DatabaseNamespaceSaveError.wrap(err)
+		case "database_quota_lock_failed":
+			err := errors.New(msg.String())
+			return DatabaseQuotaLockFailedError.wrap(err)
+		case "database_disk_image_not_found":
+			err := errors.New(msg.String())
+			return DatabaseDiskImageNotFoundError.wrap(err)
+		case "database_disk_image_not_implemented":
+			err := errors.New(msg.String())
+			return DatabaseDiskImageNotImplementedError.wrap(err)
+		case "database_template_exists":
+			err := errors.New(msg.String())
+			return DatabaseTemplateExistsError.wrap(err)
+		case "database_template_save_failed":
+			err := errors.New(msg.String())
+			return DatabaseTemplateSaveFailedError.wrap(err)
+		case "kubernetes_cluster_invalid_name":
+			err := errors.New(msg.String())
+			return KubernetesClusterInvalidNameError.wrap(err)
+
 		default:
 			return UnknowError
 		}

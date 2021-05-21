@@ -11,10 +11,10 @@ import (
 // Network represents a private network for instances to connect to
 type Network struct {
 	ID      string `json:"id"`
-	Name    string `json:"name"`
-	Default bool   `json:"default"`
-	CIDR    string `json:"cidr"`
-	Label   string `json:"label"`
+	Name    string `json:"name,omitempty"`
+	Default bool   `json:"default,omitempty"`
+	CIDR    string `json:"cidr,omitempty"`
+	Label   string `json:"label,omitempty"`
 }
 
 type networkConfig struct {
