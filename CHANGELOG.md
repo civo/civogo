@@ -1,4 +1,11 @@
 
+0.2.47
+=============
+2021-05-23
+
+* Fixed error in the recycle kuberntes node (d9a041df)
+* Updated the Change log (267f348f)
+
 0.2.46
 =============
 2021-05-21
