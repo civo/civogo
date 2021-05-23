@@ -274,6 +274,7 @@ func (c *Client) DeleteKubernetesCluster(id string) (*SimpleResponse, error) {
 func (c *Client) RecycleKubernetesCluster(id string, hostname string) (*SimpleResponse, error) {
 	body, err := c.SendPostRequest(fmt.Sprintf("/v2/kubernetes/clusters/%s/recycle", id), map[string]string{
 		"hostname": hostname,
+		"region":   c.Region,
 	})
 	if err != nil {
 		return nil, decodeERROR(err)
