@@ -21,6 +21,7 @@ var (
 
 	CivoStatsdRecordFailedError = constError("CivoStatsdRecordFailedError")
 	AuthenticationFailedError   = constError("AuthenticationFailedError")
+	CommonError                 = constError("Error")
 
 	// Volume Error
 	CannotRescueNewVolumeError              = constError("CannotRescueNewVolumeError")
@@ -333,8 +334,13 @@ func decodeERROR(err error) error {
 		errorData := err
 		byt := []byte(errorData.Reason)
 
+		if errorData.Code >= 300 {
+			err := fmt.Errorf(fmt.Sprintf("Unknown error response - status: %s, code: %d, reason: %s", errorData.Status, errorData.Code, errorData.Reason[:10]))
+			return CommonError.wrap(err)
+		}
+
 		if err := json.Unmarshal(byt, &dat); err != nil {
-			err := errors.New("failed to decode the response expected from the API")
+			err := fmt.Errorf("failed to decode the response expected from the API - status: %s, code: %d, reason: %s", errorData.Status, errorData.Code, errorData.Reason[:10])
 			return ResponseDecodeFailedError.wrap(err)
 		}
 
