@@ -1,4 +1,11 @@
 
+0.2.48
+=============
+2021-07-15
+
+* Change de default error in case the error is not in the list (1bf187fd)
+* Added a new error handler (cf996f92)
+
 0.2.47
 =============
 2021-05-23

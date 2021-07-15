@@ -1,3 +1,23 @@
+- semver: 0.2.48
+  date: 2021-07-15T11:53:46.121998+01:00
+  packager: ""
+  changes:
+  - commit: 1bf187fd4a931290d35dd6f958d58a3974b892eb
+    note: Change de default error in case the error is not in the list
+    author:
+      name: Alejandro J. Nuñez Madrazo
+      email: alejandrojnm@gmail.com
+    committer:
+      name: Alejandro J. Nuñez Madrazo
+      email: alejandrojnm@gmail.com
+  - commit: cf996f9295eb3dbd5abf2a86ff9c2e228606a345
+    note: Added a new error handler
+    author:
+      name: Alejandro J. Nuñez Madrazo
+      email: alejandrojnm@gmail.com
+    committer:
+      name: Alejandro J. Nuñez Madrazo
+      email: alejandrojnm@gmail.com
 - semver: 0.2.47
   date: 2021-05-23T13:25:26.738282-04:00
   packager: ""
