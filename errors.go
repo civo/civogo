@@ -1028,9 +1028,9 @@ func decodeERROR(err error) error {
 		case "kubernetes_cluster_invalid_name":
 			err := errors.New(msg.String())
 			return KubernetesClusterInvalidNameError.wrap(err)
-
 		default:
-			return UnknowError
+			err := fmt.Errorf(fmt.Sprintf("Unknown error response - status: %s, code: %d, reason: %s", errorData.Status, errorData.Code, errorData.Reason[:10]))
+			return CommonError.wrap(err)
 		}
 	}
 	return UnknowError
