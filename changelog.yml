@@ -1,3 +1,15 @@
+- semver: 0.2.49
+  date: 2021-07-16T12:30:09.316057+01:00
+  packager: ""
+  changes:
+  - commit: 14fc34c7e36117ef6f157b65f4e2f8b31bce1bb9
+    note: Remove unnecessary code from the error handler file and add new error handler
+    author:
+      name: Alejandro J. Nuñez Madrazo
+      email: alejandrojnm@gmail.com
+    committer:
+      name: Alejandro J. Nuñez Madrazo
+      email: alejandrojnm@gmail.com
 - semver: 0.2.48
   date: 2021-07-15T11:53:46.121998+01:00
   packager: ""

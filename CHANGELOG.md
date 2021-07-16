@@ -1,4 +1,10 @@
 
+0.2.49
+=============
+2021-07-16
+
+* Remove unnecessary code from the error handler file and add new error handler (14fc34c7)
+
 0.2.48
 =============
 2021-07-15
