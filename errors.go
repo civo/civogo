@@ -18,6 +18,7 @@ var (
 	ZeroMatchesError          = constError("ZeroMatchesError")
 	IDisEmptyError            = constError("IDisEmptyError")
 	TimeoutError              = constError("TimeoutError")
+	RegionUnavailableError    = constError("RegionUnavailable")
 
 	CivoStatsdRecordFailedError = constError("CivoStatsdRecordFailedError")
 	AuthenticationFailedError   = constError("AuthenticationFailedError")
@@ -334,13 +335,8 @@ func decodeERROR(err error) error {
 		errorData := err
 		byt := []byte(errorData.Reason)
 
-		if errorData.Code >= 300 {
-			err := fmt.Errorf(fmt.Sprintf("Unknown error response - status: %s, code: %d, reason: %s", errorData.Status, errorData.Code, errorData.Reason[:10]))
-			return CommonError.wrap(err)
-		}
-
 		if err := json.Unmarshal(byt, &dat); err != nil {
-			err := fmt.Errorf("failed to decode the response expected from the API - status: %s, code: %d, reason: %s", errorData.Status, errorData.Code, errorData.Reason[:10])
+			err := fmt.Errorf("failed to decode the response expected from the API - status: %s, code: %d, reason: %s", errorData.Status, errorData.Code, errorData.Reason)
 			return ResponseDecodeFailedError.wrap(err)
 		}
 
@@ -364,6 +360,9 @@ func decodeERROR(err error) error {
 		}
 
 		switch dat["code"] {
+		case "region_unavailable":
+			err := errors.New(msg.String())
+			return RegionUnavailableError.wrap(err)
 		case "database_kubernetes_cluster_invalid":
 			err := errors.New(msg.String())
 			return DatabaseKubernetesClusterInvalidError.wrap(err)
@@ -1029,7 +1028,7 @@ func decodeERROR(err error) error {
 			err := errors.New(msg.String())
 			return KubernetesClusterInvalidNameError.wrap(err)
 		default:
-			err := fmt.Errorf(fmt.Sprintf("Unknown error response - status: %s, code: %d, reason: %s", errorData.Status, errorData.Code, errorData.Reason[:10]))
+			err := fmt.Errorf(fmt.Sprintf("Unknown error response - status: %s, code: %d, reason: %s", errorData.Status, errorData.Code, errorData.Reason))
 			return CommonError.wrap(err)
 		}
 	}
