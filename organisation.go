@@ -1,0 +1,109 @@
+package civogo
+
+import (
+	"bytes"
+	"encoding/json"
+	"time"
+)
+
+// Organisation represents a group of accounts treated as a single entity
+type Organisation struct {
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
+}
+
+// Account is the owner of Civo resources such as instances, Kubernetes clusters, volumes, etc
+// Really the Account should be defined with Account endpoints, but there aren't any that are
+// publicly-useful
+type Account struct {
+	ID              string    `json:"id"`
+	CreatedAt       time.Time `json:"created_at,omitempty"`
+	UpdatedAt       time.Time `json:"updated_at,omitempty"`
+	Label           string    `json:"label,omitempty"`
+	EmailAddress    string    `json:"email_address,omitempty"`
+	ApiKey          string    `json:"api_key,omitempty"`
+	Token           string    `json:"token,omitempty"`
+	Flags           string    `json:"flags,omitempty"`
+	Timezone        string    `json:"timezone,omitempty"`
+	Partner         string    `json:"partner,omitempty"`
+	DefaultUserID   string    `json:"default_user_id,omitempty"`
+	Status          string    `json:"status,omitempty"`
+	EmailConfirmed  bool      `json:"email_confirmed,omitempty"`
+	CreditCardAdded bool      `json:"credit_card_added,omitempty"`
+	Enabled         bool      `json:"enabled,omitempty"`
+}
+
+func (c *Client) GetOrganisation() (*Organisation, error) {
+	resp, err := c.SendGetRequest("/v2/organisation")
+	if err != nil {
+		return nil, decodeERROR(err)
+	}
+
+	organisation := &Organisation{}
+	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(organisation); err != nil {
+		return nil, err
+	}
+
+	return organisation, nil
+}
+
+func (c *Client) CreateOrganisation(name string) (*Organisation, error) {
+	data := map[string]string{"name": name}
+	resp, err := c.SendPostRequest("/v2/organisation", data)
+	if err != nil {
+		return nil, decodeERROR(err)
+	}
+
+	organisation := &Organisation{}
+	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(organisation); err != nil {
+		return nil, err
+	}
+
+	return organisation, nil
+}
+
+func (c *Client) RenameOrganisation(name string) (*Organisation, error) {
+	data := map[string]string{"name": name}
+	resp, err := c.SendPutRequest("/v2/organisation", data)
+	if err != nil {
+		return nil, decodeERROR(err)
+	}
+
+	organisation := &Organisation{}
+	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(organisation); err != nil {
+		return nil, err
+	}
+
+	return organisation, nil
+}
+
+func (c *Client) AddAccountToOrganisation(accountID string) ([]Account, error) {
+	data := map[string]string{"account_id": accountID}
+	resp, err := c.SendPostRequest("/v2/organisation/accounts", data)
+	if err != nil {
+		return nil, decodeERROR(err)
+	}
+
+	accounts := make([]Account, 0)
+	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&accounts); err != nil {
+		return nil, err
+	}
+
+	return accounts, nil
+}
+
+func (c *Client) ListAccountsInOrganisation() ([]Account, error) {
+	resp, err := c.SendGetRequest("/v2/organisation/accounts")
+	if err != nil {
+		return nil, decodeERROR(err)
+	}
+
+	accounts := make([]Account, 0)
+	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&accounts); err != nil {
+		return nil, err
+	}
+
+	return accounts, nil
+}

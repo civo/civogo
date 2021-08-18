@@ -10,24 +10,29 @@ import (
 
 // FakeClient is a temporary storage structure for use when you don't want to communicate with a real Civo API server
 type FakeClient struct {
-	LastID        int64
-	Charges       []Charge
-	Domains       []DNSDomain
-	DomainRecords []DNSRecord
-	Firewalls     []Firewall
-	FirewallRules []FirewallRule
-	InstanceSizes []InstanceSize
-	Instances     []Instance
-	Clusters      []KubernetesCluster
-	LoadBalancers []LoadBalancer
-	Networks      []Network
-	Snapshots     []Snapshot
-	Volumes       []Volume
-	SSHKeys       []SSHKey
-	Webhooks      []Webhook
-	Templates     []Template
-	DiskImage     []DiskImage
-	Quota         Quota
+	LastID                  int64
+	Charges                 []Charge
+	Domains                 []DNSDomain
+	DomainRecords           []DNSRecord
+	Firewalls               []Firewall
+	FirewallRules           []FirewallRule
+	InstanceSizes           []InstanceSize
+	Instances               []Instance
+	Clusters                []KubernetesCluster
+	LoadBalancers           []LoadBalancer
+	Networks                []Network
+	Snapshots               []Snapshot
+	Volumes                 []Volume
+	SSHKeys                 []SSHKey
+	Webhooks                []Webhook
+	Templates               []Template
+	DiskImage               []DiskImage
+	Quota                   Quota
+	Organisation            Organisation
+	OrganisationAccounts    []Account
+	OrganisationRoles       []Role
+	OrganisationTeams       []Team
+	OrganisationTeamMembers map[string][]TeamMember
 }
 
 // Clienter is the interface the real civogo.Client and civogo.FakeClient implement
@@ -236,6 +241,17 @@ func NewFakeClient() (*FakeClient, error) {
 			},
 		},
 	}, nil
+}
+
+func (c *FakeClient) generateID() string {
+	c.LastID++
+	return strconv.FormatInt(c.LastID, 10)
+}
+
+func (c *FakeClient) generatePublicIP() string {
+	s := rand.NewSource(time.Now().UnixNano())
+	r := rand.New(s)
+	return fmt.Sprintf("%v.%v.%v.%v", r.Intn(256), r.Intn(256), r.Intn(256), r.Intn(256))
 }
 
 // ListCharges implemented in a fake way for automated tests
@@ -1262,13 +1278,167 @@ func (c *FakeClient) DeleteWebhook(id string) (*SimpleResponse, error) {
 	return &SimpleResponse{Result: "failed"}, nil
 }
 
-func (c *FakeClient) generateID() string {
-	c.LastID++
-	return strconv.FormatInt(c.LastID, 10)
+// ListPermissions implemented in a fake way for automated tests
+func (c *FakeClient) ListPermissions() ([]Permission, error) {
+	return []Permission{
+		{
+			Name:        "instance.create",
+			Description: "Create Compute instances",
+		},
+		{
+			Name:        "kubernetes.*",
+			Description: "Manage Civo Kubernetes clusters",
+		},
+	}, nil
 }
 
-func (c *FakeClient) generatePublicIP() string {
-	s := rand.NewSource(time.Now().UnixNano())
-	r := rand.New(s)
-	return fmt.Sprintf("%v.%v.%v.%v", r.Intn(256), r.Intn(256), r.Intn(256), r.Intn(256))
+// GetOrganisation implemented in a fake way for automated tests
+func (c *FakeClient) GetOrganisation() (*Organisation, error) {
+	return &c.Organisation, nil
+}
+
+// CreateOrganisation implemented in a fake way for automated tests
+func (c *FakeClient) CreateOrganisation(name string) (*Organisation, error) {
+	c.Organisation.ID = c.generateID()
+	c.Organisation.Name = name
+	return &c.Organisation, nil
+}
+
+// RenameOrganisation implemented in a fake way for automated tests
+func (c *FakeClient) RenameOrganisation(name string) (*Organisation, error) {
+	c.Organisation.Name = name
+	return &c.Organisation, nil
+}
+
+// AddAccountToOrganisation implemented in a fake way for automated tests
+func (c *FakeClient) AddAccountToOrganisation(accountID string) ([]Account, error) {
+	c.OrganisationAccounts = append(c.OrganisationAccounts, Account{
+		ID:        accountID,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	})
+	return c.ListAccountsInOrganisation()
+}
+
+// ListAccountsInOrganisation implemented in a fake way for automated tests
+func (c *FakeClient) ListAccountsInOrganisation() ([]Account, error) {
+	return c.OrganisationAccounts, nil
+}
+
+// ListRoles implemented in a fake way for automated tests
+func (c *FakeClient) ListRoles() ([]Role, error) {
+	return c.OrganisationRoles, nil
+}
+
+// CreateRole implemented in a fake way for automated tests
+func (c *FakeClient) CreateRole(name, permissions string) (*Role, error) {
+	role := Role{
+		ID:          c.generateID(),
+		Name:        name,
+		Permissions: permissions,
+	}
+	c.OrganisationRoles = append(c.OrganisationRoles, role)
+	return &role, nil
+}
+
+// DeleteRole implemented in a fake way for automated tests
+func (c *FakeClient) DeleteRole(id string) (*SimpleResponse, error) {
+	for i, role := range c.OrganisationRoles {
+		if role.ID == id {
+			c.OrganisationRoles[len(c.OrganisationRoles)-1], c.OrganisationRoles[i] = c.OrganisationRoles[i], c.OrganisationRoles[len(c.OrganisationRoles)-1]
+			c.OrganisationRoles = c.OrganisationRoles[:len(c.OrganisationRoles)-1]
+			return &SimpleResponse{Result: "success"}, nil
+		}
+	}
+
+	return &SimpleResponse{Result: "failed"}, fmt.Errorf("Unable to find that role")
+}
+
+// ListTeams implemented in a fake way for automated tests
+func (c *FakeClient) ListTeams() ([]Team, error) {
+	return c.OrganisationTeams, nil
+}
+
+// CreateTeam implemented in a fake way for automated tests
+func (c *FakeClient) CreateTeam(name, organisationID, accountID string) (*Team, error) {
+	team := Team{
+		ID:             c.generateID(),
+		Name:           name,
+		OrganisationID: organisationID,
+		CreatedAt:      time.Time{},
+		UpdatedAt:      time.Time{},
+	}
+	c.OrganisationTeams = append(c.OrganisationTeams, team)
+	return &team, nil
+}
+
+// RenameTeam implemented in a fake way for automated tests
+func (c *FakeClient) RenameTeam(teamID, name string) (*Team, error) {
+	for _, team := range c.OrganisationTeams {
+		if team.ID == teamID {
+			team.Name = name
+			return &team, nil
+		}
+	}
+
+	return nil, fmt.Errorf("Unable to find that role")
+}
+
+// DeleteTeam implemented in a fake way for automated tests
+func (c *FakeClient) DeleteTeam(id string) (*SimpleResponse, error) {
+	for i, team := range c.OrganisationTeams {
+		if team.ID == id {
+			c.OrganisationTeams[len(c.OrganisationTeams)-1], c.OrganisationTeams[i] = c.OrganisationTeams[i], c.OrganisationTeams[len(c.OrganisationTeams)-1]
+			c.OrganisationTeams = c.OrganisationTeams[:len(c.OrganisationTeams)-1]
+			return &SimpleResponse{Result: "success"}, nil
+		}
+	}
+
+	return &SimpleResponse{Result: "failure"}, fmt.Errorf("Unable to find that team")
+}
+
+// GetTeamMembers implemented in a fake way for automated tests
+func (c *FakeClient) ListTeamMembers(teamID string) ([]TeamMember, error) {
+	return c.OrganisationTeamMembers[teamID], nil
+}
+
+// AddTeamMember implemented in a fake way for automated tests
+func (c *FakeClient) AddTeamMember(teamID, userID, permissions, roles string) ([]TeamMember, error) {
+	c.OrganisationTeamMembers[teamID] = append(c.OrganisationTeamMembers[teamID], TeamMember{
+		ID:          c.generateID(),
+		TeamID:      teamID,
+		UserID:      userID,
+		Permissions: permissions,
+		Roles:       roles,
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
+	})
+
+	return c.ListTeamMembers(teamID)
+}
+
+// UpdateTeamMember implemented in a fake way for automated tests
+func (c *FakeClient) UpdateTeamMember(teamID, teamMemberID, permissions, roles string) (*TeamMember, error) {
+	for _, teamMember := range c.OrganisationTeamMembers[teamID] {
+		if teamMember.ID == teamMemberID {
+			teamMember.Permissions = permissions
+			teamMember.Roles = roles
+			return &teamMember, nil
+		}
+	}
+
+	return nil, fmt.Errorf("Unable to find that role")
+}
+
+// RemoveTeamMember implemented in a fake way for automated tests
+func (c *FakeClient) RemoveTeamMember(teamID, teamMemberID string) (*SimpleResponse, error) {
+	for i, teamMember := range c.OrganisationTeamMembers[teamID] {
+		if teamMember.ID == teamMemberID {
+			c.OrganisationTeamMembers[teamID][len(c.OrganisationTeamMembers[teamID])-1], c.OrganisationTeamMembers[teamID][i] = c.OrganisationTeamMembers[teamID][i], c.OrganisationTeamMembers[teamID][len(c.OrganisationTeamMembers[teamID])-1]
+			c.OrganisationTeamMembers[teamID] = c.OrganisationTeamMembers[teamID][:len(c.OrganisationTeamMembers[teamID])-1]
+			return &SimpleResponse{Result: "success"}, nil
+		}
+	}
+
+	return &SimpleResponse{Result: "failure"}, fmt.Errorf("Unable to find that team member")
 }
