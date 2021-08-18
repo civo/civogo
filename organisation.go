@@ -23,7 +23,7 @@ type Account struct {
 	UpdatedAt       time.Time `json:"updated_at,omitempty"`
 	Label           string    `json:"label,omitempty"`
 	EmailAddress    string    `json:"email_address,omitempty"`
-	ApiKey          string    `json:"api_key,omitempty"`
+	APIKey          string    `json:"api_key,omitempty"`
 	Token           string    `json:"token,omitempty"`
 	Flags           string    `json:"flags,omitempty"`
 	Timezone        string    `json:"timezone,omitempty"`
@@ -35,6 +35,7 @@ type Account struct {
 	Enabled         bool      `json:"enabled,omitempty"`
 }
 
+// GetOrganisation returns the organisation associated with the current account
 func (c *Client) GetOrganisation() (*Organisation, error) {
 	resp, err := c.SendGetRequest("/v2/organisation")
 	if err != nil {
@@ -49,6 +50,7 @@ func (c *Client) GetOrganisation() (*Organisation, error) {
 	return organisation, nil
 }
 
+// CreateOrganisation creates an organisation with the current account as the only linked member (errors if it's already linked)
 func (c *Client) CreateOrganisation(name string) (*Organisation, error) {
 	data := map[string]string{"name": name}
 	resp, err := c.SendPostRequest("/v2/organisation", data)
@@ -64,6 +66,7 @@ func (c *Client) CreateOrganisation(name string) (*Organisation, error) {
 	return organisation, nil
 }
 
+// RenameOrganisation changes the human set name of the organisation (e.g. for re-branding efforts)
 func (c *Client) RenameOrganisation(name string) (*Organisation, error) {
 	data := map[string]string{"name": name}
 	resp, err := c.SendPutRequest("/v2/organisation", data)
@@ -79,6 +82,7 @@ func (c *Client) RenameOrganisation(name string) (*Organisation, error) {
 	return organisation, nil
 }
 
+// AddAccountToOrganisation sets the link between second, third, etc accounts and the existing organisation
 func (c *Client) AddAccountToOrganisation(accountID string) ([]Account, error) {
 	data := map[string]string{"account_id": accountID}
 	resp, err := c.SendPostRequest("/v2/organisation/accounts", data)
@@ -94,6 +98,7 @@ func (c *Client) AddAccountToOrganisation(accountID string) ([]Account, error) {
 	return accounts, nil
 }
 
+// ListAccountsInOrganisation returns all the accounts in the current account's organisation
 func (c *Client) ListAccountsInOrganisation() ([]Account, error) {
 	resp, err := c.SendGetRequest("/v2/organisation/accounts")
 	if err != nil {

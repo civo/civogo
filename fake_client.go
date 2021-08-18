@@ -1397,7 +1397,7 @@ func (c *FakeClient) DeleteTeam(id string) (*SimpleResponse, error) {
 	return &SimpleResponse{Result: "failure"}, fmt.Errorf("Unable to find that team")
 }
 
-// GetTeamMembers implemented in a fake way for automated tests
+// ListTeamMembers implemented in a fake way for automated tests
 func (c *FakeClient) ListTeamMembers(teamID string) ([]TeamMember, error) {
 	return c.OrganisationTeamMembers[teamID], nil
 }

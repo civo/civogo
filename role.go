@@ -16,6 +16,7 @@ type Role struct {
 	UpdatedAt   time.Time `json:"updated_at,omitempty"`
 }
 
+// ListRoles returns all roles (built-in and user defined)
 func (c *Client) ListRoles() ([]Role, error) {
 	resp, err := c.SendGetRequest("/v2/roles")
 	if err != nil {
@@ -30,6 +31,7 @@ func (c *Client) ListRoles() ([]Role, error) {
 	return roles, nil
 }
 
+// CreateRole creates a new role with a set of permissions for use within an organisation
 func (c *Client) CreateRole(name, permissions string) (*Role, error) {
 	data := map[string]string{"name": name, "permissions": permissions}
 	resp, err := c.SendPostRequest("/v2/roles", data)
@@ -45,6 +47,7 @@ func (c *Client) CreateRole(name, permissions string) (*Role, error) {
 	return role, nil
 }
 
+// DeleteRole removes a non-built-in role from an organisation
 func (c *Client) DeleteRole(id string) (*SimpleResponse, error) {
 	resp, err := c.SendDeleteRequest("/v2/roles/" + id)
 	if err != nil {

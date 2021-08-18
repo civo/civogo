@@ -11,6 +11,7 @@ type Permission struct {
 	Description string `json:"description,omitempty"`
 }
 
+// ListPermissions returns all permissions available to be assigned to team member
 func (c *Client) ListPermissions() ([]Permission, error) {
 	resp, err := c.SendGetRequest("/v2/permissions")
 	if err != nil {
