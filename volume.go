@@ -46,7 +46,7 @@ type VolumeConfig struct {
 func (c *Client) ListVolumes() ([]Volume, error) {
 	resp, err := c.SendGetRequest("/v2/volumes")
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	var volumes = make([]Volume, 0)
@@ -61,7 +61,7 @@ func (c *Client) ListVolumes() ([]Volume, error) {
 func (c *Client) GetVolume(id string) (*Volume, error) {
 	resp, err := c.SendGetRequest(fmt.Sprintf("/v2/volumes/%s", id))
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	var volume = Volume{}
@@ -76,7 +76,7 @@ func (c *Client) GetVolume(id string) (*Volume, error) {
 func (c *Client) FindVolume(search string) (*Volume, error) {
 	volumes, err := c.ListVolumes()
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	exactMatch := false
@@ -111,7 +111,7 @@ func (c *Client) FindVolume(search string) (*Volume, error) {
 func (c *Client) NewVolume(v *VolumeConfig) (*VolumeResult, error) {
 	body, err := c.SendPostRequest("/v2/volumes/", v)
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	var result = &VolumeResult{}
@@ -129,7 +129,7 @@ func (c *Client) ResizeVolume(id string, size int) (*SimpleResponse, error) {
 		"size_gb": size,
 	})
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	response, err := c.DecodeSimpleResponse(resp)
@@ -144,7 +144,7 @@ func (c *Client) AttachVolume(id string, instance string) (*SimpleResponse, erro
 		"region":      c.Region,
 	})
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	response, err := c.DecodeSimpleResponse(resp)
@@ -158,7 +158,7 @@ func (c *Client) DetachVolume(id string) (*SimpleResponse, error) {
 		"region": c.Region,
 	})
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	response, err := c.DecodeSimpleResponse(resp)
@@ -170,7 +170,7 @@ func (c *Client) DetachVolume(id string) (*SimpleResponse, error) {
 func (c *Client) DeleteVolume(id string) (*SimpleResponse, error) {
 	resp, err := c.SendDeleteRequest(fmt.Sprintf("/v2/volumes/%s", id))
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	return c.DecodeSimpleResponse(resp)

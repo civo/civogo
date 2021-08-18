@@ -23,7 +23,7 @@ type InstanceSize struct {
 func (c *Client) ListInstanceSizes() ([]InstanceSize, error) {
 	resp, err := c.SendGetRequest("/v2/sizes")
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	sizes := make([]InstanceSize, 0)
@@ -38,7 +38,7 @@ func (c *Client) ListInstanceSizes() ([]InstanceSize, error) {
 func (c *Client) FindInstanceSizes(search string) (*InstanceSize, error) {
 	instanceSize, err := c.ListInstanceSizes()
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	exactMatch := false

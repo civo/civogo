@@ -83,7 +83,7 @@ func (c *Client) ListDNSDomains() ([]DNSDomain, error) {
 
 	resp, err := c.SendGetRequest(url)
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	var domains = make([]DNSDomain, 0)
@@ -99,7 +99,7 @@ func (c *Client) ListDNSDomains() ([]DNSDomain, error) {
 func (c *Client) FindDNSDomain(search string) (*DNSDomain, error) {
 	domains, err := c.ListDNSDomains()
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	exactMatch := false
@@ -135,7 +135,7 @@ func (c *Client) CreateDNSDomain(name string) (*DNSDomain, error) {
 	d := &dnsDomainConfig{Name: name}
 	body, err := c.SendPostRequest(url, d)
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	var n = &DNSDomain{}
@@ -150,7 +150,7 @@ func (c *Client) CreateDNSDomain(name string) (*DNSDomain, error) {
 func (c *Client) GetDNSDomain(name string) (*DNSDomain, error) {
 	ds, err := c.ListDNSDomains()
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	for _, d := range ds {
@@ -168,7 +168,7 @@ func (c *Client) UpdateDNSDomain(d *DNSDomain, name string) (*DNSDomain, error) 
 	dc := &dnsDomainConfig{Name: name}
 	body, err := c.SendPutRequest(url, dc)
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	var r = &DNSDomain{}
@@ -184,7 +184,7 @@ func (c *Client) DeleteDNSDomain(d *DNSDomain) (*SimpleResponse, error) {
 	url := fmt.Sprintf("/v2/dns/%s", d.ID)
 	resp, err := c.SendDeleteRequest(url)
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	return c.DecodeSimpleResponse(resp)
@@ -199,7 +199,7 @@ func (c *Client) CreateDNSRecord(domainID string, r *DNSRecordConfig) (*DNSRecor
 	url := fmt.Sprintf("/v2/dns/%s/records", domainID)
 	body, err := c.SendPostRequest(url, r)
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	var record = &DNSRecord{}
@@ -215,7 +215,7 @@ func (c *Client) ListDNSRecords(dnsDomainID string) ([]DNSRecord, error) {
 	url := fmt.Sprintf("/v2/dns/%s/records", dnsDomainID)
 	resp, err := c.SendGetRequest(url)
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	var rs = make([]DNSRecord, 0)
@@ -231,7 +231,7 @@ func (c *Client) ListDNSRecords(dnsDomainID string) ([]DNSRecord, error) {
 func (c *Client) GetDNSRecord(domainID, domainRecordID string) (*DNSRecord, error) {
 	rs, err := c.ListDNSRecords(domainID)
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	for _, r := range rs {
@@ -248,7 +248,7 @@ func (c *Client) UpdateDNSRecord(r *DNSRecord, rc *DNSRecordConfig) (*DNSRecord,
 	url := fmt.Sprintf("/v2/dns/%s/records/%s", r.DNSDomainID, r.ID)
 	body, err := c.SendPutRequest(url, rc)
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	var dnsRecord = &DNSRecord{}
@@ -274,7 +274,7 @@ func (c *Client) DeleteDNSRecord(r *DNSRecord) (*SimpleResponse, error) {
 	url := fmt.Sprintf("/v2/dns/%s/records/%s", r.DNSDomainID, r.ID)
 	resp, err := c.SendDeleteRequest(url)
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	return c.DecodeSimpleResponse(resp)

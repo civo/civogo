@@ -23,7 +23,7 @@ func (c *Client) ListSSHKeys() ([]SSHKey, error) {
 
 	sshKeys := make([]SSHKey, 0)
 	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&sshKeys); err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	return sshKeys, nil
@@ -36,7 +36,7 @@ func (c *Client) NewSSHKey(name string, publicKey string) (*SimpleResponse, erro
 		"public_key": publicKey,
 	})
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	return c.DecodeSimpleResponse(resp)
@@ -48,7 +48,7 @@ func (c *Client) UpdateSSHKey(name string, sshKeyID string) (*SSHKey, error) {
 		"name": name,
 	})
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	result := &SSHKey{}
@@ -63,7 +63,7 @@ func (c *Client) UpdateSSHKey(name string, sshKeyID string) (*SSHKey, error) {
 func (c *Client) FindSSHKey(search string) (*SSHKey, error) {
 	keys, err := c.ListSSHKeys()
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	exactMatch := false
@@ -97,7 +97,7 @@ func (c *Client) FindSSHKey(search string) (*SSHKey, error) {
 func (c *Client) DeleteSSHKey(id string) (*SimpleResponse, error) {
 	resp, err := c.SendDeleteRequest(fmt.Sprintf("/v2/sshkeys/%s", id))
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	return c.DecodeSimpleResponse(resp)

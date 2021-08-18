@@ -40,7 +40,7 @@ type Quota struct {
 func (c *Client) GetQuota() (*Quota, error) {
 	resp, err := c.SendGetRequest("/v2/quota")
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	var quota Quota

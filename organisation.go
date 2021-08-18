@@ -38,7 +38,7 @@ type Account struct {
 func (c *Client) GetOrganisation() (*Organisation, error) {
 	resp, err := c.SendGetRequest("/v2/organisation")
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	organisation := &Organisation{}
@@ -53,7 +53,7 @@ func (c *Client) CreateOrganisation(name string) (*Organisation, error) {
 	data := map[string]string{"name": name}
 	resp, err := c.SendPostRequest("/v2/organisation", data)
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	organisation := &Organisation{}
@@ -68,7 +68,7 @@ func (c *Client) RenameOrganisation(name string) (*Organisation, error) {
 	data := map[string]string{"name": name}
 	resp, err := c.SendPutRequest("/v2/organisation", data)
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	organisation := &Organisation{}
@@ -83,7 +83,7 @@ func (c *Client) AddAccountToOrganisation(accountID string) ([]Account, error) {
 	data := map[string]string{"account_id": accountID}
 	resp, err := c.SendPostRequest("/v2/organisation/accounts", data)
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	accounts := make([]Account, 0)
@@ -97,7 +97,7 @@ func (c *Client) AddAccountToOrganisation(accountID string) ([]Account, error) {
 func (c *Client) ListAccountsInOrganisation() ([]Account, error) {
 	resp, err := c.SendGetRequest("/v2/organisation/accounts")
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	accounts := make([]Account, 0)

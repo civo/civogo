@@ -14,7 +14,7 @@ type Permission struct {
 func (c *Client) ListPermissions() ([]Permission, error) {
 	resp, err := c.SendGetRequest("/v2/permissions")
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	permissions := make([]Permission, 0)

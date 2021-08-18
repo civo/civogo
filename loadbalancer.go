@@ -60,12 +60,12 @@ type LoadBalancerConfig struct {
 func (c *Client) ListLoadBalancers() ([]LoadBalancer, error) {
 	resp, err := c.SendGetRequest("/v2/loadbalancers")
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	loadbalancer := make([]LoadBalancer, 0)
 	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&loadbalancer); err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	return loadbalancer, nil
@@ -75,7 +75,7 @@ func (c *Client) ListLoadBalancers() ([]LoadBalancer, error) {
 func (c *Client) FindLoadBalancer(search string) (*LoadBalancer, error) {
 	lbs, err := c.ListLoadBalancers()
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	exactMatch := false
@@ -109,7 +109,7 @@ func (c *Client) FindLoadBalancer(search string) (*LoadBalancer, error) {
 func (c *Client) CreateLoadBalancer(r *LoadBalancerConfig) (*LoadBalancer, error) {
 	body, err := c.SendPostRequest("/v2/loadbalancers", r)
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	loadbalancer := &LoadBalancer{}
@@ -124,7 +124,7 @@ func (c *Client) CreateLoadBalancer(r *LoadBalancerConfig) (*LoadBalancer, error
 func (c *Client) UpdateLoadBalancer(id string, r *LoadBalancerConfig) (*LoadBalancer, error) {
 	body, err := c.SendPutRequest(fmt.Sprintf("/v2/loadbalancers/%s", id), r)
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	loadbalancer := &LoadBalancer{}
@@ -139,7 +139,7 @@ func (c *Client) UpdateLoadBalancer(id string, r *LoadBalancerConfig) (*LoadBala
 func (c *Client) DeleteLoadBalancer(id string) (*SimpleResponse, error) {
 	resp, err := c.SendDeleteRequest(fmt.Sprintf("/v2/loadbalancers/%s", id))
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	return c.DecodeSimpleResponse(resp)

@@ -36,7 +36,7 @@ type SnapshotConfig struct {
 func (c *Client) CreateSnapshot(name string, r *SnapshotConfig) (*Snapshot, error) {
 	body, err := c.SendPutRequest(fmt.Sprintf("/v2/snapshots/%s", name), r)
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	var n = &Snapshot{}
@@ -51,7 +51,7 @@ func (c *Client) CreateSnapshot(name string, r *SnapshotConfig) (*Snapshot, erro
 func (c *Client) ListSnapshots() ([]Snapshot, error) {
 	resp, err := c.SendGetRequest("/v2/snapshots")
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	snapshots := make([]Snapshot, 0)
@@ -66,7 +66,7 @@ func (c *Client) ListSnapshots() ([]Snapshot, error) {
 func (c *Client) FindSnapshot(search string) (*Snapshot, error) {
 	snapshots, err := c.ListSnapshots()
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	exactMatch := false
@@ -100,7 +100,7 @@ func (c *Client) FindSnapshot(search string) (*Snapshot, error) {
 func (c *Client) DeleteSnapshot(name string) (*SimpleResponse, error) {
 	resp, err := c.SendDeleteRequest(fmt.Sprintf("/v2/snapshots/%s", name))
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	return c.DecodeSimpleResponse(resp)

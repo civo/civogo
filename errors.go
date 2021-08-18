@@ -268,7 +268,7 @@ var (
 	AccountNotEnabledIncCardError     = constError("AccountNotEnabledIncCardError")
 	AccountNotEnabledWithoutCardError = constError("AccountNotEnabledWithoutCardError")
 
-	UnknowError         = constError("UnknownError")
+	UnknownError        = constError("UnknownError")
 	AuthenticationError = constError("AuthenticationError")
 	InternalServerError = constError("InternalServerError")
 )
@@ -309,9 +309,8 @@ func (err wrapError) Is(target error) bool {
 	return constError(err.msg).Is(target)
 }
 
-func decodeERROR(err error) error {
-
-	var dat map[string]interface{}
+func decodeError(err error) error {
+	var response map[string]interface{}
 	var msg strings.Builder
 
 	switch err := err.(type) {
@@ -333,33 +332,33 @@ func decodeERROR(err error) error {
 		return err
 	case HTTPError:
 		errorData := err
-		byt := []byte(errorData.Reason)
+		reason := []byte(errorData.Reason)
 
-		if err := json.Unmarshal(byt, &dat); err != nil {
+		if err := json.Unmarshal(reason, &response); err != nil {
 			err := fmt.Errorf("failed to decode the response expected from the API - status: %s, code: %d, reason: %s", errorData.Status, errorData.Code, errorData.Reason)
 			return ResponseDecodeFailedError.wrap(err)
 		}
 
-		if _, ok := dat["status"].(float64); ok {
-			if dat["status"].(float64) == 500 {
+		if _, ok := response["status"].(float64); ok {
+			if response["status"].(float64) == 500 {
 				err := errors.New("internal Server Error")
 				return InternalServerError.wrap(err)
 			}
 		}
 
-		if dat["result"] == "requires_authentication" {
+		if response["result"] == "requires_authentication" {
 			err := errors.New("authentication Error")
 			return AuthenticationError.wrap(err)
 		}
 
-		if _, ok := dat["reason"]; ok {
-			msg.WriteString(dat["reason"].(string))
-			if _, ok := dat["details"]; ok {
-				msg.WriteString(", " + dat["details"].(string))
+		if _, ok := response["reason"]; ok {
+			msg.WriteString(response["reason"].(string))
+			if _, ok := response["details"]; ok {
+				msg.WriteString(", " + response["details"].(string))
 			}
 		}
 
-		switch dat["code"] {
+		switch response["code"] {
 		case "region_unavailable":
 			err := errors.New(msg.String())
 			return RegionUnavailableError.wrap(err)
@@ -1032,5 +1031,5 @@ func decodeERROR(err error) error {
 			return CommonError.wrap(err)
 		}
 	}
-	return UnknowError
+	return UnknownError
 }

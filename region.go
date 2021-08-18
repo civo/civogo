@@ -30,7 +30,7 @@ type Feature struct {
 func (c *Client) ListRegions() ([]Region, error) {
 	resp, err := c.SendGetRequest("/v2/regions")
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	regions := make([]Region, 0)
@@ -45,7 +45,7 @@ func (c *Client) ListRegions() ([]Region, error) {
 func (c *Client) FindRegion(search string) (*Region, error) {
 	allregion, err := c.ListRegions()
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	exactMatch := false
@@ -83,7 +83,7 @@ func (c *Client) FindRegion(search string) (*Region, error) {
 func (c *Client) GetDefaultRegion() (*Region, error) {
 	allregion, err := c.ListRegions()
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	for _, region := range allregion {

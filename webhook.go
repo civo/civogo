@@ -29,7 +29,7 @@ type WebhookConfig struct {
 func (c *Client) CreateWebhook(r *WebhookConfig) (*Webhook, error) {
 	body, err := c.SendPostRequest("/v2/webhooks", r)
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	var n = &Webhook{}
@@ -44,7 +44,7 @@ func (c *Client) CreateWebhook(r *WebhookConfig) (*Webhook, error) {
 func (c *Client) ListWebhooks() ([]Webhook, error) {
 	resp, err := c.SendGetRequest("/v2/webhooks")
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	webhook := make([]Webhook, 0)
@@ -59,7 +59,7 @@ func (c *Client) ListWebhooks() ([]Webhook, error) {
 func (c *Client) FindWebhook(search string) (*Webhook, error) {
 	webhooks, err := c.ListWebhooks()
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	exactMatch := false
@@ -93,7 +93,7 @@ func (c *Client) FindWebhook(search string) (*Webhook, error) {
 func (c *Client) UpdateWebhook(id string, r *WebhookConfig) (*Webhook, error) {
 	body, err := c.SendPutRequest(fmt.Sprintf("/v2/webhooks/%s", id), r)
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	var n = &Webhook{}
@@ -108,7 +108,7 @@ func (c *Client) UpdateWebhook(id string, r *WebhookConfig) (*Webhook, error) {
 func (c *Client) DeleteWebhook(id string) (*SimpleResponse, error) {
 	resp, err := c.SendDeleteRequest(fmt.Sprintf("/v2/webhooks/%s", id))
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	return c.DecodeSimpleResponse(resp)

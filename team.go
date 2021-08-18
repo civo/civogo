@@ -29,7 +29,7 @@ type TeamMember struct {
 func (c *Client) ListTeams() ([]Team, error) {
 	resp, err := c.SendGetRequest("/v2/teams")
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	teams := make([]Team, 0)
@@ -44,7 +44,7 @@ func (c *Client) CreateTeam(name, organisationID, accountID string) (*Team, erro
 	data := map[string]string{"name": name, "organisation_id": organisationID, "account_id": accountID}
 	resp, err := c.SendPostRequest("/v2/teams", data)
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	team := &Team{}
@@ -59,7 +59,7 @@ func (c *Client) RenameTeam(teamID, name string) (*Team, error) {
 	data := map[string]string{"name": name}
 	resp, err := c.SendPutRequest("/v2/teams/"+teamID, data)
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	team := &Team{}
@@ -73,7 +73,7 @@ func (c *Client) RenameTeam(teamID, name string) (*Team, error) {
 func (c *Client) DeleteTeam(id string) (*SimpleResponse, error) {
 	resp, err := c.SendDeleteRequest("/v2/teams/" + id)
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	return c.DecodeSimpleResponse(resp)
@@ -82,7 +82,7 @@ func (c *Client) DeleteTeam(id string) (*SimpleResponse, error) {
 func (c *Client) ListTeamMembers(teamID string) ([]TeamMember, error) {
 	resp, err := c.SendGetRequest("/v2/teams/" + teamID + "/members")
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	teamMembers := make([]TeamMember, 0)
@@ -97,7 +97,7 @@ func (c *Client) AddTeamMember(teamID, userID, permissions, roles string) ([]Tea
 	data := map[string]string{"user_id": userID, "permissions": permissions, "roles": roles}
 	_, err := c.SendPostRequest("/v2/teams/"+teamID+"/members", data)
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	return c.ListTeamMembers(teamID)
@@ -107,7 +107,7 @@ func (c *Client) UpdateTeamMember(teamID, teamMemberID, permissions, roles strin
 	data := map[string]string{"permissions": permissions, "roles": roles}
 	resp, err := c.SendPostRequest("/v2/teams/"+teamID+"/members/"+teamMemberID, data)
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	teamMember := &TeamMember{}
@@ -121,7 +121,7 @@ func (c *Client) UpdateTeamMember(teamID, teamMemberID, permissions, roles strin
 func (c *Client) RemoveTeamMember(teamID, teamMemberID string) (*SimpleResponse, error) {
 	resp, err := c.SendDeleteRequest("/v2/teams/" + teamID + "/members/" + teamMemberID)
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	return c.DecodeSimpleResponse(resp)

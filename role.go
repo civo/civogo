@@ -19,7 +19,7 @@ type Role struct {
 func (c *Client) ListRoles() ([]Role, error) {
 	resp, err := c.SendGetRequest("/v2/roles")
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	roles := make([]Role, 0)
@@ -34,7 +34,7 @@ func (c *Client) CreateRole(name, permissions string) (*Role, error) {
 	data := map[string]string{"name": name, "permissions": permissions}
 	resp, err := c.SendPostRequest("/v2/roles", data)
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	role := &Role{}
@@ -48,7 +48,7 @@ func (c *Client) CreateRole(name, permissions string) (*Role, error) {
 func (c *Client) DeleteRole(id string) (*SimpleResponse, error) {
 	resp, err := c.SendDeleteRequest("/v2/roles/" + id)
 	if err != nil {
-		return nil, decodeERROR(err)
+		return nil, decodeError(err)
 	}
 
 	return c.DecodeSimpleResponse(resp)
