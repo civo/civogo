@@ -1,3 +1,44 @@
+- semver: 0.2.50
+  date: 2021-08-20T12:23:36.242834+08:00
+  packager: ""
+  changes:
+  - commit: 4a2e2643ca1789e4872237e0835846aaa665ac5c
+    note: |-
+      Exclude disk images with name containing "k3s" (#58)
+
+      * Exclude disk images with name containing "k3s"
+
+      * Update test for list disk images
+    author:
+      name: Zulh
+      email: 75463191+zulh-civo@users.noreply.github.com
+    committer:
+      name: GitHub
+      email: noreply@github.com
+  - commit: 51b3d43babc815cc240d6c99501db78a4c378050
+    note: Fix lint issues
+    author:
+      name: Andy Jeffries
+      email: andy@andyjeffries.co.uk
+    committer:
+      name: Andy Jeffries
+      email: andy@andyjeffries.co.uk
+  - commit: cd1195dfa60d57e1da591963430e0c09f2df95dd
+    note: Fixing capitalisation of decodeERROR to go standards and UnknowError typo
+    author:
+      name: Andy Jeffries
+      email: andy@andyjeffries.co.uk
+    committer:
+      name: Andy Jeffries
+      email: andy@andyjeffries.co.uk
+  - commit: e0bec13da9a80fa3918a011714ced02afd539c55
+    note: Add endpoints for team/permission management
+    author:
+      name: Andy Jeffries
+      email: andy@andyjeffries.co.uk
+    committer:
+      name: Andy Jeffries
+      email: andy@andyjeffries.co.uk
 - semver: 0.2.49
   date: 2021-07-16T12:30:09.316057+01:00
   packager: ""

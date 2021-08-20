@@ -1,4 +1,13 @@
 
+0.2.50
+=============
+2021-08-20
+
+* Exclude disk images with name containing "k3s" (#58) (4a2e2643)
+* Fix lint issues (51b3d43b)
+* Fixing capitalisation of decodeERROR to go standards and UnknowError typo (cd1195df)
+* Add endpoints for team/permission management (e0bec13d)
+
 0.2.49
 =============
 2021-07-16
