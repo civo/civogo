@@ -1,4 +1,10 @@
 
+0.2.51
+=============
+2021-08-20
+
+* Add firewall ID to instance config (for creating instance) (#59) (63eb8ece)
+
 0.2.50
 =============
 2021-08-20

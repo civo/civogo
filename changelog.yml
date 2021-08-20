@@ -1,3 +1,15 @@
+- semver: 0.2.51
+  date: 2021-08-20T12:14:51.369192+01:00
+  packager: ""
+  changes:
+  - commit: 63eb8ecec32ae5be6e9f6d0ceb2c13b16d1bb267
+    note: Add firewall ID to instance config (for creating instance) (#59)
+    author:
+      name: Zulh
+      email: 75463191+zulh-civo@users.noreply.github.com
+    committer:
+      name: GitHub
+      email: noreply@github.com
 - semver: 0.2.50
   date: 2021-08-20T12:23:36.242834+08:00
   packager: ""
