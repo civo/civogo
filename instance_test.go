@@ -127,6 +127,9 @@ func TestNewInstanceConfig(t *testing.T) {
 	if got.Count != 1 {
 		t.Errorf("Expected %d, got %d", 1, got.Count)
 	}
+	if got.FirewallID != "" {
+		t.Errorf("Expected firewall ID to be blank, but got %s", got.FirewallID)
+	}
 }
 
 func TestCreateInstance(t *testing.T) {

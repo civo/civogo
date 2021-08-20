@@ -82,6 +82,7 @@ type InstanceConfig struct {
 	Script           string   `json:"script"`
 	Tags             []string `json:"-"`
 	TagsList         string   `json:"tags"`
+	FirewallID       string   `json:"firewall_id"`
 }
 
 // ListInstances returns a page of Instances owned by the calling API account
@@ -183,6 +184,7 @@ func (c *Client) NewInstanceConfig() (*InstanceConfig, error) {
 		SSHKeyID:         "",
 		Script:           "",
 		Tags:             []string{""},
+		FirewallID:       "",
 	}, nil
 }
 
