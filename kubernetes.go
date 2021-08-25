@@ -107,6 +107,9 @@ type KubernetesClusterConfig struct {
 	Tags              string                        `json:"tags,omitempty"`
 	Pools             []KubernetesClusterPoolConfig `json:"pools,omitempty"`
 	Applications      string                        `json:"applications,omitempty"`
+	InstanceFirewall  string                        `json:"instance_firewall,omitempty"`
+	FirewallRule      []string                      `json:"firewall_rule,omitempty"`
+	CurrentIP         string                        `json:"current_ip,omitempty"`
 }
 
 //KubernetesClusterPoolConfig is used to create a new cluster pool
