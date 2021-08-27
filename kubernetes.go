@@ -85,6 +85,7 @@ type KubernetesCluster struct {
 	Instances             []KubernetesInstance             `json:"instances,omitempty"`
 	Pools                 []KubernetesPool                 `json:"pools,omitempty"`
 	InstalledApplications []KubernetesInstalledApplication `json:"installed_applications,omitempty"`
+	FirewallID            string                           `json:"firewall_id,omitempty"`
 }
 
 // PaginatedKubernetesClusters is a Kubernetes k3s cluster
