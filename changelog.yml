@@ -1,3 +1,30 @@
+- semver: 0.2.52
+  date: 2021-08-30T17:14:48.6307+08:00
+  packager: ""
+  changes:
+  - commit: d69977c64e9f3f1d6157a803959f9080604719ec
+    note: |-
+      Add new struct fields for cluster firewall (#60)
+
+      * Add new struct fields for cluster firewall
+
+      * Add firewall ID to Kubernetes cluster response struct
+
+      * Update KubernetesClusterConfig struct to match with latest create cluster API
+    author:
+      name: Zulh
+      email: 75463191+zulh-civo@users.noreply.github.com
+    committer:
+      name: GitHub
+      email: noreply@github.com
+  - commit: 6f7d2d147b622a300b893e827763ddd1f112172d
+    note: Update the changelog
+    author:
+      name: Alejandro J. Nuñez Madrazo
+      email: alejandrojnm@gmail.com
+    committer:
+      name: Alejandro J. Nuñez Madrazo
+      email: alejandrojnm@gmail.com
 - semver: 0.2.51
   date: 2021-08-20T12:14:51.369192+01:00
   packager: ""

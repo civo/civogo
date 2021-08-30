@@ -1,4 +1,11 @@
 
+0.2.52
+=============
+2021-08-30
+
+* Add new struct fields for cluster firewall (#60) (d69977c6)
+* Update the changelog (6f7d2d14)
+
 0.2.51
 =============
 2021-08-20
