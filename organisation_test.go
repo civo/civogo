@@ -63,11 +63,11 @@ func TestRenameOrganisation(t *testing.T) {
 
 func TestAddAccountToOrganisation(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
-		"/v2/organisation/accounts": `[{"id":"abcde"}]`,
+		"/v2/organisation/accounts": `[{"id":"abcde", "token":"fghij"}]`,
 	})
 	defer server.Close()
 
-	got, err := client.AddAccountToOrganisation("abcde")
+	got, err := client.AddAccountToOrganisation("abcde", "fghij")
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return

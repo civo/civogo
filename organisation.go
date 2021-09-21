@@ -10,6 +10,7 @@ import (
 type Organisation struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
+	Token     string    `json:"token"`
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 }
@@ -83,8 +84,8 @@ func (c *Client) RenameOrganisation(name string) (*Organisation, error) {
 }
 
 // AddAccountToOrganisation sets the link between second, third, etc accounts and the existing organisation
-func (c *Client) AddAccountToOrganisation(accountID string) ([]Account, error) {
-	data := map[string]string{"account_id": accountID}
+func (c *Client) AddAccountToOrganisation(organisationID, organisationToken string) ([]Account, error) {
+	data := map[string]string{"organisation_id": organisationID, "organisation_token": organisationToken}
 	resp, err := c.SendPostRequest("/v2/organisation/accounts", data)
 	if err != nil {
 		return nil, decodeError(err)
