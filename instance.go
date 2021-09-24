@@ -258,7 +258,9 @@ func (c *Client) RebootInstance(id string) (*SimpleResponse, error) {
 
 // HardRebootInstance harshly reboots an instance (like shutting the power off and booting it again)
 func (c *Client) HardRebootInstance(id string) (*SimpleResponse, error) {
-	resp, err := c.SendPostRequest(fmt.Sprintf("/v2/instances/%s/hard_reboots", id), "")
+	resp, err := c.SendPostRequest(fmt.Sprintf("/v2/instances/%s/hard_reboots", id), map[string]string{
+		"region": c.Region,
+	})
 	if err != nil {
 		return nil, decodeError(err)
 	}
@@ -269,7 +271,9 @@ func (c *Client) HardRebootInstance(id string) (*SimpleResponse, error) {
 
 // SoftRebootInstance requests the VM to shut down nicely
 func (c *Client) SoftRebootInstance(id string) (*SimpleResponse, error) {
-	resp, err := c.SendPostRequest(fmt.Sprintf("/v2/instances/%s/soft_reboots", id), "")
+	resp, err := c.SendPostRequest(fmt.Sprintf("/v2/instances/%s/soft_reboots", id), map[string]string{
+		"region": c.Region,
+	})
 	if err != nil {
 		return nil, decodeError(err)
 	}
@@ -280,7 +284,9 @@ func (c *Client) SoftRebootInstance(id string) (*SimpleResponse, error) {
 
 // StopInstance shuts the power down to the instance
 func (c *Client) StopInstance(id string) (*SimpleResponse, error) {
-	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/stop", id), "")
+	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/stop", id), map[string]string{
+		"region": c.Region,
+	})
 	if err != nil {
 		return nil, decodeError(err)
 	}
@@ -291,7 +297,9 @@ func (c *Client) StopInstance(id string) (*SimpleResponse, error) {
 
 // StartInstance starts the instance booting from the shutdown state
 func (c *Client) StartInstance(id string) (*SimpleResponse, error) {
-	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/start", id), "")
+	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/start", id), map[string]string{
+		"region": c.Region,
+	})
 	if err != nil {
 		return nil, decodeError(err)
 	}
