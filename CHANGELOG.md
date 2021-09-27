@@ -1,4 +1,10 @@
 
+0.2.54
+=============
+2021-09-27
+
+* Provide region when reboot, stop and start instance (#62) (e04b7763)
+
 0.2.52
 =============
 2021-08-30
