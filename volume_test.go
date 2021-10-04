@@ -88,7 +88,7 @@ func TestFindVolume(t *testing.T) {
 
 func TestNewVolume(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
-		"/v2/volumes/": `{
+		"/v2/volumes": `{
 			"id": "76cc107f-fbef-4e2b-b97f-f5d34f4075d3",
 			"name": "my-volume",
 			"result": "success"

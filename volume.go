@@ -109,7 +109,7 @@ func (c *Client) FindVolume(search string) (*Volume, error) {
 // NewVolume creates a new volume
 // https://www.civo.com/api/volumes#create-a-new-volume
 func (c *Client) NewVolume(v *VolumeConfig) (*VolumeResult, error) {
-	body, err := c.SendPostRequest("/v2/volumes/", v)
+	body, err := c.SendPostRequest("/v2/volumes", v)
 	if err != nil {
 		return nil, decodeError(err)
 	}
