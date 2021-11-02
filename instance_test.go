@@ -104,9 +104,9 @@ func TestGetInstance(t *testing.T) {
 
 func TestNewInstanceConfig(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
-		"/v2/networks":  `[{"id": "1", "default": true, "name": "Default Network"}]`,
-		"/v2/templates": `[{"id": "2", "code": "centos-7"},{"id": "3", "code": "ubuntu-18.04"}]`,
-		"/v2/sshkeys":   `{"items":[{"id": "4", "name": "RSA Key", "default": true}]}`,
+		"/v2/networks":    `[{"id": "1", "default": true, "name": "Default Network"}]`,
+		"/v2/disk_images": `[{ "ID": "329d473e-f110-4852-b2fa-fe65aa6bff4a", "Name": "ubuntu-bionic", "Version": "18.04", "State": "available", "Distribution": "ubuntu", "Description": "", "Label": "bionic" }, { "ID": "77bea4dd-bfd4-492c-823d-f92eb6dd962d", "Name": "ubuntu-focal", "Version": "20.04", "State": "available", "Distribution": "ubuntu", "Description": "", "Label": "focal" }]`,
+		"/v2/sshkeys":     `{"items":[{"id": "4", "name": "RSA Key", "default": true}]}`,
 	})
 	defer server.Close()
 
@@ -121,8 +121,8 @@ func TestNewInstanceConfig(t *testing.T) {
 	if got.NetworkID != "1" {
 		t.Errorf("Expected %s, got %s", "1", got.NetworkID)
 	}
-	if got.TemplateID != "3" {
-		t.Errorf("Expected %s, got %s", "3", got.TemplateID)
+	if got.TemplateID != "329d473e-f110-4852-b2fa-fe65aa6bff4a" {
+		t.Errorf("Expected %s, got %s", "329d473e-f110-4852-b2fa-fe65aa6bff4a", got.TemplateID)
 	}
 	if got.Count != 1 {
 		t.Errorf("Expected %d, got %d", 1, got.Count)

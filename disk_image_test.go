@@ -117,3 +117,20 @@ func TestListDiskImages(t *testing.T) {
 		t.Errorf("Expected %+v, got %+v", expected, got)
 	}
 }
+
+func TestGetDiskImageByName(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/disk_images": `[{ "ID": "329d473e-f110-4852-b2fa-fe65aa6bff4a", "Name": "ubuntu-bionic", "Version": "18.04", "State": "available", "Distribution": "ubuntu", "Description": "", "Label": "bionic" }, { "ID": "77bea4dd-bfd4-492c-823d-f92eb6dd962d", "Name": "ubuntu-focal", "Version": "20.04", "State": "available", "Distribution": "ubuntu", "Description": "", "Label": "focal" }]`,
+	})
+	defer server.Close()
+
+	got, err := client.GetDiskImageByName("ubuntu-bionic")
+	if err != nil {
+		t.Errorf("Request returned an error: %s", err)
+		return
+	}
+
+	if got.ID != "329d473e-f110-4852-b2fa-fe65aa6bff4a" {
+		t.Errorf("Expected %s, got %s", "329d473e-f110-4852-b2fa-fe65aa6bff4a", got.ID)
+	}
+}
