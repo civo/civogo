@@ -19,13 +19,10 @@ type FakeClient struct {
 	InstanceSizes           []InstanceSize
 	Instances               []Instance
 	Clusters                []KubernetesCluster
-	LoadBalancers           []LoadBalancer
 	Networks                []Network
-	Snapshots               []Snapshot
 	Volumes                 []Volume
 	SSHKeys                 []SSHKey
 	Webhooks                []Webhook
-	Templates               []Template
 	DiskImage               []DiskImage
 	Quota                   Quota
 	Organisation            Organisation
@@ -33,6 +30,9 @@ type FakeClient struct {
 	OrganisationRoles       []Role
 	OrganisationTeams       []Team
 	OrganisationTeamMembers map[string][]TeamMember
+	// LoadBalancers        []LoadBalancer
+	// Snapshots            []Snapshot
+	// Templates            []Template
 }
 
 // Clienter is the interface the real civogo.Client and civogo.FakeClient implement
@@ -100,11 +100,11 @@ type Clienter interface {
 	ListAvailableKubernetesVersions() ([]KubernetesVersion, error)
 
 	// Load balancers
-	ListLoadBalancers() ([]LoadBalancer, error)
-	FindLoadBalancer(search string) (*LoadBalancer, error)
-	CreateLoadBalancer(r *LoadBalancerConfig) (*LoadBalancer, error)
-	UpdateLoadBalancer(id string, r *LoadBalancerConfig) (*LoadBalancer, error)
-	DeleteLoadBalancer(id string) (*SimpleResponse, error)
+	// ListLoadBalancers() ([]LoadBalancer, error)
+	// FindLoadBalancer(search string) (*LoadBalancer, error)
+	// CreateLoadBalancer(r *LoadBalancerConfig) (*LoadBalancer, error)
+	// UpdateLoadBalancer(id string, r *LoadBalancerConfig) (*LoadBalancer, error)
+	// DeleteLoadBalancer(id string) (*SimpleResponse, error)
 
 	// Networks
 	GetDefaultNetwork() (*Network, error)
@@ -121,10 +121,10 @@ type Clienter interface {
 	ListRegions() ([]Region, error)
 
 	// Snapshots
-	CreateSnapshot(name string, r *SnapshotConfig) (*Snapshot, error)
-	ListSnapshots() ([]Snapshot, error)
-	FindSnapshot(search string) (*Snapshot, error)
-	DeleteSnapshot(name string) (*SimpleResponse, error)
+	// CreateSnapshot(name string, r *SnapshotConfig) (*Snapshot, error)
+	// ListSnapshots() ([]Snapshot, error)
+	// FindSnapshot(search string) (*Snapshot, error)
+	// DeleteSnapshot(name string) (*SimpleResponse, error)
 
 	// SSHKeys
 	ListSSHKeys() ([]SSHKey, error)
@@ -134,12 +134,12 @@ type Clienter interface {
 	DeleteSSHKey(id string) (*SimpleResponse, error)
 
 	// Templates
-	ListTemplates() ([]Template, error)
-	NewTemplate(conf *Template) (*SimpleResponse, error)
-	UpdateTemplate(id string, conf *Template) (*Template, error)
-	GetTemplateByCode(code string) (*Template, error)
-	FindTemplate(search string) (*Template, error)
-	DeleteTemplate(id string) (*SimpleResponse, error)
+	// ListTemplates() ([]Template, error)
+	// NewTemplate(conf *Template) (*SimpleResponse, error)
+	// UpdateTemplate(id string, conf *Template) (*Template, error)
+	// GetTemplateByCode(code string) (*Template, error)
+	// FindTemplate(search string) (*Template, error)
+	// DeleteTemplate(id string) (*SimpleResponse, error)
 
 	// DiskImages
 	ListDiskImages() ([]DiskImage, error)
@@ -780,62 +780,62 @@ func (c *FakeClient) ListAvailableKubernetesVersions() ([]KubernetesVersion, err
 }
 
 // ListLoadBalancers implemented in a fake way for automated tests
-func (c *FakeClient) ListLoadBalancers() ([]LoadBalancer, error) {
-	return c.LoadBalancers, nil
-}
+// func (c *FakeClient) ListLoadBalancers() ([]LoadBalancer, error) {
+// 	return c.LoadBalancers, nil
+// }
 
 // FindLoadBalancer implemented in a fake way for automated tests
-func (c *FakeClient) FindLoadBalancer(search string) (*LoadBalancer, error) {
-	for _, lb := range c.LoadBalancers {
-		if strings.Contains(lb.Hostname, search) {
-			return &lb, nil
-		}
-	}
+// func (c *FakeClient) FindLoadBalancer(search string) (*LoadBalancer, error) {
+// 	for _, lb := range c.LoadBalancers {
+// 		if strings.Contains(lb.Hostname, search) {
+// 			return &lb, nil
+// 		}
+// 	}
 
-	err := fmt.Errorf("unable to find %s, zero matches", search)
-	return nil, ZeroMatchesError.wrap(err)
-}
+// 	err := fmt.Errorf("unable to find %s, zero matches", search)
+// 	return nil, ZeroMatchesError.wrap(err)
+// }
 
 // CreateLoadBalancer implemented in a fake way for automated tests
-func (c *FakeClient) CreateLoadBalancer(r *LoadBalancerConfig) (*LoadBalancer, error) {
-	lb := LoadBalancer{
-		ID:       c.generateID(),
-		Hostname: r.Hostname,
-		Protocol: r.Protocol,
-		Port:     r.Port,
-	}
+// func (c *FakeClient) CreateLoadBalancer(r *LoadBalancerConfig) (*LoadBalancer, error) {
+// 	lb := LoadBalancer{
+// 		ID:       c.generateID(),
+// 		Hostname: r.Hostname,
+// 		Protocol: r.Protocol,
+// 		Port:     r.Port,
+// 	}
 
-	c.LoadBalancers = append(c.LoadBalancers, lb)
-	return &lb, nil
-}
+// 	c.LoadBalancers = append(c.LoadBalancers, lb)
+// 	return &lb, nil
+// }
 
 // UpdateLoadBalancer implemented in a fake way for automated tests
-func (c *FakeClient) UpdateLoadBalancer(id string, lbc *LoadBalancerConfig) (*LoadBalancer, error) {
-	for i, lb := range c.LoadBalancers {
-		if lb.ID == id {
-			c.LoadBalancers[i].Hostname = lbc.Hostname
-			c.LoadBalancers[i].Protocol = lbc.Protocol
-			c.LoadBalancers[i].Port = lbc.Port
-			return &lb, nil
-		}
-	}
+// func (c *FakeClient) UpdateLoadBalancer(id string, lbc *LoadBalancerConfig) (*LoadBalancer, error) {
+// 	for i, lb := range c.LoadBalancers {
+// 		if lb.ID == id {
+// 			c.LoadBalancers[i].Hostname = lbc.Hostname
+// 			c.LoadBalancers[i].Protocol = lbc.Protocol
+// 			c.LoadBalancers[i].Port = lbc.Port
+// 			return &lb, nil
+// 		}
+// 	}
 
-	err := fmt.Errorf("unable to find %s, zero matches", id)
-	return nil, ZeroMatchesError.wrap(err)
-}
+// 	err := fmt.Errorf("unable to find %s, zero matches", id)
+// 	return nil, ZeroMatchesError.wrap(err)
+// }
 
-// DeleteLoadBalancer implemented in a fake way for automated tests
-func (c *FakeClient) DeleteLoadBalancer(id string) (*SimpleResponse, error) {
-	for i, lb := range c.LoadBalancers {
-		if lb.ID == id {
-			c.LoadBalancers[len(c.LoadBalancers)-1], c.LoadBalancers[i] = c.LoadBalancers[i], c.LoadBalancers[len(c.LoadBalancers)-1]
-			c.LoadBalancers = c.LoadBalancers[:len(c.LoadBalancers)-1]
-			return &SimpleResponse{Result: "success"}, nil
-		}
-	}
+// // DeleteLoadBalancer implemented in a fake way for automated tests
+// func (c *FakeClient) DeleteLoadBalancer(id string) (*SimpleResponse, error) {
+// 	for i, lb := range c.LoadBalancers {
+// 		if lb.ID == id {
+// 			c.LoadBalancers[len(c.LoadBalancers)-1], c.LoadBalancers[i] = c.LoadBalancers[i], c.LoadBalancers[len(c.LoadBalancers)-1]
+// 			c.LoadBalancers = c.LoadBalancers[:len(c.LoadBalancers)-1]
+// 			return &SimpleResponse{Result: "success"}, nil
+// 		}
+// 	}
 
-	return &SimpleResponse{Result: "failed"}, nil
-}
+// 	return &SimpleResponse{Result: "failed"}, nil
+// }
 
 // GetDefaultNetwork implemented in a fake way for automated tests
 func (c *FakeClient) GetDefaultNetwork() (*Network, error) {
@@ -929,47 +929,47 @@ func (c *FakeClient) ListRegions() ([]Region, error) {
 }
 
 // CreateSnapshot implemented in a fake way for automated tests
-func (c *FakeClient) CreateSnapshot(name string, r *SnapshotConfig) (*Snapshot, error) {
-	snapshot := Snapshot{
-		ID:         c.generateID(),
-		Name:       name,
-		InstanceID: r.InstanceID,
-		Cron:       r.Cron,
-	}
-	c.Snapshots = append(c.Snapshots, snapshot)
+// func (c *FakeClient) CreateSnapshot(name string, r *SnapshotConfig) (*Snapshot, error) {
+// 	snapshot := Snapshot{
+// 		ID:         c.generateID(),
+// 		Name:       name,
+// 		InstanceID: r.InstanceID,
+// 		Cron:       r.Cron,
+// 	}
+// 	c.Snapshots = append(c.Snapshots, snapshot)
 
-	return &snapshot, nil
-}
+// 	return &snapshot, nil
+// }
 
 // ListSnapshots implemented in a fake way for automated tests
-func (c *FakeClient) ListSnapshots() ([]Snapshot, error) {
-	return c.Snapshots, nil
-}
+// func (c *FakeClient) ListSnapshots() ([]Snapshot, error) {
+// 	return c.Snapshots, nil
+// }
 
 // FindSnapshot implemented in a fake way for automated tests
-func (c *FakeClient) FindSnapshot(search string) (*Snapshot, error) {
-	for _, snapshot := range c.Snapshots {
-		if strings.Contains(snapshot.Name, search) {
-			return &snapshot, nil
-		}
-	}
+// func (c *FakeClient) FindSnapshot(search string) (*Snapshot, error) {
+// 	for _, snapshot := range c.Snapshots {
+// 		if strings.Contains(snapshot.Name, search) {
+// 			return &snapshot, nil
+// 		}
+// 	}
 
-	err := fmt.Errorf("unable to find %s, zero matches", search)
-	return nil, ZeroMatchesError.wrap(err)
-}
+// 	err := fmt.Errorf("unable to find %s, zero matches", search)
+// 	return nil, ZeroMatchesError.wrap(err)
+// }
 
 // DeleteSnapshot implemented in a fake way for automated tests
-func (c *FakeClient) DeleteSnapshot(name string) (*SimpleResponse, error) {
-	for i, snapshot := range c.Snapshots {
-		if snapshot.Name == name {
-			c.Snapshots[len(c.Snapshots)-1], c.Snapshots[i] = c.Snapshots[i], c.Snapshots[len(c.Snapshots)-1]
-			c.Snapshots = c.Snapshots[:len(c.Snapshots)-1]
-			return &SimpleResponse{Result: "success"}, nil
-		}
-	}
+// func (c *FakeClient) DeleteSnapshot(name string) (*SimpleResponse, error) {
+// 	for i, snapshot := range c.Snapshots {
+// 		if snapshot.Name == name {
+// 			c.Snapshots[len(c.Snapshots)-1], c.Snapshots[i] = c.Snapshots[i], c.Snapshots[len(c.Snapshots)-1]
+// 			c.Snapshots = c.Snapshots[:len(c.Snapshots)-1]
+// 			return &SimpleResponse{Result: "success"}, nil
+// 		}
+// 	}
 
-	return &SimpleResponse{Result: "failed"}, nil
-}
+// 	return &SimpleResponse{Result: "failed"}, nil
+// }
 
 // ListSSHKeys implemented in a fake way for automated tests
 func (c *FakeClient) ListSSHKeys() ([]SSHKey, error) {
@@ -1025,73 +1025,73 @@ func (c *FakeClient) DeleteSSHKey(id string) (*SimpleResponse, error) {
 }
 
 // ListTemplates implemented in a fake way for automated tests
-func (c *FakeClient) ListTemplates() ([]Template, error) {
-	return c.Templates, nil
-}
+// func (c *FakeClient) ListTemplates() ([]Template, error) {
+// 	return c.Templates, nil
+// }
 
 // NewTemplate implemented in a fake way for automated tests
-func (c *FakeClient) NewTemplate(conf *Template) (*SimpleResponse, error) {
-	template := Template{
-		ID:          conf.ID,
-		Name:        conf.Name,
-		CloudConfig: conf.CloudConfig,
-		ImageID:     conf.ImageID,
-	}
-	c.Templates = append(c.Templates, template)
-	return &SimpleResponse{Result: "success"}, nil
-}
+// func (c *FakeClient) NewTemplate(conf *Template) (*SimpleResponse, error) {
+// 	template := Template{
+// 		ID:          conf.ID,
+// 		Name:        conf.Name,
+// 		CloudConfig: conf.CloudConfig,
+// 		ImageID:     conf.ImageID,
+// 	}
+// 	c.Templates = append(c.Templates, template)
+// 	return &SimpleResponse{Result: "success"}, nil
+// }
 
 // UpdateTemplate implemented in a fake way for automated tests
-func (c *FakeClient) UpdateTemplate(id string, conf *Template) (*Template, error) {
-	for i, template := range c.Templates {
-		if template.ID == id {
-			c.Templates[i].Name = conf.Name
-			c.Templates[i].CloudConfig = conf.CloudConfig
-			c.Templates[i].ImageID = conf.ImageID
-			return &template, nil
-		}
-	}
+// func (c *FakeClient) UpdateTemplate(id string, conf *Template) (*Template, error) {
+// 	for i, template := range c.Templates {
+// 		if template.ID == id {
+// 			c.Templates[i].Name = conf.Name
+// 			c.Templates[i].CloudConfig = conf.CloudConfig
+// 			c.Templates[i].ImageID = conf.ImageID
+// 			return &template, nil
+// 		}
+// 	}
 
-	err := fmt.Errorf("unable to find SSH key %s, zero matches", id)
-	return nil, ZeroMatchesError.wrap(err)
-}
+// 	err := fmt.Errorf("unable to find SSH key %s, zero matches", id)
+// 	return nil, ZeroMatchesError.wrap(err)
+// }
 
 // GetTemplateByCode implemented in a fake way for automated tests
-func (c *FakeClient) GetTemplateByCode(code string) (*Template, error) {
-	for _, template := range c.Templates {
-		if template.Code == code {
-			return &template, nil
-		}
-	}
+// func (c *FakeClient) GetTemplateByCode(code string) (*Template, error) {
+// 	for _, template := range c.Templates {
+// 		if template.Code == code {
+// 			return &template, nil
+// 		}
+// 	}
 
-	err := fmt.Errorf("unable to find SSH key %s, zero matches", code)
-	return nil, ZeroMatchesError.wrap(err)
-}
+// 	err := fmt.Errorf("unable to find SSH key %s, zero matches", code)
+// 	return nil, ZeroMatchesError.wrap(err)
+// }
 
 // FindTemplate implemented in a fake way for automated tests
-func (c *FakeClient) FindTemplate(search string) (*Template, error) {
-	for _, template := range c.Templates {
-		if strings.Contains(template.Name, search) {
-			return &template, nil
-		}
-	}
+// func (c *FakeClient) FindTemplate(search string) (*Template, error) {
+// 	for _, template := range c.Templates {
+// 		if strings.Contains(template.Name, search) {
+// 			return &template, nil
+// 		}
+// 	}
 
-	err := fmt.Errorf("unable to find template %s, zero matches", search)
-	return nil, ZeroMatchesError.wrap(err)
-}
+// 	err := fmt.Errorf("unable to find template %s, zero matches", search)
+// 	return nil, ZeroMatchesError.wrap(err)
+// }
 
 // DeleteTemplate implemented in a fake way for automated tests
-func (c *FakeClient) DeleteTemplate(id string) (*SimpleResponse, error) {
-	for i, template := range c.Templates {
-		if template.ID == id {
-			c.Templates[len(c.Templates)-1], c.Templates[i] = c.Templates[i], c.Templates[len(c.Templates)-1]
-			c.Templates = c.Templates[:len(c.Templates)-1]
-			return &SimpleResponse{Result: "success"}, nil
-		}
-	}
+// func (c *FakeClient) DeleteTemplate(id string) (*SimpleResponse, error) {
+// 	for i, template := range c.Templates {
+// 		if template.ID == id {
+// 			c.Templates[len(c.Templates)-1], c.Templates[i] = c.Templates[i], c.Templates[len(c.Templates)-1]
+// 			c.Templates = c.Templates[:len(c.Templates)-1]
+// 			return &SimpleResponse{Result: "success"}, nil
+// 		}
+// 	}
 
-	return &SimpleResponse{Result: "failed"}, nil
-}
+// 	return &SimpleResponse{Result: "failed"}, nil
+// }
 
 // ListDiskImages implemented in a fake way for automated tests
 func (c *FakeClient) ListDiskImages() ([]DiskImage, error) {
