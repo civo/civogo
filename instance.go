@@ -165,7 +165,7 @@ func (c *Client) NewInstanceConfig() (*InstanceConfig, error) {
 		return nil, decodeError(err)
 	}
 
-	template, err := c.GetTemplateByCode("ubuntu-18.04")
+	diskimage, err := c.GetDiskImageByName("ubuntu-bionic")
 	if err != nil {
 		return nil, decodeError(err)
 	}
@@ -178,7 +178,7 @@ func (c *Client) NewInstanceConfig() (*InstanceConfig, error) {
 		Region:           c.Region,
 		PublicIPRequired: "true",
 		NetworkID:        network.ID,
-		TemplateID:       template.ID,
+		TemplateID:       diskimage.ID,
 		SnapshotID:       "",
 		InitialUser:      "civo",
 		SSHKeyID:         "",

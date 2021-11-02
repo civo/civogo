@@ -3,6 +3,7 @@ package civogo
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 )
@@ -87,4 +88,20 @@ func (c *Client) FindDiskImage(search string) (*DiskImage, error) {
 		err := fmt.Errorf("unable to find %s, zero matches", search)
 		return nil, ZeroMatchesError.wrap(err)
 	}
+}
+
+// GetDiskImageByName finds the DiskImage for an account with the specified code
+func (c *Client) GetDiskImageByName(name string) (*DiskImage, error) {
+	resp, err := c.ListDiskImages()
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	for _, diskimage := range resp {
+		if diskimage.Name == name {
+			return &diskimage, nil
+		}
+	}
+
+	return nil, errors.New("diskimage not found")
 }
