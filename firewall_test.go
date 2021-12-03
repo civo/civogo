@@ -7,7 +7,7 @@ import (
 
 func TestListFirewalls(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
-		"/v2/firewalls": `[{"id": "12345", "name": "instance-123456", "rules_count": 3, "instances_count": 10}, {"id": "67789", "name": "instance-7890", "rules_count": 1, "instances_count": 2}]`,
+		"/v2/firewalls": `[{"id": "12345", "name": "instance-123456", "rules_count": 3, "instance_count": 10, "cluster_count": 2,	"loadbalancer_count": 1}, {"id": "67789", "name": "instance-7890", "rules_count": 1, "instance_count": 2, "cluster_count": 1, "loadbalancer_count": 0}]`,
 	})
 	defer server.Close()
 	got, err := client.ListFirewalls()
@@ -16,7 +16,7 @@ func TestListFirewalls(t *testing.T) {
 		t.Errorf("Request returned an error: %s", err)
 		return
 	}
-	expected := []Firewall{{ID: "12345", Name: "instance-123456", RulesCount: 3, InstancesCount: 10}, {ID: "67789", Name: "instance-7890", RulesCount: 1, InstancesCount: 2}}
+	expected := []Firewall{{ID: "12345", Name: "instance-123456", RulesCount: 3, InstanceCount: 10, ClusterCount: 2, LoadBalancerCount: 1}, {ID: "67789", Name: "instance-7890", RulesCount: 1, InstanceCount: 2, ClusterCount: 1, LoadBalancerCount: 0}}
 	if !reflect.DeepEqual(got, expected) {
 		t.Errorf("Expected %+v, got %+v", expected, got)
 	}
@@ -24,7 +24,7 @@ func TestListFirewalls(t *testing.T) {
 
 func TestFindFirewall(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
-		"/v2/firewalls": `[{"id": "12345", "name": "web-instance", "rules_count": 3, "instances_count": 10, "region": "lon1"}, {"id": "67789", "name": "web-node", "rules_count": 1, "instances_count": 2, "region": "lon1"}]`,
+		"/v2/firewalls": `[{"id": "12345", "name": "web-instance", "rules_count": 3, "instance_count": 10, "cluster_count": 2,	"loadbalancer_count": 1, "region": "lon1"}, {"id": "67789", "name": "web-node", "rules_count": 1, "instances_count": 2, "region": "lon1"}]`,
 	})
 	defer server.Close()
 

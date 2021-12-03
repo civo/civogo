@@ -1351,7 +1351,7 @@ func (c *FakeClient) DeleteRole(id string) (*SimpleResponse, error) {
 		}
 	}
 
-	return &SimpleResponse{Result: "failed"}, fmt.Errorf("Unable to find that role")
+	return &SimpleResponse{Result: "failed"}, fmt.Errorf("unable to find that role")
 }
 
 // ListTeams implemented in a fake way for automated tests
@@ -1381,7 +1381,7 @@ func (c *FakeClient) RenameTeam(teamID, name string) (*Team, error) {
 		}
 	}
 
-	return nil, fmt.Errorf("Unable to find that role")
+	return nil, fmt.Errorf("unable to find that role")
 }
 
 // DeleteTeam implemented in a fake way for automated tests
@@ -1394,7 +1394,7 @@ func (c *FakeClient) DeleteTeam(id string) (*SimpleResponse, error) {
 		}
 	}
 
-	return &SimpleResponse{Result: "failure"}, fmt.Errorf("Unable to find that team")
+	return &SimpleResponse{Result: "failure"}, fmt.Errorf("unable to find that team")
 }
 
 // ListTeamMembers implemented in a fake way for automated tests
@@ -1427,7 +1427,7 @@ func (c *FakeClient) UpdateTeamMember(teamID, teamMemberID, permissions, roles s
 		}
 	}
 
-	return nil, fmt.Errorf("Unable to find that role")
+	return nil, fmt.Errorf("unable to find that role")
 }
 
 // RemoveTeamMember implemented in a fake way for automated tests
@@ -1440,5 +1440,5 @@ func (c *FakeClient) RemoveTeamMember(teamID, teamMemberID string) (*SimpleRespo
 		}
 	}
 
-	return &SimpleResponse{Result: "failure"}, fmt.Errorf("Unable to find that team member")
+	return &SimpleResponse{Result: "failure"}, fmt.Errorf("unable to find that team member")
 }
