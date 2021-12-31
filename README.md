@@ -21,13 +21,15 @@ go get github.com/civo/civogo
 import "github.com/civo/civogo"
 ```
 
-From there you create a Civo client specifying your API key and use public methods to interact with Civo's API.
+From there you create a Civo client specifying your API key and a region. Then you can use public methods to interact with Civo's API.
 
 ### Authentication
 
+You will need both an API key and a region code to create a new client.
+
 Your API key is listed within the [Civo control panel's security page](https://www.civo.com/account/security). You can also reset the token there, for example, if accidentally put it in source code and found it had been leaked.
 
-You can then use your API key to create a new client:
+For the region code, use any region you know exists, e.g. `LON1`. See the [API documentation](https://github.com/civo/civogo.git) for details.
 
 ```go
 package main
@@ -39,10 +41,11 @@ import (
 
 const (
     apiKey = "mykeygoeshere"
+    regionCode = "LON1"
 )
 
 func main() {
-  client, err := civogo.NewClient(apiKey)
+  client, err := civogo.NewClient(apiKey, regionCode)
   // ...
 }
 ```
