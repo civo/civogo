@@ -9,51 +9,47 @@ import (
 
 // LoadBalancerBackend represents a backend instance being load-balanced
 type LoadBalancerBackend struct {
-	InstanceID string `json:"instance_id"`
-	Protocol   string `json:"protocol"`
-	Port       int    `json:"port"`
+	IP              string `json:"ip"`
+	Protocol        string `json:"protocol,omitempty"`
+	SourcePort      int32  `json:"source_port"`
+	TargetPort      int32  `json:"target_port"`
+	HealthCheckPort int32  `json:"health_check_port,omitempty"`
 }
 
 // LoadBalancerBackendConfig is the configuration for creating backends
 type LoadBalancerBackendConfig struct {
-	InstanceID string `json:"instance_id"`
-	Protocol   string `json:"protocol"`
-	Port       int    `json:"port"`
+	IP              string `json:"ip"`
+	Protocol        string `json:"protocol,omitempty"`
+	SourcePort      int32  `json:"source_port"`
+	TargetPort      int32  `json:"target_port"`
+	HealthCheckPort int32  `json:"health_check_port,omitempty"`
 }
 
 // LoadBalancer represents a load balancer configuration within Civo
 type LoadBalancer struct {
-	ID                      string `json:"id"`
-	DefaultHostname         bool   `json:"default_hostname,omitempty"`
-	Hostname                string `json:"hostname,omitempty"`
-	Protocol                string `json:"protocol,omitempty"`
-	Port                    int    `json:"port,omitempty"`
-	MaxRequestSize          int    `json:"max_request_size,omitempty"`
-	TLSCertificate          string `json:"tls_certificate,omitempty"`
-	TLSKey                  string `json:"tls_key,omitempty"`
-	Policy                  string `json:"policy,omitempty"`
-	HealthCheckPath         string `json:"health_check_path,omitempty"`
-	FailTimeout             int    `json:"fail_timeout,omitempty"`
-	MaxConns                int    `json:"max_conns,omitempty"`
-	IgnoreInvalidBackendTLS bool   `json:"ignore_invalid_backend_tls,omitempty"`
-	Backends                []LoadBalancerBackend
+	ID                           string                `json:"id"`
+	Name                         string                `json:"name"`
+	Algorithm                    string                `json:"algorithm"`
+	Backends                     []LoadBalancerBackend `json:"backends"`
+	ExternalTrafficPolicy        string                `json:"external_traffic_policy,omitempty"`
+	SessionAffinity              string                `json:"session_affinity,omitempty"`
+	SessionAffinityConfigTimeout int32                 `json:"session_affinity_config_timeout,omitempty"`
+	PublicIP                     string                `json:"public_ip"`
+	PrivateIP                    string                `json:"private_ip"`
+	FirewallID                   string                `json:"firewall_id"`
+	State                        string                `json:"state"`
 }
 
 // LoadBalancerConfig represents a load balancer to be created
 type LoadBalancerConfig struct {
-	Hostname                string                      `json:"hostname"`
-	Region                  string                      `json:"region"`
-	Protocol                string                      `json:"protocol"`
-	TLSCertificate          string                      `json:"tls_certificate"`
-	TLSKey                  string                      `json:"tls_key"`
-	Policy                  string                      `json:"policy"`
-	Port                    int                         `json:"port"`
-	MaxRequestSize          int                         `json:"max_request_size"`
-	HealthCheckPath         string                      `json:"health_check_path"`
-	FailTimeout             int                         `json:"fail_timeout"`
-	MaxConns                int                         `json:"max_conns"`
-	IgnoreInvalidBackendTLS bool                        `json:"ignore_invalid_backend_tls"`
-	Backends                []LoadBalancerBackendConfig `json:"backends"`
+	Region                       string                      `json:"region"`
+	Name                         string                      `json:"name"`
+	NetworkID                    string                      `json:"network_id,omitempty"`
+	Algorithm                    string                      `json:"algorithm,omitempty"`
+	Backends                     []LoadBalancerBackendConfig `json:"backends"`
+	ExternalTrafficPolicy        string                      `json:"external_traffic_policy,omitempty"`
+	SessionAffinity              string                      `json:"session_affinity,omitempty"`
+	SessionAffinityConfigTimeout int32                       `json:"session_affinity_config_timeout,omitempty"`
 }
 
 // ListLoadBalancers returns all load balancers owned by the calling API account
@@ -83,10 +79,10 @@ func (c *Client) FindLoadBalancer(search string) (*LoadBalancer, error) {
 	result := LoadBalancer{}
 
 	for _, value := range lbs {
-		if value.Hostname == search || value.ID == search {
+		if value.Name == search || value.ID == search {
 			exactMatch = true
 			result = value
-		} else if strings.Contains(value.Hostname, search) || strings.Contains(value.ID, search) {
+		} else if strings.Contains(value.Name, search) || strings.Contains(value.ID, search) {
 			if !exactMatch {
 				result = value
 				partialMatchesCount++
