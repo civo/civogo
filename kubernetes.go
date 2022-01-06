@@ -300,3 +300,52 @@ func (c *Client) ListAvailableKubernetesVersions() ([]KubernetesVersion, error) 
 
 	return kubernetes, nil
 }
+
+// ListKubernetesClusterInstances returns all cluster instances
+func (c *Client) ListKubernetesClusterInstances(id string) (*[]Instance, error) {
+	resp, err := c.SendGetRequest(fmt.Sprintf("/v2/kubernetes/clusters/%s/instances", id))
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	instances := &[]Instance{}
+	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&instances); err != nil {
+		return nil, err
+	}
+
+	return instances, nil
+}
+
+// FindKubernetesClusterInstance finds a Kubernetes cluster instance by either part of the ID or part of the name
+func (c *Client) FindKubernetesClusterInstance(clusterID, search string) (*Instance, error) {
+	instances, err := c.ListKubernetesClusterInstances(clusterID)
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	exactMatch := false
+	partialMatchesCount := 0
+	result := Instance{}
+
+	for _, value := range *instances {
+		if strings.EqualFold(value.Hostname, search) || value.ID == search {
+			exactMatch = true
+			result = value
+		} else if strings.Contains(strings.ToUpper(value.Hostname), strings.ToUpper(search)) || strings.Contains(value.ID, search) {
+			if !exactMatch {
+				result = value
+				partialMatchesCount++
+			}
+		}
+	}
+
+	if exactMatch || partialMatchesCount == 1 {
+		return &result, nil
+	} else if partialMatchesCount > 1 {
+		err := fmt.Errorf("unable to find %s because there were multiple matches", search)
+		return nil, MultipleMatchesError.wrap(err)
+	} else {
+		err := fmt.Errorf("unable to find %s, zero matches", search)
+		return nil, ZeroMatchesError.wrap(err)
+	}
+}
