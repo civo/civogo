@@ -50,7 +50,8 @@ func TestListKubernetesClusters(t *testing.T) {
 			"image_url": "https://api.civo.com/k3s-marketplace/traefik.png",
 			"plan": null,
 			"configuration": {}
-		  }]
+		  }],
+			"cni_plugin": "flannel"
 		}]}`,
 	})
 	defer server.Close()
@@ -110,6 +111,7 @@ func TestListKubernetesClusters(t *testing.T) {
 					ImageURL:      "https://api.civo.com/k3s-marketplace/traefik.png",
 					Configuration: map[string]ApplicationConfiguration{},
 				}},
+				CNIPlugin: "flannel",
 			},
 		},
 	}
@@ -207,7 +209,8 @@ func TestNewKubernetesClusters(t *testing.T) {
 			"image_url": "https://api.civo.com/k3s-marketplace/traefik.png",
 			"plan": null,
 			"configuration": {}
-		  }]
+		  }],
+			"cni_plugin": "flannel"
 		}`,
 	})
 	defer server.Close()
@@ -272,6 +275,7 @@ func TestNewKubernetesClusters(t *testing.T) {
 			ImageURL:      "https://api.civo.com/k3s-marketplace/traefik.png",
 			Configuration: map[string]ApplicationConfiguration{},
 		}},
+		CNIPlugin: "flannel",
 	}
 
 	if !reflect.DeepEqual(got, expected) {
@@ -323,7 +327,8 @@ func TestGetKubernetesClusters(t *testing.T) {
 			"image_url": "https://api.civo.com/k3s-marketplace/traefik.png",
 			"plan": null,
 			"configuration": {}
-		  }]
+		  }],
+			"cni_plugin": "flannel"
 		}`,
 	})
 	defer server.Close()
@@ -379,6 +384,7 @@ func TestGetKubernetesClusters(t *testing.T) {
 			ImageURL:      "https://api.civo.com/k3s-marketplace/traefik.png",
 			Configuration: map[string]ApplicationConfiguration{},
 		}},
+		CNIPlugin: "flannel",
 	}
 
 	if !reflect.DeepEqual(got, expected) {
@@ -430,7 +436,8 @@ func TestUpdateKubernetesClusters(t *testing.T) {
 			"image_url": "https://api.civo.com/k3s-marketplace/traefik.png",
 			"plan": null,
 			"configuration": {}
-		  }]
+		  }],
+			"cni_plugin": "flannel"
 		}`,
 	})
 	defer server.Close()
@@ -491,6 +498,7 @@ func TestUpdateKubernetesClusters(t *testing.T) {
 			ImageURL:      "https://api.civo.com/k3s-marketplace/traefik.png",
 			Configuration: map[string]ApplicationConfiguration{},
 		}},
+		CNIPlugin: "flannel",
 	}
 
 	if !reflect.DeepEqual(got, expected) {
