@@ -86,6 +86,7 @@ type KubernetesCluster struct {
 	Pools                 []KubernetesPool                 `json:"pools,omitempty"`
 	InstalledApplications []KubernetesInstalledApplication `json:"installed_applications,omitempty"`
 	FirewallID            string                           `json:"firewall_id,omitempty"`
+	CNIPlugin             string                           `json:"cni_plugin,omitempty"`
 }
 
 // PaginatedKubernetesClusters is a Kubernetes k3s cluster
@@ -110,6 +111,7 @@ type KubernetesClusterConfig struct {
 	Applications      string                        `json:"applications,omitempty"`
 	InstanceFirewall  string                        `json:"instance_firewall,omitempty"`
 	FirewallRule      string                        `json:"firewall_rule,omitempty"`
+	CNIPlugin         string                        `json:"cni_plugin,omitempty"`
 }
 
 //KubernetesClusterPoolConfig is used to create a new cluster pool
