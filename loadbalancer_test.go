@@ -35,12 +35,13 @@ func TestListLoadBalancers(t *testing.T) {
 		]`,
 	})
 	defer server.Close()
-	got, err := client.ListLoadBalancers()
 
+	got, err := client.ListLoadBalancers()
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
 	}
+
 	expected := []LoadBalancer{
 		{
 			ID:                    "7bb2c574-7b34-4de4-9111-4ac2b5653efa",
@@ -127,7 +128,8 @@ func TestCreateLoadBalancer(t *testing.T) {
 					"source_port": 80,
 					"target_port": 31579
 				}
-			]
+			],
+			"firewall_id": "9717fb32-dc0b-49e9-8265-5c84863e2164"
 		}`,
 	})
 	defer server.Close()
@@ -157,6 +159,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 				TargetPort: 31579,
 			},
 		},
+		FirewallID: "9717fb32-dc0b-49e9-8265-5c84863e2164",
 	}
 
 	if !reflect.DeepEqual(got, expected) {
@@ -185,12 +188,13 @@ func TestUpdateLoadBalancer(t *testing.T) {
 					"source_port": 80,
 					"target_port": 31579
 				}
-			]
+			],
+			"firewall_id": "9717fb32-dc0b-49e9-8265-5c84863e2164"
 		}`,
 	})
 	defer server.Close()
 
-	cfg := &LoadBalancerConfig{
+	cfg := &LoadBalancerUpdateConfig{
 		Name: "test-lb-updated",
 	}
 	got, err := client.UpdateLoadBalancer("a1bd123c-b7e2-4d4f-9fda-7940c7e06b38", cfg)
@@ -218,6 +222,7 @@ func TestUpdateLoadBalancer(t *testing.T) {
 				TargetPort: 31579,
 			},
 		},
+		FirewallID: "9717fb32-dc0b-49e9-8265-5c84863e2164",
 	}
 
 	if !reflect.DeepEqual(got, expected) {
@@ -225,11 +230,71 @@ func TestUpdateLoadBalancer(t *testing.T) {
 	}
 }
 
+func TestGetLoadBalancer(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/loadbalancers/a1bd123c-b7e2-4d4f-9fda-7940c7e06b38": `{
+			"id": "a1bd123c-b7e2-4d4f-9fda-7940c7e06b38",
+			"name": "test-lb-updated",
+			"network_id": "b064d568-5869-427c-827a-77d48cde6a2e",
+			"algorithm": "round_robin",
+			"external_traffic_policy": "Cluster",
+			"backends": [
+				{
+					"ip": "192.168.1.3",
+					"protocol": "TCP",
+					"source_port": 80,
+					"target_port": 31579
+				},
+				{
+					"ip": "192.168.1.4",
+					"protocol": "TCP",
+					"source_port": 80,
+					"target_port": 31579
+				}
+			],
+			"firewall_id": "9717fb32-dc0b-49e9-8265-5c84863e2164"
+		}`,
+	})
+	defer server.Close()
+
+	got, err := client.GetLoadBalancer("a1bd123c-b7e2-4d4f-9fda-7940c7e06b38")
+	if err != nil {
+		t.Errorf("Request returned an error: %s", err)
+		return
+	}
+
+	expected := &LoadBalancer{
+		ID:                    "a1bd123c-b7e2-4d4f-9fda-7940c7e06b38",
+		Name:                  "test-lb-updated",
+		Algorithm:             "round_robin",
+		ExternalTrafficPolicy: "Cluster",
+		Backends: []LoadBalancerBackend{
+			{
+				IP:         "192.168.1.3",
+				Protocol:   "TCP",
+				SourcePort: 80,
+				TargetPort: 31579,
+			},
+			{
+				IP:         "192.168.1.4",
+				Protocol:   "TCP",
+				SourcePort: 80,
+				TargetPort: 31579,
+			},
+		},
+		FirewallID: "9717fb32-dc0b-49e9-8265-5c84863e2164",
+	}
+
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Expected %+v, got %+v", expected, got)
+	}
+}
 func TestDeleteLoadBalancer(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/loadbalancers/12345": `{"result": "success"}`,
 	})
 	defer server.Close()
+
 	got, err := client.DeleteLoadBalancer("12345")
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)

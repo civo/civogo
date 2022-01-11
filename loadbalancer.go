@@ -37,6 +37,7 @@ type LoadBalancer struct {
 	PublicIP                     string                `json:"public_ip"`
 	PrivateIP                    string                `json:"private_ip"`
 	FirewallID                   string                `json:"firewall_id"`
+	ClusterID                    string                `json:"cluster_id,omitempty"`
 	State                        string                `json:"state"`
 }
 
@@ -50,6 +51,20 @@ type LoadBalancerConfig struct {
 	ExternalTrafficPolicy        string                      `json:"external_traffic_policy,omitempty"`
 	SessionAffinity              string                      `json:"session_affinity,omitempty"`
 	SessionAffinityConfigTimeout int32                       `json:"session_affinity_config_timeout,omitempty"`
+	ClusterID                    string                      `json:"cluster_id,omitempty"`
+	FirewallID                   string                      `json:"firewall_id,omitempty"`
+	FirewallRules                string                      `json:"firewall_rule,omitempty"`
+}
+
+// LoadBalancerUpdateConfig represents a load balancer to be updated
+type LoadBalancerUpdateConfig struct {
+	Region                       string                      `json:"region"`
+	Name                         string                      `json:"name,omitempty"`
+	Algorithm                    string                      `json:"algorithm,omitempty"`
+	Backends                     []LoadBalancerBackendConfig `json:"backends,omitempty"`
+	ExternalTrafficPolicy        string                      `json:"external_traffic_policy,omitempty"`
+	SessionAffinity              string                      `json:"session_affinity,omitempty"`
+	SessionAffinityConfigTimeout int32                       `json:"session_affinity_config_timeout,omitempty"`
 }
 
 // ListLoadBalancers returns all load balancers owned by the calling API account
@@ -60,6 +75,21 @@ func (c *Client) ListLoadBalancers() ([]LoadBalancer, error) {
 	}
 
 	loadbalancer := make([]LoadBalancer, 0)
+	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&loadbalancer); err != nil {
+		return nil, decodeError(err)
+	}
+
+	return loadbalancer, nil
+}
+
+// GetLoadBalancer returns a load balancer
+func (c *Client) GetLoadBalancer(id string) (*LoadBalancer, error) {
+	resp, err := c.SendGetRequest(fmt.Sprintf("/v2/loadbalancers/%s", id))
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	loadbalancer := &LoadBalancer{}
 	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&loadbalancer); err != nil {
 		return nil, decodeError(err)
 	}
@@ -117,7 +147,7 @@ func (c *Client) CreateLoadBalancer(r *LoadBalancerConfig) (*LoadBalancer, error
 }
 
 // UpdateLoadBalancer updates a load balancer
-func (c *Client) UpdateLoadBalancer(id string, r *LoadBalancerConfig) (*LoadBalancer, error) {
+func (c *Client) UpdateLoadBalancer(id string, r *LoadBalancerUpdateConfig) (*LoadBalancer, error) {
 	body, err := c.SendPutRequest(fmt.Sprintf("/v2/loadbalancers/%s", id), r)
 	if err != nil {
 		return nil, decodeError(err)
