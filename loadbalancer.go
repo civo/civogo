@@ -34,6 +34,7 @@ type LoadBalancer struct {
 	ExternalTrafficPolicy        string                `json:"external_traffic_policy,omitempty"`
 	SessionAffinity              string                `json:"session_affinity,omitempty"`
 	SessionAffinityConfigTimeout int32                 `json:"session_affinity_config_timeout,omitempty"`
+	EnableProxyProtocol          string                `json:"enable_proxy_protocol,omitempty"`
 	PublicIP                     string                `json:"public_ip"`
 	PrivateIP                    string                `json:"private_ip"`
 	FirewallID                   string                `json:"firewall_id"`
@@ -51,6 +52,7 @@ type LoadBalancerConfig struct {
 	ExternalTrafficPolicy        string                      `json:"external_traffic_policy,omitempty"`
 	SessionAffinity              string                      `json:"session_affinity,omitempty"`
 	SessionAffinityConfigTimeout int32                       `json:"session_affinity_config_timeout,omitempty"`
+	EnableProxyProtocol          string                      `json:"enable_proxy_protocol,omitempty"`
 	ClusterID                    string                      `json:"cluster_id,omitempty"`
 	FirewallID                   string                      `json:"firewall_id,omitempty"`
 	FirewallRules                string                      `json:"firewall_rule,omitempty"`
@@ -65,6 +67,7 @@ type LoadBalancerUpdateConfig struct {
 	ExternalTrafficPolicy        string                      `json:"external_traffic_policy,omitempty"`
 	SessionAffinity              string                      `json:"session_affinity,omitempty"`
 	SessionAffinityConfigTimeout int32                       `json:"session_affinity_config_timeout,omitempty"`
+	EnableProxyProtocol          string                      `json:"enable_proxy_protocol,omitempty"`
 }
 
 // ListLoadBalancers returns all load balancers owned by the calling API account
