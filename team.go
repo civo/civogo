@@ -3,6 +3,8 @@ package civogo
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"strings"
 	"time"
 )
 
@@ -55,6 +57,40 @@ func (c *Client) CreateTeam(name, organisationID, accountID string) (*Team, erro
 	}
 
 	return team, nil
+}
+
+//FindTeam finds a team by either part of the ID or part of the name
+func (c *Client) FindTeam(search string) (*Team, error) {
+	teams, err := c.ListTeams()
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	exactMatch := false
+	partialMatchesCount := 0
+	result := Team{}
+
+	for _, value := range teams {
+		if value.Name == search || value.ID == search {
+			exactMatch = true
+			result = value
+		} else if strings.Contains(value.Name, search) || strings.Contains(value.ID, search) {
+			if !exactMatch {
+				result = value
+				partialMatchesCount++
+			}
+		}
+	}
+
+	if exactMatch || partialMatchesCount == 1 {
+		return &result, nil
+	} else if partialMatchesCount > 1 {
+		err := fmt.Errorf("unable to find %s team because there were multiple matches", search)
+		return nil, MultipleMatchesError.wrap(err)
+	} else {
+		err := fmt.Errorf("unable to find %s team, zero matches", search)
+		return nil, ZeroMatchesError.wrap(err)
+	}
 }
 
 // RenameTeam changes the human set name for a team
