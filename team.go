@@ -10,11 +10,10 @@ import (
 
 // Team is a named group of users (has many members)
 type Team struct {
-	ID             string    `json:"id"`
-	Name           string    `json:"name,omitempty"`
-	OrganisationID string    `json:"organisation_id,omitempty"`
-	CreatedAt      time.Time `json:"created_at,omitempty"`
-	UpdatedAt      time.Time `json:"updated_at,omitempty"`
+	ID        string    `json:"id"`
+	Name      string    `json:"name,omitempty"`
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
 }
 
 // TeamMember is a link record between User and Team.
@@ -43,9 +42,9 @@ func (c *Client) ListTeams() ([]Team, error) {
 	return teams, nil
 }
 
-// CreateTeam creates a new team in either the account or organisation depending on which field has a non-blank value
-func (c *Client) CreateTeam(name, organisationID, accountID string) (*Team, error) {
-	data := map[string]string{"name": name, "organisation_id": organisationID, "account_id": accountID}
+// CreateTeam creates a new team in the account
+func (c *Client) CreateTeam(name string) (*Team, error) {
+	data := map[string]string{"name": name}
 	resp, err := c.SendPostRequest("/v2/teams", data)
 	if err != nil {
 		return nil, decodeError(err)
