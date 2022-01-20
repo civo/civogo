@@ -8,11 +8,10 @@ import (
 
 // Team is a named group of users (has many members)
 type Team struct {
-	ID             string    `json:"id"`
-	Name           string    `json:"name,omitempty"`
-	OrganisationID string    `json:"organisation_id,omitempty"`
-	CreatedAt      time.Time `json:"created_at,omitempty"`
-	UpdatedAt      time.Time `json:"updated_at,omitempty"`
+	ID        string    `json:"id"`
+	Name      string    `json:"name,omitempty"`
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
 }
 
 // TeamMember is a link record between User and Team.
