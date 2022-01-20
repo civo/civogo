@@ -41,9 +41,9 @@ func (c *Client) ListTeams() ([]Team, error) {
 	return teams, nil
 }
 
-// CreateTeam creates a new team in either the account or organisation depending on which field has a non-blank value
-func (c *Client) CreateTeam(name, organisationID, accountID string) (*Team, error) {
-	data := map[string]string{"name": name, "organisation_id": organisationID, "account_id": accountID}
+// CreateTeam creates a new team in the account
+func (c *Client) CreateTeam(name string) (*Team, error) {
+	data := map[string]string{"name": name}
 	resp, err := c.SendPostRequest("/v2/teams", data)
 	if err != nil {
 		return nil, decodeError(err)
