@@ -68,6 +68,7 @@ type LoadBalancerUpdateConfig struct {
 	SessionAffinity              string                      `json:"session_affinity,omitempty"`
 	SessionAffinityConfigTimeout int32                       `json:"session_affinity_config_timeout,omitempty"`
 	EnableProxyProtocol          string                      `json:"enable_proxy_protocol,omitempty"`
+	FirewallID                   string                      `json:"firewall_id,omitempty"`
 }
 
 // ListLoadBalancers returns all load balancers owned by the calling API account
