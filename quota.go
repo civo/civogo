@@ -34,6 +34,8 @@ type Quota struct {
 	SecurityGroupRuleUsage  int    `json:"security_group_rule_usage"`
 	PortCountLimit          int    `json:"port_count_limit"`
 	PortCountUsage          int    `json:"port_count_usage"`
+	LoadBalancerCountLimit  int    `json:"loadbalancer_count_limit"`
+	LoadBalancerCountUsage  int    `json:"loadbalancer_count_usage"`
 }
 
 // GetQuota returns all load balancers owned by the calling API account
