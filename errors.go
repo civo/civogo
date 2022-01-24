@@ -1031,5 +1031,6 @@ func decodeError(err error) error {
 			return CommonError.wrap(err)
 		}
 	}
-	return UnknownError
+
+	return UnknownError.wrap(err)
 }
