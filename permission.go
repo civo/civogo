@@ -7,6 +7,7 @@ import (
 
 // Permission represents a permission and the description for it
 type Permission struct {
+	Code        string `json:"code"`
 	Name        string `json:"name,omitempty"`
 	Description string `json:"description,omitempty"`
 }
