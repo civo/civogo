@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -25,6 +26,15 @@ type Database struct {
 	} `json:"snapshots,omitempty"`
 	Username string `json:"username"`
 	Password string `json:"password"`
+	Status   string `json:"status"`
+}
+
+// PaginatedDatabases is the structure for list response from DB endpoint
+type PaginatedDatabases struct {
+	Page    int        `json:"page"`
+	PerPage int        `json:"per_page"`
+	Pages   int        `json:"pages"`
+	Items   []Database `json:"items"`
 }
 
 // CreateDatabaseRequest holds fields required to creates a new database
@@ -50,18 +60,18 @@ type UpdateDatabaseRequest struct {
 }
 
 // ListDatabases returns a list of all databases
-func (c *Client) ListDatabases() ([]Database, error) {
+func (c *Client) ListDatabases() (*PaginatedDatabases, error) {
 	resp, err := c.SendGetRequest("/v2/databases")
 	if err != nil {
 		return nil, decodeError(err)
 	}
 
-	databases := make([]Database, 0)
+	databases := PaginatedDatabases{}
 	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&databases); err != nil {
 		return nil, err
 	}
 
-	return databases, nil
+	return &databases, nil
 }
 
 // GetDatabase finds a database by the database UUID
@@ -117,4 +127,38 @@ func (c *Client) UpdateDatabase(v *UpdateDatabaseRequest) (*Database, error) {
 	}
 
 	return result, nil
+}
+
+// FindDatabase finds a database by either part of the ID or part of the name
+func (c *Client) FindDatabase(search string) (*Database, error) {
+	databases, err := c.ListDatabases()
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	exactMatch := false
+	partialMatchesCount := 0
+	result := Database{}
+
+	for _, value := range databases.Items {
+		if strings.EqualFold(value.Name, search) || value.ID == search {
+			exactMatch = true
+			result = value
+		} else if strings.Contains(strings.ToUpper(value.Name), strings.ToUpper(search)) || strings.Contains(value.ID, search) {
+			if !exactMatch {
+				result = value
+				partialMatchesCount++
+			}
+		}
+	}
+
+	if exactMatch || partialMatchesCount == 1 {
+		return &result, nil
+	} else if partialMatchesCount > 1 {
+		err := fmt.Errorf("unable to find %s because there were multiple matches", search)
+		return nil, MultipleMatchesError.wrap(err)
+	} else {
+		err := fmt.Errorf("unable to find %s, zero matches", search)
+		return nil, ZeroMatchesError.wrap(err)
+	}
 }
