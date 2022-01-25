@@ -3,16 +3,17 @@ package civogo
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"strings"
 	"time"
 )
 
 // Team is a named group of users (has many members)
 type Team struct {
-	ID             string    `json:"id"`
-	Name           string    `json:"name,omitempty"`
-	OrganisationID string    `json:"organisation_id,omitempty"`
-	CreatedAt      time.Time `json:"created_at,omitempty"`
-	UpdatedAt      time.Time `json:"updated_at,omitempty"`
+	ID        string    `json:"id"`
+	Name      string    `json:"name,omitempty"`
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
 }
 
 // TeamMember is a link record between User and Team.
@@ -41,9 +42,9 @@ func (c *Client) ListTeams() ([]Team, error) {
 	return teams, nil
 }
 
-// CreateTeam creates a new team in either the account or organisation depending on which field has a non-blank value
-func (c *Client) CreateTeam(name, organisationID, accountID string) (*Team, error) {
-	data := map[string]string{"name": name, "organisation_id": organisationID, "account_id": accountID}
+// CreateTeam creates a new team in the account
+func (c *Client) CreateTeam(name string) (*Team, error) {
+	data := map[string]string{"name": name}
 	resp, err := c.SendPostRequest("/v2/teams", data)
 	if err != nil {
 		return nil, decodeError(err)
@@ -55,6 +56,40 @@ func (c *Client) CreateTeam(name, organisationID, accountID string) (*Team, erro
 	}
 
 	return team, nil
+}
+
+//FindTeam finds a team by either part of the ID or part of the name
+func (c *Client) FindTeam(search string) (*Team, error) {
+	teams, err := c.ListTeams()
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	exactMatch := false
+	partialMatchesCount := 0
+	result := Team{}
+
+	for _, value := range teams {
+		if value.Name == search || value.ID == search {
+			exactMatch = true
+			result = value
+		} else if strings.Contains(value.Name, search) || strings.Contains(value.ID, search) {
+			if !exactMatch {
+				result = value
+				partialMatchesCount++
+			}
+		}
+	}
+
+	if exactMatch || partialMatchesCount == 1 {
+		return &result, nil
+	} else if partialMatchesCount > 1 {
+		err := fmt.Errorf("unable to find %s team because there were multiple matches", search)
+		return nil, MultipleMatchesError.wrap(err)
+	} else {
+		err := fmt.Errorf("unable to find %s team, zero matches", search)
+		return nil, ZeroMatchesError.wrap(err)
+	}
 }
 
 // RenameTeam changes the human set name for a team

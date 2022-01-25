@@ -1360,13 +1360,12 @@ func (c *FakeClient) ListTeams() ([]Team, error) {
 }
 
 // CreateTeam implemented in a fake way for automated tests
-func (c *FakeClient) CreateTeam(name, organisationID, accountID string) (*Team, error) {
+func (c *FakeClient) CreateTeam(name string) (*Team, error) {
 	team := Team{
-		ID:             c.generateID(),
-		Name:           name,
-		OrganisationID: organisationID,
-		CreatedAt:      time.Time{},
-		UpdatedAt:      time.Time{},
+		ID:        c.generateID(),
+		Name:      name,
+		CreatedAt: time.Time{},
+		UpdatedAt: time.Time{},
 	}
 	c.OrganisationTeams = append(c.OrganisationTeams, team)
 	return &team, nil

@@ -25,17 +25,14 @@ func TestListTeams(t *testing.T) {
 
 func TestCreateTeam(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
-		"/v2/teams": `{"id":"12345","name":"Org Admin"}`,
+		"/v2/teams": `{"name":"Org Admin"}`,
 	})
 	defer server.Close()
 
-	got, err := client.CreateTeam("Org Admin", "12345", "abcde")
+	got, err := client.CreateTeam("Org Admin")
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
-	}
-	if got.ID != "12345" {
-		t.Errorf("Expected %s, got %s", "12345", got.ID)
 	}
 	if got.Name != "Org Admin" {
 		t.Errorf("Expected %s, got %s", "admin", got.Name)
