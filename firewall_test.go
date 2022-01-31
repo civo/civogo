@@ -144,12 +144,13 @@ func TestNewFirewallRule(t *testing.T) {
 			"0.0.0.0/0"
 		  ],
 		  "direction": "ingress",
+			"action": "allow",
 		  "label": null
 		}`,
 	})
 	defer server.Close()
 
-	cfg := &FirewallRuleConfig{FirewallID: "78901", Protocol: "tcp", StartPort: "443", EndPort: "443", Cidr: []string{"0.0.0.0/0"}, Direction: "inbound", Label: ""}
+	cfg := &FirewallRuleConfig{FirewallID: "78901", Protocol: "tcp", StartPort: "443", EndPort: "443", Cidr: []string{"0.0.0.0/0"}, Direction: "inbound", Label: "", Action: "allow"}
 	got, err := client.NewFirewallRule(cfg)
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
@@ -164,6 +165,7 @@ func TestNewFirewallRule(t *testing.T) {
 		EndPort:    "443",
 		Cidr:       []string{"0.0.0.0/0"},
 		Direction:  "ingress",
+		Action:     "allow",
 		Label:      "",
 	}
 
@@ -213,6 +215,7 @@ func TestFindFirewallRule(t *testing.T) {
 			  "0.0.0.0/0"
 			],
 			"direction": "ingress",
+			"action": "allow",
 			"label": "My Rule"
 		  },{
 			"id": "22",
@@ -225,6 +228,7 @@ func TestFindFirewallRule(t *testing.T) {
 			  "0.0.0.0/0"
 			],
 			"direction": "ingress",
+			"action": "allow",
 			"label": "My Rule"
 		  }]`,
 	})
@@ -264,6 +268,7 @@ func TestListFirewallRules(t *testing.T) {
 			  "0.0.0.0/0"
 			],
 			"direction": "ingress",
+			"action": "allow",
 			"label": "My Rule"
 		  },{
 			"id": "2",
@@ -276,6 +281,7 @@ func TestListFirewallRules(t *testing.T) {
 			  "0.0.0.0/0"
 			],
 			"direction": "ingress",
+			"action": "allow",
 			"label": "My Rule"
 		  }]`,
 	})
@@ -286,7 +292,7 @@ func TestListFirewallRules(t *testing.T) {
 		t.Errorf("Request returned an error: %s", err)
 		return
 	}
-	expected := []FirewallRule{{ID: "1", FirewallID: "22", Protocol: "tcp", StartPort: "443", EndPort: "443", Cidr: []string{"0.0.0.0/0"}, Direction: "ingress", Label: "My Rule"}, {ID: "2", FirewallID: "22", Protocol: "tcp", StartPort: "80", EndPort: "80", Cidr: []string{"0.0.0.0/0"}, Direction: "ingress", Label: "My Rule"}}
+	expected := []FirewallRule{{ID: "1", FirewallID: "22", Protocol: "tcp", StartPort: "443", EndPort: "443", Cidr: []string{"0.0.0.0/0"}, Direction: "ingress", Label: "My Rule", Action: "allow"}, {ID: "2", FirewallID: "22", Protocol: "tcp", StartPort: "80", EndPort: "80", Cidr: []string{"0.0.0.0/0"}, Direction: "ingress", Label: "My Rule", Action: "allow"}}
 	if !reflect.DeepEqual(got, expected) {
 		t.Errorf("Expected %+v, got %+v", expected, got)
 	}
