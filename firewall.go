@@ -35,6 +35,7 @@ type FirewallRule struct {
 	EndPort    string   `json:"end_port"`
 	Cidr       []string `json:"cidr"`
 	Direction  string   `json:"direction"`
+	Action     string   `json:"action"`
 	Label      string   `json:"label,omitempty"`
 }
 
@@ -47,6 +48,7 @@ type FirewallRuleConfig struct {
 	EndPort    string   `json:"end_port"`
 	Cidr       []string `json:"cidr"`
 	Direction  string   `json:"direction"`
+	Action     string   `json:"action"`
 	Label      string   `json:"label,omitempty"`
 }
 
