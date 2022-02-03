@@ -110,9 +110,12 @@ var (
 	DatabaseMembershipsNotFoundError          = constError("DatabaseMembershipsNotFoundError")
 	DatabaseMembershipsSuspendedError         = constError("DatabaseMembershipsSuspendedError")
 
-	DatabaseLoadbalancerDuplicateError = constError("DatabaseLoadbalancerDuplicateError")
-	DatabaseLoadbalancerInvalidError   = constError("DatabaseLoadbalancerInvalidError")
-	DatabaseLoadbalancerNotFoundError  = constError("DatabaseLoadbalancerNotFoundError")
+	DatabaseLoadBalancerSaveError      = constError("DatabaseLoadBalancerSaveError")
+	DatabaseLoadBalancerDeleteError    = constError("DatabaseLoadBalancerDeleteError")
+	DatabaseLoadBalancerUpdateError    = constError("DatabaseLoadBalancerUpdateError")
+	DatabaseLoadBalancerDuplicateError = constError("DatabaseLoadBalancerDuplicateError")
+	DatabaseLoadBalancerExistsError    = constError("DatabaseLoadBalancerExistsError")
+	DatabaseLoadBalancerNotFoundError  = constError("DatabaseLoadBalancerNotFoundError")
 
 	DatabaseNetworksListError              = constError("DatabaseNetworksListError")
 	DatabaseNetworkCreateError             = constError("DatabaseNetworkCreateError")
@@ -524,15 +527,24 @@ func decodeError(err error) error {
 		case "database_listing_memberships":
 			err := errors.New(msg.String())
 			return DatabaseListingMembershipsError.wrap(err)
-		case "database_loadbalancer_duplicate":
-			err := errors.New(msg.String())
-			return DatabaseLoadbalancerDuplicateError.wrap(err)
-		case "database_loadbalancer_invalid":
-			err := errors.New(msg.String())
-			return DatabaseLoadbalancerInvalidError.wrap(err)
 		case "database_loadbalancer_not_found":
 			err := errors.New(msg.String())
-			return DatabaseLoadbalancerNotFoundError.wrap(err)
+			return DatabaseLoadBalancerNotFoundError.wrap(err)
+		case "database_loadbalancer_exists":
+			err := errors.New(msg.String())
+			return DatabaseLoadBalancerExistsError.wrap(err)
+		case "database_loadbalancer_save_failed":
+			err := errors.New(msg.String())
+			return DatabaseLoadBalancerSaveError.wrap(err)
+		case "database_loadbalancer_deleted_failed":
+			err := errors.New(msg.String())
+			return DatabaseLoadBalancerDeleteError.wrap(err)
+		case "database_loadbalancer_duplicate_name":
+			err := errors.New(msg.String())
+			return DatabaseLoadBalancerDuplicateError.wrap(err)
+		case "database_loadbalancer_update_failed":
+			err := errors.New(msg.String())
+			return DatabaseLoadBalancerUpdateError.wrap(err)
 		case "database_membership_cannot_delete":
 			err := errors.New(msg.String())
 			return DatabaseMembershipCannotDeleteError.wrap(err)
