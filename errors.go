@@ -542,7 +542,7 @@ func decodeError(err error) error {
 		case "database_loadbalancer_duplicate_name":
 			err := errors.New(msg.String())
 			return DatabaseLoadBalancerDuplicateError.wrap(err)
-		case "database_loadbalancerl_update_failed":
+		case "database_loadbalancer_update_failed":
 			err := errors.New(msg.String())
 			return DatabaseLoadBalancerUpdateError.wrap(err)
 		case "database_membership_cannot_delete":
