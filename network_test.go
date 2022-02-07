@@ -7,7 +7,7 @@ import (
 
 func TestGetDefaultNetwork(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
-		"/v2/networks": `[{"id": "12345", "default": true, "name": "Default Network"}]`,
+		"/v2/networks": `[{"id": "12345", "default": true, "name": "Default Network", "status": "Active"}]`,
 	})
 	defer server.Close()
 
@@ -18,6 +18,9 @@ func TestGetDefaultNetwork(t *testing.T) {
 	}
 	if got.ID != "12345" {
 		t.Errorf("Expected %s, got %s", "12345", got.ID)
+	}
+	if got.Status != "Active" {
+		t.Errorf("Expected %s, got %s", "Active", got.Status)
 	}
 }
 
@@ -55,7 +58,8 @@ func TestListNetworks(t *testing.T) {
 			"name": "my-net",
 			"default": false,
 			"cidr": "0.0.0.0/0",
-			"label": "development"
+			"label": "development",
+			"status": "Deleting"
 		  }]`,
 	})
 	defer server.Close()
@@ -65,7 +69,7 @@ func TestListNetworks(t *testing.T) {
 		t.Errorf("Request returned an error: %s", err)
 		return
 	}
-	expected := []Network{{ID: "12345", Name: "my-net", Default: false, CIDR: "0.0.0.0/0", Label: "development"}}
+	expected := []Network{{ID: "12345", Name: "my-net", Default: false, CIDR: "0.0.0.0/0", Label: "development", Status: "Deleting"}}
 	if !reflect.DeepEqual(got, expected) {
 		t.Errorf("Expected %+v, got %+v", expected, got)
 	}

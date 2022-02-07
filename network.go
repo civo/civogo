@@ -15,6 +15,7 @@ type Network struct {
 	Default bool   `json:"default,omitempty"`
 	CIDR    string `json:"cidr,omitempty"`
 	Label   string `json:"label,omitempty"`
+	Status  string `json:"status,omitempty"`
 }
 
 type networkConfig struct {
