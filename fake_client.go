@@ -745,20 +745,37 @@ func (c *FakeClient) ListKubernetesClusterInstances(id string) ([]Instance, erro
 }
 
 // FindKubernetesClusterInstance implemented in a fake way for automated tests
-func (c *FakeClient) FindKubernetesClusterInstance(clusterID, instanceID string) (*Instance, error) {
+func (c *FakeClient) FindKubernetesClusterInstance(clusterID, search string) (*Instance, error) {
 	instances, err := c.ListKubernetesClusterInstances(clusterID)
 	if err != nil {
 		return nil, decodeError(err)
 	}
 
+	exactMatch := false
+	partialMatchesCount := 0
+	result := Instance{}
+
 	for _, instance := range instances {
-		if instance.ID == instanceID {
-			return &instance, nil
+		if instance.Hostname == search || instance.ID == search {
+			exactMatch = true
+			result = instance
+		} else if strings.Contains(instance.Hostname, search) || strings.Contains(instance.ID, search) {
+			if !exactMatch {
+				result = instance
+				partialMatchesCount++
+			}
 		}
 	}
 
-	err = fmt.Errorf("unable to find %s, zero matches", instanceID)
-	return nil, ZeroMatchesError.wrap(err)
+	if exactMatch || partialMatchesCount == 1 {
+		return &result, nil
+	} else if partialMatchesCount > 1 {
+		err := fmt.Errorf("unable to find %s because there were multiple matches", search)
+		return nil, MultipleMatchesError.wrap(err)
+	} else {
+		err := fmt.Errorf("unable to find %s, zero matches", search)
+		return nil, ZeroMatchesError.wrap(err)
+	}
 }
 
 // NewKubernetesClusters implemented in a fake way for automated tests
@@ -1518,14 +1535,31 @@ func (c *FakeClient) GetLoadBalancer(id string) (*LoadBalancer, error) {
 
 // FindLoadBalancer implemented in a fake way for automated tests
 func (c *FakeClient) FindLoadBalancer(search string) (*LoadBalancer, error) {
+	exactMatch := false
+	partialMatchesCount := 0
+	result := LoadBalancer{}
+
 	for _, lb := range c.LoadBalancers {
-		if strings.Contains(lb.Name, search) || strings.Contains(lb.ID, search) {
-			return &lb, nil
+		if lb.ID == search || lb.Name == search {
+			exactMatch = true
+			result = lb
+		} else if strings.Contains(lb.Name, search) || strings.Contains(lb.ID, search) {
+			if !exactMatch {
+				result = lb
+				partialMatchesCount++
+			}
 		}
 	}
 
-	err := fmt.Errorf("unable to find load balancer %s, zero matches", search)
-	return nil, ZeroMatchesError.wrap(err)
+	if exactMatch || partialMatchesCount == 1 {
+		return &result, nil
+	} else if partialMatchesCount > 1 {
+		err := fmt.Errorf("unable to find %s because there were multiple matches", search)
+		return nil, MultipleMatchesError.wrap(err)
+	} else {
+		err := fmt.Errorf("unable to find %s, zero matches", search)
+		return nil, ZeroMatchesError.wrap(err)
+	}
 }
 
 // CreateLoadBalancer implemented in a fake way for automated tests
