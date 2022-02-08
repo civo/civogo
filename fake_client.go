@@ -1499,7 +1499,7 @@ func (c *FakeClient) RemoveTeamMember(teamID, teamMemberID string) (*SimpleRespo
 	return &SimpleResponse{Result: "failure"}, fmt.Errorf("unable to find that team member")
 }
 
-// ListLogs implemented in a fake way for automated tests
+// ListLoadBalancers implemented in a fake way for automated tests
 func (c *FakeClient) ListLoadBalancers() ([]LoadBalancer, error) {
 	return c.LoadBalancers, nil
 }
