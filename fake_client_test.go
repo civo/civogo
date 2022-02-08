@@ -2,6 +2,8 @@ package civogo
 
 import (
 	"testing"
+
+	. "github.com/onsi/gomega"
 )
 
 func TestClienter(t *testing.T) {
@@ -42,4 +44,92 @@ func TestInstances(t *testing.T) {
 		t.Errorf("Expected %+v, got %+v", 1, len(results.Items))
 		return
 	}
+}
+
+// TestLoadBalancers is a test for the LoadBalancers method.
+func TestLoadBalancers(t *testing.T) {
+	g := NewWithT(t)
+
+	client, err := NewFakeClient()
+	g.Expect(err).To(BeNil())
+
+	backendConfig := []LoadBalancerBackendConfig{
+		{
+			IP:         "192.168.1.3",
+			Protocol:   "TCP",
+			SourcePort: 80,
+			TargetPort: 31579,
+		},
+	}
+	config := &LoadBalancerConfig{
+		Name:      "foo",
+		Algorithm: "roundrobin",
+		Backends:  backendConfig,
+	}
+
+	backends := []LoadBalancerBackend{
+		{
+			IP:         "192.168.1.3",
+			Protocol:   "TCP",
+			SourcePort: 80,
+			TargetPort: 31579,
+		},
+	}
+
+	expected := &LoadBalancer{
+		Name:      "foo",
+		Algorithm: "roundrobin",
+		Backends:  []LoadBalancerBackend(backends),
+	}
+
+	loadbalancer, err := client.CreateLoadBalancer(config)
+	g.Expect(err).To(BeNil())
+	expected.ID = loadbalancer.ID
+	g.Expect(loadbalancer).To(Equal(expected))
+
+	loadbalancer, err = client.GetLoadBalancer(loadbalancer.ID)
+	g.Expect(err).To(BeNil())
+	g.Expect(loadbalancer).To(Equal(expected))
+
+	loadbalancers, err := client.ListLoadBalancers()
+	g.Expect(err).To(BeNil())
+	g.Expect(len(loadbalancers)).To(Equal(1))
+
+	loadbalancer, err = client.FindLoadBalancer(loadbalancer.ID)
+	g.Expect(err).To(BeNil())
+	g.Expect(loadbalancer).To(Equal(expected))
+
+	resp, err := client.DeleteLoadBalancer(loadbalancer.ID)
+	g.Expect(err).To(BeNil())
+	g.Expect(resp).To(Equal(&SimpleResponse{Result: "success"}))
+}
+
+// TestKubernetesClustersInstances is a test for the KubernetesClustersInstances method.
+func TestKubernetesClustersInstances(t *testing.T) {
+	g := NewWithT(t)
+
+	client, err := NewFakeClient()
+	g.Expect(err).To(BeNil())
+
+	client.Clusters = []KubernetesCluster{
+		{
+			ID:   "9c89d8b9-463d-45f2-8928-455eb3f3726",
+			Name: "foo-cluster",
+			Instances: []KubernetesInstance{
+				{
+					ID:       "ad0dbf3f-4036-47f5-b33b-6822cf90799c0",
+					Hostname: "foo",
+				},
+			},
+		},
+	}
+
+	instances, err := client.ListKubernetesClusterInstances("9c89d8b9-463d-45f2-8928-455eb3f3726")
+	g.Expect(err).To(BeNil())
+	g.Expect(len(instances)).To(Equal(1))
+
+	instance, err := client.FindKubernetesClusterInstance("9c89d8b9-463d-45f2-8928-455eb3f3726", "ad0dbf3f-4036-47f5-b33b-6822cf90799c0")
+	g.Expect(err).To(BeNil())
+	g.Expect(instance.ID).To(Equal("ad0dbf3f-4036-47f5-b33b-6822cf90799c0"))
+	g.Expect(instance.Hostname).To(Equal("foo"))
 }
