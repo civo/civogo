@@ -63,7 +63,7 @@ func TestLoadBalancers(t *testing.T) {
 	}
 	config := &LoadBalancerConfig{
 		Name:      "foo",
-		Algorithm: "roundrobin",
+		Algorithm: "round_robin",
 		Backends:  backendConfig,
 	}
 
@@ -77,19 +77,26 @@ func TestLoadBalancers(t *testing.T) {
 	}
 
 	expected := &LoadBalancer{
-		Name:      "foo",
-		Algorithm: "roundrobin",
-		Backends:  []LoadBalancerBackend(backends),
+		Name:                  "foo",
+		Algorithm:             "round_robin",
+		Backends:              []LoadBalancerBackend(backends),
+		ExternalTrafficPolicy: "Cluster",
 	}
 
 	loadbalancer, err := client.CreateLoadBalancer(config)
 	g.Expect(err).To(BeNil())
 	expected.ID = loadbalancer.ID
-	g.Expect(loadbalancer).To(Equal(expected))
+	g.Expect(loadbalancer.Name).To(Equal(expected.Name))
+	g.Expect(loadbalancer.Algorithm).To(Equal(expected.Algorithm))
+	g.Expect(loadbalancer.Backends).To(Equal(expected.Backends))
+	g.Expect(loadbalancer.ExternalTrafficPolicy).To(Equal(expected.ExternalTrafficPolicy))
 
 	loadbalancer, err = client.GetLoadBalancer(loadbalancer.ID)
 	g.Expect(err).To(BeNil())
-	g.Expect(loadbalancer).To(Equal(expected))
+	g.Expect(loadbalancer.Name).To(Equal(expected.Name))
+	g.Expect(loadbalancer.Algorithm).To(Equal(expected.Algorithm))
+	g.Expect(loadbalancer.Backends).To(Equal(expected.Backends))
+	g.Expect(loadbalancer.ExternalTrafficPolicy).To(Equal(expected.ExternalTrafficPolicy))
 
 	loadbalancers, err := client.ListLoadBalancers()
 	g.Expect(err).To(BeNil())
@@ -97,7 +104,10 @@ func TestLoadBalancers(t *testing.T) {
 
 	loadbalancer, err = client.FindLoadBalancer(loadbalancer.ID)
 	g.Expect(err).To(BeNil())
-	g.Expect(loadbalancer).To(Equal(expected))
+	g.Expect(loadbalancer.Name).To(Equal(expected.Name))
+	g.Expect(loadbalancer.Algorithm).To(Equal(expected.Algorithm))
+	g.Expect(loadbalancer.Backends).To(Equal(expected.Backends))
+	g.Expect(loadbalancer.ExternalTrafficPolicy).To(Equal(expected.ExternalTrafficPolicy))
 
 	resp, err := client.DeleteLoadBalancer(loadbalancer.ID)
 	g.Expect(err).To(BeNil())
@@ -123,7 +133,12 @@ func TestKubernetesClustersInstances(t *testing.T) {
 			},
 		},
 	}
-
+	client.Instances = []Instance{
+		{
+			ID:       "ad0dbf3f-4036-47f5-b33b-6822cf90799c0",
+			Hostname: "foo",
+		},
+	}
 	instances, err := client.ListKubernetesClusterInstances("9c89d8b9-463d-45f2-8928-455eb3f3726")
 	g.Expect(err).To(BeNil())
 	g.Expect(len(instances)).To(Equal(1))

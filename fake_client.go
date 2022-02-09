@@ -1511,14 +1511,17 @@ func (c *FakeClient) CreateLoadBalancer(r *LoadBalancerConfig) (*LoadBalancer, e
 		loadbalancer.ExternalTrafficPolicy = "Cluster"
 	}
 
-	backends := make([]LoadBalancerBackend, len(r.Backends))
-	for i, b := range r.Backends {
-		backends[i].IP = b.IP
-		backends[i].Protocol = b.Protocol
-		backends[i].SourcePort = b.SourcePort
-		backends[i].TargetPort = b.TargetPort
+	backends := make([]LoadBalancerBackend, 0)
+	for _, b := range r.Backends {
+		backend := LoadBalancerBackend{
+			IP:         b.IP,
+			Protocol:   b.Protocol,
+			SourcePort: b.SourcePort,
+			TargetPort: b.TargetPort,
+		}
+		backends = append(backends, backend)
 	}
-
+	loadbalancer.Backends = backends
 	loadbalancer.PublicIP = c.generatePublicIP()
 	loadbalancer.State = "available"
 
