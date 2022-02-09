@@ -101,13 +101,6 @@ type Clienter interface {
 	ListKubernetesClusterInstances(id string) ([]Instance, error)
 	FindKubernetesClusterInstance(clusterID, search string) (*Instance, error)
 
-	// Load balancers
-	// ListLoadBalancers() ([]LoadBalancer, error)
-	// FindLoadBalancer(search string) (*LoadBalancer, error)
-	// CreateLoadBalancer(r *LoadBalancerConfig) (*LoadBalancer, error)
-	// UpdateLoadBalancer(id string, r *LoadBalancerConfig) (*LoadBalancer, error)
-	// DeleteLoadBalancer(id string) (*SimpleResponse, error)
-
 	// Networks
 	GetDefaultNetwork() (*Network, error)
 	NewNetwork(label string) (*NetworkResult, error)
@@ -718,23 +711,13 @@ func (c *FakeClient) FindKubernetesCluster(search string) (*KubernetesCluster, e
 func (c *FakeClient) ListKubernetesClusterInstances(id string) ([]Instance, error) {
 	for _, cluster := range c.Clusters {
 		if cluster.ID == id {
-			instaces := make([]Instance, len(cluster.Instances))
-			for idx, instance := range cluster.Instances {
-				ins := Instance{
-					ID:              instance.ID,
-					Hostname:        instance.Hostname,
-					Size:            instance.Size,
-					PublicIP:        instance.PublicIP,
-					Status:          instance.Status,
-					InitialUser:     instance.InitialUser,
-					InitialPassword: instance.InitialPassword,
-					FirewallID:      instance.FirewallID,
-					CPUCores:        instance.CPUCores,
-					RAMMegabytes:    instance.RAMMegabytes,
-					DiskGigabytes:   instance.DiskGigabytes,
-					Region:          instance.Region,
+			instaces := make([]Instance, 0)
+			for _, kins := range cluster.Instances {
+				for _, instance := range c.Instances {
+					if instance.ID == kins.ID {
+						instaces = append(instaces, instance)
+					}
 				}
-				instaces[idx] = ins
 			}
 			return instaces, nil
 		}
@@ -852,64 +835,6 @@ func (c *FakeClient) ListAvailableKubernetesVersions() ([]KubernetesVersion, err
 		},
 	}, nil
 }
-
-// ListLoadBalancers implemented in a fake way for automated tests
-// func (c *FakeClient) ListLoadBalancers() ([]LoadBalancer, error) {
-// 	return c.LoadBalancers, nil
-// }
-
-// FindLoadBalancer implemented in a fake way for automated tests
-// func (c *FakeClient) FindLoadBalancer(search string) (*LoadBalancer, error) {
-// 	for _, lb := range c.LoadBalancers {
-// 		if strings.Contains(lb.Hostname, search) {
-// 			return &lb, nil
-// 		}
-// 	}
-
-// 	err := fmt.Errorf("unable to find %s, zero matches", search)
-// 	return nil, ZeroMatchesError.wrap(err)
-// }
-
-// CreateLoadBalancer implemented in a fake way for automated tests
-// func (c *FakeClient) CreateLoadBalancer(r *LoadBalancerConfig) (*LoadBalancer, error) {
-// 	lb := LoadBalancer{
-// 		ID:       c.generateID(),
-// 		Hostname: r.Hostname,
-// 		Protocol: r.Protocol,
-// 		Port:     r.Port,
-// 	}
-
-// 	c.LoadBalancers = append(c.LoadBalancers, lb)
-// 	return &lb, nil
-// }
-
-// UpdateLoadBalancer implemented in a fake way for automated tests
-// func (c *FakeClient) UpdateLoadBalancer(id string, lbc *LoadBalancerConfig) (*LoadBalancer, error) {
-// 	for i, lb := range c.LoadBalancers {
-// 		if lb.ID == id {
-// 			c.LoadBalancers[i].Hostname = lbc.Hostname
-// 			c.LoadBalancers[i].Protocol = lbc.Protocol
-// 			c.LoadBalancers[i].Port = lbc.Port
-// 			return &lb, nil
-// 		}
-// 	}
-
-// 	err := fmt.Errorf("unable to find %s, zero matches", id)
-// 	return nil, ZeroMatchesError.wrap(err)
-// }
-
-// // DeleteLoadBalancer implemented in a fake way for automated tests
-// func (c *FakeClient) DeleteLoadBalancer(id string) (*SimpleResponse, error) {
-// 	for i, lb := range c.LoadBalancers {
-// 		if lb.ID == id {
-// 			c.LoadBalancers[len(c.LoadBalancers)-1], c.LoadBalancers[i] = c.LoadBalancers[i], c.LoadBalancers[len(c.LoadBalancers)-1]
-// 			c.LoadBalancers = c.LoadBalancers[:len(c.LoadBalancers)-1]
-// 			return &SimpleResponse{Result: "success"}, nil
-// 		}
-// 	}
-
-// 	return &SimpleResponse{Result: "failed"}, nil
-// }
 
 // GetDefaultNetwork implemented in a fake way for automated tests
 func (c *FakeClient) GetDefaultNetwork() (*Network, error) {
@@ -1564,7 +1489,7 @@ func (c *FakeClient) FindLoadBalancer(search string) (*LoadBalancer, error) {
 
 // CreateLoadBalancer implemented in a fake way for automated tests
 func (c *FakeClient) CreateLoadBalancer(r *LoadBalancerConfig) (*LoadBalancer, error) {
-	LoadBalancer := LoadBalancer{
+	loadbalancer := LoadBalancer{
 		ID:                           c.generateID(),
 		Name:                         r.Name,
 		Algorithm:                    r.Algorithm,
@@ -1573,14 +1498,32 @@ func (c *FakeClient) CreateLoadBalancer(r *LoadBalancerConfig) (*LoadBalancer, e
 		SessionAffinity:              r.SessionAffinity,
 		EnableProxyProtocol:          r.EnableProxyProtocol,
 		FirewallID:                   r.FirewallID,
+		ClusterID:                    r.ClusterID,
 	}
 
-	for _, b := range r.Backends {
-		LoadBalancer.Backends = append(LoadBalancer.Backends, LoadBalancerBackend(b))
+	if r.Algorithm == "" {
+		loadbalancer.Algorithm = "round_robin"
+	}
+	if r.FirewallID == "" {
+		loadbalancer.FirewallID = c.generateID()
+	}
+	if r.ExternalTrafficPolicy == "" {
+		loadbalancer.ExternalTrafficPolicy = "Cluster"
 	}
 
-	c.LoadBalancers = append(c.LoadBalancers, LoadBalancer)
-	return &LoadBalancer, nil
+	backends := make([]LoadBalancerBackend, len(r.Backends))
+	for i, b := range r.Backends {
+		backends[i].IP = b.IP
+		backends[i].Protocol = b.Protocol
+		backends[i].SourcePort = b.SourcePort
+		backends[i].TargetPort = b.TargetPort
+	}
+
+	loadbalancer.PublicIP = c.generatePublicIP()
+	loadbalancer.State = "available"
+
+	c.LoadBalancers = append(c.LoadBalancers, loadbalancer)
+	return &loadbalancer, nil
 }
 
 // UpdateLoadBalancer implemented in a fake way for automated tests
@@ -1596,7 +1539,14 @@ func (c *FakeClient) UpdateLoadBalancer(id string, r *LoadBalancerUpdateConfig) 
 
 			backends := make([]LoadBalancerBackend, len(r.Backends))
 			for i, b := range r.Backends {
-				backends[i] = LoadBalancerBackend(b)
+				backends[i].IP = b.IP
+				backends[i].Protocol = b.Protocol
+				backends[i].SourcePort = b.SourcePort
+				backends[i].TargetPort = b.TargetPort
+			}
+
+			if r.ExternalTrafficPolicy == "" {
+				lb.ExternalTrafficPolicy = "Cluster"
 			}
 
 			return &lb, nil
