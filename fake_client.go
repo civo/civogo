@@ -711,23 +711,13 @@ func (c *FakeClient) FindKubernetesCluster(search string) (*KubernetesCluster, e
 func (c *FakeClient) ListKubernetesClusterInstances(id string) ([]Instance, error) {
 	for _, cluster := range c.Clusters {
 		if cluster.ID == id {
-			instaces := make([]Instance, len(cluster.Instances))
-			for idx, instance := range cluster.Instances {
-				ins := Instance{
-					ID:              instance.ID,
-					Hostname:        instance.Hostname,
-					Size:            instance.Size,
-					PublicIP:        instance.PublicIP,
-					Status:          instance.Status,
-					InitialUser:     instance.InitialUser,
-					InitialPassword: instance.InitialPassword,
-					FirewallID:      instance.FirewallID,
-					CPUCores:        instance.CPUCores,
-					RAMMegabytes:    instance.RAMMegabytes,
-					DiskGigabytes:   instance.DiskGigabytes,
-					Region:          instance.Region,
+			instaces := make([]Instance, 0)
+			for _, kins := range cluster.Instances {
+				for _, instance := range c.Instances {
+					if instance.ID == kins.ID {
+						instaces = append(instaces, instance)
+					}
 				}
-				instaces[idx] = ins
 			}
 			return instaces, nil
 		}
@@ -1499,7 +1489,7 @@ func (c *FakeClient) FindLoadBalancer(search string) (*LoadBalancer, error) {
 
 // CreateLoadBalancer implemented in a fake way for automated tests
 func (c *FakeClient) CreateLoadBalancer(r *LoadBalancerConfig) (*LoadBalancer, error) {
-	LoadBalancer := LoadBalancer{
+	loadbalancer := LoadBalancer{
 		ID:                           c.generateID(),
 		Name:                         r.Name,
 		Algorithm:                    r.Algorithm,
@@ -1508,14 +1498,32 @@ func (c *FakeClient) CreateLoadBalancer(r *LoadBalancerConfig) (*LoadBalancer, e
 		SessionAffinity:              r.SessionAffinity,
 		EnableProxyProtocol:          r.EnableProxyProtocol,
 		FirewallID:                   r.FirewallID,
+		ClusterID:                    r.ClusterID,
 	}
 
-	for _, b := range r.Backends {
-		LoadBalancer.Backends = append(LoadBalancer.Backends, LoadBalancerBackend(b))
+	if r.Algorithm == "" {
+		loadbalancer.Algorithm = "round_robin"
+	}
+	if r.FirewallID == "" {
+		loadbalancer.FirewallID = c.generateID()
+	}
+	if r.ExternalTrafficPolicy == "" {
+		loadbalancer.ExternalTrafficPolicy = "Cluster"
 	}
 
-	c.LoadBalancers = append(c.LoadBalancers, LoadBalancer)
-	return &LoadBalancer, nil
+	backends := make([]LoadBalancerBackend, len(r.Backends))
+	for i, b := range r.Backends {
+		backends[i].IP = b.IP
+		backends[i].Protocol = b.Protocol
+		backends[i].SourcePort = b.SourcePort
+		backends[i].TargetPort = b.TargetPort
+	}
+
+	loadbalancer.PublicIP = c.generatePublicIP()
+	loadbalancer.State = "available"
+
+	c.LoadBalancers = append(c.LoadBalancers, loadbalancer)
+	return &loadbalancer, nil
 }
 
 // UpdateLoadBalancer implemented in a fake way for automated tests
@@ -1531,7 +1539,14 @@ func (c *FakeClient) UpdateLoadBalancer(id string, r *LoadBalancerUpdateConfig) 
 
 			backends := make([]LoadBalancerBackend, len(r.Backends))
 			for i, b := range r.Backends {
-				backends[i] = LoadBalancerBackend(b)
+				backends[i].IP = b.IP
+				backends[i].Protocol = b.Protocol
+				backends[i].SourcePort = b.SourcePort
+				backends[i].TargetPort = b.TargetPort
+			}
+
+			if r.ExternalTrafficPolicy == "" {
+				lb.ExternalTrafficPolicy = "Cluster"
 			}
 
 			return &lb, nil
