@@ -101,13 +101,6 @@ type Clienter interface {
 	ListKubernetesClusterInstances(id string) ([]Instance, error)
 	FindKubernetesClusterInstance(clusterID, search string) (*Instance, error)
 
-	// Load balancers
-	// ListLoadBalancers() ([]LoadBalancer, error)
-	// FindLoadBalancer(search string) (*LoadBalancer, error)
-	// CreateLoadBalancer(r *LoadBalancerConfig) (*LoadBalancer, error)
-	// UpdateLoadBalancer(id string, r *LoadBalancerConfig) (*LoadBalancer, error)
-	// DeleteLoadBalancer(id string) (*SimpleResponse, error)
-
 	// Networks
 	GetDefaultNetwork() (*Network, error)
 	NewNetwork(label string) (*NetworkResult, error)
@@ -852,64 +845,6 @@ func (c *FakeClient) ListAvailableKubernetesVersions() ([]KubernetesVersion, err
 		},
 	}, nil
 }
-
-// ListLoadBalancers implemented in a fake way for automated tests
-// func (c *FakeClient) ListLoadBalancers() ([]LoadBalancer, error) {
-// 	return c.LoadBalancers, nil
-// }
-
-// FindLoadBalancer implemented in a fake way for automated tests
-// func (c *FakeClient) FindLoadBalancer(search string) (*LoadBalancer, error) {
-// 	for _, lb := range c.LoadBalancers {
-// 		if strings.Contains(lb.Hostname, search) {
-// 			return &lb, nil
-// 		}
-// 	}
-
-// 	err := fmt.Errorf("unable to find %s, zero matches", search)
-// 	return nil, ZeroMatchesError.wrap(err)
-// }
-
-// CreateLoadBalancer implemented in a fake way for automated tests
-// func (c *FakeClient) CreateLoadBalancer(r *LoadBalancerConfig) (*LoadBalancer, error) {
-// 	lb := LoadBalancer{
-// 		ID:       c.generateID(),
-// 		Hostname: r.Hostname,
-// 		Protocol: r.Protocol,
-// 		Port:     r.Port,
-// 	}
-
-// 	c.LoadBalancers = append(c.LoadBalancers, lb)
-// 	return &lb, nil
-// }
-
-// UpdateLoadBalancer implemented in a fake way for automated tests
-// func (c *FakeClient) UpdateLoadBalancer(id string, lbc *LoadBalancerConfig) (*LoadBalancer, error) {
-// 	for i, lb := range c.LoadBalancers {
-// 		if lb.ID == id {
-// 			c.LoadBalancers[i].Hostname = lbc.Hostname
-// 			c.LoadBalancers[i].Protocol = lbc.Protocol
-// 			c.LoadBalancers[i].Port = lbc.Port
-// 			return &lb, nil
-// 		}
-// 	}
-
-// 	err := fmt.Errorf("unable to find %s, zero matches", id)
-// 	return nil, ZeroMatchesError.wrap(err)
-// }
-
-// // DeleteLoadBalancer implemented in a fake way for automated tests
-// func (c *FakeClient) DeleteLoadBalancer(id string) (*SimpleResponse, error) {
-// 	for i, lb := range c.LoadBalancers {
-// 		if lb.ID == id {
-// 			c.LoadBalancers[len(c.LoadBalancers)-1], c.LoadBalancers[i] = c.LoadBalancers[i], c.LoadBalancers[len(c.LoadBalancers)-1]
-// 			c.LoadBalancers = c.LoadBalancers[:len(c.LoadBalancers)-1]
-// 			return &SimpleResponse{Result: "success"}, nil
-// 		}
-// 	}
-
-// 	return &SimpleResponse{Result: "failed"}, nil
-// }
 
 // GetDefaultNetwork implemented in a fake way for automated tests
 func (c *FakeClient) GetDefaultNetwork() (*Network, error) {
