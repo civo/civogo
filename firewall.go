@@ -54,9 +54,10 @@ type FirewallRuleConfig struct {
 
 // FirewallConfig is how you specify the details when creating a new firewall
 type FirewallConfig struct {
-	Name      string `json:"name"`
-	Region    string `json:"region"`
-	NetworkID string `json:"network_id"`
+	Name        string `json:"name"`
+	Region      string `json:"region"`
+	NetworkID   string `json:"network_id"`
+	CreateRules string `json:"create_rules,omitempty"`
 }
 
 // ListFirewalls returns all firewall owned by the calling API account
