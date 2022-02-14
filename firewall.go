@@ -57,6 +57,8 @@ type FirewallConfig struct {
 	Name      string `json:"name"`
 	Region    string `json:"region"`
 	NetworkID string `json:"network_id"`
+	// CreateRules if not send the value will be nil, that mean the default rules will be created
+	CreateRules *bool `json:"create_rules,omitempty"`
 }
 
 // ListFirewalls returns all firewall owned by the calling API account
