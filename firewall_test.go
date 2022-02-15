@@ -69,7 +69,8 @@ func TestNewFirewall(t *testing.T) {
 	})
 	defer server.Close()
 
-	got, err := client.NewFirewall("fw-mail", "1234-5698-9874-98")
+	CreateRules := true
+	got, err := client.NewFirewall("fw-mail", "1234-5698-9874-98", &CreateRules)
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
