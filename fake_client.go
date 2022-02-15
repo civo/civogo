@@ -56,7 +56,7 @@ type Clienter interface {
 	// Firewalls
 	ListFirewalls() ([]Firewall, error)
 	FindFirewall(search string) (*Firewall, error)
-	NewFirewall(name, networkID string) (*FirewallResult, error)
+	NewFirewall(name, networkID string, CreateRules *bool) (*FirewallResult, error)
 	RenameFirewall(id string, f *FirewallConfig) (*SimpleResponse, error)
 	DeleteFirewall(id string) (*SimpleResponse, error)
 	NewFirewallRule(r *FirewallRuleConfig) (*FirewallRule, error)
@@ -406,7 +406,7 @@ func (c *FakeClient) FindFirewall(search string) (*Firewall, error) {
 }
 
 // NewFirewall implemented in a fake way for automated tests
-func (c *FakeClient) NewFirewall(name, networkID string) (*FirewallResult, error) {
+func (c *FakeClient) NewFirewall(name, networkID string, CreateRules *bool) (*FirewallResult, error) {
 	firewall := Firewall{
 		ID:   c.generateID(),
 		Name: name,
