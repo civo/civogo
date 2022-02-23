@@ -150,6 +150,7 @@ func TestCreateInstance(t *testing.T) {
 		  "initial_user": "civo",
 		  "initial_password": "password_here",
 		  "ssh_key": "61f1b5c8-2c87-4cc7-b1af-6278f3050a28",
+		  "ssh_key_id": "816014bd-55de-446a-aedd-2059ff12bb79",
 		  "status": "ACTIVE",
 		  "notes": null,
 		  "firewall_id": "default",
@@ -196,6 +197,9 @@ func TestCreateInstance(t *testing.T) {
 		t.Errorf("Expected %s, got %s", "2", got.TemplateID)
 	}
 	if got.SSHKey != "61f1b5c8-2c87-4cc7-b1af-6278f3050a28" {
+		t.Errorf("Expected %s, got %s", "61f1b5c8-2c87-4cc7-b1af-6278f3050a28", got.SSHKey)
+	}
+	if got.SSHKeyID != "816014bd-55de-446a-aedd-2059ff12bb79" {
 		t.Errorf("Expected %s, got %s", "61f1b5c8-2c87-4cc7-b1af-6278f3050a28", got.SSHKey)
 	}
 }

@@ -29,6 +29,7 @@ type Instance struct {
 	InitialUser              string    `json:"initial_user,omitempty"`
 	InitialPassword          string    `json:"initial_password,omitempty"`
 	SSHKey                   string    `json:"ssh_key,omitempty"`
+	SSHKeyID                 string    `json:"ssh_key_id,omitempty"`
 	Status                   string    `json:"status,omitempty"`
 	Notes                    string    `json:"notes,omitempty"`
 	FirewallID               string    `json:"firewall_id,omitempty"`
