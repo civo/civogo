@@ -87,6 +87,7 @@ type KubernetesCluster struct {
 	InstalledApplications []KubernetesInstalledApplication `json:"installed_applications,omitempty"`
 	FirewallID            string                           `json:"firewall_id,omitempty"`
 	CNIPlugin             string                           `json:"cni_plugin,omitempty"`
+	CCMInstalled          string                           `json:"ccm_installed,omitempty"`
 }
 
 // PaginatedKubernetesClusters is a Kubernetes k3s cluster
