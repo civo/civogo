@@ -51,7 +51,8 @@ func TestListKubernetesClusters(t *testing.T) {
 			"plan": null,
 			"configuration": {}
 		  }],
-			"cni_plugin": "flannel"
+			"cni_plugin": "flannel",
+			"ccm_installed": "true"
 		}]}`,
 	})
 	defer server.Close()
@@ -111,7 +112,8 @@ func TestListKubernetesClusters(t *testing.T) {
 					ImageURL:      "https://api.civo.com/k3s-marketplace/traefik.png",
 					Configuration: map[string]ApplicationConfiguration{},
 				}},
-				CNIPlugin: "flannel",
+				CNIPlugin:    "flannel",
+				CCMInstalled: "true",
 			},
 		},
 	}
@@ -328,7 +330,8 @@ func TestGetKubernetesClusters(t *testing.T) {
 			"plan": null,
 			"configuration": {}
 		  }],
-			"cni_plugin": "flannel"
+			"cni_plugin": "flannel",
+			"ccm_installed": "false"
 		}`,
 	})
 	defer server.Close()
@@ -384,7 +387,8 @@ func TestGetKubernetesClusters(t *testing.T) {
 			ImageURL:      "https://api.civo.com/k3s-marketplace/traefik.png",
 			Configuration: map[string]ApplicationConfiguration{},
 		}},
-		CNIPlugin: "flannel",
+		CNIPlugin:    "flannel",
+		CCMInstalled: "false",
 	}
 
 	if !reflect.DeepEqual(got, expected) {
