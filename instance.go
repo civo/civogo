@@ -175,7 +175,7 @@ func (c *Client) NewInstanceConfig() (*InstanceConfig, error) {
 		Count:            1,
 		Hostname:         utils.RandomName(),
 		ReverseDNS:       "",
-		Size:             "g2.xsmall",
+		Size:             "g3.medium",
 		Region:           c.Region,
 		PublicIPRequired: "true",
 		NetworkID:        network.ID,
