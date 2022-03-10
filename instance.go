@@ -166,7 +166,7 @@ func (c *Client) NewInstanceConfig() (*InstanceConfig, error) {
 		return nil, decodeError(err)
 	}
 
-	diskimage, err := c.GetDiskImageByName("ubuntu-bionic")
+	diskimage, err := c.GetDiskImageByName("ubuntu-focal")
 	if err != nil {
 		return nil, decodeError(err)
 	}
