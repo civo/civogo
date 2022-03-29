@@ -84,10 +84,18 @@ type KubernetesCluster struct {
 	CreatedAt             time.Time                        `json:"created_at,omitempty"`
 	Instances             []KubernetesInstance             `json:"instances,omitempty"`
 	Pools                 []KubernetesPool                 `json:"pools,omitempty"`
+	RequiredPools         []RequiredPools                  `json:"required_pools,omitempty"`
 	InstalledApplications []KubernetesInstalledApplication `json:"installed_applications,omitempty"`
 	FirewallID            string                           `json:"firewall_id,omitempty"`
 	CNIPlugin             string                           `json:"cni_plugin,omitempty"`
 	CCMInstalled          string                           `json:"ccm_installed,omitempty"`
+}
+
+// RequiredPools returns the required pools for a given Kubernetes cluster
+type RequiredPools struct {
+	ID    string `json:"id"`
+	Size  string `json:"size"`
+	Count int    `json:"count"`
 }
 
 // PaginatedKubernetesClusters is a Kubernetes k3s cluster
