@@ -35,6 +35,10 @@ func TestListKubernetesClusters(t *testing.T) {
 			"public_ip": "your.cluster.ip.address",
 			"tags": ["civo-kubernetes:installed", "civo-kubernetes:master"]
 		  }],
+			"required_pools": [
+        {"id": "d6e52d2a-9199-4b04-9118-0559e4d0ce63", "size": "g3.k3s.xsmall","count": 1},
+        {"id": "fc432d8c-c3ab-4716-8ab0-d2164b932da7", "size": "g4s.kube.medium", "count": 2}
+    ],
 		  "installed_applications": [{
 			"application": "Traefik",
 			"title": null,
@@ -99,6 +103,18 @@ func TestListKubernetesClusters(t *testing.T) {
 					PublicIP:   "your.cluster.ip.address",
 					Tags:       []string{"civo-kubernetes:installed", "civo-kubernetes:master"},
 				}},
+				RequiredPools: []RequiredPools{
+					{
+						ID:    "d6e52d2a-9199-4b04-9118-0559e4d0ce63",
+						Size:  "g3.k3s.xsmall",
+						Count: 1,
+					},
+					{
+						ID:    "fc432d8c-c3ab-4716-8ab0-d2164b932da7",
+						Size:  "g4s.kube.medium",
+						Count: 2,
+					},
+				},
 				InstalledApplications: []KubernetesInstalledApplication{{
 					Application:   "Traefik",
 					Version:       "(default)",
