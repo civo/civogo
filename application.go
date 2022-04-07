@@ -24,6 +24,13 @@ type Application struct {
 	Status string `json:"status"`
 }
 
+type PaginatedApplications struct {
+	Page    int           `json:"page"`
+	PerPage int           `json:"per_page"`
+	Pages   int           `json:"pages"`
+	Items   []Application `json:"items"`
+}
+
 // EnvVar holds key-value pairs for an application
 type EnvVar struct {
 	Name  string `json:"name"`
@@ -37,13 +44,13 @@ type ProcessInfo struct {
 }
 
 // ListApplications returns all applications in that specific region
-func (c *Client) ListApplications() ([]Application, error) {
+func (c *Client) ListApplications() (*PaginatedApplications, error) {
 	resp, err := c.SendGetRequest("/v2/applications")
 	if err != nil {
 		return nil, decodeError(err)
 	}
 
-	application := make([]Application, 0)
+	application := &PaginatedApplications{}
 	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&application); err != nil {
 		return nil, decodeError(err)
 	}
@@ -77,7 +84,7 @@ func (c *Client) FindApplication(search string) (*Application, error) {
 	partialMatchesCount := 0
 	result := Application{}
 
-	for _, value := range apps {
+	for _, value := range apps.Items {
 		if value.Name == search || value.ID == search {
 			exactMatch = true
 			result = value
@@ -103,7 +110,6 @@ func (c *Client) FindApplication(search string) (*Application, error) {
 // CreateApplication creates a new application
 func (c *Client) CreateApplication(name string) (*Application, error) {
 	body, err := c.SendPostRequest("/v2/applications", name)
-	//TODO: Check if the above endpoint is correct?
 	if err != nil {
 		return nil, decodeError(err)
 	}
