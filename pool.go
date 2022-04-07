@@ -22,7 +22,7 @@ func (c *Client) ListKubernetesClusterPools(cid string) ([]KubernetesPool, error
 	return pools, nil
 }
 
-// GetKubernetesClusterPools returns a pool for a kubernetes cluster
+// GetKubernetesClusterPool returns a pool for a kubernetes cluster
 func (c *Client) GetKubernetesClusterPool(cid, pid string) (*KubernetesPool, error) {
 	resp, err := c.SendGetRequest(fmt.Sprintf("/v2/kubernetes/clusters/%s/pools/%s", cid, pid))
 	if err != nil {
@@ -37,7 +37,7 @@ func (c *Client) GetKubernetesClusterPool(cid, pid string) (*KubernetesPool, err
 	return pool, nil
 }
 
-// KubernetesClusterPool finds a pool by either part of the ID
+// FindKubernetesClusterPool finds a pool by either part of the ID
 func (c *Client) FindKubernetesClusterPool(cid, search string) (*KubernetesPool, error) {
 	pools, err := c.ListKubernetesClusterPools(cid)
 	if err != nil {
