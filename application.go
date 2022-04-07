@@ -19,8 +19,7 @@ type Application struct {
 	SSHKeyIDs   []string      `json:"ssh_key_ids,omitempty"`
 	Config      []EnvVar      `json:"config,omitempty"`
 	// Status can be one of:
-	// - "building":  Implies cluster is building
-	// - "available": Implies cluster is ready
+	// - "building":  Implies app is building
 	// - "ready": Implies app is ready
 	Status string `json:"status"`
 }
@@ -37,7 +36,7 @@ type ProcessInfo struct {
 	ProcessCount int    `json:"process_count"`
 }
 
-// ListApplications returns all applications in the account
+// ListApplications returns all applications in that specific region
 func (c *Client) ListApplications() ([]Application, error) {
 	resp, err := c.SendGetRequest("/v2/applications")
 	if err != nil {
