@@ -24,6 +24,7 @@ type Application struct {
 	Status string `json:"status"`
 }
 
+// PaginatedApplications returns a paginated list of Application object
 type PaginatedApplications struct {
 	Page    int           `json:"page"`
 	PerPage int           `json:"per_page"`
