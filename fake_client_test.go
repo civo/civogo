@@ -148,3 +148,67 @@ func TestKubernetesClustersInstances(t *testing.T) {
 	g.Expect(instance.ID).To(Equal("ad0dbf3f-4036-47f5-b33b-6822cf90799c0"))
 	g.Expect(instance.Hostname).To(Equal("foo"))
 }
+
+// TestKubernetesClustersPools is a test for the KubernetesClustersPools method.
+func TestKubernetesClustersPools(t *testing.T) {
+	g := NewWithT(t)
+
+	client, err := NewFakeClient()
+	g.Expect(err).To(BeNil())
+
+	client.Clusters = []KubernetesCluster{
+		{
+			ID:   "9c89d8b9-463d-45f2-8928-455eb3f3726",
+			Name: "foo-cluster",
+			Instances: []KubernetesInstance{
+				{
+					ID:       "ad0dbf3f-4036-47f5-b33b-6822cf90799c0",
+					Hostname: "foo",
+				},
+				{
+					ID:       "aa2de9f9-c26e-4faf-8af5-26d7c9e6facf",
+					Hostname: "bar",
+				},
+			},
+			Pools: []KubernetesPool{
+				{
+					ID:    "33de5de2-14fd-44ba-a621-f6efbeeb9639",
+					Count: 2,
+					Size:  "small",
+					InstanceNames: []string{
+						"foo",
+						"bar",
+					},
+					Instances: []KubernetesInstance{
+						{
+							ID:       "ad0dbf3f-4036-47f5-b33b-6822cf90799c0",
+							Hostname: "foo",
+						},
+						{
+							ID:       "aa2de9f9-c26e-4faf-8af5-26d7c9e6facf",
+							Hostname: "bar",
+						},
+					},
+				},
+			},
+		},
+	}
+
+	pools, err := client.ListKubernetesClusterPools("9c89d8b9-463d-45f2-8928-455eb3f3726")
+	g.Expect(err).To(BeNil())
+	g.Expect(len(pools)).To(Equal(1))
+
+	pool, err := client.GetKubernetesClusterPool("9c89d8b9-463d-45f2-8928-455eb3f3726", "33de5de2-14fd-44ba-a621-f6efbeeb9639")
+	g.Expect(err).To(BeNil())
+	g.Expect(pool.ID).To(Equal("33de5de2-14fd-44ba-a621-f6efbeeb9639"))
+	g.Expect(len(pool.InstanceNames)).To(Equal(2))
+
+	pool, err = client.FindKubernetesClusterPool("9c89d8b9-463d-45f2-8928-455eb3f3726", "33de5de2-14fd-44ba-a621-f6efbeeb9639")
+	g.Expect(err).To(BeNil())
+	g.Expect(pool.ID).To(Equal("33de5de2-14fd-44ba-a621-f6efbeeb9639"))
+	g.Expect(len(pool.InstanceNames)).To(Equal(2))
+
+	result, err := client.DeleteKubernetesClusterPoolInstance("9c89d8b9-463d-45f2-8928-455eb3f3726", "33de5de2-14fd-44ba-a621-f6efbeeb9639", "ad0dbf3f-4036-47f5-b33b-6822cf90799c0")
+	g.Expect(err).To(BeNil())
+	g.Expect(string(result.Result)).To(Equal("success"))
+}
