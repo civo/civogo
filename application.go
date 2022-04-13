@@ -27,6 +27,7 @@ type Application struct {
 	CivoK3sClusterID string `json:"civo_k3s_cluster_id"`
 }
 
+// UpdateApplicationRequest is the struct for the UpdateApplication request
 type UpdateApplicationRequest struct {
 	Name        string      `json:"name"`
 	Advanced    bool        `json:"advanced"`
@@ -213,6 +214,7 @@ func (c *Client) FindAppDomain(search, id string) (*string, error) {
 // 	return nil, nil
 // }
 
+// GetAppConfig returns the config for an application
 func (c *Client) GetAppConfig(id string) (*EnvVar, error) {
 	resp, err := c.SendGetRequest(fmt.Sprintf("/v2/applications/%s/config", id))
 	if err != nil {
