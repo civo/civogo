@@ -31,14 +31,7 @@ func (c *Client) ListDiskImages() ([]DiskImage, error) {
 		return nil, err
 	}
 
-	filteredDiskImages := make([]DiskImage, 0)
-	for _, diskImage := range diskImages {
-		if !strings.Contains(diskImage.Name, "k3s") {
-			filteredDiskImages = append(filteredDiskImages, diskImage)
-		}
-	}
-
-	return filteredDiskImages, nil
+	return diskImages, nil
 }
 
 // GetDiskImage get one disk image using the id
