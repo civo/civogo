@@ -197,6 +197,7 @@ func (c *Client) FindAppDomain(search, id string) (string, error) {
 	return "", ErrAppDomainNotFound
 }
 
+//DeleteAppDomain deletes an app domain from an application
 func (c *Client) DeleteAppDomain(domains []string, appID, domain string) (*SimpleResponse, error) {
 	if len(domains) == 0 {
 		err := fmt.Errorf("there is no domain to delete")
