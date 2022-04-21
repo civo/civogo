@@ -183,36 +183,34 @@ func (c *Client) ListAppDomains(id string) ([]string, error) {
 }
 
 //FindAppDomain finds an app domain inside an application by the domain name
-func (c *Client) FindAppDomain(search, id string) (*string, error) {
+func (c *Client) FindAppDomain(search, id string) (string, error) {
 	appDomains, err := c.ListAppDomains(id)
 	if err != nil {
-		return nil, decodeError(err)
+		return "", decodeError(err)
 	}
 
 	for _, domain := range appDomains {
 		if domain == search {
-			return &domain, nil
+			return domain, nil
 		}
 	}
-	return nil, ErrAppDomainNotFound
+	return "", ErrAppDomainNotFound
 }
 
-// DeleteAppDomain deletes the app domain
-// func (c *Client) DeleteAppDomain(id string, names []string) (*SimpleResponse, error) {
-// 	if len(names) == 0 {
-// 		err := fmt.Errorf("there is no domain to delete")
-// 		return nil, err
-// 	}
+func (c *Client) DeleteAppDomain(domains []string, appID, domain string) (*SimpleResponse, error) {
+	if len(domains) == 0 {
+		err := fmt.Errorf("there is no domain to delete")
+		return nil, err
+	}
 
-// 	for _, name := range names {
-// 		resp, err := c.SendDeleteRequest(fmt.Sprintf("/v2/applications/%s/domains/%s", id, name))
-// 		if err != nil {
-// 			return nil, decodeError(err)
-// 		}
-// 		return c.DecodeSimpleResponse(resp)
-// 	}
-// 	return nil, nil
-// }
+	url := fmt.Sprintf("/v2/applications/%s/domains/%s", appID, domain)
+	resp, err := c.SendDeleteRequest(url)
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	return c.DecodeSimpleResponse(resp)
+}
 
 // GetAppConfig returns the config for an application
 func (c *Client) GetAppConfig(id string) (*EnvVar, error) {
