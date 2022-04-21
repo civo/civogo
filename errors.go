@@ -101,6 +101,11 @@ var (
 	DatabaseKubernetesClusterNotFoundError        = constError("DatabaseKubernetesClusterNotFound")
 	DatabaseKubernetesNodeNotFoundError           = constError("DatabaseKubernetesNodeNotFound")
 
+	DatabaseClusterPoolNotFoundError                       = constError("DatabaseClusterPoolNotFound")
+	DatabaseClusterPoolInstanceNotFoundError               = constError("DatabaseClusterPoolInstanceNotFound")
+	DatabaseClusterPoolInstanceDeleteFailedError           = constError("DatabaseClusterPoolInstanceDeleteFailed")
+	DatabaseClusterPoolNoSufficientInstancesAvailableError = constError("DatabaseClusterPoolNoSufficientInstancesAvailable")
+
 	DatabaseListingAccountsError              = constError("DatabaseListingAccountsError")
 	DatabaseListingMembershipsError           = constError("DatabaseListingMembershipsError")
 	DatabaseMembershipCannotDeleteError       = constError("DatabaseMembershipCannotDeleteError")
@@ -938,6 +943,18 @@ func decodeError(err error) error {
 		case "database_kubernetes_node_not_found":
 			err := errors.New(msg.String())
 			return DatabaseKubernetesNodeNotFoundError.wrap(err)
+		case "database_cluster_pool_not_found":
+			err := errors.New(msg.String())
+			return DatabaseClusterPoolNotFoundError.wrap(err)
+		case "database_cluster_pool_instance_not_found":
+			err := errors.New(msg.String())
+			return DatabaseClusterPoolInstanceNotFoundError.wrap(err)
+		case "database_cluster_pool_instance_delete_failed":
+			err := errors.New(msg.String())
+			return DatabaseClusterPoolInstanceDeleteFailedError.wrap(err)
+		case "database_cluster_pool_no_sufficient_instances_available":
+			err := errors.New(msg.String())
+			return DatabaseClusterPoolNoSufficientInstancesAvailableError.wrap(err)
 		case "database_instance_already_in_rescue_state":
 			err := errors.New(msg.String())
 			return DatabaseInstanceAlreadyinRescueStateError.wrap(err)
