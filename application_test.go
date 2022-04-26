@@ -83,24 +83,8 @@ func TestCreateApplication(t *testing.T) {
 	cfg := &ApplicationConfig{
 		Name:        "test-app",
 		Description: "test app",
-		Domains:     []string{"test-app.example.com"},
 		SSHKeyIDs:   []string{"12345"},
-		Config: []EnvVar{
-			{
-				Name:  "PORT",
-				Value: "80",
-			},
-		},
-		ProcessInfo: []ProcessInfo{
-			{
-				ProcessType:  "web",
-				ProcessCount: 1,
-			},
-		},
-		Image:            "test-image",
-		Size:             "small",
-		Status:           "ACTIVE",
-		CivoK3sClusterID: "12345",
+		Size:        "small",
 	}
 
 	got, err := client.CreateApplication(cfg)

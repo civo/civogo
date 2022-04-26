@@ -25,36 +25,29 @@ type Application struct {
 	// - "building":  Implies platform is building
 	// - "available": Implies platform is available to accept image
 	// - "ready": Implies app is ready
-	Status           string `json:"status"`
-	CivoK3sClusterID string `json:"civo_k3s_cluster_id"`
+	Status string `json:"status"`
 }
 
 // ApplicationConfig describes the parameters for a new CivoApp
 type ApplicationConfig struct {
-	Name             string        `json:"name" validate:"required"`
-	NetworkID        string        `json:"network_id" validate:"required"`
-	Description      string        `json:"description"`
-	Image            string        `json:"image"`
-	Size             string        `json:"size"`
-	ProcessInfo      []ProcessInfo `json:"process_info,omitempty"`
-	Domains          []string      `json:"domains,omitempty"`
-	SSHKeyIDs        []string      `json:"ssh_key_ids,omitempty"`
-	Config           []EnvVar      `json:"config,omitempty"`
-	Status           string        `json:"status"`
-	CivoK3sClusterID string        `json:"civo_k3s_cluster_id"`
+	Name        string   `json:"name" validate:"required"`
+	NetworkID   string   `json:"network_id" validate:"required"`
+	Description string   `json:"description"`
+	Size        string   `json:"size"`
+	SSHKeyIDs   []string `json:"ssh_key_ids,omitempty"`
 }
 
 // UpdateApplicationRequest is the struct for the UpdateApplication request
 type UpdateApplicationRequest struct {
-	Name        string      `json:"name"`
-	Advanced    bool        `json:"advanced"`
-	Image       string      `json:"image" `
-	Description string      `json:"description"`
-	ProcessInfo ProcessInfo `json:"process_info"`
-	Size        string      `json:"size" schema:"size"`
-	SSHKeyIDs   []string    `json:"ssh_key_ids" `
-	Config      []EnvVar    `json:"config"`
-	Domains     []string    `json:"domains"`
+	Name        string        `json:"name"`
+	Advanced    bool          `json:"advanced"`
+	Image       string        `json:"image" `
+	Description string        `json:"description"`
+	ProcessInfo []ProcessInfo `json:"process_info"`
+	Size        string        `json:"size" schema:"size"`
+	SSHKeyIDs   []string      `json:"ssh_key_ids" `
+	Config      []EnvVar      `json:"config"`
+	Domains     []string      `json:"domains"`
 }
 
 // PaginatedApplications returns a paginated list of Application object
@@ -121,19 +114,8 @@ func (c *Client) NewApplicationConfig() (*ApplicationConfig, error) {
 		Name:        utils.RandomName(),
 		NetworkID:   network.ID,
 		Description: "",
-		Image:       "",
 		Size:        "small",
-		ProcessInfo: []ProcessInfo{
-			{
-				ProcessType:  "web",
-				ProcessCount: 1,
-			},
-		},
-		Domains:          []string{},
-		SSHKeyIDs:        []string{},
-		Config:           []EnvVar{},
-		Status:           "",
-		CivoK3sClusterID: "",
+		SSHKeyIDs:   []string{},
 	}, nil
 }
 
