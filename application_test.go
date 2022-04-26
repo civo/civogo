@@ -49,7 +49,6 @@ func TestListApplications(t *testing.T) {
 				ID:          "69a23478-a89e-41d2-97b1-6f4c341cee70",
 				Name:        "your-app-name",
 				Status:      "ACTIVE",
-				AccountID:   "12345",
 				NetworkID:   "34567",
 				Description: "this is a test app",
 				ProcessInfo: []ProcessInfo{
@@ -81,7 +80,30 @@ func TestCreateApplication(t *testing.T) {
 	})
 	defer server.Close()
 
-	got, err := client.CreateApplication("test-app")
+	cfg := &ApplicationConfig{
+		Name:        "test-app",
+		Description: "test app",
+		Domains:     []string{"test-app.example.com"},
+		SSHKeyIDs:   []string{"12345"},
+		Config: []EnvVar{
+			{
+				Name:  "PORT",
+				Value: "80",
+			},
+		},
+		ProcessInfo: []ProcessInfo{
+			{
+				ProcessType:  "web",
+				ProcessCount: 1,
+			},
+		},
+		Image:            "test-image",
+		Size:             "small",
+		Status:           "ACTIVE",
+		CivoK3sClusterID: "12345",
+	}
+
+	got, err := client.CreateApplication(cfg)
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return

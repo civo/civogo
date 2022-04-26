@@ -5,12 +5,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+
+	"github.com/civo/civogo/utils"
 )
 
 // Application is the struct for the Application model
 type Application struct {
 	Name        string        `json:"name" validate:"required"`
-	AccountID   string        `json:"account_id"`
 	ID          string        `json:"id"`
 	NetworkID   string        `json:"network_id" validate:"required"`
 	Description string        `json:"description"`
@@ -21,10 +22,26 @@ type Application struct {
 	SSHKeyIDs   []string      `json:"ssh_key_ids,omitempty"`
 	Config      []EnvVar      `json:"config,omitempty"`
 	// Status can be one of:
-	// - "building":  Implies app is building
+	// - "building":  Implies platform is building
+	// - "available": Implies platform is available to accept image
 	// - "ready": Implies app is ready
 	Status           string `json:"status"`
 	CivoK3sClusterID string `json:"civo_k3s_cluster_id"`
+}
+
+// ApplicationConfig describes the parameters for a new CivoApp
+type ApplicationConfig struct {
+	Name             string        `json:"name" validate:"required"`
+	NetworkID        string        `json:"network_id" validate:"required"`
+	Description      string        `json:"description"`
+	Image            string        `json:"image"`
+	Size             string        `json:"size"`
+	ProcessInfo      []ProcessInfo `json:"process_info,omitempty"`
+	Domains          []string      `json:"domains,omitempty"`
+	SSHKeyIDs        []string      `json:"ssh_key_ids,omitempty"`
+	Config           []EnvVar      `json:"config,omitempty"`
+	Status           string        `json:"status"`
+	CivoK3sClusterID string        `json:"civo_k3s_cluster_id"`
 }
 
 // UpdateApplicationRequest is the struct for the UpdateApplication request
@@ -93,6 +110,33 @@ func (c *Client) GetApplication(id string) (*Application, error) {
 	return application, nil
 }
 
+// NewApplicationConfig returns an initialized config for a new application
+func (c *Client) NewApplicationConfig() (*ApplicationConfig, error) {
+	network, err := c.GetDefaultNetwork()
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	return &ApplicationConfig{
+		Name:        utils.RandomName(),
+		NetworkID:   network.ID,
+		Description: "",
+		Image:       "",
+		Size:        "small",
+		ProcessInfo: []ProcessInfo{
+			{
+				ProcessType:  "web",
+				ProcessCount: 1,
+			},
+		},
+		Domains:          []string{},
+		SSHKeyIDs:        []string{},
+		Config:           []EnvVar{},
+		Status:           "",
+		CivoK3sClusterID: "",
+	}, nil
+}
+
 // FindApplication finds an application by either part of the ID or part of the name
 func (c *Client) FindApplication(search string) (*Application, error) {
 	apps, err := c.ListApplications()
@@ -128,18 +172,18 @@ func (c *Client) FindApplication(search string) (*Application, error) {
 }
 
 // CreateApplication creates a new application
-func (c *Client) CreateApplication(name string) (*Application, error) {
-	body, err := c.SendPostRequest("/v2/applications", name)
+func (c *Client) CreateApplication(config *ApplicationConfig) (*Application, error) {
+	body, err := c.SendPostRequest("/v2/applications", config)
 	if err != nil {
 		return nil, decodeError(err)
 	}
 
-	application := &Application{}
-	if err := json.NewDecoder(bytes.NewReader(body)).Decode(application); err != nil {
+	var application Application
+	if err := json.NewDecoder(bytes.NewReader(body)).Decode(&application); err != nil {
 		return nil, err
 	}
 
-	return application, nil
+	return &application, nil
 }
 
 // UpdateApplication updates an application
