@@ -80,3 +80,18 @@ func (c *Client) DeleteKubernetesClusterPoolInstance(cid, pid, id string) (*Simp
 
 	return c.DecodeSimpleResponse(resp)
 }
+
+// UpdateKubernetesClusterPool updates a pool for a kubernetes cluster
+func (c *Client) UpdateKubernetesClusterPool(cid, pid string, config *KubernetesClusterPoolConfig) (*KubernetesPool, error) {
+	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/kubernetes/clusters/%s/pools/%s", cid, pid), config)
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	pool := &KubernetesPool{}
+	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&pool); err != nil {
+		return nil, decodeError(err)
+	}
+
+	return pool, nil
+}
