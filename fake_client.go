@@ -107,6 +107,7 @@ type Clienter interface {
 	GetKubernetesClusterPool(cid, pid string) (*KubernetesPool, error)
 	FindKubernetesClusterPool(cid, search string) (*KubernetesPool, error)
 	DeleteKubernetesClusterPoolInstance(cid, pid, id string) (*SimpleResponse, error)
+	UpdateKubernetesClusterPool(cid, pid string, config *KubernetesClusterPoolConfig) (*KubernetesPool, error)
 
 	// Networks
 	GetDefaultNetwork() (*Network, error)
@@ -1714,4 +1715,36 @@ func (c *FakeClient) DeleteKubernetesClusterPoolInstance(cid, pid, id string) (*
 	return &SimpleResponse{
 		Result: "success",
 	}, nil
+}
+
+// UpdateKubernetesClusterPool implemented in a fake way for automated tests
+func (c *FakeClient) UpdateKubernetesClusterPool(cid, pid string, config *KubernetesClusterPoolConfig) (*KubernetesPool, error) {
+	clusterFound := false
+	poolFound := false
+
+	pool := KubernetesPool{}
+	for _, cs := range c.Clusters {
+		if cs.ID == cid {
+			clusterFound = true
+			for _, p := range cs.Pools {
+				if p.ID == pid {
+					poolFound = true
+					p.Count = config.Count
+					pool = p
+				}
+			}
+		}
+	}
+
+	if !clusterFound {
+		err := fmt.Errorf("unable to get kubernetes cluster %s", cid)
+		return nil, DatabaseKubernetesClusterNotFoundError.wrap(err)
+	}
+
+	if !poolFound {
+		err := fmt.Errorf("unable to get kubernetes pool %s", pid)
+		return nil, DatabaseKubernetesClusterNotFoundError.wrap(err)
+	}
+
+	return &pool, nil
 }
