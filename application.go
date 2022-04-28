@@ -169,7 +169,7 @@ func (c *Client) CreateApplication(config *ApplicationConfig) (*Application, err
 }
 
 // UpdateApplication updates an application
-func (c *Client) UpdateApplication(id string, application *ApplicationConfig) (*Application, error) {
+func (c *Client) UpdateApplication(id string, application *UpdateApplicationRequest) (*Application, error) {
 	body, err := c.SendPutRequest(fmt.Sprintf("/v2/applications/%s", id), application)
 	if err != nil {
 		return nil, decodeError(err)
