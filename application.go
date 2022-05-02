@@ -66,8 +66,8 @@ type EnvVar struct {
 
 // ProcessInfo contains the information about the process obtained from Procfile
 type ProcessInfo struct {
-	ProcessType  string `json:"process_type"`
-	ProcessCount int    `json:"process_count"`
+	ProcessType  string `json:"processType"`
+	ProcessCount int    `json:"processCount"`
 }
 
 // ErrAppDomainNotFound is returned when the domain is not found
