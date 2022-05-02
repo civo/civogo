@@ -16,8 +16,8 @@ func TestListApplications(t *testing.T) {
 		  "description": "this is a test app",
 		  "process_info": [
 			  	{
-					"process_type": "web",
-					"process_count": 1
+					"processType": "web",
+					"processCount": 1
 				  }],
 			"domains": [
 				"your-app-name.example.com"
