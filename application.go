@@ -192,3 +192,13 @@ func (c *Client) DeleteApplication(id string) (*SimpleResponse, error) {
 
 	return c.DecodeSimpleResponse(resp)
 }
+
+// GetApplicationLogAuth returns an application log auth
+func (c *Client) GetApplicationLogAuth(id string) (string, error) {
+	resp, err := c.SendGetRequest(fmt.Sprintf("/v2/applications/%s/log_auth", id))
+	if err != nil {
+		return "", decodeError(err)
+	}
+
+	return string(resp), nil
+}
