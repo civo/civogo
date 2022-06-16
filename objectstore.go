@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-// ObjectStore is the struct for the ObjectStorage model
+// ObjectStorage is the struct for the ObjectStorage model
 type ObjectStorage struct {
 	ID            string `json:"id"`
 	Name          string `json:"name"`
