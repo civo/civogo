@@ -28,12 +28,14 @@ type CreateObjectStoreRequest struct {
 	Name       string `json:"name" validate:"required"`
 	MaxSizeGB  int    `json:"max_size_gb" validate:"required"`
 	MaxObjects int    `json:"max_objects"`
+	Region     string `json:"region"`
 }
 
 // UpdateObjectStoreRequest holds the request to update a specified object storage's details
 type UpdateObjectStoreRequest struct {
-	MaxSizeGB  int `json:"max_size_gb"`
-	MaxObjects int `json:"max_objects"`
+	MaxSizeGB  int    `json:"max_size_gb"`
+	MaxObjects int    `json:"max_objects"`
+	Region     string `json:"region"`
 }
 
 // ListObjectStores returns all objectstores in that specific region
