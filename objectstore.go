@@ -32,6 +32,7 @@ type CreateObjectStoreRequest struct {
 	Prefix          string `json:"prefix,omitempty"`
 	AccessKeyID     string `json:"access_key_id,omitempty"`
 	SecretAccessKey string `json:"secret_access_key,omitempty"`
+	Region     string `json:"region"`
 }
 
 // UpdateObjectStoreRequest holds the request to update a specified object storage's details
@@ -40,6 +41,7 @@ type UpdateObjectStoreRequest struct {
 	MaxObjects      int    `json:"max_objects"`
 	AccessKeyID     string `json:"access_key_id,omitempty"`
 	SecretAccessKey string `json:"secret_access_key,omitempty"`
+	Region     string `json:"region"`
 }
 
 // ListObjectStores returns all objectstores in that specific region
