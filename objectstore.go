@@ -25,8 +25,7 @@ type ObjectStore struct {
 
 // CreateObjectStoreRequest holds the request to create a new object storage
 type CreateObjectStoreRequest struct {
-	//Name            string `json:"name,omitempty" schema:"name"`
-	Name            string `json:"-"`
+	Name            string `json:"name,omitempty"`
 	MaxSizeGB       int    `json:"max_size_gb" validate:"required"`
 	MaxObjects      int    `json:"max_objects"`
 	Prefix          string `json:"prefix,omitempty"`
