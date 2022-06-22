@@ -25,15 +25,21 @@ type ObjectStore struct {
 
 // CreateObjectStoreRequest holds the request to create a new object storage
 type CreateObjectStoreRequest struct {
-	Name       string `json:"name" validate:"required"`
-	MaxSizeGB  int    `json:"max_size_gb" validate:"required"`
-	MaxObjects int    `json:"max_objects"`
+	//Name            string `json:"name,omitempty" schema:"name"`
+	Name            string `json:"-"`
+	MaxSizeGB       int    `json:"max_size_gb" validate:"required"`
+	MaxObjects      int    `json:"max_objects"`
+	Prefix          string `json:"prefix,omitempty"`
+	AccessKeyID     string `json:"access_key_id,omitempty"`
+	SecretAccessKey string `json:"secret_access_key,omitempty"`
 }
 
 // UpdateObjectStoreRequest holds the request to update a specified object storage's details
 type UpdateObjectStoreRequest struct {
-	MaxSizeGB  int `json:"max_size_gb"`
-	MaxObjects int `json:"max_objects"`
+	MaxSizeGB       int    `json:"max_size_gb"`
+	MaxObjects      int    `json:"max_objects"`
+	AccessKeyID     string `json:"access_key_id,omitempty"`
+	SecretAccessKey string `json:"secret_access_key,omitempty"`
 }
 
 // ListObjectStores returns all objectstores in that specific region
