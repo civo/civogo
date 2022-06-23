@@ -22,12 +22,12 @@ type ObjectStore struct {
 
 // CreateObjectStoreRequest holds the request to create a new object storage
 type CreateObjectStoreRequest struct {
-	//Name            string `json:"name,omitempty"`
-	MaxSizeGB int    `json:"max_size_gb"`
-	Prefix    string `json:"prefix,omitempty"`
-	//AccessKeyID     string `json:"access_key_id,omitempty"`
-	//SecretAccessKey string `json:"secret_access_key,omitempty"`
-	Region string `json:"region,omitempty"`
+	Name            string `json:"name,omitempty"`
+	MaxSizeGB       int    `json:"max_size_gb" validate:"required"`
+	Prefix          string `json:"prefix,omitempty"`
+	AccessKeyID     string `json:"access_key_id,omitempty"`
+	SecretAccessKey string `json:"secret_access_key,omitempty"`
+	Region          string `json:"region"`
 }
 
 // UpdateObjectStoreRequest holds the request to update a specified object storage's details
