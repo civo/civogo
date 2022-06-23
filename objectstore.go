@@ -9,38 +9,33 @@ import (
 
 // ObjectStore is the struct for the ObjectStore model
 type ObjectStore struct {
-	ID            string `json:"id"`
-	Name          string `json:"name"`
-	GeneratedName string `json:"generated_name"`
-	//default:1000
-	MaxObjects int `json:"max_objects"`
-	//default:500G
+	ID                  string `json:"id"`
+	Name                string `json:"name"`
+	GeneratedName       string `json:"generated_name"`
+	MaxObjects          int    `json:"max_objects"`
 	MaxSize             string `json:"max_size"`
 	AccessKeyID         string `json:"access_key_id"`
 	SecretAccessKey     string `json:"secret_access_key"`
 	ObjectStoreEndpoint string `json:"objectstore_endpoint"`
-	//Status can be one of - 1.ready, 2.creating and 3.failed
-	Status string `json:"status"`
+	Status              string `json:"status"`
 }
 
 // CreateObjectStoreRequest holds the request to create a new object storage
 type CreateObjectStoreRequest struct {
-	Name            string `json:"name,omitempty"`
-	MaxSizeGB       int    `json:"max_size_gb" validate:"required"`
-	MaxObjects      int    `json:"max_objects"`
-	Prefix          string `json:"prefix,omitempty"`
-	AccessKeyID     string `json:"access_key_id,omitempty"`
-	SecretAccessKey string `json:"secret_access_key,omitempty"`
-	Region          string `json:"region"`
+	//Name            string `json:"name,omitempty"`
+	MaxSizeGB int    `json:"max_size_gb"`
+	Prefix    string `json:"prefix,omitempty"`
+	//AccessKeyID     string `json:"access_key_id,omitempty"`
+	//SecretAccessKey string `json:"secret_access_key,omitempty"`
+	Region string `json:"region,omitempty"`
 }
 
 // UpdateObjectStoreRequest holds the request to update a specified object storage's details
 type UpdateObjectStoreRequest struct {
 	MaxSizeGB       int    `json:"max_size_gb"`
-	MaxObjects      int    `json:"max_objects"`
 	AccessKeyID     string `json:"access_key_id,omitempty"`
 	SecretAccessKey string `json:"secret_access_key,omitempty"`
-	Region          string `json:"region"`
+	Region          string `json:"region,omitempty"`
 }
 
 // ListObjectStores returns all objectstores in that specific region
