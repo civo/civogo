@@ -46,6 +46,19 @@ type SimpleResponse struct {
 	ErrorDetails string `json:"details"`
 }
 
+// ConfigAdvanceClientForTesting initializes a Client connecting to a local test server and allows for specifying methods
+type ConfigAdvanceClientForTesting struct {
+	Method string
+	Value  []ValueAdvanceClientForTesting
+}
+
+// ValueAdvanceClientForTesting is a struct that holds the URL and the request body
+type ValueAdvanceClientForTesting struct {
+	RequestBody  string
+	URL          string
+	ResponseBody string
+}
+
 // ResultSuccess represents a successful SimpleResponse
 const ResultSuccess = "success"
 
@@ -86,7 +99,7 @@ func NewClient(apiKey, region string) (*Client, error) {
 }
 
 // NewAdvancedClientForTesting initializes a Client connecting to a local test server and allows for specifying methods
-func NewAdvancedClientForTesting(responses map[string]map[string]string) (*Client, *httptest.Server, error) {
+func NewAdvancedClientForTesting(responses []ConfigAdvanceClientForTesting) (*Client, *httptest.Server, error) {
 	var responseSent bool
 
 	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
@@ -98,17 +111,23 @@ func NewAdvancedClientForTesting(responses map[string]map[string]string) (*Clien
 
 		req.Body = ioutil.NopCloser(bytes.NewBuffer(body))
 
-		for url, criteria := range responses {
-			if strings.Contains(req.URL.String(), url) &&
-				req.Method == criteria["method"] {
-				if criteria["method"] == "PUT" || criteria["method"] == "POST" || criteria["method"] == "PATCH" {
-					if strings.TrimSpace(string(body)) == strings.TrimSpace(criteria["requestBody"]) {
-						responseSent = true
-						rw.Write([]byte(criteria["responseBody"]))
+		for _, criteria := range responses {
+			// we check the method first
+			if criteria.Method == "PUT" || criteria.Method == "POST" || criteria.Method == "PATCH" {
+				for _, criteria := range criteria.Value {
+					if strings.Contains(req.URL.String(), criteria.URL) {
+						if strings.TrimSpace(string(body)) == strings.TrimSpace(criteria.RequestBody) {
+							responseSent = true
+							rw.Write([]byte(criteria.ResponseBody))
+						}
 					}
-				} else {
-					responseSent = true
-					rw.Write([]byte(criteria["responseBody"]))
+				}
+			} else {
+				for _, criteria := range criteria.Value {
+					if strings.Contains(req.URL.String(), criteria.URL) {
+						responseSent = true
+						rw.Write([]byte(criteria.ResponseBody))
+					}
 				}
 			}
 		}
