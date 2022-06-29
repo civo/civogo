@@ -20,6 +20,14 @@ type ObjectStore struct {
 	Status              string `json:"status"`
 }
 
+// PaginatedObjectstores is a paginated list of Objectstores
+type PaginatedObjectstores struct {
+	Page    int           `json:"page"`
+	PerPage int           `json:"per_page"`
+	Pages   int           `json:"pages"`
+	Items   []ObjectStore `json:"items"`
+}
+
 // CreateObjectStoreRequest holds the request to create a new object storage
 type CreateObjectStoreRequest struct {
 	Name            string `json:"name,omitempty"`
@@ -39,13 +47,13 @@ type UpdateObjectStoreRequest struct {
 }
 
 // ListObjectStores returns all objectstores in that specific region
-func (c *Client) ListObjectStores() ([]ObjectStore, error) {
+func (c *Client) ListObjectStores() (*PaginatedObjectstores, error) {
 	resp, err := c.SendGetRequest("/v2/objectstores")
 	if err != nil {
 		return nil, decodeError(err)
 	}
 
-	var stores = make([]ObjectStore, 0)
+	stores := &PaginatedObjectstores{}
 	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&stores); err != nil {
 		return nil, err
 	}
@@ -79,7 +87,7 @@ func (c *Client) FindObjectStore(search string) (*ObjectStore, error) {
 	partialMatchesCount := 0
 	result := ObjectStore{}
 
-	for _, value := range objectstores {
+	for _, value := range objectstores.Items {
 		if value.AccessKeyID == search || value.Name == search || value.ID == search {
 			exactMatch = true
 			result = value
