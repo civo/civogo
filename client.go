@@ -115,7 +115,7 @@ func NewAdvancedClientForTesting(responses []ConfigAdvanceClientForTesting) (*Cl
 			// we check the method first
 			if criteria.Method == "PUT" || criteria.Method == "POST" || criteria.Method == "PATCH" {
 				for _, criteria := range criteria.Value {
-					if strings.Contains(req.URL.String(), criteria.URL) {
+					if req.URL.Path == criteria.URL {
 						if strings.TrimSpace(string(body)) == strings.TrimSpace(criteria.RequestBody) {
 							responseSent = true
 							rw.Write([]byte(criteria.ResponseBody))
@@ -124,7 +124,7 @@ func NewAdvancedClientForTesting(responses []ConfigAdvanceClientForTesting) (*Cl
 				}
 			} else {
 				for _, criteria := range criteria.Value {
-					if strings.Contains(req.URL.String(), criteria.URL) {
+					if req.URL.Path == criteria.URL {
 						responseSent = true
 						rw.Write([]byte(criteria.ResponseBody))
 					}
