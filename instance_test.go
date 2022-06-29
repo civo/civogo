@@ -217,12 +217,15 @@ func TestSetInstanceTags(t *testing.T) {
 }
 
 func TestUpdateInstance(t *testing.T) {
-	client, server, _ := NewAdvancedClientForTesting(map[string][]map[string]string{
-		"PUT": {
-			{
-				"requestBody":  `{"hostname":"dummy.example.com","notes":"my notes","reverse_dns":"dummy-reverse.example.com"}`,
-				"url":          "/v2/instances/12345",
-				"responseBody": `{"result": "success"}`,
+	client, server, _ := NewAdvancedClientForTesting([]ConfigAdvanceClientForTesting{
+		{
+			Method: "PUT",
+			Value: []ValueAdvanceClientForTesting{
+				{
+					RequestBody:  `{"hostname":"dummy.example.com","notes":"my notes","reverse_dns":"dummy-reverse.example.com"}`,
+					URL:          "/v2/instances/12345",
+					ResponseBody: `{"result": "success"}`,
+				},
 			},
 		},
 	})
@@ -239,12 +242,15 @@ func TestUpdateInstance(t *testing.T) {
 }
 
 func TestDeleteInstance(t *testing.T) {
-	client, server, _ := NewAdvancedClientForTesting(map[string][]map[string]string{
-		"DELETE": {
-			{
-				"requestBody":  `""`,
-				"url":          "/v2/instances/12345",
-				"responseBody": `{"result": "success"}`,
+	client, server, _ := NewAdvancedClientForTesting([]ConfigAdvanceClientForTesting{
+		{
+			Method: "DELETE",
+			Value: []ValueAdvanceClientForTesting{
+				{
+					RequestBody:  "",
+					URL:          "/v2/instances/12345",
+					ResponseBody: `{"result": "success"}`,
+				},
 			},
 		},
 	})
@@ -255,12 +261,15 @@ func TestDeleteInstance(t *testing.T) {
 }
 
 func TestRebootInstance(t *testing.T) {
-	client, server, _ := NewAdvancedClientForTesting(map[string][]map[string]string{
-		"POST": {
-			{
-				"requestBody":  `""`,
-				"url":          "/v2/instances/12345/hard_reboots",
-				"responseBody": `{"result": "success"}`,
+	client, server, _ := NewAdvancedClientForTesting([]ConfigAdvanceClientForTesting{
+		{
+			Method: "POST",
+			Value: []ValueAdvanceClientForTesting{
+				{
+					RequestBody:  "",
+					URL:          "/v2/instances/12345/hard_reboots",
+					ResponseBody: `{"result": "success"}`,
+				},
 			},
 		},
 	})
@@ -271,12 +280,15 @@ func TestRebootInstance(t *testing.T) {
 }
 
 func TestHardRebootInstance(t *testing.T) {
-	client, server, _ := NewAdvancedClientForTesting(map[string][]map[string]string{
-		"POST": {
-			{
-				"requestBody":  `""`,
-				"url":          "/v2/instances/12345/hard_reboots",
-				"responseBody": `{"result": "success"}`,
+	client, server, _ := NewAdvancedClientForTesting([]ConfigAdvanceClientForTesting{
+		{
+			Method: "POST",
+			Value: []ValueAdvanceClientForTesting{
+				{
+					RequestBody:  "",
+					URL:          "/v2/instances/12345/hard_reboots",
+					ResponseBody: `{"result": "success"}`,
+				},
 			},
 		},
 	})
@@ -287,12 +299,15 @@ func TestHardRebootInstance(t *testing.T) {
 }
 
 func TestSoftRebootInstance(t *testing.T) {
-	client, server, _ := NewAdvancedClientForTesting(map[string][]map[string]string{
-		"POST": {
-			{
-				"requestBody":  `""`,
-				"url":          "/v2/instances/12345/soft_reboots",
-				"responseBody": `{"result": "success"}`,
+	client, server, _ := NewAdvancedClientForTesting([]ConfigAdvanceClientForTesting{
+		{
+			Method: "POST",
+			Value: []ValueAdvanceClientForTesting{
+				{
+					RequestBody:  "",
+					URL:          "/v2/instances/12345/soft_reboots",
+					ResponseBody: `{"result": "success"}`,
+				},
 			},
 		},
 	})
@@ -303,12 +318,15 @@ func TestSoftRebootInstance(t *testing.T) {
 }
 
 func TestStopInstance(t *testing.T) {
-	client, server, _ := NewAdvancedClientForTesting(map[string][]map[string]string{
-		"PUT": {
-			{
-				"requestBody":  `""`,
-				"url":          "/v2/instances/12345/stop",
-				"responseBody": `{"result": "success"}`,
+	client, server, _ := NewAdvancedClientForTesting([]ConfigAdvanceClientForTesting{
+		{
+			Method: "PUT",
+			Value: []ValueAdvanceClientForTesting{
+				{
+					RequestBody:  "",
+					URL:          "/v2/instances/12345/stop",
+					ResponseBody: `{"result": "success"}`,
+				},
 			},
 		},
 	})
@@ -319,12 +337,15 @@ func TestStopInstance(t *testing.T) {
 }
 
 func TestStartInstance(t *testing.T) {
-	client, server, _ := NewAdvancedClientForTesting(map[string][]map[string]string{
-		"PUT": {
-			{
-				"requestBody":  `""`,
-				"url":          "/v2/instances/12345/start",
-				"responseBody": `{"result": "success"}`,
+	client, server, _ := NewAdvancedClientForTesting([]ConfigAdvanceClientForTesting{
+		{
+			Method: "PUT",
+			Value: []ValueAdvanceClientForTesting{
+				{
+					RequestBody:  "",
+					URL:          "/v2/instances/12345/start",
+					ResponseBody: `{"result": "success"}`,
+				},
 			},
 		},
 	})
@@ -335,12 +356,15 @@ func TestStartInstance(t *testing.T) {
 }
 
 func TestUpgradeInstance(t *testing.T) {
-	client, server, _ := NewAdvancedClientForTesting(map[string][]map[string]string{
-		"PUT": {
-			{
-				"requestBody":  `{"size":"g99.huge"}`,
-				"url":          "/v2/instances/12345/resize",
-				"responseBody": `{"result": "success"}`,
+	client, server, _ := NewAdvancedClientForTesting([]ConfigAdvanceClientForTesting{
+		{
+			Method: "PUT",
+			Value: []ValueAdvanceClientForTesting{
+				{
+					RequestBody:  `{"size":"g99.huge"}`,
+					URL:          "/v2/instances/12345/resize",
+					ResponseBody: `{"result": "success"}`,
+				},
 			},
 		},
 	})
@@ -351,12 +375,15 @@ func TestUpgradeInstance(t *testing.T) {
 }
 
 func TestMovePublicIPToInstance(t *testing.T) {
-	client, server, _ := NewAdvancedClientForTesting(map[string][]map[string]string{
-		"PUT": {
-			{
-				"requestBody":  `""`,
-				"url":          "/v2/instances/12345/ip/1.2.3.4",
-				"responseBody": `{"result": "success"}`,
+	client, server, _ := NewAdvancedClientForTesting([]ConfigAdvanceClientForTesting{
+		{
+			Method: "PUT",
+			Value: []ValueAdvanceClientForTesting{
+				{
+					RequestBody:  `""`,
+					URL:          "/v2/instances/12345/ip/1.2.3.4",
+					ResponseBody: `{"result": "success"}`,
+				},
 			},
 		},
 	})
@@ -367,12 +394,15 @@ func TestMovePublicIPToInstance(t *testing.T) {
 }
 
 func TestGetInstanceConsoleURL(t *testing.T) {
-	client, server, _ := NewAdvancedClientForTesting(map[string][]map[string]string{
-		"GET": {
-			{
-				"requestBody":  `""`,
-				"url":          "/v2/instances/12345/console",
-				"responseBody": `{"url": "https://console.example.com/12345"}`,
+	client, server, _ := NewAdvancedClientForTesting([]ConfigAdvanceClientForTesting{
+		{
+			Method: "GET",
+			Value: []ValueAdvanceClientForTesting{
+				{
+					RequestBody:  `""`,
+					URL:          "/v2/instances/12345/console",
+					ResponseBody: `{"url": "https://console.example.com/12345"}`,
+				},
 			},
 		},
 	})
@@ -386,12 +416,15 @@ func TestGetInstanceConsoleURL(t *testing.T) {
 }
 
 func TestSetInstanceFirewall(t *testing.T) {
-	client, server, _ := NewAdvancedClientForTesting(map[string][]map[string]string{
-		"PUT": {
-			{
-				"requestBody":  `{"firewall_id":"67890"}`,
-				"url":          "/v2/instances/12345/firewall",
-				"responseBody": `{"result": "success"}`,
+	client, server, _ := NewAdvancedClientForTesting([]ConfigAdvanceClientForTesting{
+		{
+			Method: "PUT",
+			Value: []ValueAdvanceClientForTesting{
+				{
+					RequestBody:  `{"firewall_id":"67890"}`,
+					URL:          "/v2/instances/12345/firewall",
+					ResponseBody: `{"result": "success"}`,
+				},
 			},
 		},
 	})
