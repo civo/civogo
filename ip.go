@@ -13,8 +13,6 @@ type IP struct {
 	Name       string     `json:"name,omitempty"`
 	IP         string     `json:"ip,omitempty"`
 	AssignedTo AssignedTo `json:"assigned_to,omitempty"`
-	//This fields used for internal purpose
-	GeneratedName string `json:"-"`
 }
 
 // AssignedTo represents IP assigned to resource
