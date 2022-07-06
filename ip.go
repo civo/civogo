@@ -157,7 +157,7 @@ func (c *Client) AssignIP(id string, v *AssignedTo) (*SimpleResponse, error) {
 
 	actions.AssignedTo = *v
 
-	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/ips/%s/actions", id), actions)
+	resp, err := c.SendPostRequest(fmt.Sprintf("/v2/ips/%s/actions", id), actions)
 	if err != nil {
 		return nil, decodeError(err)
 	}
@@ -172,7 +172,7 @@ func (c *Client) UnassignIP(id string) (*SimpleResponse, error) {
 		Action: "unassign",
 	}
 
-	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/ips/%s/actions", id), actions)
+	resp, err := c.SendPostRequest(fmt.Sprintf("/v2/ips/%s/actions", id), actions)
 	if err != nil {
 		return nil, decodeError(err)
 	}
