@@ -151,3 +151,43 @@ func TestDeleteIP(t *testing.T) {
 		t.Errorf("Expected %+v, got %+v", expected, got)
 	}
 }
+
+func TestAssignIP(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/ips/12345/actions": `{"result": "success"}`,
+	})
+	defer server.Close()
+
+	got, err := client.AssignIP("12345", &AssignedTo{
+		ID:   "12345",
+		Type: "instance",
+		Name: "ubuntu-vm",
+	})
+	if err != nil {
+		t.Errorf("Request returned an error: %s", err)
+		return
+	}
+
+	expected := &SimpleResponse{Result: "success"}
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Expected %+v, got %+v", expected, got)
+	}
+}
+
+func TestUnAssignIP(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/ips/12345/actions": `{"result": "success"}`,
+	})
+	defer server.Close()
+
+	got, err := client.UnassignIP("12345")
+	if err != nil {
+		t.Errorf("Request returned an error: %s", err)
+		return
+	}
+
+	expected := &SimpleResponse{Result: "success"}
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Expected %+v, got %+v", expected, got)
+	}
+}
