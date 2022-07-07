@@ -46,6 +46,8 @@ type Instance struct {
 	DiskGigabytes            int       `json:"disk_gb,omitempty"`
 	Script                   string    `json:"script,omitempty"`
 	CreatedAt                time.Time `json:"created_at,omitempty"`
+	ReservedIPID             string    `json:"reserved_ip_id,omitempty"`
+	ReservedIPName           string    `json:"reserved_ip_name,omitempty"`
 }
 
 //"cpu_cores":1,"ram_mb":2048,"disk_gb":25
