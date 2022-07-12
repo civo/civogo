@@ -47,8 +47,9 @@ type UpdateIPRequest struct {
 // Actions for IP
 type Actions struct {
 	// Action is one of "assign", "unassign"
-	Action     string     `json:"action"`
-	AssignedTo AssignedTo `json:"assigned_to"`
+	Action       string `json:"action"`
+	AssignToID   string `json:"assign_to_id"`
+	AssignToType string `json:"assign_to_type"`
 }
 
 // ListIPs returns all reserved IPs in that specific region
@@ -146,16 +147,17 @@ func (c *Client) UpdateIP(id string, v *UpdateIPRequest) (*IP, error) {
 }
 
 // AssignIP assigns a reserved IP to a Civo resource
-func (c *Client) AssignIP(id string, v *AssignedTo) (*SimpleResponse, error) {
+func (c *Client) AssignIP(id, resourceID, resourceType string) (*SimpleResponse, error) {
 	actions := &Actions{
 		Action: "assign",
 	}
 
-	if v == nil {
-		return nil, fmt.Errorf("assigned_to is required")
+	if resourceID == "" || resourceType == "" {
+		return nil, fmt.Errorf("resource ID and type are required")
 	}
 
-	actions.AssignedTo = *v
+	actions.AssignToID = resourceID
+	actions.AssignToType = resourceType
 
 	resp, err := c.SendPostRequest(fmt.Sprintf("/v2/ips/%s/actions", id), actions)
 	if err != nil {
