@@ -12,6 +12,44 @@ func TestClienter(t *testing.T) {
 	c, _ = NewClient("foo", "NYC1")
 	c, _ = NewFakeClient()
 	_, _ = c.ListAllInstances()
+	c.ListIPs()
+}
+
+// TestIPs is a test for the IPs method.
+func TestIPs(t *testing.T) {
+	g := NewWithT(t)
+
+	client, err := NewFakeClient()
+	g.Expect(err).To(BeNil())
+
+	config := &CreateIPRequest{
+		Name: "test-ip",
+	}
+
+	expected := &IP{
+		Name: "test-ip",
+	}
+
+	ip, err := client.NewIP(config)
+	g.Expect(err).To(BeNil())
+	expected.ID = ip.ID
+	g.Expect(ip.Name).To(Equal(expected.Name))
+
+	ip, err = client.GetIP(ip.ID)
+	g.Expect(err).To(BeNil())
+	g.Expect(ip.Name).To(Equal(expected.Name))
+
+	ips, err := client.ListIPs()
+	g.Expect(err).To(BeNil())
+	g.Expect(len(ips.Items)).To(Equal(1))
+
+	ip, err = client.FindIP(ip.ID)
+	g.Expect(err).To(BeNil())
+	g.Expect(ip.Name).To(Equal(expected.Name))
+
+	resp, err := client.DeleteIP(ip.ID)
+	g.Expect(err).To(BeNil())
+	g.Expect(resp).To(Equal(&SimpleResponse{Result: "success"}))
 }
 
 func TestInstances(t *testing.T) {

@@ -19,6 +19,7 @@ type FakeClient struct {
 	InstanceSizes           []InstanceSize
 	Instances               []Instance
 	Clusters                []KubernetesCluster
+	IP                      []IP
 	Networks                []Network
 	Volumes                 []Volume
 	SSHKeys                 []SSHKey
@@ -165,6 +166,16 @@ type Clienter interface {
 	FindWebhook(search string) (*Webhook, error)
 	UpdateWebhook(id string, r *WebhookConfig) (*Webhook, error)
 	DeleteWebhook(id string) (*SimpleResponse, error)
+
+	// Reserved IPs
+	ListIPs() (*PaginatedIPs, error)
+	FindIP(search string) (*IP, error)
+	GetIP(id string) (*IP, error)
+	NewIP(v *CreateIPRequest) (*IP, error)
+	UpdateIP(id string, v *UpdateIPRequest) (*IP, error)
+	DeleteIP(id string) (*SimpleResponse, error)
+	AssignIP(id, resourceID, resourceType string) (*SimpleResponse, error)
+	UnassignIP(id string) (*SimpleResponse, error)
 
 	// LoadBalancer
 	ListLoadBalancers() ([]LoadBalancer, error)
@@ -1747,4 +1758,77 @@ func (c *FakeClient) UpdateKubernetesClusterPool(cid, pid string, config *Kubern
 	}
 
 	return &pool, nil
+}
+
+// ListIPs returns a list of fake IPs
+func (c *FakeClient) ListIPs() (*PaginatedIPs, error) {
+	return &PaginatedIPs{
+		Page:    1,
+		PerPage: 20,
+		Pages:   100,
+		Items: []IP{
+			{
+				ID:   c.generateID(),
+				Name: "test-ip",
+				IP:   c.generatePublicIP(),
+			},
+		},
+	}, nil
+}
+
+// GetIP returns a fake IP
+func (c *FakeClient) GetIP(id string) (*IP, error) {
+	return &IP{
+		ID:   c.generateID(),
+		Name: "test-ip",
+		IP:   c.generatePublicIP(),
+	}, nil
+}
+
+// FindIP finds a fake IP
+func (c *FakeClient) FindIP(search string) (*IP, error) {
+	return &IP{
+		ID:   c.generateID(),
+		Name: "test-ip",
+		IP:   c.generatePublicIP(),
+	}, nil
+}
+
+// NewIP creates a fake IP
+func (c *FakeClient) NewIP(v *CreateIPRequest) (*IP, error) {
+	return &IP{
+		ID:   c.generateID(),
+		Name: "test-ip",
+		IP:   c.generatePublicIP(),
+	}, nil
+}
+
+// UpdateIP updates a fake IP
+func (c *FakeClient) UpdateIP(id string, v *UpdateIPRequest) (*IP, error) {
+	return &IP{
+		ID:   c.generateID(),
+		Name: v.Name,
+		IP:   c.generatePublicIP(),
+	}, nil
+}
+
+// DeleteIP deletes a fake IP
+func (c *FakeClient) DeleteIP(id string) (*SimpleResponse, error) {
+	return &SimpleResponse{
+		Result: "success",
+	}, nil
+}
+
+// AssignIP assigns a fake IP
+func (c *FakeClient) AssignIP(id, resourceID, resourceType string) (*SimpleResponse, error) {
+	return &SimpleResponse{
+		Result: "success",
+	}, nil
+}
+
+// UnassignIP unassigns a fake IP
+func (c *FakeClient) UnassignIP(id string) (*SimpleResponse, error) {
+	return &SimpleResponse{
+		Result: "success",
+	}, nil
 }
