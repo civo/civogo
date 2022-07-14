@@ -48,6 +48,7 @@ type Instance struct {
 	CreatedAt                time.Time `json:"created_at,omitempty"`
 	ReservedIPID             string    `json:"reserved_ip_id,omitempty"`
 	ReservedIPName           string    `json:"reserved_ip_name,omitempty"`
+	ReservedIP               string    `json:"reserved_ip,omitempty"`
 }
 
 //"cpu_cores":1,"ram_mb":2048,"disk_gb":25
