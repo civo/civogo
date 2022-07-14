@@ -40,6 +40,9 @@ type LoadBalancer struct {
 	FirewallID                   string                `json:"firewall_id"`
 	ClusterID                    string                `json:"cluster_id,omitempty"`
 	State                        string                `json:"state"`
+	ReservedIPID                 string                `json:"reserved_ip_id,omitempty"`
+	ReservedIPName               string                `json:"reserved_ip_name,omitempty"`
+	ReservedIP                   string                `json:"reserved_ip,omitempty"`
 }
 
 // LoadBalancerConfig represents a load balancer to be created
