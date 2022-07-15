@@ -229,6 +229,7 @@ func (c *Client) UpdateInstance(i *Instance) (*SimpleResponse, error) {
 		"reverse_dns": i.ReverseDNS,
 		"notes":       i.Notes,
 		"region":      c.Region,
+		"public_ip":   i.PublicIP,
 	}
 
 	if i.Notes == "" {
