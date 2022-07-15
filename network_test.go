@@ -24,6 +24,25 @@ func TestGetDefaultNetwork(t *testing.T) {
 	}
 }
 
+func TestGetNetwork(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/networks/12345": `{"id": "12345", "name": "test-network"}`,
+	})
+	defer server.Close()
+
+	got, err := client.GetNetwork("12345")
+	if err != nil {
+		t.Errorf("Request returned an error: %s", err)
+		return
+	}
+	if got.ID != "12345" {
+		t.Errorf("Expected %s, got %s", "12345", got.ID)
+	}
+	if got.Name != "test-network" {
+		t.Errorf("Expected %s, got %s", "test-network", got.Name)
+	}
+}
+
 func TestNewNetwork(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/networks": `{
