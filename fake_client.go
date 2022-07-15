@@ -174,8 +174,8 @@ type Clienter interface {
 	NewIP(v *CreateIPRequest) (*IP, error)
 	UpdateIP(id string, v *UpdateIPRequest) (*IP, error)
 	DeleteIP(id string) (*SimpleResponse, error)
-	AssignIP(id, resourceID, resourceType string) (*SimpleResponse, error)
-	UnassignIP(id string) (*SimpleResponse, error)
+	AssignIP(id, resourceID, resourceType, region string) (*SimpleResponse, error)
+	UnassignIP(id, region string) (*SimpleResponse, error)
 
 	// LoadBalancer
 	ListLoadBalancers() ([]LoadBalancer, error)
@@ -1820,14 +1820,14 @@ func (c *FakeClient) DeleteIP(id string) (*SimpleResponse, error) {
 }
 
 // AssignIP assigns a fake IP
-func (c *FakeClient) AssignIP(id, resourceID, resourceType string) (*SimpleResponse, error) {
+func (c *FakeClient) AssignIP(id, resourceID, resourceType, region string) (*SimpleResponse, error) {
 	return &SimpleResponse{
 		Result: "success",
 	}, nil
 }
 
 // UnassignIP unassigns a fake IP
-func (c *FakeClient) UnassignIP(id string) (*SimpleResponse, error) {
+func (c *FakeClient) UnassignIP(id, region string) (*SimpleResponse, error) {
 	return &SimpleResponse{
 		Result: "success",
 	}, nil
