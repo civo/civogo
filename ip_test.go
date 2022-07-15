@@ -158,7 +158,7 @@ func TestAssignIP(t *testing.T) {
 	})
 	defer server.Close()
 
-	got, err := client.AssignIP("12345", "234567", "instance")
+	got, err := client.AssignIP("12345", "234567", "instance", "TEST")
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
@@ -176,7 +176,7 @@ func TestUnAssignIP(t *testing.T) {
 	})
 	defer server.Close()
 
-	got, err := client.UnassignIP("12345")
+	got, err := client.UnassignIP("12345", "TEST")
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return

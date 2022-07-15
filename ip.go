@@ -29,6 +29,9 @@ type AssignedTo struct {
 type CreateIPRequest struct {
 	// Name is an optional parameter. If not provided, name will be the IP address
 	Name string `json:"name,omitempty"`
+
+	// Region is the region the IP will be created in
+	Region string `json:"region"`
 }
 
 // PaginatedIPs is a paginated list of IPs
@@ -42,6 +45,8 @@ type PaginatedIPs struct {
 // UpdateIPRequest is a struct for creating an IP
 type UpdateIPRequest struct {
 	Name string `json:"name" validate:"required"`
+	// Region is the region the IP will be created in
+	Region string `json:"region"`
 }
 
 // Actions for IP
@@ -50,6 +55,8 @@ type Actions struct {
 	Action       string `json:"action"`
 	AssignToID   string `json:"assign_to_id"`
 	AssignToType string `json:"assign_to_type"`
+	// Region is the region the IP will be created in
+	Region string `json:"region"`
 }
 
 // ListIPs returns all reserved IPs in that specific region
@@ -147,9 +154,10 @@ func (c *Client) UpdateIP(id string, v *UpdateIPRequest) (*IP, error) {
 }
 
 // AssignIP assigns a reserved IP to a Civo resource
-func (c *Client) AssignIP(id, resourceID, resourceType string) (*SimpleResponse, error) {
+func (c *Client) AssignIP(id, resourceID, resourceType, region string) (*SimpleResponse, error) {
 	actions := &Actions{
 		Action: "assign",
+		Region: region,
 	}
 
 	if resourceID == "" || resourceType == "" {
@@ -169,9 +177,10 @@ func (c *Client) AssignIP(id, resourceID, resourceType string) (*SimpleResponse,
 
 // UnassignIP unassigns a reserved IP from a Civo resource
 // UnassignIP is an idempotent operation. If you unassign on a unassigned IP, it will return a 200 OK.
-func (c *Client) UnassignIP(id string) (*SimpleResponse, error) {
+func (c *Client) UnassignIP(id, region string) (*SimpleResponse, error) {
 	actions := &Actions{
 		Action: "unassign",
+		Region: region,
 	}
 
 	resp, err := c.SendPostRequest(fmt.Sprintf("/v2/ips/%s/actions", id), actions)
