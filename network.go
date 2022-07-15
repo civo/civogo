@@ -48,6 +48,18 @@ func (c *Client) GetDefaultNetwork() (*Network, error) {
 	return nil, errors.New("no default network found")
 }
 
+// GetNetwork gets a network with ID
+func (c *Client) GetNetwork(id string) (*Network, error) {
+	resp, err := c.SendGetRequest("/v2/networks/" + id)
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	network := Network{}
+	err = json.NewDecoder(bytes.NewReader(resp)).Decode(&network)
+	return &network, err
+}
+
 // NewNetwork creates a new private network
 func (c *Client) NewNetwork(label string) (*NetworkResult, error) {
 	nc := networkConfig{Label: label, Region: c.Region}
