@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"encoding/base64"
 	"fmt"
 
 	"k8s.io/client-go/kubernetes"
@@ -17,12 +16,7 @@ func BuildClientsetFromConfig(
 	kubeconfig string,
 	transportWrapper transport.WrapperFunc,
 ) (kubernetes.Interface, error) {
-	kubeConfigBytes, err := base64.StdEncoding.DecodeString(kubeconfig)
-	if err != nil {
-		return nil, fmt.Errorf("failed to decode kubeconfig: %s", err)
-	}
-
-	restClientConfig, err := clientcmd.RESTConfigFromKubeConfig(kubeConfigBytes)
+	restClientConfig, err := clientcmd.RESTConfigFromKubeConfig([]byte(kubeconfig))
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse cluster kubeconfig: %s", err)
 	}
