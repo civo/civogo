@@ -50,6 +50,8 @@ type FirewallRuleConfig struct {
 	Direction  string   `json:"direction"`
 	Action     string   `json:"action"`
 	Label      string   `json:"label,omitempty"`
+	// Ports will be chosen over StartPort,EndPort if both are provided
+	Ports string `json:"ports"`
 }
 
 // FirewallConfig is how you specify the details when creating a new firewall
