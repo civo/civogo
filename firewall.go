@@ -9,13 +9,14 @@ import (
 
 // Firewall represents list of rule in Civo's infrastructure
 type Firewall struct {
-	ID                string `json:"id"`
-	Name              string `json:"name,omitempty"`
-	RulesCount        int    `json:"rules_count,omitempty"`
-	InstanceCount     int    `json:"instance_count"`
-	ClusterCount      int    `json:"cluster_count"`
-	LoadBalancerCount int    `json:"loadbalancer_count"`
-	NetworkID         string `json:"network_id,omitempty"`
+	ID                string         `json:"id"`
+	Name              string         `json:"name,omitempty"`
+	RulesCount        int            `json:"rules_count,omitempty"`
+	InstanceCount     int            `json:"instance_count"`
+	ClusterCount      int            `json:"cluster_count"`
+	LoadBalancerCount int            `json:"loadbalancer_count"`
+	NetworkID         string         `json:"network_id,omitempty"`
+	Rules             []FirewallRule `json:"rules,omitempty"`
 }
 
 // FirewallResult is the response from the Civo Firewall APIs
