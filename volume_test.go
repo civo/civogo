@@ -189,3 +189,20 @@ func TestDeleteVolumes(t *testing.T) {
 		t.Errorf("Expected %+v, got %+v", expected, got)
 	}
 }
+
+func TestResizeVolume(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/volumes/12346/resize": `{"result": "success"}`,
+	})
+	defer server.Close()
+	got, err := client.ResizeVolume("12346", 20)
+	if err != nil {
+		t.Errorf("Request returned an error: %s", err)
+		return
+	}
+
+	expected := &SimpleResponse{Result: "success"}
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Expected %+v, got %+v", expected, got)
+	}
+}
