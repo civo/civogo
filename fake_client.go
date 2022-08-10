@@ -790,7 +790,22 @@ func (c *FakeClient) NewKubernetesClusters(kc *KubernetesClusterConfig) (*Kubern
 		TargetNodeSize: kc.TargetNodesSize,
 		Ready:          true,
 		Status:         "ACTIVE",
+		Instances:      make([]KubernetesInstance, 0),
+		Pools:          make([]KubernetesPool, 0),
 	}
+	pool := KubernetesPool{
+		Instances: make([]KubernetesInstance, 0),
+	}
+	for i := 0; i < kc.NumTargetNodes; i++ {
+		instance := KubernetesInstance{
+			ID:       c.generateID(),
+			Hostname: fmt.Sprintf("%s_pool_%d", kc.Name, i),
+		}
+		pool.Instances = append(pool.Instances, instance)
+		cluster.Instances = append(pool.Instances, instance)
+	}
+
+	cluster.Pools = append(cluster.Pools, pool)
 	c.Clusters = append(c.Clusters, cluster)
 	return &cluster, nil
 }
