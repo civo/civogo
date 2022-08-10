@@ -790,7 +790,22 @@ func (c *FakeClient) NewKubernetesClusters(kc *KubernetesClusterConfig) (*Kubern
 		TargetNodeSize: kc.TargetNodesSize,
 		Ready:          true,
 		Status:         "ACTIVE",
+		Instances:      make([]KubernetesInstance, 0),
+		Pools:          make([]KubernetesPool, 0),
 	}
+	pool := KubernetesPool{
+		Instances: make([]KubernetesInstance, 0),
+	}
+	for i := 0; i < kc.NumTargetNodes; i++ {
+		instance := KubernetesInstance{
+			ID:       c.generateID(),
+			Hostname: fmt.Sprintf("%s_pool_%d", kc.Name, i),
+		}
+		pool.Instances = append(pool.Instances, instance)
+		cluster.Instances = append(pool.Instances, instance)
+	}
+
+	cluster.Pools = append(cluster.Pools, pool)
 	c.Clusters = append(c.Clusters, cluster)
 	return &cluster, nil
 }
@@ -1175,6 +1190,7 @@ func (c *FakeClient) NewVolume(v *VolumeConfig) (*VolumeResult, error) {
 		ID:            c.generateID(),
 		Name:          v.Name,
 		SizeGigabytes: v.SizeGigabytes,
+		Status:        "available",
 	}
 	c.Volumes = append(c.Volumes, volume)
 
@@ -1203,6 +1219,7 @@ func (c *FakeClient) AttachVolume(id string, instance string) (*SimpleResponse, 
 	for i, volume := range c.Volumes {
 		if volume.ID == id {
 			c.Volumes[i].InstanceID = instance
+			c.Volumes[i].Status = "attached"
 			return &SimpleResponse{Result: "success"}, nil
 		}
 	}
@@ -1216,6 +1233,7 @@ func (c *FakeClient) DetachVolume(id string) (*SimpleResponse, error) {
 	for i, volume := range c.Volumes {
 		if volume.ID == id {
 			c.Volumes[i].InstanceID = ""
+			c.Volumes[i].Status = "available"
 			return &SimpleResponse{Result: "success"}, nil
 		}
 	}
