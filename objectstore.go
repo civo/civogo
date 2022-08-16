@@ -12,7 +12,6 @@ type ObjectStore struct {
 	ID                  string `json:"id"`
 	Name                string `json:"name"`
 	GeneratedName       string `json:"generated_name"`
-	MaxObjects          int    `json:"max_objects"`
 	MaxSize             string `json:"max_size"`
 	AccessKeyID         string `json:"access_key_id"`
 	SecretAccessKey     string `json:"secret_access_key"`
