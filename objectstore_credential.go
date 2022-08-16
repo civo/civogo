@@ -20,7 +20,7 @@ type ObjectStoreCredential struct {
 	Namespace         string  `json:"-"`
 }
 
-// PaginatedObjectstores is a paginated list of Objectstores
+// PaginatedObjectStoreCredentials is a paginated list of Objectstore credentials
 type PaginatedObjectStoreCredentials struct {
 	Page    int                     `json:"page"`
 	PerPage int                     `json:"per_page"`
