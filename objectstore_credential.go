@@ -11,13 +11,11 @@ import (
 type ObjectStoreCredential struct {
 	ID                string  `json:"id"`
 	Name              string  `json:"name"`
-	AccountID         string  `json:"accountID"`
 	AcessKeyID        *string `json:"accessKeyID,omitempty"`
 	SecretAccessKeyID *string `json:"secretAccessKeyID,omitempty"`
 	MaxSizeGB         int     `json:"maxSize,omitempty"`
 	Suspended         bool    `json:"suspended"`
 	Status            string  `json:"status"`
-	Namespace         string  `json:"-"`
 }
 
 // PaginatedObjectStoreCredentials is a paginated list of Objectstore credentials
