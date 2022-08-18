@@ -60,17 +60,28 @@ func TestFindFirewall(t *testing.T) {
 }
 
 func TestNewFirewall(t *testing.T) {
-	client, server, _ := NewClientForTesting(map[string]string{
-		"/v2/firewalls": `{
-			"id": "76cc107f-fbef-4e2b-b97f-f5d34f4075d3",
-			"name": "fw-mail",
-			"result": "success"
-		}`,
+	client, server, _ := NewAdvancedClientForTesting([]ConfigAdvanceClientForTesting{
+		{
+			Method: "POST",
+			Value: []ValueAdvanceClientForTesting{
+				{
+					RequestBody:  `{"name":"fw-mail","region":"LON1","network_id":"1234-5698-9874-98","create_rules":true}`,
+					URL:          "/v2/firewalls",
+					ResponseBody: `{"id": "76cc107f-fbef-4e2b-b97f-f5d34f4075d3","name": "fw-mail","result": "success"}`,
+				},
+			},
+		},
 	})
 	defer server.Close()
 
 	CreateRules := true
-	got, err := client.NewFirewall("fw-mail", "1234-5698-9874-98", &CreateRules)
+	firewallConfig := &FirewallConfig{
+		Name:        "fw-mail",
+		NetworkID:   "1234-5698-9874-98",
+		Region: 		"LON1",
+		CreateRules: &CreateRules,
+	}
+	got, err := client.NewFirewall(firewallConfig)
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
@@ -92,6 +103,60 @@ func TestNewFirewall(t *testing.T) {
 
 	if expected.Result != got.Result {
 		t.Errorf("Expected %s, got %s", expected.Result, got.Result)
+	}
+}
+
+func TestNewFirewallWithRules(t *testing.T) {
+	client, server, _ := NewAdvancedClientForTesting([]ConfigAdvanceClientForTesting{
+		{
+			Method: "GET",
+			Value: []ValueAdvanceClientForTesting{
+				{
+					RequestBody:  ``,
+					URL:          "/v2/firewalls",
+					ResponseBody: `[{"id":"76cc107f-fbef-4e2b-b97f-f5d34f4075d3","name":"fw-mail","account_id":"eaef1dd6-1cec-4d9c-8480-96452bd94dea","rules_count": 3,"instance_count": 1,"cluster_count": 1,"loadbalancer_count": 0,"default":"false","label":"www","network_id":"ef7cf1ab-ecee-407a-b7ac-e134614647e2","rules":[{"id":"9e0745f9-3dbb-48e6-b510-4163e4b6722d","protocol":"tcp","start_port":"1","cidr":["0.0.0.0/0"],"direction":"ingress","label":"All TCP ports open","end_port":"65535","action":"allow","ports":"1-65535"}]}]`,
+				},
+			},
+		},
+	})
+	defer server.Close()
+
+
+	got, err := client.FindFirewall("76cc107f-fbef-4e2b-b97f-f5d34f4075d3")
+	if err != nil {
+		t.Errorf("Request returned an error: %s", err)
+		return
+	}
+
+	expected := Firewall{
+		ID:     "76cc107f-fbef-4e2b-b97f-f5d34f4075d3",
+		Name:   "fw-mail",
+		RulesCount: 3,
+		InstanceCount: 1,
+		ClusterCount: 1,
+		LoadBalancerCount: 0,
+		NetworkID: "ef7cf1ab-ecee-407a-b7ac-e134614647e2",
+		Rules: []FirewallRule{
+			{
+				ID:         "9e0745f9-3dbb-48e6-b510-4163e4b6722d",
+				Protocol:   "tcp",
+				StartPort:  "1",
+				EndPort:    "65535",
+				Cidr:       []string{"0.0.0.0/0"},
+				Direction:  "ingress",
+				Action:     "allow",
+				Label:      "All TCP ports open",
+				Ports:      "1-65535",
+			},
+		},
+	}
+
+	if expected.ID != got.ID {
+		t.Errorf("Expected %s, got %s", expected.ID, got.ID)
+	}
+
+	if len(expected.Rules) != len(got.Rules) {
+		t.Errorf("Expected %d, got %d", len(expected.Rules), len(got.Rules))
 	}
 }
 
