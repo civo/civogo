@@ -29,8 +29,8 @@ type FirewallResult struct {
 // FirewallRule represents a single rule for a given firewall, regarding
 // which ports to open and which protocol, to which CIDR
 type FirewallRule struct {
-	ID         string   `json:"id"`
-	FirewallID string   `json:"firewall_id"`
+	ID         string   `json:"id,omitempty"`
+	FirewallID string   `json:"firewall_id,omitempty"`
 	Protocol   string   `json:"protocol"`
 	StartPort  string   `json:"start_port"`
 	EndPort    string   `json:"end_port"`
@@ -38,6 +38,7 @@ type FirewallRule struct {
 	Direction  string   `json:"direction"`
 	Action     string   `json:"action"`
 	Label      string   `json:"label,omitempty"`
+	Ports      string   `json:"ports,omitempty"`
 }
 
 // FirewallRuleConfig is how you specify the details when creating a new rule
@@ -61,7 +62,8 @@ type FirewallConfig struct {
 	Region    string `json:"region"`
 	NetworkID string `json:"network_id"`
 	// CreateRules if not send the value will be nil, that mean the default rules will be created
-	CreateRules *bool `json:"create_rules,omitempty"`
+	CreateRules *bool          `json:"create_rules,omitempty"`
+	Rules       []FirewallRule `json:"rules,omitempty"`
 }
 
 // ListFirewalls returns all firewall owned by the calling API account
@@ -114,9 +116,8 @@ func (c *Client) FindFirewall(search string) (*Firewall, error) {
 }
 
 // NewFirewall creates a new firewall record
-func (c *Client) NewFirewall(name, networkid string, CreateRules *bool) (*FirewallResult, error) {
-	fw := FirewallConfig{Name: name, Region: c.Region, NetworkID: networkid, CreateRules: CreateRules}
-	body, err := c.SendPostRequest("/v2/firewalls", fw)
+func (c *Client) NewFirewall(firewall *FirewallConfig) (*FirewallResult, error) {
+	body, err := c.SendPostRequest("/v2/firewalls", firewall)
 	if err != nil {
 		return nil, decodeError(err)
 	}
