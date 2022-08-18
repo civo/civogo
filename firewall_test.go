@@ -78,7 +78,7 @@ func TestNewFirewall(t *testing.T) {
 	firewallConfig := &FirewallConfig{
 		Name:        "fw-mail",
 		NetworkID:   "1234-5698-9874-98",
-		Region: 		"LON1",
+		Region:      "LON1",
 		CreateRules: &CreateRules,
 	}
 	got, err := client.NewFirewall(firewallConfig)
@@ -121,7 +121,6 @@ func TestNewFirewallWithRules(t *testing.T) {
 	})
 	defer server.Close()
 
-
 	got, err := client.FindFirewall("76cc107f-fbef-4e2b-b97f-f5d34f4075d3")
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
@@ -129,24 +128,24 @@ func TestNewFirewallWithRules(t *testing.T) {
 	}
 
 	expected := Firewall{
-		ID:     "76cc107f-fbef-4e2b-b97f-f5d34f4075d3",
-		Name:   "fw-mail",
-		RulesCount: 3,
-		InstanceCount: 1,
-		ClusterCount: 1,
+		ID:                "76cc107f-fbef-4e2b-b97f-f5d34f4075d3",
+		Name:              "fw-mail",
+		RulesCount:        3,
+		InstanceCount:     1,
+		ClusterCount:      1,
 		LoadBalancerCount: 0,
-		NetworkID: "ef7cf1ab-ecee-407a-b7ac-e134614647e2",
+		NetworkID:         "ef7cf1ab-ecee-407a-b7ac-e134614647e2",
 		Rules: []FirewallRule{
 			{
-				ID:         "9e0745f9-3dbb-48e6-b510-4163e4b6722d",
-				Protocol:   "tcp",
-				StartPort:  "1",
-				EndPort:    "65535",
-				Cidr:       []string{"0.0.0.0/0"},
-				Direction:  "ingress",
-				Action:     "allow",
-				Label:      "All TCP ports open",
-				Ports:      "1-65535",
+				ID:        "9e0745f9-3dbb-48e6-b510-4163e4b6722d",
+				Protocol:  "tcp",
+				StartPort: "1",
+				EndPort:   "65535",
+				Cidr:      []string{"0.0.0.0/0"},
+				Direction: "ingress",
+				Action:    "allow",
+				Label:     "All TCP ports open",
+				Ports:     "1-65535",
 			},
 		},
 	}
