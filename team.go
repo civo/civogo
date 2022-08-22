@@ -58,7 +58,7 @@ func (c *Client) CreateTeam(name string) (*Team, error) {
 	return team, nil
 }
 
-//FindTeam finds a team by either part of the ID or part of the name
+// FindTeam finds a team by either part of the ID or part of the name
 func (c *Client) FindTeam(search string) (*Team, error) {
 	teams, err := c.ListTeams()
 	if err != nil {

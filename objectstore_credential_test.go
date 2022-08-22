@@ -91,7 +91,11 @@ func TestUpdateObjecStoreCredential(t *testing.T) {
 		"/v2/objectstore/credentials/12345": `{
 			"id": "12345",
 			"name": "test-objectstore-cred",
+<<<<<<< HEAD
 			"max_size_gb": 1000
+=======
+			"maxSize": 1000
+>>>>>>> 293bce628509e6440e299215bdaa3c7979c8aadf
 		}`,
 	})
 	defer server.Close()
