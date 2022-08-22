@@ -60,14 +60,14 @@ func TestNewObjectStoreCredential(t *testing.T) {
 		"/v2/objectstore/credentials": `{
 			"id": "12345",
 			"name": "test-objectstore-cred",
-			"maxSize": 500
+			"max_size_gb": 500
 		}`,
 	})
 	defer server.Close()
 
 	cfg := &CreateObjectStoreCredentialRequest{
 		Name:      "test-objectstore-cred",
-		MaxSizeGB: 500,
+		MaxSizeGB: intPtr(500),
 	}
 	got, err := client.NewObjectStoreCredential(cfg)
 	if err != nil {
@@ -91,13 +91,13 @@ func TestUpdateObjecStoreCredential(t *testing.T) {
 		"/v2/objectstore/credentials/12345": `{
 			"id": "12345",
 			"name": "test-objectstore-cred",
-			"maxSize": 1000
+			"max_size_gb": 1000
 		}`,
 	})
 	defer server.Close()
 
 	cfg := &UpdateObjectStoreCredentialRequest{
-		MaxSizeGB: 1000,
+		MaxSizeGB: intPtr(1000),
 	}
 	got, err := client.UpdateObjectStoreCredential("12345", cfg)
 	if err != nil {
@@ -132,4 +132,8 @@ func TestDeleteObjectStoreCredential(t *testing.T) {
 	if !reflect.DeepEqual(got, expected) {
 		t.Errorf("Expected %+v, got %+v", expected, got)
 	}
+}
+
+func intPtr(i int) *int {
+	return &i
 }

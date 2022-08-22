@@ -9,13 +9,13 @@ import (
 
 // ObjectStoreCredential holds the credential of an object store
 type ObjectStoreCredential struct {
-	ID                string  `json:"id"`
-	Name              string  `json:"name"`
-	AcessKeyID        *string `json:"accessKeyID,omitempty"`
-	SecretAccessKeyID *string `json:"secretAccessKeyID,omitempty"`
-	MaxSizeGB         int     `json:"maxSize,omitempty"`
-	Suspended         bool    `json:"suspended"`
-	Status            string  `json:"status"`
+	ID                string `json:"id"`
+	Name              string `json:"name"`
+	AccessKeyID       string `json:"access_key_id"`
+	SecretAccessKeyID string `json:"secret_access_key_id"`
+	MaxSizeGB         int    `json:"max_size_gb,omitempty"`
+	Suspended         bool   `json:"suspended"`
+	Status            string `json:"status"`
 }
 
 // PaginatedObjectStoreCredentials is a paginated list of Objectstore credentials
@@ -29,17 +29,17 @@ type PaginatedObjectStoreCredentials struct {
 // CreateObjectStoreCredentialRequest holds the request to create a new object store credential
 type CreateObjectStoreCredentialRequest struct {
 	Name              string  `json:"name" validate:"required" schema:"name"`
-	MaxSizeGB         int     `json:"maxSize,omitempty"`
-	AcessKeyID        *string `json:"accessKeyID,omitempty"`
-	SecretAccessKeyID *string `json:"secretAccessKeyID,omitempty"`
+	AccessKeyID       *string `json:"access_key_id" schema:"access_key_id"`
+	SecretAccessKeyID *string `json:"secret_access_key_id" schema:"secret_access_key_id"`
+	MaxSizeGB         *int    `json:"max_size_gb,omitempty" schema:"max_size_gb"`
 }
 
 // UpdateObjectStoreCredentialRequest holds the request to update a specified object store credential's details
 type UpdateObjectStoreCredentialRequest struct {
-	MaxSizeGB       int    `json:"max_size_gb" schema:"max_size_gb"`
-	AccessKeyID     string `json:"access_key_id,omitempty" schema:"access_key_id"`
-	SecretAccessKey string `json:"secret_access_key,omitempty" schema:"secret_access_key"`
-	Suspended       bool   `json:"suspended,omitempty" schema:"suspended"`
+	AccessKeyID       *string `json:"access_key_id" schema:"access_key_id"`
+	SecretAccessKeyID *string `json:"secret_access_key_id" schema:"secret_access_key_id"`
+	MaxSizeGB         *int    `json:"max_size_gb,omitempty" schema:"max_size_gb"`
+	Suspended         bool    `json:"suspended,omitempty" schema:"suspended"`
 }
 
 // ListObjectStoreCredentials returns all object store credentials in that specific region
@@ -84,10 +84,10 @@ func (c *Client) FindObjectStoreCredential(search string) (*ObjectStoreCredentia
 	result := ObjectStoreCredential{}
 
 	for _, value := range creds.Items {
-		if value.AcessKeyID == &search || value.Name == search || value.ID == search {
+		if value.AccessKeyID == search || value.Name == search || value.ID == search {
 			exactMatch = true
 			result = value
-		} else if strings.Contains(*value.AcessKeyID, search) || strings.Contains(value.Name, search) || strings.Contains(value.ID, search) {
+		} else if strings.Contains(value.AccessKeyID, search) || strings.Contains(value.Name, search) || strings.Contains(value.ID, search) {
 			if !exactMatch {
 				result = value
 				partialMatchesCount++
