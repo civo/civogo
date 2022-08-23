@@ -9,14 +9,13 @@ import (
 
 // ObjectStore is the struct for the ObjectStore model
 type ObjectStore struct {
-	ID                  string `json:"id"`
-	Name                string `json:"name"`
-	GeneratedName       string `json:"generated_name"`
-	MaxSize             string `json:"max_size"`
-	AccessKeyID         string `json:"access_key_id"`
-	SecretAccessKey     string `json:"secret_access_key"`
-	ObjectStoreEndpoint string `json:"objectstore_endpoint"`
-	Status              string `json:"status"`
+	ID                  string                `json:"id"`
+	Name                string                `json:"name"`
+	GeneratedName       string                `json:"generated_name"`
+	MaxSize             string                `json:"max_size"`
+	ObjectStoreEndpoint string                `json:"objectstore_endpoint"`
+	CredentialName      ObjectStoreCredential `json:"credential_name"`
+	Status              string                `json:"status"`
 }
 
 // PaginatedObjectstores is a paginated list of Objectstores
@@ -29,20 +28,18 @@ type PaginatedObjectstores struct {
 
 // CreateObjectStoreRequest holds the request to create a new object storage
 type CreateObjectStoreRequest struct {
-	Name            string `json:"name,omitempty"`
-	MaxSizeGB       int    `json:"max_size_gb" validate:"required"`
-	Prefix          string `json:"prefix,omitempty"`
-	AccessKeyID     string `json:"access_key_id,omitempty"`
-	SecretAccessKey string `json:"secret_access_key,omitempty"`
-	Region          string `json:"region"`
+	Name           string                `json:"name,omitempty"`
+	MaxSizeGB      int                   `json:"max_size_gb" validate:"required"`
+	Prefix         string                `json:"prefix,omitempty"`
+	CredentialName ObjectStoreCredential `json:"credential_name"`
+	Region         string                `json:"region"`
 }
 
 // UpdateObjectStoreRequest holds the request to update a specified object storage's details
 type UpdateObjectStoreRequest struct {
-	MaxSizeGB       int    `json:"max_size_gb"`
-	AccessKeyID     string `json:"access_key_id,omitempty"`
-	SecretAccessKey string `json:"secret_access_key,omitempty"`
-	Region          string `json:"region,omitempty"`
+	MaxSizeGB      int                   `json:"max_size_gb"`
+	CredentialName ObjectStoreCredential `json:"credential_name"`
+	Region         string                `json:"region,omitempty"`
 }
 
 // ListObjectStores returns all objectstores in that specific region
@@ -87,10 +84,10 @@ func (c *Client) FindObjectStore(search string) (*ObjectStore, error) {
 	result := ObjectStore{}
 
 	for _, value := range objectstores.Items {
-		if value.AccessKeyID == search || value.Name == search || value.ID == search {
+		if value.Name == search || value.ID == search {
 			exactMatch = true
 			result = value
-		} else if strings.Contains(value.AccessKeyID, search) || strings.Contains(value.Name, search) || strings.Contains(value.ID, search) {
+		} else if strings.Contains(value.Name, search) || strings.Contains(value.ID, search) {
 			if !exactMatch {
 				result = value
 				partialMatchesCount++
