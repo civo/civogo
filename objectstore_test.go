@@ -60,7 +60,7 @@ func TestNewObjectStore(t *testing.T) {
 		"/v2/objectstores": `{
 			"id": "12345",
 			"name": "test-objectstore",
-			"max_size": "500G",
+			"max_size": 500,
 			"status" : "active"
 		}`,
 	})
@@ -79,7 +79,7 @@ func TestNewObjectStore(t *testing.T) {
 	expected := &ObjectStore{
 		ID:      "12345",
 		Name:    "test-objectstore",
-		MaxSize: "500G",
+		MaxSize: 500,
 		Status:  "active",
 	}
 
@@ -93,7 +93,7 @@ func TestUpdateObjectStore(t *testing.T) {
 		"/v2/objectstores/12345": `{
 			"id": "12345",
 			"name": "test-objectstore",
-			"max_size": "1000G"
+			"max_size": 1000
 		}`,
 	})
 	defer server.Close()
@@ -110,7 +110,7 @@ func TestUpdateObjectStore(t *testing.T) {
 	expected := &ObjectStore{
 		ID:      "12345",
 		Name:    "test-objectstore",
-		MaxSize: "1000G",
+		MaxSize: 1000,
 	}
 
 	if !reflect.DeepEqual(got, expected) {

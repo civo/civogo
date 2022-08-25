@@ -9,13 +9,18 @@ import (
 
 // ObjectStore is the struct for the ObjectStore model
 type ObjectStore struct {
-	ID                  string                `json:"id"`
-	Name                string                `json:"name"`
-	GeneratedName       string                `json:"generated_name"`
-	MaxSize             string                `json:"max_size"`
-	ObjectStoreEndpoint string                `json:"objectstore_endpoint"`
-	CredentialName      ObjectStoreCredential `json:"credential_name"`
-	Status              string                `json:"status"`
+	ID        string      `json:"id"`
+	Name      string      `json:"name"`
+	MaxSize   int64       `json:"max_size"`
+	OwnerInfo BucketOwner `json:"owner_info"`
+	BucketURL string      `json:"objectstore_endpoint"`
+	Status    string      `json:"status"`
+}
+
+// BucketOwner is the struct for owner details of an Object Store
+type BucketOwner struct {
+	AccessKeyID string `json:"access_key_id,omitempty" schema:"access_key_id"`
+	Name        string `json:"name,omitempty" schema:"name"`
 }
 
 // PaginatedObjectstores is a paginated list of Objectstores
@@ -28,18 +33,15 @@ type PaginatedObjectstores struct {
 
 // CreateObjectStoreRequest holds the request to create a new object storage
 type CreateObjectStoreRequest struct {
-	Name           string                `json:"name,omitempty"`
-	MaxSizeGB      int                   `json:"max_size_gb" validate:"required"`
-	Prefix         string                `json:"prefix,omitempty"`
-	CredentialName ObjectStoreCredential `json:"credential_name"`
-	Region         string                `json:"region"`
+	Name        string `json:"name,omitempty" schema:"name"`
+	MaxSizeGB   int64  `json:"max_size_gb" validate:"required" schema:"max_size_gb"`
+	AccessKeyID string `json:"access_key_id,omitempty" scema:"access_key_id"`
 }
 
 // UpdateObjectStoreRequest holds the request to update a specified object storage's details
 type UpdateObjectStoreRequest struct {
-	MaxSizeGB      int                   `json:"max_size_gb"`
-	CredentialName ObjectStoreCredential `json:"credential_name"`
-	Region         string                `json:"region,omitempty"`
+	MaxSizeGB   int64  `json:"max_size_gb" schema:"max_size_gb"`
+	AccessKeyID string `json:"access_key_id,omitempty" scema:"access_key_id"`
 }
 
 // ListObjectStores returns all objectstores in that specific region
