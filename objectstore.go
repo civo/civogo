@@ -35,13 +35,13 @@ type PaginatedObjectstores struct {
 type CreateObjectStoreRequest struct {
 	Name        string `json:"name,omitempty" schema:"name"`
 	MaxSizeGB   int64  `json:"max_size_gb" validate:"required" schema:"max_size_gb"`
-	AccessKeyID string `json:"access_key_id,omitempty" scema:"access_key_id"`
+	AccessKeyID string `json:"access_key_id,omitempty" schema:"access_key_id"`
 }
 
 // UpdateObjectStoreRequest holds the request to update a specified object storage's details
 type UpdateObjectStoreRequest struct {
 	MaxSizeGB   int64  `json:"max_size_gb" schema:"max_size_gb"`
-	AccessKeyID string `json:"access_key_id,omitempty" scema:"access_key_id"`
+	AccessKeyID string `json:"access_key_id,omitempty" schema:"access_key_id"`
 }
 
 // ListObjectStores returns all objectstores in that specific region
