@@ -11,7 +11,7 @@ import (
 type ObjectStore struct {
 	ID        string      `json:"id"`
 	Name      string      `json:"name"`
-	MaxSize   int64       `json:"max_size"`
+	MaxSize   int         `json:"max_size"`
 	OwnerInfo BucketOwner `json:"owner_info"`
 	BucketURL string      `json:"objectstore_endpoint"`
 	Status    string      `json:"status"`
@@ -19,8 +19,9 @@ type ObjectStore struct {
 
 // BucketOwner is the struct for owner details of an Object Store
 type BucketOwner struct {
-	AccessKeyID string `json:"access_key_id,omitempty"`
-	Name        string `json:"name,omitempty"`
+	AccessKeyID     string `json:"access_key_id,omitempty"`
+	SecretAccessKey string `json:"secret_access_key"`
+	Name            string `json:"name,omitempty"`
 }
 
 // PaginatedObjectstores is a paginated list of Objectstores
@@ -36,12 +37,14 @@ type CreateObjectStoreRequest struct {
 	Name        string `json:"name,omitempty"`
 	MaxSizeGB   int64  `json:"max_size_gb" validate:"required"`
 	AccessKeyID string `json:"access_key_id,omitempty"`
+	Region      string `json:"region"`
 }
 
 // UpdateObjectStoreRequest holds the request to update a specified object storage's details
 type UpdateObjectStoreRequest struct {
 	MaxSizeGB   int64  `json:"max_size_gb"`
 	AccessKeyID string `json:"access_key_id,omitempty"`
+	Region      string `json:"region"`
 }
 
 // ListObjectStores returns all objectstores in that specific region
