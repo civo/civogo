@@ -19,9 +19,8 @@ type ObjectStore struct {
 
 // BucketOwner is the struct for owner details of an Object Store
 type BucketOwner struct {
-	AccessKeyID     string `json:"access_key_id,omitempty"`
-	SecretAccessKey string `json:"secret_access_key"`
-	Name            string `json:"name,omitempty"`
+	AccessKeyID string `json:"access_key_id,omitempty"`
+	Name        string `json:"name,omitempty"`
 }
 
 // PaginatedObjectstores is a paginated list of Objectstores
