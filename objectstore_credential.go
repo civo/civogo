@@ -28,18 +28,20 @@ type PaginatedObjectStoreCredentials struct {
 
 // CreateObjectStoreCredentialRequest holds the request to create a new object store credential
 type CreateObjectStoreCredentialRequest struct {
-	Name              string  `json:"name" validate:"required" schema:"name"`
-	AccessKeyID       *string `json:"access_key_id" schema:"access_key_id"`
-	SecretAccessKeyID *string `json:"secret_access_key_id" schema:"secret_access_key_id"`
-	MaxSizeGB         *int    `json:"max_size_gb,omitempty" schema:"max_size_gb"`
+	Name              string  `json:"name" validate:"required"`
+	AccessKeyID       *string `json:"access_key_id"`
+	SecretAccessKeyID *string `json:"secret_access_key_id"`
+	MaxSizeGB         *int    `json:"max_size_gb,omitempty"`
+	Region            string  `json:"region,omitempty"`
 }
 
 // UpdateObjectStoreCredentialRequest holds the request to update a specified object store credential's details
 type UpdateObjectStoreCredentialRequest struct {
-	AccessKeyID       *string `json:"access_key_id" schema:"access_key_id"`
-	SecretAccessKeyID *string `json:"secret_access_key_id" schema:"secret_access_key_id"`
-	MaxSizeGB         *int    `json:"max_size_gb,omitempty" schema:"max_size_gb"`
-	Suspended         bool    `json:"suspended,omitempty" schema:"suspended"`
+	AccessKeyID       *string `json:"access_key_id"`
+	SecretAccessKeyID *string `json:"secret_access_key_id"`
+	MaxSizeGB         *int    `json:"max_size_gb,omitempty"`
+	Suspended         bool    `json:"suspended,omitempty"`
+	Region            string  `json:"region,omitempty"`
 }
 
 // ListObjectStoreCredentials returns all object store credentials in that specific region
