@@ -40,7 +40,6 @@ type UpdateObjectStoreCredentialRequest struct {
 	AccessKeyID       *string `json:"access_key_id"`
 	SecretAccessKeyID *string `json:"secret_access_key_id"`
 	MaxSizeGB         *int    `json:"max_size_gb,omitempty"`
-	Suspended         bool    `json:"suspended,omitempty"`
 	Region            string  `json:"region,omitempty"`
 }
 
