@@ -5,13 +5,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/civo/civogo/utils"
 	"io"
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"strings"
-	"github.com/civo/civogo/utils"
 )
 
 // Client is the means of connecting to the Civo API service
