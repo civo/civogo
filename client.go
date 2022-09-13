@@ -25,6 +25,11 @@ type Client struct {
 	httpClient *http.Client
 }
 
+// Component is a struct to define a User-Agent from a client
+type Component struct{
+	ID, Name, Version string
+}
+
 // HTTPError is the error returned when the API fails with an HTTP error
 type HTTPError struct {
 	Code   int
@@ -271,6 +276,10 @@ func (c *Client) DecodeSimpleResponse(resp []byte) (*SimpleResponse, error) {
 }
 
 // SetUserAgent sets the user agent for the client
-func (c *Client) SetUserAgent(userAgent string) {
-	c.UserAgent = fmt.Sprintf("%s %s", userAgent, c.UserAgent)
+func (c *Client) SetUserAgent(component *Component) {
+	if component.ID == "" {
+		c.UserAgent = fmt.Sprintf("%s/%s %s", component.Name, component.Version, c.UserAgent)
+	} else {
+		c.UserAgent = fmt.Sprintf("%s/%s-%s %s", component.Name, component.Version, component.ID, c.UserAgent)
+	}
 }
