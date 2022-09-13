@@ -11,10 +11,8 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"strings"
+	"github.com/civo/civogo/utils"
 )
-
-// Version represents the version of the civogo lib
-const Version = "0.2.21"
 
 // Client is the means of connecting to the Civo API service
 type Client struct {
@@ -83,7 +81,7 @@ func NewClientWithURL(apiKey, civoAPIURL, region string) (*Client, error) {
 
 	client := &Client{
 		BaseURL:   parsedURL,
-		UserAgent: "civogo/" + Version,
+		UserAgent: "civogo/" + utils.GetVersion(),
 		APIKey:    apiKey,
 		Region:    region,
 		httpClient: &http.Client{
@@ -270,4 +268,9 @@ func (c *Client) DecodeSimpleResponse(resp []byte) (*SimpleResponse, error) {
 	response := SimpleResponse{}
 	err := json.NewDecoder(bytes.NewReader(resp)).Decode(&response)
 	return &response, err
+}
+
+// SetUserAgent sets the user agent for the client
+func (c *Client) SetUserAgent(userAgent string) {
+	c.UserAgent = fmt.Sprintf("%s %s", userAgent, c.UserAgent)
 }

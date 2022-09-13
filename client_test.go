@@ -32,6 +32,11 @@ func Test_AdvancedClientForTesting(t *testing.T) {
 
 	client, server, _ := NewAdvancedClientForTesting(serverValue)
 	defer server.Close()
+	g.Expect(client.UserAgent).To(Equal("civogo/dev"))
+
+	// Update the UserAgent
+	client.SetUserAgent("civogo/test")
+	g.Expect(client.UserAgent).To(Equal("civogo/test civogo/dev"))
 
 	// Check the records for the domain
 	records, err := client.ListDNSRecords("12345")
