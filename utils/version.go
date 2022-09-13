@@ -7,10 +7,11 @@ import (
 const packagePath = "github.com/civo/civogo"
 
 var (
+	// Version is the default version of the package
 	Version = "dev"
 )
 
-// init attempts to source the version from the build info injected
+// GetVersion init attempts to source the version from the build info injected
 // at runtime and sets the DefaultUserAgent.
 func GetVersion() string {
 	buildInfo, ok := debug.ReadBuildInfo()
