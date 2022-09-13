@@ -26,7 +26,7 @@ type Client struct {
 }
 
 // Component is a struct to define a User-Agent from a client
-type Component struct{
+type Component struct {
 	ID, Name, Version string
 }
 
