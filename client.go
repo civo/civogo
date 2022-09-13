@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/civo/civogo/utils"
 	"io"
 	"log"
 	"net/http"
@@ -12,9 +13,6 @@ import (
 	"net/url"
 	"strings"
 )
-
-// Version represents the version of the civogo lib
-const Version = "0.2.21"
 
 // Client is the means of connecting to the Civo API service
 type Client struct {
@@ -25,6 +23,11 @@ type Client struct {
 	LastJSONResponse string
 
 	httpClient *http.Client
+}
+
+// Component is a struct to define a User-Agent from a client
+type Component struct {
+	ID, Name, Version string
 }
 
 // HTTPError is the error returned when the API fails with an HTTP error
@@ -83,7 +86,7 @@ func NewClientWithURL(apiKey, civoAPIURL, region string) (*Client, error) {
 
 	client := &Client{
 		BaseURL:   parsedURL,
-		UserAgent: "civogo/" + Version,
+		UserAgent: "civogo/" + utils.GetVersion(),
 		APIKey:    apiKey,
 		Region:    region,
 		httpClient: &http.Client{
@@ -270,4 +273,13 @@ func (c *Client) DecodeSimpleResponse(resp []byte) (*SimpleResponse, error) {
 	response := SimpleResponse{}
 	err := json.NewDecoder(bytes.NewReader(resp)).Decode(&response)
 	return &response, err
+}
+
+// SetUserAgent sets the user agent for the client
+func (c *Client) SetUserAgent(component *Component) {
+	if component.ID == "" {
+		c.UserAgent = fmt.Sprintf("%s/%s %s", component.Name, component.Version, c.UserAgent)
+	} else {
+		c.UserAgent = fmt.Sprintf("%s/%s-%s %s", component.Name, component.Version, component.ID, c.UserAgent)
+	}
 }
