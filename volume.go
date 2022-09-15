@@ -82,7 +82,6 @@ func (c *Client) ListVolumesForCluster(clusterID string) ([]Volume, error) {
 
 // ListDanglingVolumes returns all dangling volumes (Volumes which have a cluster ID set but that cluster doesn't exist anymore)
 func (c *Client) ListDanglingVolumes() ([]Volume, error) {
-
 	clusters, err := c.ListKubernetesClusters()
 	if err != nil {
 		return nil, decodeError(err)
