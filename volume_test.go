@@ -30,6 +30,57 @@ func TestListVolumes(t *testing.T) {
 	}
 }
 
+func TestListVolumesForCluster(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+
+		"/v2/kubernetes/clusters": `{"page":1,"per_page":20,"pages":1,"items":[
+			{ "id": "69a23478-a89e-41d2-97b1-6f4c341cee70", "name": "your-first-cluster-name", "version": "2", "status": "ACTIVE", "ready": true, "num_target_nodes": 1, "target_nodes_size": "g2.xsmall", "built_at": "2019-09-23T13:04:23.000+01:00", "kubeconfig": "YAML_VERSION_OF_KUBECONFIG_HERE\n", "kubernetes_version": "0.8.1", "api_endpoint": "https://your.cluster.ip.address:6443", "dns_entry": "69a23478-a89e-41d2-97b1-6f4c341cee70.k8s.civo.com", "tags": [], "created_at": "2019-09-23T13:02:59.000+01:00", "firewall_id": "42118911-44c2-4cab-ad77-bcae062815b3", "instances": [{ "hostname": "kube-master-HEXDIGITS", "size": "g2.xsmall", "region": "lon1", "created_at": "2019-09-23T13:03:00.000+01:00", "status": "ACTIVE", "firewall_id": "5f0ba9ed-5ca7-4e14-9a09-449a84196d64", "public_ip": "your.cluster.ip.address", "tags": ["civo-kubernetes:installed", "civo-kubernetes:master"] }], "installed_applications": [{ "application": "Traefik", "title": null, "version": "(default)", "dependencies": null, "maintainer": "@Rancher_Labs", "description": "A reverse proxy/load-balancer that's easy, dynamic, automatic, fast, full-featured, open source, production proven and provides metrics.", "post_install": "Some documentation here\n", "installed": true, "url": "https://traefik.io", "category": "architecture", "updated_at": "2019-09-23T13:02:59.000+01:00", "image_url": "https://api.civo.com/k3s-marketplace/traefik.png", "plan": null, "configuration": {} }] }
+		]}`,
+		"/v2/volumes": `[{ "id": "12345", "name": "my-volume", "size_gb": 25, "bootable": false, "cluster_id": "69a23478-a89e-41d2-97b1-6f4c341cee70"}]`,
+	})
+	defer server.Close()
+	got, err := client.ListVolumesForCluster("69a23478-a89e-41d2-97b1-6f4c341cee70")
+
+	if err != nil {
+		t.Errorf("Request returned an error: %s", err)
+		return
+	}
+	expected := []Volume{{ID: "12345", Name: "my-volume", SizeGigabytes: 25, Bootable: false, ClusterID: "69a23478-a89e-41d2-97b1-6f4c341cee70"}}
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Expected %+v, got %+v", expected, got)
+	}
+}
+
+func TestListDanglingVolumes(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/volumes": `[{
+			"id": "12345",
+			"name": "my-volume",
+			"cluster_id": "69a23478-a89e-41d2-97b1-6f4c341cee70",
+			"size_gb": 25,
+			"bootable": false
+		  },
+		  {
+		  	"id": "34567",
+			"name": "my-volume-two",
+			"size_gb": 25,
+			"bootable": false
+		  }]`,
+	})
+	defer server.Close()
+	got, err := client.ListDanglingVolumes()
+
+	if err != nil {
+		t.Errorf("Request returned an error: %s", err)
+		return
+	}
+	// Should only return the dangling volume (Vol with a cluster id but cluster doesn't exist)
+	expected := []Volume{{ID: "12345", Name: "my-volume", ClusterID: "69a23478-a89e-41d2-97b1-6f4c341cee70", SizeGigabytes: 25, Bootable: false}}
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Expected %+v, got %+v", expected, got)
+	}
+}
+
 func TestFindVolume(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/volumes": `[

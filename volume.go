@@ -57,6 +57,66 @@ func (c *Client) ListVolumes() ([]Volume, error) {
 	return volumes, nil
 }
 
+// ListVolumesForCluster returns all volumes for a cluster
+func (c *Client) ListVolumesForCluster(clusterID string) ([]Volume, error) {
+	cluster, err := c.FindKubernetesCluster(clusterID)
+	if err != nil {
+		return nil, err
+	}
+
+	volumes, err := c.ListVolumes()
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	var vols []Volume
+	for _, vol := range volumes {
+		if vol.ClusterID != "" {
+			if cluster.ID == vol.ClusterID {
+				vols = append(vols, vol)
+			}
+		}
+	}
+	return vols, nil
+}
+
+// ListDanglingVolumes returns all dangling volumes (Volumes which have a cluster ID set but that cluster doesn't exist anymore)
+func (c *Client) ListDanglingVolumes() ([]Volume, error) {
+	clusters, err := c.ListKubernetesClusters()
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	var clusterIDs []string
+	for _, cluster := range clusters.Items {
+		clusterIDs = append(clusterIDs, cluster.ID)
+	}
+
+	volumes, err := c.ListVolumes()
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	var danglingVolumes = make([]Volume, 0)
+	for _, volume := range volumes {
+		if volume.ClusterID != "" {
+			if !findString(clusterIDs, volume.ClusterID) {
+				danglingVolumes = append(danglingVolumes, volume)
+			}
+		}
+	}
+	return danglingVolumes, nil
+}
+
+func findString(slice []string, val string) bool {
+	for _, item := range slice {
+		if item == val {
+			return true
+		}
+	}
+	return false
+}
+
 // GetVolume finds a volume by the full ID
 func (c *Client) GetVolume(id string) (*Volume, error) {
 	resp, err := c.SendGetRequest(fmt.Sprintf("/v2/volumes/%s", id))
