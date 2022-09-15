@@ -59,7 +59,6 @@ func (c *Client) ListVolumes() ([]Volume, error) {
 
 // ListVolumesForCluster returns all volumes for a cluster
 func (c *Client) ListVolumesForCluster(clusterID string) ([]Volume, error) {
-
 	cluster, err := c.FindKubernetesCluster(clusterID)
 	if err != nil {
 		return nil, err
