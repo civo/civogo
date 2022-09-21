@@ -42,9 +42,10 @@ type CreateObjectStoreRequest struct {
 
 // UpdateObjectStoreRequest holds the request to update a specified object storage's details
 type UpdateObjectStoreRequest struct {
-	MaxSizeGB   int64  `json:"max_size_gb"`
-	AccessKeyID string `json:"access_key_id,omitempty"`
-	Region      string `json:"region"`
+	MaxSizeGB int64 `json:"max_size_gb"`
+	// TODO: Enable once we support change of owner
+	// AccessKeyID string `json:"access_key_id,omitempty"`
+	Region string `json:"region"`
 }
 
 // ListObjectStores returns all objectstores in that specific region
