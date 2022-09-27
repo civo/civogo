@@ -13,6 +13,7 @@ const sshBasePath = "/v2/sshkeys"
 type SSHKeyService interface {
 	List(ctx context.Context) ([]SSHKey, *Metadata, error)
 	GetByID(ctx context.Context, id string) (*SSHKey, *Metadata, error)
+	Find(ctx context.Context, value string) (*SSHKey, *Metadata, error)
 	Create(ctx context.Context, createRequest *SSHKeyCreateRequest) (*SimpleResponse, *Metadata, error)
 	Update(ctx context.Context, sshID string, updateRequest *SSHKeyUpdateRequest) (*SSHKey, *Metadata, error)
 	Delete(ctx context.Context, sshID string) (*SimpleResponse, *Metadata, error)
@@ -79,6 +80,26 @@ func (c *SSHKeyServiceOp) GetByID(ctx context.Context, sshID string) (*SSHKey, *
 	}
 
 	return root, resp, err
+}
+
+// GetByID get an SSH key by ID
+func (c *SSHKeyServiceOp) Find(ctx context.Context, value string) (*SSHKey, *Metadata, error) {
+	if value == "" {
+		return nil, nil, errors.New("the search term cannot be empty")
+	}
+
+	allSSHKeys, meta, err := c.List(ctx)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	for _, sshKey := range allSSHKeys {
+		if sshKey.ID == value || sshKey.Name == value {
+			return &sshKey, meta, nil
+		}
+	}
+
+	return nil, nil, errors.New("no SSH key found")
 }
 
 // Create create a new SSH key
