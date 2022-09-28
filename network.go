@@ -43,7 +43,7 @@ type NetworkCreateRequest struct {
 }
 
 type NetworkUpdateRequest struct {
-	Label string `json:"label"`
+	Label  string `json:"label"`
 	Region string `json:"region"`
 }
 

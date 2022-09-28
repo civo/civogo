@@ -256,7 +256,7 @@ func TestNetwork_Update(t *testing.T) {
 	defer downServer()
 
 	updateNetwork := &NetworkUpdateRequest{
-		Label: "test-update-network",
+		Label:  "test-update-network",
 		Region: "TEST",
 	}
 
@@ -264,7 +264,7 @@ func TestNetwork_Update(t *testing.T) {
 		testMethod(t, r, http.MethodPut)
 
 		expectedUpdateNetwork := map[string]interface{}{
-			"label": "test-update-network",
+			"label":  "test-update-network",
 			"region": "TEST",
 		}
 

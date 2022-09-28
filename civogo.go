@@ -54,23 +54,23 @@ type Client struct {
 	SSHKey  SSHKeyService
 	Network NetworkService
 	/*
-	Account AccountService
-	Application ApplicationService
-	Charge ChargeService
-	DiskImage DiskImageService
-	DNS DNSDomainService
-	Firewall FirewallService
-	Instance InstanceService
-	IP IPService
-	Kubernetes KubernetesService
-	LoadBalancer LoadBalancerService
-	ObjectStorage ObjectStorageService
-	Qouta QuotaService
-	Region RegionService
-	Team TeamService
-	User UserService
-	Volume VolumeService
-	Webhook WebhookService
+		Account AccountService
+		Application ApplicationService
+		Charge ChargeService
+		DiskImage DiskImageService
+		DNS DNSDomainService
+		Firewall FirewallService
+		Instance InstanceService
+		IP IPService
+		Kubernetes KubernetesService
+		LoadBalancer LoadBalancerService
+		ObjectStorage ObjectStorageService
+		Qouta QuotaService
+		Region RegionService
+		Team TeamService
+		User UserService
+		Volume VolumeService
+		Webhook WebhookService
 	*/
 
 	// Optional function called after every successful request made to the Civo APIs
@@ -108,7 +108,7 @@ type ErrorResponse struct {
 // SimpleResponse is a structure that returns success and/or any error
 type SimpleResponse struct {
 	ID     string `json:"id"`
-	Name  string `json:"name"`
+	Name   string `json:"name"`
 	Result string `json:"result"`
 }
 
