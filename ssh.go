@@ -9,7 +9,7 @@ import (
 
 const sshBasePath = "/v2/sshkeys"
 
-// SSHService is an interface for interfacing with the ssh
+// SSHKeyService is an interface for interfacing with the ssh
 type SSHKeyService interface {
 	List(ctx context.Context) ([]SSHKey, *Metadata, error)
 	GetByID(ctx context.Context, id string) (*SSHKey, *Metadata, error)
@@ -19,7 +19,7 @@ type SSHKeyService interface {
 	Delete(ctx context.Context, sshID string) (*SimpleResponse, *Metadata, error)
 }
 
-// SSH Service used for communicating with the API
+// SSHKeyServiceOp Service used for communicating with the API
 type SSHKeyServiceOp struct {
 	client *Client
 }
@@ -82,7 +82,7 @@ func (c *SSHKeyServiceOp) GetByID(ctx context.Context, sshID string) (*SSHKey, *
 	return root, resp, err
 }
 
-// GetByID get an SSH key by ID
+// Find get an SSH  key by name or ID
 func (c *SSHKeyServiceOp) Find(ctx context.Context, value string) (*SSHKey, *Metadata, error) {
 	if value == "" {
 		return nil, nil, errors.New("the search term cannot be empty")

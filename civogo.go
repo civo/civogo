@@ -30,6 +30,7 @@ const (
 	headerRequestID     = "X-Request-ID"
 )
 
+// Client manages communication with the Civo API.
 type Client struct {
 	// HTTP client used to communicate with the Civo API.
 	client *http.Client
@@ -80,12 +81,13 @@ type Client struct {
 	headers map[string]string
 }
 
+// Data is to manage the data returned by the API
 type Data struct {
 	Meta Metadata
 	Data interface{}
 }
 
-// Response is a Civo API response. This wraps the standard http.Response
+// Metadata is a Civo API response. This wraps the standard http.Response
 type Metadata struct {
 	Rate
 	Header        http.Header
@@ -124,6 +126,7 @@ type Rate struct {
 	Reset utils.Timestamp `json:"reset"`
 }
 
+// RequestCompletionCallback is the type of the function called after every request to the Civo API.
 type RequestCompletionCallback func(*http.Request, *http.Response)
 
 // ListOptions struct used for pagination
@@ -174,7 +177,7 @@ func NewClientWithURL(apiKey, region, civoAPIURL string) (*Client, error) {
 	return client, nil
 }
 
-// New is a fcuntion to create a new client wiyth the given options
+// NewClientWithOptions is a fcuntion to create a new client wiyth the given options
 func NewClientWithOptions(apiKey, region, civoAPIURL string, options ...ClientOptions) (*Client, error) {
 	client, err := NewClientWithURL(apiKey, region, civoAPIURL)
 	if err != nil {
@@ -189,7 +192,7 @@ func NewClientWithOptions(apiKey, region, civoAPIURL string, options ...ClientOp
 	return client, nil
 }
 
-// ClientOpt are options for New.
+// ClientOptions are options for New.
 type ClientOptions func(*Client) error
 
 // SetUserAgent is a client option for setting the user agent.
@@ -275,6 +278,7 @@ func (c *Client) NewRequest(ctx context.Context, method, urlStr string, body int
 	return req, nil
 }
 
+// GetRate returns the rate limit for the current client.
 func (c *Client) GetRate() Rate {
 	c.ratemtx.Lock()
 	defer c.ratemtx.Unlock()

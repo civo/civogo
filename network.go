@@ -20,7 +20,7 @@ type NetworkService interface {
 	Delete(ctx context.Context, networkID string) (*SimpleResponse, *Metadata, error)
 }
 
-// SSH Service used for communicating with the API
+// NetworkServiceOp Service used for communicating with the API
 type NetworkServiceOp struct {
 	client *Client
 }
@@ -37,11 +37,13 @@ type Network struct {
 	Status  string `json:"status,omitempty"`
 }
 
+// NetworkCreateRequest represents a request to create a network
 type NetworkCreateRequest struct {
 	Label  string `json:"label"`
 	Region string `json:"region"`
 }
 
+// NetworkUpdateRequest represents a request to update a network
 type NetworkUpdateRequest struct {
 	Label  string `json:"label"`
 	Region string `json:"region"`
