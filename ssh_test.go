@@ -160,8 +160,8 @@ func TestSSHKey_Update(t *testing.T) {
 		}
 
 		respondSimple := SSHKey{
-			ID:     "78f64e5c-abd3-4f4d-85c8-ac63b50caa55",
-			Name:  "test",
+			ID:   "78f64e5c-abd3-4f4d-85c8-ac63b50caa55",
+			Name: "test",
 		}
 		value := toJSON(t, respondSimple)
 		fmt.Fprint(w, value)
