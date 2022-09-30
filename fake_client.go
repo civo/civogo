@@ -976,7 +976,8 @@ func (c *FakeClient) FindRegion(search string) (*Region, error) {
 		}
 	}
 
-	return nil, nil
+	err = fmt.Errorf("unable to find region %s, zero matches", search)
+	return nil, ZeroMatchesError.wrap(err)
 }
 
 // GetDefaultRegion implemented in a fake way for automated tests
@@ -992,7 +993,8 @@ func (c *FakeClient) GetDefaultRegion() (*Region, error) {
 		}
 	}
 
-	return nil, nil
+	err = fmt.Errorf("unable to find default region, zero matches")
+	return nil, ZeroMatchesError.wrap(err)
 }
 
 // CreateSnapshot implemented in a fake way for automated tests
