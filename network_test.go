@@ -197,3 +197,96 @@ func TestDeleteNetwork(t *testing.T) {
 		t.Errorf("Expected %+v, got %+v", expected, got)
 	}
 }
+
+func TestGetSubnet(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/networks/12345/subnets/6789": `{"networkID": "12345", "subnetID": "6789", "name": "test-subnet"}`,
+	})
+	defer server.Close()
+
+	got, err := client.GetSubnet("12345", "6789")
+	if err != nil {
+		t.Errorf("Request returned an error: %s", err)
+		return
+	}
+	if got.ID != "6789" {
+		t.Errorf("Expected %s, got %s", "6789", got.ID)
+	}
+	if got.Name != "test-subnet" {
+		t.Errorf("Expected %s, got %s", "test-subnet", got.Name)
+	}
+}
+
+func TestCreateSubnet(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/networks/12345/subnets": `{
+			"id": "76cc107f-fbef-4e2b-b97f-f5d34f4075d3",
+			"label": "private-net",
+			"result": "success"
+		}`,
+	})
+	defer server.Close()
+
+	subnet := ValidateSubnet{
+		Name:  "test-subnet",
+		Label: "test-subnet",
+	}
+
+	got, err := client.CreateSubnet("12345", subnet)
+	if err != nil {
+		t.Errorf("Request returned an error: %s", err)
+		return
+	}
+
+	expected := &Subnet{
+		ID:        "76cc107f-fbef-4e2b-b97f-f5d34f4075d3",
+		Name:      "test-subnet",
+		NetworkID: "12345",
+		Label:     "test-subnet",
+		Status:    "success",
+	}
+
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Expected %+v, got %+v", expected, got)
+	}
+}
+
+func TestListSubnets(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/networks/12345/subnets": `[{
+			"id": "6789",
+			"name": "test-subnet",
+			"networkID": "12345",
+			"label": "test-subnet"
+		  }]`,
+	})
+	defer server.Close()
+	got, err := client.ListSubnets("12345")
+
+	if err != nil {
+		t.Errorf("Request returned an error: %s", err)
+		return
+	}
+	expected := []Subnet{{ID: "6789", Name: "test-subnet", Label: "test-subnet", NetworkID: "12345"}}
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Expected %+v, got %+v", expected, got)
+	}
+}
+
+func TestDeleteSubnet(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/networks/12345/subnets/6789": `{"result": "success"}`,
+	})
+	defer server.Close()
+
+	got, err := client.DeleteSubnet("12345", "6789")
+	if err != nil {
+		t.Errorf("Request returned an error: %s", err)
+		return
+	}
+
+	expected := &SimpleResponse{Result: "success"}
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Expected %+v, got %+v", expected, got)
+	}
+}
