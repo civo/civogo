@@ -18,6 +18,21 @@ type Network struct {
 	Status  string `json:"status,omitempty"`
 }
 
+// Subnet represents a subnet within a private network
+type Subnet struct {
+	ID        string `json:"id"`
+	Name      string `json:"name,omitempty"`
+	NetworkID string `json:"networkId"`
+	Label     string `json:"label,omitempty"`
+	Status    string `json:"status,omitempty"`
+}
+
+// ValidateSubnet contains incoming request parameters for the subnet object
+type ValidateSubnet struct {
+	Name  string `json:"name" validate:"required" schema:"name"`
+	Label string `json:"label" schema:"label"`
+}
+
 type networkConfig struct {
 	Label  string `json:"label"`
 	Region string `json:"region"`
@@ -144,6 +159,58 @@ func (c *Client) RenameNetwork(label, id string) (*NetworkResult, error) {
 // DeleteNetwork deletes a private network
 func (c *Client) DeleteNetwork(id string) (*SimpleResponse, error) {
 	resp, err := c.SendDeleteRequest(fmt.Sprintf("/v2/networks/%s", id))
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	return c.DecodeSimpleResponse(resp)
+}
+
+// GetSubnet gets a subnet with ID
+func (c *Client) GetSubnet(networkID, subnetID string) (*Subnet, error) {
+	resp, err := c.SendGetRequest(fmt.Sprintf("/v2/networks/%s/subnets/", networkID) + subnetID)
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	subnet := Subnet{}
+	err = json.NewDecoder(bytes.NewReader(resp)).Decode(&subnet)
+	return &subnet, err
+}
+
+// ListSubnets list all private networks
+func (c *Client) ListSubnets(networkID string) ([]Subnet, error) {
+	resp, err := c.SendGetRequest(fmt.Sprintf("/v2/networks/%s/subnets", networkID))
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	subnets := make([]Subnet, 0)
+	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&subnets); err != nil {
+		return nil, err
+	}
+
+	return subnets, nil
+}
+
+// CreateSubnet creates a new private network
+func (c *Client) CreateSubnet(networkID string, subnet ValidateSubnet) (*Subnet, error) {
+	body, err := c.SendPostRequest(fmt.Sprintf("/v2/networks/%s/subnets", networkID), subnet)
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	var result = &Subnet{}
+	if err := json.NewDecoder(bytes.NewReader(body)).Decode(result); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+// DeleteSubnet deletes a subnet
+func (c *Client) DeleteSubnet(networkID, subnetID string) (*SimpleResponse, error) {
+	resp, err := c.SendDeleteRequest(fmt.Sprintf("/v2/networks/%s/subnets/%s", networkID, subnetID))
 	if err != nil {
 		return nil, decodeError(err)
 	}
