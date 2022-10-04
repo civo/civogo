@@ -222,7 +222,7 @@ func TestUpdateInstance(t *testing.T) {
 			Method: "PUT",
 			Value: []ValueAdvanceClientForTesting{
 				{
-					RequestBody:  `{"hostname":"dummy.example.com","notes":"my notes","reverse_dns":"dummy-reverse.example.com"}`,
+					RequestBody:  `{"hostname":"dummy.example.com","notes":"my notes","reverse_dns":"dummy-reverse.example.com", "subnets": ["my-subnet1", "my-subnet2", "my-subnet3"]}`,
 					URL:          "/v2/instances/12345",
 					ResponseBody: `{"result": "success"}`,
 				},

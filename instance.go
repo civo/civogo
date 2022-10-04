@@ -31,6 +31,7 @@ type Instance struct {
 	SSHKey                   string    `json:"ssh_key,omitempty"`
 	SSHKeyID                 string    `json:"ssh_key_id,omitempty"`
 	Status                   string    `json:"status,omitempty"`
+	Subnets                  []string  `json:"subnets,omitempty"`
 	Notes                    string    `json:"notes,omitempty"`
 	FirewallID               string    `json:"firewall_id,omitempty"`
 	Tags                     []string  `json:"tags,omitempty"`
@@ -81,6 +82,7 @@ type InstanceConfig struct {
 	SourceType       string   `json:"source_type"`
 	SourceID         string   `json:"source_id"`
 	SnapshotID       string   `json:"snapshot_id"`
+	Subnets          []string `json:"subnets"`
 	InitialUser      string   `json:"initial_user"`
 	SSHKeyID         string   `json:"ssh_key_id"`
 	Script           string   `json:"script"`
@@ -224,12 +226,13 @@ func (c *Client) SetInstanceTags(i *Instance, tags string) (*SimpleResponse, err
 
 // UpdateInstance updates an Instance's hostname, reverse DNS or notes
 func (c *Client) UpdateInstance(i *Instance) (*SimpleResponse, error) {
-	params := map[string]string{
+	params := map[string]interface{}{
 		"hostname":    i.Hostname,
 		"reverse_dns": i.ReverseDNS,
 		"notes":       i.Notes,
 		"region":      c.Region,
 		"public_ip":   i.PublicIP,
+		"subnets":     i.Subnets,
 	}
 
 	if i.Notes == "" {
