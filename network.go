@@ -178,7 +178,7 @@ func (c *Client) GetSubnet(networkID, subnetID string) (*Subnet, error) {
 	return &subnet, err
 }
 
-// ListSubnets list all private networks
+// ListSubnets list all subnets for a private network
 func (c *Client) ListSubnets(networkID string) ([]Subnet, error) {
 	resp, err := c.SendGetRequest(fmt.Sprintf("/v2/networks/%s/subnets", networkID))
 	if err != nil {
@@ -193,7 +193,7 @@ func (c *Client) ListSubnets(networkID string) ([]Subnet, error) {
 	return subnets, nil
 }
 
-// CreateSubnet creates a new private network
+// CreateSubnet creates a new subnet for a private network
 func (c *Client) CreateSubnet(networkID string, subnet ValidateSubnet) (*Subnet, error) {
 	body, err := c.SendPostRequest(fmt.Sprintf("/v2/networks/%s/subnets", networkID), subnet)
 	if err != nil {
