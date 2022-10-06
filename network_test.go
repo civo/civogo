@@ -227,7 +227,7 @@ func TestCreateSubnet(t *testing.T) {
 	})
 	defer server.Close()
 
-	subnet := ValidateSubnet{
+	subnet := subnetConfig{
 		Name:  "test-subnet",
 		Label: "test-subnet",
 	}

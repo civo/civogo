@@ -27,8 +27,8 @@ type Subnet struct {
 	Status    string `json:"status,omitempty"`
 }
 
-// ValidateSubnet contains incoming request parameters for the subnet object
-type ValidateSubnet struct {
+// subnetConfig contains incoming request parameters for the subnet object
+type subnetConfig struct {
 	Name  string `json:"name" validate:"required" schema:"name"`
 	Label string `json:"label" schema:"label"`
 }
@@ -194,7 +194,7 @@ func (c *Client) ListSubnets(networkID string) ([]Subnet, error) {
 }
 
 // CreateSubnet creates a new subnet for a private network
-func (c *Client) CreateSubnet(networkID string, subnet ValidateSubnet) (*Subnet, error) {
+func (c *Client) CreateSubnet(networkID string, subnet subnetConfig) (*Subnet, error) {
 	body, err := c.SendPostRequest(fmt.Sprintf("/v2/networks/%s/subnets", networkID), subnet)
 	if err != nil {
 		return nil, decodeError(err)
