@@ -217,6 +217,34 @@ func TestGetSubnet(t *testing.T) {
 	}
 }
 
+func TestFindSubnet(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/networks/12345/subnets": `[
+			{
+				"id": "6789",
+				"name": "test-subnet",
+				"networkID": "12345"
+			},
+			{
+				"id": "67890",
+				"name": "test-subnet-2",
+				"networkID": "12345"
+			}
+			]`,
+	})
+	defer server.Close()
+
+	got, _ := client.FindSubnet("6789", "12345")
+	if got.ID != "6789" {
+		t.Errorf("Expected %s, got %s", "6789", got.ID)
+	}
+
+	got, _ = client.FindSubnet("test-subnet-2", "12345")
+	if got.ID != "67890" {
+		t.Errorf("Expected %s, got %s", "67890", got.ID)
+	}
+}
+
 func TestCreateSubnet(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/networks/12345/subnets": `{
@@ -227,7 +255,7 @@ func TestCreateSubnet(t *testing.T) {
 	})
 	defer server.Close()
 
-	subnet := subnetConfig{
+	subnet := SubnetConfig{
 		Name:  "test-subnet",
 		Label: "test-subnet",
 	}

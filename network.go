@@ -27,8 +27,8 @@ type Subnet struct {
 	Status    string `json:"status,omitempty"`
 }
 
-// subnetConfig contains incoming request parameters for the subnet object
-type subnetConfig struct {
+// SubnetConfig contains incoming request parameters for the subnet object
+type SubnetConfig struct {
 	Name  string `json:"name" validate:"required" schema:"name"`
 	Label string `json:"label" schema:"label"`
 }
@@ -194,7 +194,7 @@ func (c *Client) ListSubnets(networkID string) ([]Subnet, error) {
 }
 
 // CreateSubnet creates a new subnet for a private network
-func (c *Client) CreateSubnet(networkID string, subnet subnetConfig) (*Subnet, error) {
+func (c *Client) CreateSubnet(networkID string, subnet SubnetConfig) (*Subnet, error) {
 	body, err := c.SendPostRequest(fmt.Sprintf("/v2/networks/%s/subnets", networkID), subnet)
 	if err != nil {
 		return nil, decodeError(err)
@@ -206,6 +206,40 @@ func (c *Client) CreateSubnet(networkID string, subnet subnetConfig) (*Subnet, e
 	}
 
 	return result, nil
+}
+
+// FindSubnet finds a subnet by either part of the ID or part of the name
+func (c *Client) FindSubnet(search, networkID string) (*Subnet, error) {
+	subnets, err := c.ListSubnets(networkID)
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	exactMatch := false
+	partialMatchesCount := 0
+	result := Subnet{}
+
+	for _, value := range subnets {
+		if value.Name == search || value.ID == search || value.Label == search {
+			exactMatch = true
+			result = value
+		} else if strings.Contains(value.Name, search) || strings.Contains(value.ID, search) || strings.Contains(value.Label, search) {
+			if !exactMatch {
+				result = value
+				partialMatchesCount++
+			}
+		}
+	}
+
+	if exactMatch || partialMatchesCount == 1 {
+		return &result, nil
+	} else if partialMatchesCount > 1 {
+		err := fmt.Errorf("unable to find %s because there were multiple matches", search)
+		return nil, MultipleMatchesError.wrap(err)
+	} else {
+		err := fmt.Errorf("unable to find %s, zero matches", search)
+		return nil, ZeroMatchesError.wrap(err)
+	}
 }
 
 // DeleteSubnet deletes a subnet
