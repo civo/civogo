@@ -9,7 +9,7 @@ import (
 	"github.com/google/go-querystring/query"
 )
 
-// ActionListResponse is a struct for a page of actions
+// PaginateActionList is a struct for a page of actions
 type PaginateActionList struct {
 	Page    int      `json:"page"`
 	PerPage int      `json:"per_page"`
@@ -31,6 +31,7 @@ type Action struct {
 	Debug       bool      `json:"debug"`
 }
 
+// ActionListRequest is a struct for the request to list actions
 type ActionListRequest struct {
 	PerPage      int    `json:"per_page,omitempty" url:"per_page,omitempty"`
 	Page         int    `json:"page,omitempty" url:"page,omitempty"`
@@ -45,7 +46,7 @@ type ActionListRequest struct {
 	UserID       string `json:"user_id,omitempty" url:"user_id,omitempty"`
 }
 
-// ListInstances returns a page of Instances owned by the calling API account
+// ListActions returns a page of actions
 func (c *Client) ListActions(listRequest *ActionListRequest) (*PaginateActionList, error) {
 	url := "/v2/actions"
 
