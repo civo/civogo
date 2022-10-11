@@ -12,7 +12,7 @@ const networkBasePath = "/v2/networks"
 // NetworkService is an interface for interfacing with the network
 type NetworkService interface {
 	List(ctx context.Context) ([]Network, *Metadata, error)
-	GetDefault(ctx context.Context) (*Network, *Metadata, error)
+	Default(ctx context.Context) (*Network, *Metadata, error)
 	GetByID(ctx context.Context, networkID string) (*Network, *Metadata, error)
 	Find(ctx context.Context, value string) (*Network, *Metadata, error)
 	Create(ctx context.Context, createRequest *NetworkCreateRequest) (*SimpleResponse, *Metadata, error)
@@ -25,7 +25,16 @@ type NetworkServiceOp struct {
 	client *Client
 }
 
-var _ NetworkService = &NetworkServiceOp{}
+type NetworkGetter interface {
+	SSHKey() SSHKeyService
+}
+
+// newSSHKey returns a SSHKey
+func newNetwork(c *Client) *NetworkServiceOp {
+	return &NetworkServiceOp{
+		client:  c,
+	}
+}
 
 // Network represents a private network for instances to connect to
 type Network struct {
@@ -67,7 +76,7 @@ func (c *NetworkServiceOp) List(ctx context.Context) ([]Network, *Metadata, erro
 }
 
 // GetDefault returns the default network for an account
-func (c *NetworkServiceOp) GetDefault(ctx context.Context) (*Network, *Metadata, error) {
+func (c *NetworkServiceOp) Default(ctx context.Context) (*Network, *Metadata, error) {
 	networks, metadata, err := c.List(ctx)
 	if err != nil {
 		return nil, metadata, err

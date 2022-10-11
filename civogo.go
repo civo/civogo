@@ -30,6 +30,14 @@ const (
 	headerRequestID     = "X-Request-ID"
 )
 
+// Interface is the interface for the Civo API
+type ClientInterface interface {
+	SSHKeyGetter
+	NetworkGetter
+	DNSGetter
+	InstancesGetter
+}
+
 // Client manages communication with the Civo API.
 type Client struct {
 	// HTTP client used to communicate with the Civo API.
@@ -52,14 +60,12 @@ type Client struct {
 	ratemtx sync.Mutex
 
 	// Services used for communicating with the API
-	SSHKey  SSHKeyService
-	Network NetworkService
 	/*
 		Account AccountService
 		Application ApplicationService
 		Charge ChargeService
 		DiskImage DiskImageService
-		DNS DNSDomainService
+
 		Firewall FirewallService
 		Instance InstanceService
 		IP IPService
@@ -170,11 +176,23 @@ func NewClientWithURL(apiKey, region, civoAPIURL string) (*Client, error) {
 		Region:    region,
 	}
 
-	// Init all the Services
-	client.SSHKey = &SSHKeyServiceOp{client: client}
-	client.Network = &NetworkServiceOp{client: client}
-
 	return client, nil
+}
+
+func (c *Client) SSHKey() SSHKeyService {
+	return newSSHKey(c)
+}
+
+func (c *Client) Network() NetworkService {
+	return newNetwork(c)
+}
+
+func (c *Client) DNS() DNSService {
+	return newDNS(c)
+}
+
+func (c *Client) Instances(network string) InstancesService {
+	return newInstances(c, network)
 }
 
 // NewClientWithOptions is a fcuntion to create a new client wiyth the given options

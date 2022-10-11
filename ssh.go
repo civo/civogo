@@ -21,10 +21,19 @@ type SSHKeyService interface {
 
 // SSHKeyServiceOp Service used for communicating with the API
 type SSHKeyServiceOp struct {
-	client *Client
+	client  *Client
 }
 
-var _ SSHKeyService = &SSHKeyServiceOp{}
+type SSHKeyGetter interface {
+	SSHKey() SSHKeyService
+}
+
+// newSSHKey returns a SSHKey
+func newSSHKey(c *Client) *SSHKeyServiceOp {
+	return &SSHKeyServiceOp{
+		client:  c,
+	}
+}
 
 // SSHKey represents an SSH public key, uploaded to access instances
 type SSHKey struct {

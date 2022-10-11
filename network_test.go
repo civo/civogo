@@ -37,7 +37,7 @@ func TestNetwork_List(t *testing.T) {
 		fmt.Fprint(w, value)
 	})
 
-	net, meta, err := client.Network.List(ctx)
+	net, meta, err := client.Network().List(ctx)
 	if err != nil {
 		t.Errorf("Network.List returned error: %v", err)
 	}
@@ -68,7 +68,7 @@ func TestNetwork_List(t *testing.T) {
 	}
 }
 
-func TestNetwork_GetDefault(t *testing.T) {
+func TestNetwork_Default(t *testing.T) {
 	initServer()
 	defer downServer()
 
@@ -97,7 +97,7 @@ func TestNetwork_GetDefault(t *testing.T) {
 		fmt.Fprint(w, value)
 	})
 
-	net, meta, err := client.Network.GetDefault(ctx)
+	net, meta, err := client.Network().Default(ctx)
 	if err != nil {
 		t.Errorf("Network.GetDefault returned error: %v", err)
 	}
@@ -139,7 +139,7 @@ func TestNetwork_GetByID(t *testing.T) {
 		fmt.Fprint(w, value)
 	})
 
-	net, meta, err := client.Network.GetByID(ctx, "21c4f72a-3dec-4940-81fd-8ca4af0b3c0e")
+	net, meta, err := client.Network().GetByID(ctx, "21c4f72a-3dec-4940-81fd-8ca4af0b3c0e")
 	if err != nil {
 		t.Errorf("Network.GetByID returned error: %v", err)
 	}
@@ -191,7 +191,7 @@ func TestNetwork_Find(t *testing.T) {
 		fmt.Fprint(w, value)
 	})
 
-	net, meta, err := client.Network.Find(ctx, "test-network-2")
+	net, meta, err := client.Network().Find(ctx, "test-network-2")
 	if err != nil {
 		t.Errorf("Network.Find returned error: %v", err)
 	}
@@ -235,7 +235,7 @@ func TestNetwork_Create(t *testing.T) {
 		Region: "TEST",
 	}
 
-	result, meta, err := client.Network.Create(ctx, newNetwork)
+	result, meta, err := client.Network().Create(ctx, newNetwork)
 	if err != nil {
 		t.Errorf("SSHKey.Create returned error: %v", err)
 	}
@@ -287,7 +287,7 @@ func TestNetwork_Update(t *testing.T) {
 		fmt.Fprint(w, value)
 	})
 
-	result, meta, err := client.Network.Update(ctx, "78f64e5c-abd3-4f4d-85c8-ac63b50caa55", updateNetwork)
+	result, meta, err := client.Network().Update(ctx, "78f64e5c-abd3-4f4d-85c8-ac63b50caa55", updateNetwork)
 	if err != nil {
 		t.Errorf("Network.Update returned error: %v", err)
 	}
@@ -318,7 +318,7 @@ func TestNetwork_Delete(t *testing.T) {
 		fmt.Fprint(w, value)
 	})
 
-	result, meta, err := client.Network.Delete(ctx, "78f64e5c-abd3-4f4d-85c8-ac63b50caa55")
+	result, meta, err := client.Network().Delete(ctx, "78f64e5c-abd3-4f4d-85c8-ac63b50caa55")
 	if err != nil {
 		t.Errorf("Network.Delete returned error: %v", err)
 	}

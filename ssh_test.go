@@ -23,7 +23,7 @@ func TestSSHKey_List(t *testing.T) {
 		fmt.Fprint(w, value)
 	})
 
-	keys, meta, err := client.SSHKey.List(ctx)
+	keys, meta, err := client.SSHKey().List(ctx)
 	if err != nil {
 		t.Errorf("SSHKey.List returned error: %v", err)
 	}
@@ -51,7 +51,7 @@ func TestSSHKey_GetByID(t *testing.T) {
 		fmt.Fprint(w, value)
 	})
 
-	keys, meta, err := client.SSHKey.GetByID(ctx, "a5bd357a-8afd-4f60-b055-ece013646f55")
+	keys, meta, err := client.SSHKey().GetByID(ctx, "a5bd357a-8afd-4f60-b055-ece013646f55")
 	if err != nil {
 		t.Errorf("SSHKey.GetByID returned error: %v", err)
 	}
@@ -82,7 +82,7 @@ func TestSSHKey_Find(t *testing.T) {
 		fmt.Fprint(w, value)
 	})
 
-	keys, meta, err := client.SSHKey.Find(ctx, "2ecf2e0a-629c-4d16-9cb9-aa81059c4bad")
+	keys, meta, err := client.SSHKey().Find(ctx, "2ecf2e0a-629c-4d16-9cb9-aa81059c4bad")
 	if err != nil {
 		t.Errorf("SSHKey.Find returned error: %v", err)
 	}
@@ -118,7 +118,7 @@ func TestSSHKey_Create(t *testing.T) {
 		PublicKey: "testkey",
 	}
 
-	result, meta, err := client.SSHKey.Create(ctx, newSSHkey)
+	result, meta, err := client.SSHKey().Create(ctx, newSSHkey)
 	if err != nil {
 		t.Errorf("SSHKey.Create returned error: %v", err)
 	}
@@ -167,7 +167,7 @@ func TestSSHKey_Update(t *testing.T) {
 		fmt.Fprint(w, value)
 	})
 
-	result, meta, err := client.SSHKey.Update(ctx, "78f64e5c-abd3-4f4d-85c8-ac63b50caa55", updateSSHKey)
+	result, meta, err := client.SSHKey().Update(ctx, "78f64e5c-abd3-4f4d-85c8-ac63b50caa55", updateSSHKey)
 	if err != nil {
 		t.Errorf("SSHKey.Update returned error: %v", err)
 	}
@@ -198,7 +198,7 @@ func TestSSHKey_Delete(t *testing.T) {
 		fmt.Fprint(w, value)
 	})
 
-	result, meta, err := client.SSHKey.Delete(ctx, "78f64e5c-abd3-4f4d-85c8-ac63b50caa55")
+	result, meta, err := client.SSHKey().Delete(ctx, "78f64e5c-abd3-4f4d-85c8-ac63b50caa55")
 	if err != nil {
 		t.Errorf("SSHKey.Delete returned error: %v", err)
 	}

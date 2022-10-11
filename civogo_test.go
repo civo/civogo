@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"testing"
+	. "github.com/onsi/gomega"
 )
 
 var (
@@ -14,6 +15,7 @@ var (
 	ctx    = context.TODO()
 	client *Client
 	server *httptest.Server
+	g      *GomegaWithT
 )
 
 func initServer() {
