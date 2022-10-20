@@ -5,29 +5,23 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
-	"time"
 )
 
 // Database holds the database information
 type Database struct {
-	ID                   string             `json:"id"`
-	Name                 string             `json:"name"`
-	Replicas             int                `json:"replicas"`
-	NumSnapshotsToRetain int                `json:"num_snapshots_to_retain"`
-	Size                 string             `json:"size"`
-	Software             string             `json:"software"`
-	SoftwareVersion      string             `json:"software_version"`
-	PublicIP             string             `json:"public_ip"`
-	NetworkID            string             `json:"network_id"`
-	FirewallID           string             `json:"firewall_id"`
-	Snapshots            []DatabaseSnapshot `json:"snapshots,omitempty"`
-	Status               string             `json:"status"`
-}
-
-// DatabaseSnapshot represents a database snapshot
-type DatabaseSnapshot struct {
-	ID        string    `json:"id"`
-	Timestamp time.Time `json:"timestamp"`
+	ID              string `json:"id"`
+	Name            string `json:"name"`
+	Replicas        int    `json:"replicas"`
+	Size            string `json:"size"`
+	Software        string `json:"software"`
+	SoftwareVersion string `json:"software_version"`
+	PublicIP        string `json:"public_ip"`
+	NetworkID       string `json:"network_id"`
+	FirewallID      string `json:"firewall_id"`
+	Port            int    `json:"port"`
+	Username        string `json:"username"`
+	Password        string `json:"password"`
+	Status          string `json:"status"`
 }
 
 // PaginatedDatabases is the structure for list response from DB endpoint
@@ -40,24 +34,18 @@ type PaginatedDatabases struct {
 
 // CreateDatabaseRequest holds fields required to creates a new database
 type CreateDatabaseRequest struct {
-	Name                 string `json:"name" validate:"required"`
-	Size                 string `json:"size" validate:"required"`
-	Software             string `json:"software" validate:"required,oneof=redis postgresql mysql"`
-	SoftwareVersion      string `json:"software_version"`
-	NetworkID            string `json:"network_id" validate:"required"`
-	Replicas             int    `json:"replicas"`
-	NumSnapshotsToRetain int    `json:"num_snapshots_to_retain"`
-	PublicIPRequired     bool   `json:"public_ip_required"`
-	FirewallID           string `json:"firewall_id"`
+	Name       string `json:"name" validate:"required"`
+	Size       string `json:"size" validate:"required"`
+	NetworkID  string `json:"network_id"`
+	Replicas   int    `json:"replicas"`
+	FirewallID string `json:"firewall_id"`
 }
 
 // UpdateDatabaseRequest holds fields required to update a database
 type UpdateDatabaseRequest struct {
-	ID                   string `json:"id"`
-	Name                 string `json:"name"`
-	NumSnapshotsToRetain int    `json:"num_snapshots_to_retain"`
-	Size                 string `json:"size"`
-	FirewallID           string `json:"firewall_id"`
+	Name       string `json:"name"`
+	Replicas   int    `json:"replicas"`
+	FirewallID string `json:"firewall_id"`
 }
 
 // ListDatabases returns a list of all databases
@@ -67,12 +55,12 @@ func (c *Client) ListDatabases() (*PaginatedDatabases, error) {
 		return nil, decodeError(err)
 	}
 
-	databases := PaginatedDatabases{}
+	databases := &PaginatedDatabases{}
 	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&databases); err != nil {
 		return nil, err
 	}
 
-	return &databases, nil
+	return databases, nil
 }
 
 // GetDatabase finds a database by the database UUID
@@ -116,8 +104,8 @@ func (c *Client) NewDatabase(v *CreateDatabaseRequest) (*Database, error) {
 }
 
 // UpdateDatabase updates a database
-func (c *Client) UpdateDatabase(v *UpdateDatabaseRequest) (*Database, error) {
-	body, err := c.SendPutRequest(fmt.Sprintf("/v2/databases/%s", v.ID), v)
+func (c *Client) UpdateDatabase(id string, v *UpdateDatabaseRequest) (*Database, error) {
+	body, err := c.SendPutRequest(fmt.Sprintf("/v2/databases/%s", id), v)
 	if err != nil {
 		return nil, decodeError(err)
 	}
