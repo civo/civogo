@@ -200,7 +200,7 @@ func TestDeleteNetwork(t *testing.T) {
 
 func TestGetSubnet(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
-		"/v2/networks/12345/subnets/6789": `{"networkID": "12345", "subnetID": "6789", "name": "test-subnet"}`,
+		"/v2/networks/12345/subnets/6789": `{"network_id": "12345", "subnetID": "6789", "name": "test-subnet"}`,
 	})
 	defer server.Close()
 
@@ -220,12 +220,12 @@ func TestFindSubnet(t *testing.T) {
 			{
 				"id": "6789",
 				"name": "test-subnet",
-				"networkID": "12345"
+				"network_id": "12345"
 			},
 			{
 				"id": "67890",
 				"name": "test-subnet-2",
-				"networkID": "12345"
+				"network_id": "12345"
 			}
 			]`,
 	})
@@ -275,7 +275,7 @@ func TestListSubnets(t *testing.T) {
 		"/v2/networks/12345/subnets": `[{
 			"id": "6789",
 			"name": "test-subnet",
-			"networkID": "12345",
+			"network_id": "12345",
 			"label": "test-subnet"
 		  }]`,
 	})
