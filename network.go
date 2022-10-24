@@ -37,7 +37,8 @@ type SubnetConfig struct {
 	Name string `json:"name" validate:"required" schema:"name"`
 }
 
-type networkConfig struct {
+// NetworkConfig contains incoming request parameters for the network object
+type NetworkConfig struct {
 	Label         string   `json:"label" validate:"required" schema:"label"`
 	Default       string   `json:"default" schema:"default"`
 	IPv4Enabled   *bool    `json:"ipv4_enabled"`
@@ -87,7 +88,7 @@ func (c *Client) GetNetwork(id string) (*Network, error) {
 
 // NewNetwork creates a new private network
 func (c *Client) NewNetwork(label string) (*NetworkResult, error) {
-	nc := networkConfig{Label: label, Region: c.Region}
+	nc := NetworkConfig{Label: label, Region: c.Region}
 	body, err := c.SendPostRequest("/v2/networks", nc)
 	if err != nil {
 		return nil, decodeError(err)
@@ -152,7 +153,7 @@ func (c *Client) FindNetwork(search string) (*Network, error) {
 
 // RenameNetwork renames an existing private network
 func (c *Client) RenameNetwork(label, id string) (*NetworkResult, error) {
-	nc := networkConfig{Label: label, Region: c.Region}
+	nc := NetworkConfig{Label: label, Region: c.Region}
 	body, err := c.SendPutRequest("/v2/networks/"+id, nc)
 	if err != nil {
 		return nil, decodeError(err)
@@ -260,4 +261,34 @@ func (c *Client) DeleteSubnet(networkID, subnetID string) (*SimpleResponse, erro
 	}
 
 	return c.DecodeSimpleResponse(resp)
+}
+
+// CreateNetwork creates a new network
+func (c *Client) CreateNetwork(nc NetworkConfig) (*NetworkResult, error) {
+	body, err := c.SendPostRequest("/v2/networks", nc)
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	var result = &NetworkResult{}
+	if err := json.NewDecoder(bytes.NewReader(body)).Decode(result); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+// UpdateNetwork updates an existing network
+func (c *Client) UpdateNetwork(id string, nc NetworkConfig) (*NetworkResult, error) {
+	body, err := c.SendPutRequest("/v2/networks/"+id, nc)
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	var result = &NetworkResult{}
+	if err := json.NewDecoder(bytes.NewReader(body)).Decode(result); err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
