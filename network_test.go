@@ -244,12 +244,7 @@ func TestFindSubnet(t *testing.T) {
 
 func TestCreateSubnet(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
-		"/v2/networks/12345/subnets": `{
-			"id": "76cc107f-fbef-4e2b-b97f-f5d34f4075d3",
-			"network_id": "12345",
-			"name: "test-subnet",
-			"result": "success"
-		}`,
+		"/v2/networks/12345/subnets": `{"id": "76cc107f-fbef-4e2b-b97f-f5d34f4075d3","network_id": "12345","name": "test-subnet","status": "success"}`,
 	})
 	defer server.Close()
 

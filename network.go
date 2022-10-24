@@ -27,7 +27,7 @@ type Network struct {
 type Subnet struct {
 	ID         string `json:"id"`
 	Name       string `json:"name,omitempty"`
-	NetworkID  string `json:"networkId"`
+	NetworkID  string `json:"network_id"`
 	SubnetSize string `json:"subnet_size,omitempty"`
 	Status     string `json:"status,omitempty"`
 }
