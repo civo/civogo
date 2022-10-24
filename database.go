@@ -39,6 +39,7 @@ type CreateDatabaseRequest struct {
 	NetworkID  string `json:"network_id"`
 	Replicas   int    `json:"replicas"`
 	FirewallID string `json:"firewall_id"`
+	Region     string `json:"region"`
 }
 
 // UpdateDatabaseRequest holds fields required to update a database
@@ -46,6 +47,7 @@ type UpdateDatabaseRequest struct {
 	Name       string `json:"name"`
 	Replicas   int    `json:"replicas"`
 	FirewallID string `json:"firewall_id"`
+	Region     string `json:"region"`
 }
 
 // ListDatabases returns a list of all databases
