@@ -10,17 +10,43 @@ import (
 
 // Network represents a private network for instances to connect to
 type Network struct {
-	ID      string `json:"id"`
-	Name    string `json:"name,omitempty"`
-	Default bool   `json:"default,omitempty"`
-	CIDR    string `json:"cidr,omitempty"`
-	Label   string `json:"label,omitempty"`
-	Status  string `json:"status,omitempty"`
+	ID            string   `json:"id"`
+	Name          string   `json:"name,omitempty"`
+	Default       bool     `json:"default"`
+	CIDR          string   `json:"cidr,omitempty"`
+	CIDRV6        string   `json:"cidr_v6,omitempty"`
+	Label         string   `json:"label,omitempty"`
+	Status        string   `json:"status,omitempty"`
+	IPv4Enabled   bool     `json:"ipv4_enabled,omitempty"`
+	IPv6Enabled   bool     `json:"ipv6_enabled,omitempty"`
+	NameserversV4 []string `json:"nameservers_v4,omitempty"`
+	NameserversV6 []string `json:"nameservers_v6,omitempty"`
 }
 
-type networkConfig struct {
-	Label  string `json:"label"`
-	Region string `json:"region"`
+// Subnet represents a subnet within a private network
+type Subnet struct {
+	ID         string `json:"id"`
+	Name       string `json:"name,omitempty"`
+	NetworkID  string `json:"network_id"`
+	SubnetSize string `json:"subnet_size,omitempty"`
+	Status     string `json:"status,omitempty"`
+}
+
+// SubnetConfig contains incoming request parameters for the subnet object
+type SubnetConfig struct {
+	Name string `json:"name" validate:"required" schema:"name"`
+}
+
+// NetworkConfig contains incoming request parameters for the network object
+type NetworkConfig struct {
+	Label         string   `json:"label" validate:"required" schema:"label"`
+	Default       string   `json:"default" schema:"default"`
+	IPv4Enabled   *bool    `json:"ipv4_enabled"`
+	NameserversV4 []string `json:"nameservers_v4"`
+	CIDRv4        string   `json:"cidr_v4"`
+	IPv6Enabled   *bool    `json:"ipv6_enabled"`
+	NameserversV6 []string `json:"nameservers_v6"`
+	Region        string   `json:"region"`
 }
 
 // NetworkResult represents the result from a network create/update call
@@ -62,7 +88,7 @@ func (c *Client) GetNetwork(id string) (*Network, error) {
 
 // NewNetwork creates a new private network
 func (c *Client) NewNetwork(label string) (*NetworkResult, error) {
-	nc := networkConfig{Label: label, Region: c.Region}
+	nc := NetworkConfig{Label: label, Region: c.Region}
 	body, err := c.SendPostRequest("/v2/networks", nc)
 	if err != nil {
 		return nil, decodeError(err)
@@ -127,7 +153,7 @@ func (c *Client) FindNetwork(search string) (*Network, error) {
 
 // RenameNetwork renames an existing private network
 func (c *Client) RenameNetwork(label, id string) (*NetworkResult, error) {
-	nc := networkConfig{Label: label, Region: c.Region}
+	nc := NetworkConfig{Label: label, Region: c.Region}
 	body, err := c.SendPutRequest("/v2/networks/"+id, nc)
 	if err != nil {
 		return nil, decodeError(err)
@@ -149,4 +175,120 @@ func (c *Client) DeleteNetwork(id string) (*SimpleResponse, error) {
 	}
 
 	return c.DecodeSimpleResponse(resp)
+}
+
+// GetSubnet gets a subnet with ID
+func (c *Client) GetSubnet(networkID, subnetID string) (*Subnet, error) {
+	resp, err := c.SendGetRequest(fmt.Sprintf("/v2/networks/%s/subnets/", networkID) + subnetID)
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	subnet := Subnet{}
+	err = json.NewDecoder(bytes.NewReader(resp)).Decode(&subnet)
+	return &subnet, err
+}
+
+// ListSubnets list all subnets for a private network
+func (c *Client) ListSubnets(networkID string) ([]Subnet, error) {
+	resp, err := c.SendGetRequest(fmt.Sprintf("/v2/networks/%s/subnets", networkID))
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	subnets := make([]Subnet, 0)
+	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&subnets); err != nil {
+		return nil, err
+	}
+
+	return subnets, nil
+}
+
+// CreateSubnet creates a new subnet for a private network
+func (c *Client) CreateSubnet(networkID string, subnet SubnetConfig) (*Subnet, error) {
+	body, err := c.SendPostRequest(fmt.Sprintf("/v2/networks/%s/subnets", networkID), subnet)
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	var result = &Subnet{}
+	if err := json.NewDecoder(bytes.NewReader(body)).Decode(result); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+// FindSubnet finds a subnet by either part of the ID or part of the name
+func (c *Client) FindSubnet(search, networkID string) (*Subnet, error) {
+	subnets, err := c.ListSubnets(networkID)
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	exactMatch := false
+	partialMatchesCount := 0
+	result := Subnet{}
+
+	for _, value := range subnets {
+		if value.Name == search || value.ID == search {
+			exactMatch = true
+			result = value
+		} else if strings.Contains(value.Name, search) || strings.Contains(value.ID, search) {
+			if !exactMatch {
+				result = value
+				partialMatchesCount++
+			}
+		}
+	}
+
+	if exactMatch || partialMatchesCount == 1 {
+		return &result, nil
+	} else if partialMatchesCount > 1 {
+		err := fmt.Errorf("unable to find %s because there were multiple matches", search)
+		return nil, MultipleMatchesError.wrap(err)
+	} else {
+		err := fmt.Errorf("unable to find %s, zero matches", search)
+		return nil, ZeroMatchesError.wrap(err)
+	}
+}
+
+// DeleteSubnet deletes a subnet
+func (c *Client) DeleteSubnet(networkID, subnetID string) (*SimpleResponse, error) {
+	resp, err := c.SendDeleteRequest(fmt.Sprintf("/v2/networks/%s/subnets/%s", networkID, subnetID))
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	return c.DecodeSimpleResponse(resp)
+}
+
+// CreateNetwork creates a new network
+func (c *Client) CreateNetwork(nc NetworkConfig) (*NetworkResult, error) {
+	body, err := c.SendPostRequest("/v2/networks", nc)
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	var result = &NetworkResult{}
+	if err := json.NewDecoder(bytes.NewReader(body)).Decode(result); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+// UpdateNetwork updates an existing network
+func (c *Client) UpdateNetwork(id string, nc NetworkConfig) (*NetworkResult, error) {
+	body, err := c.SendPutRequest("/v2/networks/"+id, nc)
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	var result = &NetworkResult{}
+	if err := json.NewDecoder(bytes.NewReader(body)).Decode(result); err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
