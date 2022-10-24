@@ -209,9 +209,6 @@ func TestGetSubnet(t *testing.T) {
 		t.Errorf("Request returned an error: %s", err)
 		return
 	}
-	if got.ID != "6789" {
-		t.Errorf("Expected %s, got %s", "6789", got.ID)
-	}
 	if got.Name != "test-subnet" {
 		t.Errorf("Expected %s, got %s", "test-subnet", got.Name)
 	}
@@ -249,15 +246,15 @@ func TestCreateSubnet(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/networks/12345/subnets": `{
 			"id": "76cc107f-fbef-4e2b-b97f-f5d34f4075d3",
-			"label": "private-net",
+			"network_id": "12345",
+			"name: "test-subnet",
 			"result": "success"
 		}`,
 	})
 	defer server.Close()
 
 	subnet := SubnetConfig{
-		Name:  "test-subnet",
-		Label: "test-subnet",
+		Name: "test-subnet",
 	}
 
 	got, err := client.CreateSubnet("12345", subnet)
@@ -270,7 +267,6 @@ func TestCreateSubnet(t *testing.T) {
 		ID:        "76cc107f-fbef-4e2b-b97f-f5d34f4075d3",
 		Name:      "test-subnet",
 		NetworkID: "12345",
-		Label:     "test-subnet",
 		Status:    "success",
 	}
 
@@ -295,7 +291,7 @@ func TestListSubnets(t *testing.T) {
 		t.Errorf("Request returned an error: %s", err)
 		return
 	}
-	expected := []Subnet{{ID: "6789", Name: "test-subnet", Label: "test-subnet", NetworkID: "12345"}}
+	expected := []Subnet{{ID: "6789", Name: "test-subnet", NetworkID: "12345"}}
 	if !reflect.DeepEqual(got, expected) {
 		t.Errorf("Expected %+v, got %+v", expected, got)
 	}

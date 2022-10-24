@@ -10,32 +10,42 @@ import (
 
 // Network represents a private network for instances to connect to
 type Network struct {
-	ID      string `json:"id"`
-	Name    string `json:"name,omitempty"`
-	Default bool   `json:"default,omitempty"`
-	CIDR    string `json:"cidr,omitempty"`
-	Label   string `json:"label,omitempty"`
-	Status  string `json:"status,omitempty"`
+	ID            string   `json:"id"`
+	Name          string   `json:"name,omitempty"`
+	Default       bool     `json:"default"`
+	CIDR          string   `json:"cidr,omitempty"`
+	CIDRV6        string   `json:"cidr_v6,omitempty"`
+	Label         string   `json:"label,omitempty"`
+	Status        string   `json:"status,omitempty"`
+	IPv4Enabled   bool     `json:"ipv4_enabled,omitempty"`
+	IPv6Enabled   bool     `json:"ipv6_enabled,omitempty"`
+	NameserversV4 []string `json:"nameservers_v4,omitempty"`
+	NameserversV6 []string `json:"nameservers_v6,omitempty"`
 }
 
 // Subnet represents a subnet within a private network
 type Subnet struct {
-	ID        string `json:"id"`
-	Name      string `json:"name,omitempty"`
-	NetworkID string `json:"networkId"`
-	Label     string `json:"label,omitempty"`
-	Status    string `json:"status,omitempty"`
+	ID         string `json:"id"`
+	Name       string `json:"name,omitempty"`
+	NetworkID  string `json:"networkId"`
+	SubnetSize string `json:"subnet_size,omitempty"`
+	Status     string `json:"status,omitempty"`
 }
 
 // SubnetConfig contains incoming request parameters for the subnet object
 type SubnetConfig struct {
-	Name  string `json:"name" validate:"required" schema:"name"`
-	Label string `json:"label" schema:"label"`
+	Name string `json:"name" validate:"required" schema:"name"`
 }
 
 type networkConfig struct {
-	Label  string `json:"label"`
-	Region string `json:"region"`
+	Label         string   `json:"label" validate:"required" schema:"label"`
+	Default       string   `json:"default" schema:"default"`
+	IPv4Enabled   *bool    `json:"ipv4_enabled"`
+	NameserversV4 []string `json:"nameservers_v4"`
+	CIDRv4        string   `json:"cidr_v4"`
+	IPv6Enabled   *bool    `json:"ipv6_enabled"`
+	NameserversV6 []string `json:"nameservers_v6"`
+	Region        string   `json:"region"`
 }
 
 // NetworkResult represents the result from a network create/update call
@@ -220,10 +230,10 @@ func (c *Client) FindSubnet(search, networkID string) (*Subnet, error) {
 	result := Subnet{}
 
 	for _, value := range subnets {
-		if value.Name == search || value.ID == search || value.Label == search {
+		if value.Name == search || value.ID == search {
 			exactMatch = true
 			result = value
-		} else if strings.Contains(value.Name, search) || strings.Contains(value.ID, search) || strings.Contains(value.Label, search) {
+		} else if strings.Contains(value.Name, search) || strings.Contains(value.ID, search) {
 			if !exactMatch {
 				result = value
 				partialMatchesCount++
