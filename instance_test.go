@@ -85,7 +85,7 @@ func TestListInstancesWithPage(t *testing.T) {
 
 func TestGetInstance(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
-		"/v2/instances/12345": `{"id": "12345", "hostname": "foo.example.com"}`,
+		"/v2/instances/12345": `{"id": "12345", "hostname": "foo.example.com", "ipv6":"::1234:5678:9abc:def0"}`,
 	})
 	defer server.Close()
 
@@ -99,6 +99,9 @@ func TestGetInstance(t *testing.T) {
 	}
 	if got.Hostname != "foo.example.com" {
 		t.Errorf("Expected %s, got %s", "foo.example.com", got.Hostname)
+	}
+	if got.IPv6 != "::1234:5678:9abc:def0" {
+		t.Errorf("Expected %s, got %s", "::1234:5678:9abc:def0", got.IPv6)
 	}
 }
 

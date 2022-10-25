@@ -21,6 +21,7 @@ type Instance struct {
 	NetworkID                string    `json:"network_id,omitempty"`
 	PrivateIP                string    `json:"private_ip,omitempty"`
 	PublicIP                 string    `json:"public_ip,omitempty"`
+	IPv6                     string    `json:"ipv6,omitempty"`
 	PseudoIP                 string    `json:"pseudo_ip,omitempty"`
 	TemplateID               string    `json:"template_id,omitempty"`
 	SourceType               string    `json:"source_type,omitempty"`
