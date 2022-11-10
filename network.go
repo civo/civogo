@@ -37,6 +37,21 @@ type SubnetConfig struct {
 	Name string `json:"name" validate:"required" schema:"name"`
 }
 
+// Route represents a route within a subnet
+type Route struct {
+	ID           string `json:"id"`
+	SubnetID     string `json:"subnet_id"`
+	NetworkID    string `json:"network_id"`
+	ResourceID   string `json:"resource_id"`
+	ResourceType string `json:"resource_type"`
+}
+
+// CreateRoute contains incoming request parameters for creating a route object
+type CreateRoute struct {
+	ResourceID   string `json:"resource_id"`
+	ResourceType string `json:"resource_type"`
+}
+
 // NetworkConfig contains incoming request parameters for the network object
 type NetworkConfig struct {
 	Label         string   `json:"label" validate:"required" schema:"label"`
@@ -251,6 +266,33 @@ func (c *Client) FindSubnet(search, networkID string) (*Subnet, error) {
 		err := fmt.Errorf("unable to find %s, zero matches", search)
 		return nil, ZeroMatchesError.wrap(err)
 	}
+}
+
+// AttachSubnetToInstance attaches a subnet to an instance
+func (c *Client) AttachSubnetToInstance(networkID, subnetID string, route *CreateRoute) (*Route, error) {
+	resp, err := c.SendPostRequest(fmt.Sprintf("/v2/networks/%s/subnets/%s/routes", networkID, subnetID), route)
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	var result = &Route{}
+	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(result); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+// DetachSubnetFromInstance detaches a subnet from an instance
+func (c *Client) DetachSubnetFromInstance(networkID, subnetID string) (*SimpleResponse, error) {
+	resp, err := c.SendDeleteRequest(fmt.Sprintf("/v2/networks/%s/subnets/%s/routes", networkID, subnetID))
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	response, err := c.DecodeSimpleResponse(resp)
+	return response, err
+
 }
 
 // DeleteSubnet deletes a subnet

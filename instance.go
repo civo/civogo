@@ -32,7 +32,6 @@ type Instance struct {
 	SSHKey                   string    `json:"ssh_key,omitempty"`
 	SSHKeyID                 string    `json:"ssh_key_id,omitempty"`
 	Status                   string    `json:"status,omitempty"`
-	Subnets                  []string  `json:"subnets,omitempty"`
 	Notes                    string    `json:"notes,omitempty"`
 	FirewallID               string    `json:"firewall_id,omitempty"`
 	Tags                     []string  `json:"tags,omitempty"`
@@ -51,6 +50,7 @@ type Instance struct {
 	ReservedIPID             string    `json:"reserved_ip_id,omitempty"`
 	ReservedIPName           string    `json:"reserved_ip_name,omitempty"`
 	ReservedIP               string    `json:"reserved_ip,omitempty"`
+	Subnets                  []Subnet  `json:"subnets,omitempty"`
 }
 
 //"cpu_cores":1,"ram_mb":2048,"disk_gb":25
