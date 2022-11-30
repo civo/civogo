@@ -15,7 +15,7 @@ type Database struct {
 	Size            string `json:"size"`
 	Software        string `json:"software"`
 	SoftwareVersion string `json:"software_version"`
-	PublicIP        string `json:"public_ip"`
+	PublicIPv4      string `json:"public_ipv4"`
 	NetworkID       string `json:"network_id"`
 	FirewallID      string `json:"firewall_id"`
 	Port            int    `json:"port"`
