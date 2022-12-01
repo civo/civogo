@@ -28,8 +28,8 @@ func TestNewSSHKey(t *testing.T) {
 func TestListSSHKeys(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/sshkeys": `[
-			{"id": "12345", "name": "RSA Key", "fingerprint": "SHA256:SS4+2d7Zl1Pt5Bc9af9NubyA0yI+fdopOUlEhUoEna0" },
-			{"id": "33567", "name": "RSA Key", "fingerprint": "SHA256:SS4+87asdf795Bc9af9NubyA0yI+fdopOUlEhUoEna0" }]`,
+			{"id": "12345", "name": "RSA Key", "fingerprint": "SHA256:SS4+2d7Zl1Pt5Bc9af9NubyA0yI+fdopOUlEhUoEna0", "public_key": "ssh-rsa AAAA", "created_at": "2018-01-01T00:00:00Z"},
+			{"id": "33567", "name": "RSA Key", "fingerprint": "SHA256:SS4+87asdf795Bc9af9NubyA0yI+fdopOUlEhUoEna0", "public_key": "ssh-rsa AABB", "created_at": "2018-01-01T00:00:00Z"}]`,
 	})
 	defer server.Close()
 
@@ -40,6 +40,9 @@ func TestListSSHKeys(t *testing.T) {
 	}
 	if got[0].ID != "12345" {
 		t.Errorf("Expected %s, got %s", "12345", got[0].ID)
+	}
+	if got[0].PublicKey != "ssh-rsa AAAA" {
+		t.Errorf("Expected %s, got %s", "ssh-rsa AAAA", got[0].PublicKey)
 	}
 }
 
