@@ -5,13 +5,16 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 )
 
 // SSHKey represents an SSH public key, uploaded to access instances
 type SSHKey struct {
-	ID          string `json:"id"`
-	Name        string `json:"name"`
-	Fingerprint string `json:"fingerprint"`
+	ID          string    `json:"id"`
+	Name        string    `json:"name"`
+	Fingerprint string    `json:"fingerprint"`
+	PublicKey   string    `json:"public_key"`
+	CreatedAt   time.Time `json:"created_at"`
 }
 
 // ListSSHKeys list all SSH key for an account
