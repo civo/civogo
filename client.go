@@ -5,13 +5,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/civo/civogo/utils"
 	"io"
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"strings"
+
+	"github.com/civo/civogo/utils"
 )
 
 // Client is the means of connecting to the Civo API service
@@ -193,7 +194,12 @@ func (c *Client) sendRequest(req *http.Request) ([]byte, error) {
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("User-Agent", c.UserAgent)
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Content-Encoding", "gzip")
 	req.Header.Set("Authorization", fmt.Sprintf("bearer %s", c.APIKey))
+
+	c.httpClient.Transport = &http.Transport{
+		DisableCompression: false,
+	}
 
 	if req.Method == "GET" || req.Method == "DELETE" {
 		// add the region param
