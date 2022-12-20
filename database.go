@@ -11,7 +11,7 @@ import (
 type Database struct {
 	ID              string `json:"id"`
 	Name            string `json:"name"`
-	Replicas        int    `json:"replicas"`
+	Nodes           int    `json:"nodes"`
 	Size            string `json:"size"`
 	Software        string `json:"software"`
 	SoftwareVersion string `json:"software_version"`
@@ -37,7 +37,7 @@ type CreateDatabaseRequest struct {
 	Name       string `json:"name" validate:"required"`
 	Size       string `json:"size" validate:"required"`
 	NetworkID  string `json:"network_id"`
-	Replicas   int    `json:"replicas"`
+	Nodes      int    `json:"nodes"`
 	FirewallID string `json:"firewall_id"`
 	Region     string `json:"region"`
 }
@@ -45,7 +45,7 @@ type CreateDatabaseRequest struct {
 // UpdateDatabaseRequest holds fields required to update a database
 type UpdateDatabaseRequest struct {
 	Name       string `json:"name"`
-	Replicas   int    `json:"replicas"`
+	Nodes      *int   `json:"nodes"`
 	FirewallID string `json:"firewall_id"`
 	Region     string `json:"region"`
 }
