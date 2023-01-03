@@ -34,12 +34,13 @@ type PaginatedDatabases struct {
 
 // CreateDatabaseRequest holds fields required to creates a new database
 type CreateDatabaseRequest struct {
-	Name       string `json:"name" validate:"required"`
-	Size       string `json:"size" validate:"required"`
-	NetworkID  string `json:"network_id"`
-	Nodes      int    `json:"nodes"`
-	FirewallID string `json:"firewall_id"`
-	Region     string `json:"region"`
+	Name          string `json:"name" validate:"required"`
+	Size          string `json:"size" validate:"required"`
+	NetworkID     string `json:"network_id"`
+	Nodes         int    `json:"nodes"`
+	FirewallID    string `json:"firewall_id"`
+	FirewallRules string `json:"firewall_rule"`
+	Region        string `json:"region"`
 }
 
 // UpdateDatabaseRequest holds fields required to update a database
