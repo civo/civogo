@@ -33,7 +33,21 @@ func TestGetQuota(t *testing.T) {
 			"security_group_rule_limit": 160,
 			"security_group_rule_usage": 24,
 			"port_count_limit": 32,
-			"port_count_usage": 7
+			"port_count_usage": 7,
+			"loadbalancer_count_limit": 16,
+			"loadbalancer_count_usage": 1,
+			"objectstore_gb_limit": 1000,
+			"objectstore_gb_usage": 0,
+			"database_count_limit": 4,
+			"database_count_usage": 0,
+			"database_snapshot_count_limit": 20,
+			"database_snapshot_count_usage": 0,
+			"database_cpu_core_limit": 120,
+			"database_cpu_core_usage": 0,
+			"database_ram_mb_limit": 786432,
+			"database_ram_mb_usage": 0,
+			"database_disk_gb_limit": 7680,
+			"database_disk_gb_usage": 0
 		}`,
 	})
 	defer server.Close()
@@ -123,5 +137,47 @@ func TestGetQuota(t *testing.T) {
 	}
 	if got.PortCountUsage != 7 {
 		t.Errorf("Expected %d, got %d", 7, got.PortCountUsage)
+	}
+	if got.LoadBalancerCountLimit != 16 {
+		t.Errorf("Expected %d, got %d", 16, got.LoadBalancerCountLimit)
+	}
+	if got.LoadBalancerCountUsage != 1 {
+		t.Errorf("Expected %d, got %d", 1, got.LoadBalancerCountUsage)
+	}
+	if got.ObjectStoreGigabytesLimit != 1000 {
+		t.Errorf("Expected %d, got %d", 1000, got.ObjectStoreGigabytesLimit)
+	}
+	if got.ObjectStoreGigabytesUsage != 0 {
+		t.Errorf("Expected %d, got %d", 0, got.ObjectStoreGigabytesUsage)
+	}
+	if got.DatabaseCountLimit != 4 {
+		t.Errorf("Expected %d, got %d", 4, got.DatabaseCountLimit)
+	}
+	if got.DatabaseCountUsage != 0 {
+		t.Errorf("Expected %d, got %d", 0, got.DatabaseCountUsage)
+	}
+	if got.DatabaseSnapshotCountLimit != 20 {
+		t.Errorf("Expected %d, got %d", 20, got.DatabaseSnapshotCountLimit)
+	}
+	if got.DatabaseSnapshotCountUsage != 0 {
+		t.Errorf("Expected %d, got %d", 0, got.DatabaseSnapshotCountUsage)
+	}
+	if got.DatabaseCPUCoreLimit != 120 {
+		t.Errorf("Expected %d, got %d", 120, got.DatabaseCPUCoreLimit)
+	}
+	if got.DatabaseCPUCoreUsage != 0 {
+		t.Errorf("Expected %d, got %d", 0, got.DatabaseCPUCoreUsage)
+	}
+	if got.DatabaseRAMMegabytesLimit != 786432 {
+		t.Errorf("Expected %d, got %d", 786432, got.DatabaseRAMMegabytesLimit)
+	}
+	if got.DatabaseRAMMegabytesUsage != 0 {
+		t.Errorf("Expected %d, got %d", 0, got.DatabaseRAMMegabytesUsage)
+	}
+	if got.DatabaseDiskGigabytesLimit != 7680 {
+		t.Errorf("Expected %d, got %d", 7680, got.DatabaseDiskGigabytesLimit)
+	}
+	if got.DatabaseDiskGigabytesUsage != 0 {
+		t.Errorf("Expected %d, got %d", 0, got.DatabaseDiskGigabytesUsage)
 	}
 }
