@@ -12,16 +12,8 @@ func TestListApplications(t *testing.T) {
 		  "name": "your-app-name",
 		  "status": "ACTIVE",
 		  "account_id": "12345",
-		  "network_id": "34567",
-		  "process_info": [
-			  	{
-					"processType": "web",
-					"processCount": 1
-				}],
-			"domains": [
-				"your-app-name.example.com"
-			],
-			}]}`,
+		  "network_id": "34567"
+		  }]}`,
 	})
 
 	defer server.Close()
@@ -41,13 +33,6 @@ func TestListApplications(t *testing.T) {
 				Name:      "your-app-name",
 				Status:    "ACTIVE",
 				NetworkID: "34567",
-				ProcessInfo: []ProcInfo{
-					{
-						ProcessType:  "web",
-						ProcessCount: 1,
-					},
-				},
-				Domains: []string{"your-app-name.example.com"},
 			},
 		},
 	}
