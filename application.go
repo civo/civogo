@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/civo/civogo/utils"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // ProcInfo is the struct for process information
@@ -54,8 +53,8 @@ type PullPreference struct {
 
 // ObservedConfig defines the observed state of EnvVar
 type ObservedConfig struct {
-	Env          []EnvVar    `json:"env_vars,omitempty"`
-	LastSyncedAt metav1.Time `json:"last_sycned_at,omitempty"`
+	Env          []EnvVar `json:"env_vars,omitempty"`
+	LastSyncedAt string   `json:"last_sycned_at,omitempty"`
 }
 
 // EnvVar holds key-value pairs for an application
