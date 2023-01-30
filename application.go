@@ -7,47 +7,77 @@ import (
 	"strings"
 
 	"github.com/civo/civogo/utils"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
+
+// ProcInfo is the struct for process information
+type ProcInfo struct {
+	ProcessType  string `json:"process_type,omitempty"`
+	ProcessCount int    `json:"process_count,omitempty"`
+
+	// Currently, command and Args are only applicable for when container image is provided, not when git repo is provided
+	Command []string `json:"command,omitempty"`
+	Args    []string `json:"args,omitempty"`
+}
 
 // Application is the struct for the Application model
 type Application struct {
-	Name        string        `json:"name" validate:"required"`
-	ID          string        `json:"id"`
-	NetworkID   string        `json:"network_id" validate:"required"`
-	Description string        `json:"description"`
-	Image       string        `json:"image"`
-	Size        string        `json:"size"`
-	ProcessInfo []ProcessInfo `json:"process_info,omitempty"`
-	Domains     []string      `json:"domains,omitempty"`
-	SSHKeyIDs   []string      `json:"ssh_key_ids,omitempty"`
-	Config      []EnvVar      `json:"config,omitempty"`
-	// Status can be one of:
-	// - "building":  Implies platform is building
-	// - "available": Implies platform is available to accept image
-	// - "ready": Implies app is ready
-	Status string `json:"status"`
+	Name               string         `json:"name" schema:"name"`
+	ID                 string         `json:"id"`
+	NetworkID          string         `json:"network_id" validate:"required" schema:"network_id"`
+	FirewallID         string         `json:"firewall_id" schema:"firewall_id"`
+	Image              *string        `json:"image,omitempty"  schema:"image"`
+	Size               string         `json:"size"  schema:"size"`
+	ProcessInfo        []ProcInfo     `json:"process_info,omitempty"`
+	GitInfo            *GitInfo       `json:"git_info,omitempty" schema:"git_info"`
+	Config             ObservedConfig `json:"config,omitempty"`
+	AppIP              string         `json:"app_ip,omitempty"`
+	Domains            []string       `json:"domains,omitempty"`
+	PublicIPv4Required bool           `json:"public_ipv4_required" schema:"public_ipv4_required"`
+	Status             string         `json:"status"`
+}
+
+// GitInfo holds the git information for the application
+type GitInfo struct {
+	GitURL         string          `json:"git_url" schema:"git_url"`
+	GitToken       string          `json:"git_token" schema:"git_token"`
+	PullPreference *PullPreference `json:"pull_preferences,omitempty" schema:"pull_preferences"`
+}
+
+// PullPreference determines which tag/branch should the image be built from.
+// If both are specified, the tag will be used(Tags>Branches)
+// If neither is specified, main/master will be used (main > master)
+type PullPreference struct {
+	Tag    *string `json:"tag,omitempty" schema:"tag"`
+	Branch *string `json:"branch,omitempty" schema:"branch"`
+}
+
+// ObservedConfig defines the observed state of EnvVar
+type ObservedConfig struct {
+	Env          []EnvVar    `json:"env_vars,omitempty"`
+	LastSyncedAt metav1.Time `json:"last_sycned_at,omitempty"`
+}
+
+// EnvVar holds key-value pairs for an application
+type EnvVar struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
+}
+
+// RegistryAuth holds the registry auth for an application
+type RegistryAuth struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
 // ApplicationConfig describes the parameters for a new CivoApp
 type ApplicationConfig struct {
-	Name        string   `json:"name" validate:"required"`
-	NetworkID   string   `json:"network_id" validate:"required"`
-	Description string   `json:"description"`
-	Size        string   `json:"size"`
-	SSHKeyIDs   []string `json:"ssh_key_ids,omitempty"`
-}
-
-// UpdateApplicationRequest is the struct for the UpdateApplication request
-type UpdateApplicationRequest struct {
-	Name        string        `json:"name"`
-	Advanced    bool          `json:"advanced"`
-	Image       string        `json:"image" `
-	Description string        `json:"description"`
-	ProcessInfo []ProcessInfo `json:"process_info"`
-	Size        string        `json:"size" schema:"size"`
-	SSHKeyIDs   []string      `json:"ssh_key_ids" `
-	Config      []EnvVar      `json:"config"`
-	Domains     []string      `json:"domains"`
+	Name               string   `json:"name"`
+	NetworkID          string   `json:"network_id" validate:"required"`
+	Size               string   `json:"size"`
+	Image              *string  `json:"image,omitempty"`
+	GitInfo            *GitInfo `json:"git_info,omitempty"`
+	PublicIPv4Required bool     `json:"public_ipv4_required" schema:"public_ipv4_required"`
 }
 
 // PaginatedApplications returns a paginated list of Application object
@@ -58,16 +88,16 @@ type PaginatedApplications struct {
 	Items   []Application `json:"items"`
 }
 
-// EnvVar holds key-value pairs for an application
-type EnvVar struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
-}
-
-// ProcessInfo contains the information about the process obtained from Procfile
-type ProcessInfo struct {
-	ProcessType  string `json:"processType"`
-	ProcessCount int    `json:"processCount"`
+// UpdateApplicationRequest is the struct for the UpdateApplication request
+type UpdateApplicationRequest struct {
+	Name         string        `json:"name"  schema:"name"`
+	Size         string        `json:"size" schema:"size"`
+	ProcessInfo  []ProcInfo    `json:"process_info" schema:"process_info"`
+	GitInfo      *GitInfo      `json:"git_info,omitempty" schema:"git_info"`
+	EnvVars      []EnvVar      `json:"env_vars,omitempty" schema:"env_vars"`
+	FirewallID   string        `json:"firewall_id" schema:"firewall_id"`
+	RegistryAuth *RegistryAuth `json:"registry_auth" schema:"registry_auth"`
+	Image        *string       `json:"image,omitempty"  schema:"image"`
 }
 
 // ErrAppDomainNotFound is returned when the domain is not found
@@ -111,11 +141,9 @@ func (c *Client) NewApplicationConfig() (*ApplicationConfig, error) {
 	}
 
 	return &ApplicationConfig{
-		Name:        utils.RandomName(),
-		NetworkID:   network.ID,
-		Description: "",
-		Size:        "small",
-		SSHKeyIDs:   []string{},
+		Name:      utils.RandomName(),
+		NetworkID: network.ID,
+		Size:      "small",
 	}, nil
 }
 
