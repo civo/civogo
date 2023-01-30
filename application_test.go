@@ -13,24 +13,15 @@ func TestListApplications(t *testing.T) {
 		  "status": "ACTIVE",
 		  "account_id": "12345",
 		  "network_id": "34567",
-		  "description": "this is a test app",
 		  "process_info": [
 			  	{
 					"processType": "web",
 					"processCount": 1
-				  }],
+				}],
 			"domains": [
 				"your-app-name.example.com"
 			],
-			"ssh_key_ids": [
-				"12345"
-			],
-			"config": [
-				{
-					"name": "PORT",
-					"value": "80"
-				}]
-				}]}`,
+			}]}`,
 	})
 
 	defer server.Close()
@@ -57,12 +48,6 @@ func TestListApplications(t *testing.T) {
 					},
 				},
 				Domains: []string{"your-app-name.example.com"},
-				// Config: []ObservedConfig{
-				// 	{
-				//         Name:  "PORT",
-				//         Value: "80",
-				//     },
-				// },
 			},
 		},
 	}
