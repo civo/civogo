@@ -39,8 +39,8 @@ type Application struct {
 
 // GitInfo holds the git information for the application
 type GitInfo struct {
-	GitURL         string          `json:"git_url" schema:"git_url"`
-	GitToken       string          `json:"git_token" schema:"git_token"`
+	GitURL         string          `json:"url" schema:"url"`
+	GitToken       string          `json:"token" schema:"token"`
 	PullPreference *PullPreference `json:"pull_preferences,omitempty" schema:"pull_preferences"`
 }
 
@@ -78,6 +78,7 @@ type ApplicationConfig struct {
 	Image              *string  `json:"image,omitempty"`
 	GitInfo            *GitInfo `json:"git_info,omitempty"`
 	PublicIPv4Required bool     `json:"public_ipv4_required" schema:"public_ipv4_required"`
+	Region             string   `json:"region"`
 }
 
 // PaginatedApplications returns a paginated list of Application object
@@ -98,6 +99,7 @@ type UpdateApplicationRequest struct {
 	FirewallID   string        `json:"firewall_id" schema:"firewall_id"`
 	RegistryAuth *RegistryAuth `json:"registry_auth" schema:"registry_auth"`
 	Image        *string       `json:"image,omitempty"  schema:"image"`
+	Region       string        `json:"region"`
 }
 
 // ErrAppDomainNotFound is returned when the domain is not found
@@ -219,14 +221,4 @@ func (c *Client) DeleteApplication(id string) (*SimpleResponse, error) {
 	}
 
 	return c.DecodeSimpleResponse(resp)
-}
-
-// GetApplicationLogAuth returns an application log auth
-func (c *Client) GetApplicationLogAuth(id string) (string, error) {
-	resp, err := c.SendGetRequest(fmt.Sprintf("/v2/applications/%s/log_auth", id))
-	if err != nil {
-		return "", decodeError(err)
-	}
-
-	return string(resp), nil
 }
