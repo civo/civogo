@@ -68,6 +68,7 @@ type KubernetesCluster struct {
 	Version               string                           `json:"version,omitempty"`
 	Status                string                           `json:"status,omitempty"`
 	Ready                 bool                             `json:"ready,omitempty"`
+	ClusterType           string                           `json:"cluster_type,omitempty"`
 	NumTargetNode         int                              `json:"num_target_nodes,omitempty"`
 	TargetNodeSize        string                           `json:"target_nodes_size,omitempty"`
 	BuiltAt               time.Time                        `json:"built_at,omitempty"`
@@ -110,6 +111,7 @@ type PaginatedKubernetesClusters struct {
 type KubernetesClusterConfig struct {
 	Name              string                        `json:"name,omitempty"`
 	Region            string                        `json:"region,omitempty"`
+	ClusterType       string                        `json:"cluster_type,omitempty"`
 	NumTargetNodes    int                           `json:"num_target_nodes,omitempty"`
 	TargetNodesSize   string                        `json:"target_nodes_size,omitempty"`
 	KubernetesVersion string                        `json:"kubernetes_version,omitempty"`
@@ -160,9 +162,11 @@ type KubernetesMarketplaceApplication struct {
 
 // KubernetesVersion represents an available version of k3s to install
 type KubernetesVersion struct {
-	Version string `json:"version"`
-	Type    string `json:"type"`
-	Default bool   `json:"default,omitempty"`
+	Label       string `json:"label"`
+	Version     string `json:"version"`
+	Type        string `json:"type"`
+	Default     bool   `json:"default,omitempty"`
+	ClusterType string `json:"cluster_type,omitempty"`
 }
 
 // ListKubernetesClusters returns all cluster of kubernetes in the account
