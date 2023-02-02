@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/google/go-querystring v1.1.0
-	github.com/onsi/gomega v1.23.0
+	github.com/onsi/gomega v1.19.0
 )
 
 require (
@@ -14,5 +14,5 @@ require (
 	golang.org/x/net v0.3.1-0.20221206200815-1e63c2f08a10 // indirect
 	golang.org/x/text v0.5.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
+	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
