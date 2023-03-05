@@ -166,7 +166,7 @@ type KubernetesVersion struct {
 	Version     string `json:"version"`
 	Type        string `json:"type"`
 	Default     bool   `json:"default,omitempty"`
-	ClusterType string `json:"cluster_type,omitempty"`
+	ClusterType string `json:"clusterType,omitempty"`
 }
 
 // ListKubernetesClusters returns all cluster of kubernetes in the account
