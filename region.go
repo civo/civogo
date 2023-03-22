@@ -22,9 +22,12 @@ type Region struct {
 
 // Feature represent a all feature inside a region
 type Feature struct {
-	Iaas        bool `json:"iaas"`
-	Kubernetes  bool `json:"kubernetes"`
-	ObjectStore bool `json:"object_store"`
+	Iaas         bool `json:"iaas"`
+	Kubernetes   bool `json:"kubernetes"`
+	ObjectStore  bool `json:"object_store"`
+	LoadBalancer bool `json:"load_balancer"`
+	DBaaS        bool `json:"dbaas"`
+	Volume       bool `json:"volume"`
 }
 
 // ListRegions returns all load balancers owned by the calling API account
