@@ -34,13 +34,15 @@ type PaginatedDatabases struct {
 
 // CreateDatabaseRequest holds fields required to creates a new database
 type CreateDatabaseRequest struct {
-	Name          string `json:"name" validate:"required"`
-	Size          string `json:"size" validate:"required"`
-	NetworkID     string `json:"network_id"`
-	Nodes         int    `json:"nodes"`
-	FirewallID    string `json:"firewall_id"`
-	FirewallRules string `json:"firewall_rule"`
-	Region        string `json:"region"`
+	Name            string `json:"name" validate:"required"`
+	Size            string `json:"size" validate:"required"`
+	Software        string `json:"software" validate:"required"`
+	SoftwareVersion string `json:"software_version"`
+	NetworkID       string `json:"network_id"`
+	Nodes           int    `json:"nodes"`
+	FirewallID      string `json:"firewall_id"`
+	FirewallRules   string `json:"firewall_rule"`
+	Region          string `json:"region"`
 }
 
 // UpdateDatabaseRequest holds fields required to update a database
@@ -49,6 +51,12 @@ type UpdateDatabaseRequest struct {
 	Nodes      *int   `json:"nodes"`
 	FirewallID string `json:"firewall_id"`
 	Region     string `json:"region"`
+}
+
+// SupportedSoftwareVersion contains the information related to a specific software version
+type SupportedSoftwareVersion struct {
+	SoftwareVersion string `json:"software_version"`
+	Default         bool   `json:"default"`
 }
 
 // ListDatabases returns a list of all databases
@@ -153,4 +161,19 @@ func (c *Client) FindDatabase(search string) (*Database, error) {
 		err := fmt.Errorf("unable to find %s, zero matches", search)
 		return nil, ZeroMatchesError.wrap(err)
 	}
+}
+
+// ListDBVersions returns a list of all database versions
+func (c *Client) ListDBVersions() (map[string][]SupportedSoftwareVersion, error) {
+	resp, err := c.SendGetRequest("/v2/databases/versions")
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	versions := make(map[string][]SupportedSoftwareVersion, 0)
+	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&versions); err != nil {
+		return nil, err
+	}
+
+	return versions, nil
 }
