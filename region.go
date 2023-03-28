@@ -28,7 +28,7 @@ type Feature struct {
 	LoadBalancer bool `json:"loadbalancer"`
 	DBaaS        bool `json:"dbaas"`
 	Volume       bool `json:"volume"`
-	PaaS 				 bool `json:"paas"`
+	PaaS         bool `json:"paas"`
 }
 
 // ListRegions returns all load balancers owned by the calling API account
