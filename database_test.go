@@ -61,14 +61,16 @@ func TestNewDatabase(t *testing.T) {
 			"id": "12345",
 			"name": "test-db",
 			"size": "g3.db.xsmall",
+			"software": "MySQL",
 			"status" : "Ready"
 		}`,
 	})
 	defer server.Close()
 
 	cfg := &CreateDatabaseRequest{
-		Name: "test-db",
-		Size: "g3.db.xsmall",
+		Name:     "test-db",
+		Size:     "g3.db.xsmall",
+		Software: "MySQL",
 	}
 	got, err := client.NewDatabase(cfg)
 	if err != nil {
@@ -77,10 +79,11 @@ func TestNewDatabase(t *testing.T) {
 	}
 
 	expected := &Database{
-		ID:     "12345",
-		Name:   "test-db",
-		Size:   "g3.db.xsmall",
-		Status: "Ready",
+		ID:       "12345",
+		Name:     "test-db",
+		Size:     "g3.db.xsmall",
+		Software: "MySQL",
+		Status:   "Ready",
 	}
 
 	if !reflect.DeepEqual(got, expected) {
