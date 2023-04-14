@@ -9,14 +9,14 @@ import (
 
 // KfCluster represents a cluster with Kubeflow installed.
 type KfCluster struct {
-	ID                string `json:"id"`
-	Name              string `json:"name,validate:required"`
-	NetworkID         string `json:"network_id,validate:required"`
-	FirewallID        string `json:"firewall_id"`
-	Size              string `json:"size"`
-	KubeflowInstalled string `json:"kubeflow_installed"`
-	DashboardURL      string `json:"dashboard_url"`
-	Namespace         string `json:"-"`
+	ID            string `json:"id"`
+	Name          string `json:"name,validate:required"`
+	NetworkID     string `json:"network_id,validate:required"`
+	FirewallID    string `json:"firewall_id"`
+	Size          string `json:"size"`
+	KubeflowReady string `json:"kubeflow_ready"`
+	DashboardURL  string `json:"dashboard_url"`
+	Namespace     string `json:"-"`
 }
 
 // CreateKfClusterReq is the request for creating a KfCluster.
