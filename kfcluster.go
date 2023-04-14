@@ -12,7 +12,7 @@ type KfCluster struct {
 	ID                string `json:"id"`
 	Name              string `json:"name,validate:required"`
 	NetworkID         string `json:"network_id,validate:required"`
-	FirewallName      string `json:"firewall_name"`
+	FirewallID        string `json:"firewall_id"`
 	Size              string `json:"size"`
 	KubeflowInstalled string `json:"kubeflow_installed"`
 	DashboardURL      string `json:"dashboard_url"`
