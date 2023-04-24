@@ -24,12 +24,14 @@ type CreateKfClusterReq struct {
 	Name       string `json:"name" validate:"required"`
 	NetworkID  string `json:"network_id" validate:"required"`
 	FirewallID string `json:"firewall_id"`
-	Size       string `json:"size"` //what sizes?
+	Size       string `json:"size"`
+	Region     string `json:"region"`
 }
 
 // UpdateKfClusterReq is the request for updating a KfCluster.
 type UpdateKfClusterReq struct {
-	Name string `json:"name"`
+	Name   string `json:"name"`
+	Region string `json:"region"`
 	// Size string `json:"size"`
 }
 
