@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"strings"
 	"time"
+
+	corev1 "k8s.io/api/core/v1"
 )
 
 // KubernetesInstance represents a single node/master within a Kubernetes cluster
@@ -36,6 +38,8 @@ type KubernetesPool struct {
 	Size          string               `json:"size,omitempty"`
 	InstanceNames []string             `json:"instance_names,omitempty"`
 	Instances     []KubernetesInstance `json:"instances,omitempty"`
+	Labels        map[string]string    `json:"labels,omitempty"`
+	Taints        []corev1.Taint       `json:"taints,omitempty"`
 }
 
 // KubernetesInstalledApplication is an application within our marketplace available for
