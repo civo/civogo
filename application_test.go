@@ -12,25 +12,8 @@ func TestListApplications(t *testing.T) {
 		  "name": "your-app-name",
 		  "status": "ACTIVE",
 		  "account_id": "12345",
-		  "network_id": "34567",
-		  "description": "this is a test app",
-		  "process_info": [
-			  	{
-					"processType": "web",
-					"processCount": 1
-				  }],
-			"domains": [
-				"your-app-name.example.com"
-			],
-			"ssh_key_ids": [
-				"12345"
-			],
-			"config": [
-				{
-					"name": "PORT",
-					"value": "80"
-				}]
-				}]}`,
+		  "network_id": "34567"
+		  }]}`,
 	})
 
 	defer server.Close()
@@ -46,25 +29,10 @@ func TestListApplications(t *testing.T) {
 		Pages:   1,
 		Items: []Application{
 			{
-				ID:          "69a23478-a89e-41d2-97b1-6f4c341cee70",
-				Name:        "your-app-name",
-				Status:      "ACTIVE",
-				NetworkID:   "34567",
-				Description: "this is a test app",
-				ProcessInfo: []ProcessInfo{
-					{
-						ProcessType:  "web",
-						ProcessCount: 1,
-					},
-				},
-				Domains:   []string{"your-app-name.example.com"},
-				SSHKeyIDs: []string{"12345"},
-				Config: []EnvVar{
-					{
-						Name:  "PORT",
-						Value: "80",
-					},
-				},
+				ID:        "69a23478-a89e-41d2-97b1-6f4c341cee70",
+				Name:      "your-app-name",
+				Status:    "ACTIVE",
+				NetworkID: "34567",
 			},
 		},
 	}
@@ -81,10 +49,8 @@ func TestCreateApplication(t *testing.T) {
 	defer server.Close()
 
 	cfg := &ApplicationConfig{
-		Name:        "test-app",
-		Description: "test app",
-		SSHKeyIDs:   []string{"12345"},
-		Size:        "small",
+		Name: "test-app",
+		Size: "small",
 	}
 
 	got, err := client.CreateApplication(cfg)
