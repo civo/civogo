@@ -62,7 +62,7 @@ func TestFindKfCluster(t *testing.T) {
 	// Multiple Match
 	_, err := client.FindKfCluster("kfcluster")
 	if err.Error() != "MultipleMatchesError: unable to find kfcluster because there were multiple matches" {
-		t.Errorf("Expected %s, got %s", "unable to find volume test there were multiple matches", err.Error())
+		t.Errorf("Expected %s, got %s", "unable to find kfcluster as there were multiple matches found", err.Error())
 	}
 
 	// Zero Match
