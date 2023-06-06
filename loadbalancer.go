@@ -43,6 +43,7 @@ type LoadBalancer struct {
 	ReservedIPID                 string                `json:"reserved_ip_id,omitempty"`
 	ReservedIPName               string                `json:"reserved_ip_name,omitempty"`
 	ReservedIP                   string                `json:"reserved_ip,omitempty"`
+	MaxConcurrentRequests        int                   `json:"max_concurrent_requests,omitempty"`
 }
 
 // LoadBalancerConfig represents a load balancer to be created
@@ -59,6 +60,7 @@ type LoadBalancerConfig struct {
 	ClusterID                    string                      `json:"cluster_id,omitempty"`
 	FirewallID                   string                      `json:"firewall_id,omitempty"`
 	FirewallRules                string                      `json:"firewall_rule,omitempty"`
+	MaxConcurrentRequests        *int                        `json:"max_concurrent_requests,omitempty"`
 }
 
 // LoadBalancerUpdateConfig represents a load balancer to be updated
@@ -72,6 +74,7 @@ type LoadBalancerUpdateConfig struct {
 	SessionAffinityConfigTimeout int32                       `json:"session_affinity_config_timeout,omitempty"`
 	EnableProxyProtocol          string                      `json:"enable_proxy_protocol,omitempty"`
 	FirewallID                   string                      `json:"firewall_id,omitempty"`
+	MaxConcurrentRequests        *int                        `json:"max_concurrent_requests,omitempty"`
 }
 
 // ListLoadBalancers returns all load balancers owned by the calling API account
