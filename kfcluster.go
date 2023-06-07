@@ -18,7 +18,6 @@ type KfCluster struct {
 	KubeflowReady string    `json:"kubeflow_ready"`
 	DashboardURL  string    `json:"dashboard_url"`
 	CreatedAt     time.Time `json:"created_at"`
-	Namespace     string    `json:"-"`
 }
 
 // CreateKfClusterReq is the request for creating a KfCluster.
