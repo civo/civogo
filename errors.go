@@ -127,6 +127,7 @@ var (
 	DatabaseNetworkExistsError             = constError("DatabaseNetworkExistsError")
 	DatabaseNetworkDeleteLastError         = constError("DatabaseNetworkDeleteLastError")
 	DatabaseNetworkDeleteWithInstanceError = constError("DatabaseNetworkDeleteWithInstanceError")
+	DatabaseNetworkInUseByVolumes          = constError("DatabaseNetworkInUseByVolumes")
 	DatabaseNetworkDuplicateNameError      = constError("DatabaseNetworkDuplicateNameError")
 	DatabaseNetworkLookupError             = constError("DatabaseNetworkLookupError")
 	DatabaseNetworkNotFoundError           = constError("DatabaseNetworkNotFoundError")
@@ -583,6 +584,9 @@ func decodeError(err error) error {
 		case "database_network_delete_with_instance":
 			err := errors.New(msg.String())
 			return DatabaseNetworkDeleteWithInstanceError.wrap(err)
+		case "database_network_inuse_by_volumes":
+			err := errors.New(msg.String())
+			return DatabaseNetworkInUseByVolumes.wrap(err)
 		case "database_network_duplicate_name":
 			err := errors.New(msg.String())
 			return DatabaseNetworkDuplicateNameError.wrap(err)
