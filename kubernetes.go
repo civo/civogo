@@ -8,6 +8,7 @@ import (
 	"time"
 
 	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // KubernetesInstance represents a single node/master within a Kubernetes cluster
@@ -64,6 +65,16 @@ type KubernetesInstalledApplication struct {
 // ApplicationConfiguration is a configuration for installed application
 type ApplicationConfiguration map[string]string
 
+// Condition is a condition for a Kubernetes cluster
+type Condition struct {
+	Type               string                 `json:"type"`
+	Status             metav1.ConditionStatus `json:"status"`
+	Synced             bool                   `json:"synced"`
+	LastTransitionTime metav1.Time            `json:"last_transition_time"`
+	Reason             string                 `json:"reason,omitempty"`
+	Message            string                 `json:"message,omitempty"`
+}
+
 // KubernetesCluster is a Kubernetes item inside the cluster
 type KubernetesCluster struct {
 	ID                    string                           `json:"id"`
@@ -94,6 +105,7 @@ type KubernetesCluster struct {
 	FirewallID            string                           `json:"firewall_id,omitempty"`
 	CNIPlugin             string                           `json:"cni_plugin,omitempty"`
 	CCMInstalled          string                           `json:"ccm_installed,omitempty"`
+	Conditions            []Condition                      `json:"conditions"`
 }
 
 // RequiredPools returns the required pools for a given Kubernetes cluster
