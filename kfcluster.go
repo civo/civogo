@@ -13,26 +13,26 @@ type KfCluster struct {
 	ID            string    `json:"id"`
 	Name          string    `json:"name"`
 	NetworkID     string    `json:"network_id"`
-	FirewallID    string    `json:"firewall_id"`
-	Size          string    `json:"size"`
-	KubeflowReady string    `json:"kubeflow_ready"`
-	DashboardURL  string    `json:"dashboard_url"`
-	CreatedAt     time.Time `json:"created_at"`
+	FirewallID    string    `json:"firewall_id,omitempty"`
+	Size          string    `json:"size,omitempty"`
+	KubeflowReady string    `json:"kubeflow_ready,omitempty"`
+	DashboardURL  string    `json:"dashboard_url,omitempty"`
+	CreatedAt     time.Time `json:"created_at,omitempty"`
 }
 
 // CreateKfClusterReq is the request for creating a KfCluster.
 type CreateKfClusterReq struct {
 	Name       string `json:"name" validate:"required"`
 	NetworkID  string `json:"network_id" validate:"required"`
-	FirewallID string `json:"firewall_id"`
-	Size       string `json:"size"`
-	Region     string `json:"region"`
+	FirewallID string `json:"firewall_id,omitempty"`
+	Size       string `json:"size,omitempty"`
+	Region     string `json:"region,omitempty"`
 }
 
 // UpdateKfClusterReq is the request for updating a KfCluster.
 type UpdateKfClusterReq struct {
-	Name   string `json:"name"`
-	Region string `json:"region"`
+	Name   string `json:"name,omitempty"`
+	Region string `json:"region,omitempty"`
 	// Size string `json:"size"`
 }
 
@@ -110,6 +110,7 @@ func (c *Client) FindKfCluster(search string) (*KfCluster, error) {
 
 // CreateKfCluster creates a new kubeflow cluster
 func (c *Client) CreateKfCluster(req CreateKfClusterReq) (*KfCluster, error) {
+	req.Region = c.Region
 	body, err := c.SendPostRequest("/v2/kfclusters", req)
 	if err != nil {
 		return nil, decodeError(err)
