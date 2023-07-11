@@ -110,9 +110,11 @@ type KubernetesCluster struct {
 
 // RequiredPools returns the required pools for a given Kubernetes cluster
 type RequiredPools struct {
-	ID    string `json:"id"`
-	Size  string `json:"size"`
-	Count int    `json:"count"`
+	ID     string            `json:"id"`
+	Size   string            `json:"size"`
+	Count  int               `json:"count"`
+	Labels map[string]string `json:"labels,omitempty"`
+	Taints []corev1.Taint    `json:"taints,omitempty"`
 }
 
 // PaginatedKubernetesClusters is a Kubernetes k3s cluster
