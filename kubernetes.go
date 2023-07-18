@@ -34,13 +34,14 @@ type KubernetesInstance struct {
 
 // KubernetesPool represents a single pool within a Kubernetes cluster
 type KubernetesPool struct {
-	ID            string               `json:"id"`
-	Count         int                  `json:"count,omitempty"`
-	Size          string               `json:"size,omitempty"`
-	InstanceNames []string             `json:"instance_names,omitempty"`
-	Instances     []KubernetesInstance `json:"instances,omitempty"`
-	Labels        map[string]string    `json:"labels,omitempty"`
-	Taints        []corev1.Taint       `json:"taints,omitempty"`
+	ID               string               `json:"id"`
+	Count            int                  `json:"count,omitempty"`
+	Size             string               `json:"size,omitempty"`
+	InstanceNames    []string             `json:"instance_names,omitempty"`
+	Instances        []KubernetesInstance `json:"instances,omitempty"`
+	Labels           map[string]string    `json:"labels,omitempty"`
+	Taints           []corev1.Taint       `json:"taints,omitempty"`
+	PublicIPNodePool bool                 `json:"public_ip_node_pool,omitempty"`
 }
 
 // KubernetesInstalledApplication is an application within our marketplace available for
@@ -110,11 +111,12 @@ type KubernetesCluster struct {
 
 // RequiredPools returns the required pools for a given Kubernetes cluster
 type RequiredPools struct {
-	ID     string            `json:"id"`
-	Size   string            `json:"size"`
-	Count  int               `json:"count"`
-	Labels map[string]string `json:"labels,omitempty"`
-	Taints []corev1.Taint    `json:"taints,omitempty"`
+	ID               string            `json:"id"`
+	Size             string            `json:"size"`
+	Count            int               `json:"count"`
+	Labels           map[string]string `json:"labels,omitempty"`
+	Taints           []corev1.Taint    `json:"taints,omitempty"`
+	PublicIPNodePool bool              `json:"public_ip_node_pool,omitempty"`
 }
 
 // PaginatedKubernetesClusters is a Kubernetes k3s cluster
@@ -145,9 +147,10 @@ type KubernetesClusterConfig struct {
 
 // KubernetesClusterPoolConfig is used to create a new cluster pool
 type KubernetesClusterPoolConfig struct {
-	ID    string `json:"id,omitempty"`
-	Count int    `json:"count,omitempty"`
-	Size  string `json:"size,omitempty"`
+	ID               string `json:"id,omitempty"`
+	Count            int    `json:"count,omitempty"`
+	Size             string `json:"size,omitempty"`
+	PublicIPNodePool bool   `json:"public_ip_node_pool,omitempty"`
 }
 
 // KubernetesPlanConfiguration is a value within a configuration for
