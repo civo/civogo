@@ -45,6 +45,8 @@ type Instance struct {
 	CPUCores                 int       `json:"cpu_cores,omitempty"`
 	RAMMegabytes             int       `json:"ram_mb,omitempty"`
 	DiskGigabytes            int       `json:"disk_gb,omitempty"`
+	GPUCount                 int       `json:"gpu_count,omitempty"`
+	GPUType                  string    `json:"gpu_type,omitempty"`
 	Script                   string    `json:"script,omitempty"`
 	CreatedAt                time.Time `json:"created_at,omitempty"`
 	ReservedIPID             string    `json:"reserved_ip_id,omitempty"`
