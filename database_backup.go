@@ -33,6 +33,7 @@ type DatabaseBackupUpdateRequest struct {
 	Region   string `json:"region"`
 }
 
+// ListDatabaseBackup lists backups for database
 func (c *Client) ListDatabaseBackup(did string) (*DatabaseBackup, error) {
 	resp, err := c.SendGetRequest(fmt.Sprintf("/v2/databases/%s/backups", did))
 	if err != nil {
@@ -47,6 +48,7 @@ func (c *Client) ListDatabaseBackup(did string) (*DatabaseBackup, error) {
 	return back, nil
 }
 
+// UpdateDatabaseBackup update database backup
 func (c *Client) UpdateDatabaseBackup(did string, v *DatabaseBackupUpdateRequest) (*DatabaseBackup, error) {
 	body, err := c.SendPutRequest(fmt.Sprintf("/v2/databases/%s/backups", did), v)
 	if err != nil {
@@ -61,6 +63,7 @@ func (c *Client) UpdateDatabaseBackup(did string, v *DatabaseBackupUpdateRequest
 	return result, nil
 }
 
+// CreateDatabaseBackup create database backup
 func (c *Client) CreateDatabaseBackup(did string, v *DatabaseBackupCreateRequest) (*DatabaseBackup, error) {
 	body, err := c.SendPostRequest(fmt.Sprintf("/v2/databases/%s/backups", did), v)
 	if err != nil {
