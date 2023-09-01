@@ -59,6 +59,14 @@ type SupportedSoftwareVersion struct {
 	Default         bool   `json:"default"`
 }
 
+// RestoreDatabaseRequest is the request body for restoring a database
+type RestoreDatabaseRequest struct {
+	Software  string `json:"software"`
+	NetworkID string `json:"network_id"`
+	Backup    string `json:"backup"`
+	Region    string `json:"region"`
+}
+
 // ListDatabases returns a list of all databases
 func (c *Client) ListDatabases() (*PaginatedDatabases, error) {
 	resp, err := c.SendGetRequest("/v2/databases")
@@ -176,4 +184,14 @@ func (c *Client) ListDBVersions() (map[string][]SupportedSoftwareVersion, error)
 	}
 
 	return versions, nil
+}
+
+// RestoreDatabase restore a database
+func (c *Client) RestoreDatabase(id string, v *RestoreDatabaseRequest) (*SimpleResponse, error) {
+	resp, err := c.SendPostRequest(fmt.Sprintf("/v2/databases/%s/restore", id), v)
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	return c.DecodeSimpleResponse(resp)
 }
