@@ -147,6 +147,7 @@ type KubernetesClusterConfig struct {
 
 // KubernetesClusterPoolConfig is used to create a new cluster pool
 type KubernetesClusterPoolConfig struct {
+	Region           string `json:"region,omitempty"`
 	ID               string `json:"id,omitempty"`
 	Count            int    `json:"count,omitempty"`
 	Size             string `json:"size,omitempty"`
@@ -282,6 +283,16 @@ func (c *Client) UpdateKubernetesCluster(id string, i *KubernetesClusterConfig) 
 		return nil, err
 	}
 	return kubernetes, nil
+}
+
+// CreateKubernetesPool update a single kubernetes cluster by its full ID
+func (c *Client) CreateKubernetesPool(id string, i *KubernetesClusterPoolConfig) (*KubernetesCluster, error) {
+	i.Region = c.Region
+	if _, err := c.SendPostRequest(fmt.Sprintf("/v2/kubernetes/clusters/%s/pools", id), i); err != nil {
+		return nil, decodeError(err)
+	}
+
+	return c.FindKubernetesCluster(id)
 }
 
 // ListKubernetesMarketplaceApplications returns all application inside marketplace
