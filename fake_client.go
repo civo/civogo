@@ -203,19 +203,19 @@ func NewFakeClient() (*FakeClient, error) {
 		},
 		InstanceSizes: []InstanceSize{
 			{
-				Name:            "g3.xsmall",
+				Name:          "g3.xsmall",
 				CPUCores:      1,
 				RAMMegabytes:  1024,
 				DiskGigabytes: 10,
 			},
 			{
-				Name:            "g3.small",
+				Name:          "g3.small",
 				CPUCores:      2,
 				RAMMegabytes:  2048,
 				DiskGigabytes: 20,
 			},
 			{
-				Name:            "g3.medium",
+				Name:          "g3.medium",
 				CPUCores:      4,
 				RAMMegabytes:  4096,
 				DiskGigabytes: 40,
