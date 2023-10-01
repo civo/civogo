@@ -203,22 +203,19 @@ func NewFakeClient() (*FakeClient, error) {
 		},
 		InstanceSizes: []InstanceSize{
 			{
-				ID:            "g3.xsmall",
-				Name:          "Extra small",
+				Name:            "g3.xsmall",
 				CPUCores:      1,
 				RAMMegabytes:  1024,
 				DiskGigabytes: 10,
 			},
 			{
-				ID:            "g3.small",
-				Name:          "Small",
+				Name:            "g3.small",
 				CPUCores:      2,
 				RAMMegabytes:  2048,
 				DiskGigabytes: 20,
 			},
 			{
-				ID:            "g3.medium",
-				Name:          "Medium",
+				Name:            "g3.medium",
 				CPUCores:      4,
 				RAMMegabytes:  4096,
 				DiskGigabytes: 40,
@@ -695,7 +692,7 @@ func (c *FakeClient) ListInstanceSizes() ([]InstanceSize, error) {
 // FindInstanceSizes implemented in a fake way for automated tests
 func (c *FakeClient) FindInstanceSizes(search string) (*InstanceSize, error) {
 	for _, size := range c.InstanceSizes {
-		if strings.Contains(size.Name, search) || size.ID == search {
+		if strings.Contains(size.Name, search) {
 			return &size, nil
 		}
 	}
