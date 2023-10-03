@@ -107,3 +107,13 @@ func (c *Client) UpdateKubernetesClusterPool(cid, pid string, config *Kubernetes
 
 	return pool, nil
 }
+
+// DeleteKubernetesPool delete a pool inside the cluster
+func (c *Client) DeleteKubernetesClusterPool(id, poolID string) (*SimpleResponse, error) {
+	resp, err := c.SendDeleteRequest(fmt.Sprintf("/v2/kubernetes/clusters/%s/pools/%s", id, poolID))
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	return c.DecodeSimpleResponse(resp)
+}
