@@ -285,16 +285,6 @@ func (c *Client) UpdateKubernetesCluster(id string, i *KubernetesClusterConfig) 
 	return kubernetes, nil
 }
 
-// CreateKubernetesPool update a single kubernetes cluster by its full ID
-func (c *Client) CreateKubernetesPool(id string, i *KubernetesClusterPoolConfig) (*KubernetesCluster, error) {
-	i.Region = c.Region
-	if _, err := c.SendPostRequest(fmt.Sprintf("/v2/kubernetes/clusters/%s/pools", id), i); err != nil {
-		return nil, decodeError(err)
-	}
-
-	return c.FindKubernetesCluster(id)
-}
-
 // ListKubernetesMarketplaceApplications returns all application inside marketplace
 func (c *Client) ListKubernetesMarketplaceApplications() ([]KubernetesMarketplaceApplication, error) {
 	resp, err := c.SendGetRequest("/v2/kubernetes/applications")

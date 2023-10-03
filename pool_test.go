@@ -7,6 +7,32 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
+func TestCreateKubernetesClusterPool(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/kubernetes/clusters/e733ea47-cc80-443b-b3f2-cccfe7a61ef5/pools": `{"result": "success"}`,
+	})
+	defer server.Close()
+
+	newPool := &KubernetesClusterPoolUpdateConfig{
+		ID:     "8a849cc5-bd51-45ce-814a-c378b09dcb06",
+		Count:  3,
+		Size:   "g4s.kube.small",
+		Labels: map[string]string{},
+		Taints: []corev1.Taint{},
+		Region: "LON1",
+	}
+
+	got, err := client.CreateKubernetesClusterPool("e733ea47-cc80-443b-b3f2-cccfe7a61ef5", newPool)
+	if err != nil {
+		t.Errorf("Request returned an error: %s", err)
+		return
+	}
+
+	expected := &SimpleResponse{Result: "success"}
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Expected %+v, got %+v", expected, got)
+	}
+}
 func TestGetKubernetesPool(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/kubernetes/clusters/e733ea47-cc80-443b-b3f2-cccfe7a61ef5/pools/fad8638d-efac-41e0-8787-23d37d845685": `{

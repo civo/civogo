@@ -34,6 +34,16 @@ func (c *Client) ListKubernetesClusterPools(cid string) ([]KubernetesPool, error
 	return pools, nil
 }
 
+// CreateKubernetesClusterPool update a single kubernetes cluster by its full ID
+func (c *Client) CreateKubernetesClusterPool(id string, i *KubernetesClusterPoolUpdateConfig) (*SimpleResponse, error) {
+	i.Region = c.Region
+	resp, err := c.SendPostRequest(fmt.Sprintf("/v2/kubernetes/clusters/%s/pools", id), i)
+	if err != nil {
+		return nil, decodeError(err)
+	}
+	return c.DecodeSimpleResponse(resp)
+}
+
 // GetKubernetesClusterPool returns a pool for a kubernetes cluster
 func (c *Client) GetKubernetesClusterPool(cid, pid string) (*KubernetesPool, error) {
 	resp, err := c.SendGetRequest(fmt.Sprintf("/v2/kubernetes/clusters/%s/pools/%s", cid, pid))
