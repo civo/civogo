@@ -15,7 +15,7 @@ type KubernetesClusterPoolUpdateConfig struct {
 	Count            int               `json:"count,omitempty"`
 	Size             string            `json:"size,omitempty"`
 	Labels           map[string]string `json:"labels,omitempty"`
-	Taints           []corev1.Taint    `json:"taints,omitempty"`
+	Taints           []corev1.Taint    `json:"taints"`
 	PublicIPNodePool bool              `json:"public_ip_node_pool,omitempty"`
 	Region           string            `json:"region,omitempty"`
 }
