@@ -6,15 +6,26 @@ import (
 	"fmt"
 )
 
+// Scheduled represents scheduled backups
+type Scheduled struct {
+	Name     string   `json:"name,omitempty"`
+	Schedule string   `json:"schedule,omitempty"`
+	Count    int32    `json:"count,omitempty"`
+	Backups  []string `json:"backups,omitempty"`
+}
+
+// Manual represents manual backups
+type Manual struct {
+	Backup string `json:"backup,omitempty"`
+}
+
 // DatabaseBackup represents a backup
 type DatabaseBackup struct {
-	Name         string   `json:"name"`
-	DatabaseName string   `json:"database_name"`
-	DatabaseID   string   `json:"database_id"`
-	Software     string   `json:"software"`
-	Schedule     string   `json:"schedule"`
-	Count        int32    `json:"count"`
-	Backups      []string `json:"backups"`
+	DatabaseName string    `json:"database_name"`
+	DatabaseID   string    `json:"database_id"`
+	Software     string    `json:"software"`
+	Scheduled    Scheduled `json:"scheduled,omitempty"`
+	Manual       []Manual  `json:"manual,omitempty"`
 }
 
 // DatabaseBackupCreateRequest represents a backup create request
@@ -22,6 +33,7 @@ type DatabaseBackupCreateRequest struct {
 	Name     string `json:"name"`
 	Schedule string `json:"schedule"`
 	Count    int32  `json:"count"`
+	IsManual bool   `json:"is_manual"`
 	Region   string `json:"region"`
 }
 
