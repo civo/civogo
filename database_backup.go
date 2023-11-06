@@ -21,11 +21,11 @@ type Manual struct {
 
 // DatabaseBackup represents a backup
 type DatabaseBackup struct {
-	DatabaseName string    `json:"database_name"`
-	DatabaseID   string    `json:"database_id"`
-	Software     string    `json:"software"`
-	Scheduled    Scheduled `json:"scheduled,omitempty"`
-	Manual       []Manual  `json:"manual,omitempty"`
+	DatabaseName string     `json:"database_name"`
+	DatabaseID   string     `json:"database_id"`
+	Software     string     `json:"software"`
+	Scheduled    *Scheduled `json:"scheduled,omitempty"`
+	Manual       []Manual   `json:"manual,omitempty"`
 }
 
 // DatabaseBackupCreateRequest represents a backup create request
@@ -33,7 +33,7 @@ type DatabaseBackupCreateRequest struct {
 	Name     string `json:"name"`
 	Schedule string `json:"schedule"`
 	Count    int32  `json:"count"`
-	IsManual bool   `json:"is_manual"`
+	Type     string `json:"type"`
 	Region   string `json:"region"`
 }
 
