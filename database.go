@@ -16,19 +16,20 @@ type DatabaseUserInfo struct {
 
 // Database holds the database information
 type Database struct {
-	ID              string `json:"id"`
-	Name            string `json:"name"`
-	Nodes           int    `json:"nodes"`
-	Size            string `json:"size"`
-	Software        string `json:"software"`
-	SoftwareVersion string `json:"software_version"`
-	PublicIPv4      string `json:"public_ipv4"`
-	NetworkID       string `json:"network_id"`
-	FirewallID      string `json:"firewall_id"`
-	Port            int    `json:"port"`
-	Username        string `json:"username"`
-	Password        string `json:"password"`
-	Status          string `json:"status"`
+	ID               string             `json:"id"`
+	Name             string             `json:"name"`
+	Nodes            int                `json:"nodes"`
+	Size             string             `json:"size"`
+	Software         string             `json:"software"`
+	SoftwareVersion  string             `json:"software_version"`
+	PublicIPv4       string             `json:"public_ipv4"`
+	NetworkID        string             `json:"network_id"`
+	FirewallID       string             `json:"firewall_id"`
+	Port             int                `json:"port"`
+	Username         string             `json:"username"`
+	Password         string             `json:"password"`
+	DatabaseUserInfo []DatabaseUserInfo `json:"database_user_info"`
+	Status           string             `json:"status"`
 }
 
 // PaginatedDatabases is the structure for list response from DB endpoint
@@ -41,16 +42,15 @@ type PaginatedDatabases struct {
 
 // CreateDatabaseRequest holds fields required to creates a new database
 type CreateDatabaseRequest struct {
-	Name             string             `json:"name" validate:"required"`
-	Size             string             `json:"size" validate:"required"`
-	Software         string             `json:"software" validate:"required"`
-	SoftwareVersion  string             `json:"software_version"`
-	NetworkID        string             `json:"network_id"`
-	Nodes            int                `json:"nodes"`
-	FirewallID       string             `json:"firewall_id"`
-	FirewallRules    string             `json:"firewall_rule"`
-	DatabaseUserInfo []DatabaseUserInfo `json:"database_user_info"`
-	Region           string             `json:"region"`
+	Name            string `json:"name" validate:"required"`
+	Size            string `json:"size" validate:"required"`
+	Software        string `json:"software" validate:"required"`
+	SoftwareVersion string `json:"software_version"`
+	NetworkID       string `json:"network_id"`
+	Nodes           int    `json:"nodes"`
+	FirewallID      string `json:"firewall_id"`
+	FirewallRules   string `json:"firewall_rule"`
+	Region          string `json:"region"`
 }
 
 // UpdateDatabaseRequest holds fields required to update a database
