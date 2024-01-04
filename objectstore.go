@@ -40,6 +40,13 @@ type CreateObjectStoreRequest struct {
 	Region      string `json:"region"`
 }
 
+// ObjectStoreStats holds the object store stats
+type ObjectStoreStats struct {
+	SizeKBUtilised int64 `json:"size_kb_utilised"`
+	MaxSizeKB      int64 `json:"max_size_kb"`
+	NumObjects     int64 `json:"num_objects"`
+}
+
 // UpdateObjectStoreRequest holds the request to update a specified object storage's details
 type UpdateObjectStoreRequest struct {
 	MaxSizeGB int64 `json:"max_size_gb"`
@@ -150,4 +157,19 @@ func (c *Client) DeleteObjectStore(id string) (*SimpleResponse, error) {
 	}
 
 	return c.DecodeSimpleResponse(resp)
+}
+
+// GetObjectStoreStats returns the stats for an objectstore
+func (c *Client) GetObjectStoreStats(id string) (*ObjectStoreStats, error) {
+	resp, err := c.SendGetRequest(fmt.Sprintf("/v2/objectstores/%s/stats", id))
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	var result = &ObjectStoreStats{}
+	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(result); err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
