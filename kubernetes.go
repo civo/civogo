@@ -40,6 +40,7 @@ type KubernetesPool struct {
 	InstanceNames    []string             `json:"instance_names,omitempty"`
 	Instances        []KubernetesInstance `json:"instances,omitempty"`
 	Labels           map[string]string    `json:"labels,omitempty"`
+	Annotations      map[string]string    `json:"annotations,omitempty"`
 	Taints           []corev1.Taint       `json:"taints,omitempty"`
 	PublicIPNodePool bool                 `json:"public_ip_node_pool,omitempty"`
 }
@@ -115,6 +116,7 @@ type RequiredPools struct {
 	Size             string            `json:"size"`
 	Count            int               `json:"count"`
 	Labels           map[string]string `json:"labels,omitempty"`
+	Annotations      map[string]string `json:"annotations,omitempty"`
 	Taints           []corev1.Taint    `json:"taints,omitempty"`
 	PublicIPNodePool bool              `json:"public_ip_node_pool,omitempty"`
 }
