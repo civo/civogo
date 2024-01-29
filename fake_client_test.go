@@ -159,7 +159,7 @@ func TestKubernetesClustersInstances(t *testing.T) {
 	client, err := NewFakeClient()
 	g.Expect(err).To(BeNil())
 
-	client.Clusters = []KubernetesCluster{
+	client.Kubernetes = []KubernetesCluster{
 		{
 			ID:   "9c89d8b9-463d-45f2-8928-455eb3f3726",
 			Name: "foo-cluster",
@@ -194,7 +194,7 @@ func TestKubernetesClustersPools(t *testing.T) {
 	client, err := NewFakeClient()
 	g.Expect(err).To(BeNil())
 
-	client.Clusters = []KubernetesCluster{
+	client.Kubernetes = []KubernetesCluster{
 		{
 			ID:   "9c89d8b9-463d-45f2-8928-455eb3f3726",
 			Name: "foo-cluster",
@@ -256,4 +256,71 @@ func TestKubernetesClustersPools(t *testing.T) {
 	pool, err = client.UpdateKubernetesClusterPool("9c89d8b9-463d-45f2-8928-455eb3f3726", "33de5de2-14fd-44ba-a621-f6efbeeb9639", &pc)
 	g.Expect(err).To(BeNil())
 	g.Expect(pool.Count).To(Equal(4))
+}
+
+// TestObjectStores is a test for the ObjectStores method.
+func TestObjectStores(t *testing.T) {
+	g := NewWithT(t)
+
+	client, err := NewFakeClient()
+	g.Expect(err).To(BeNil())
+
+	config := &CreateObjectStoreRequest{
+		Name:      "foo",
+		Region:    "lon1",
+		MaxSizeGB: 100,
+	}
+
+	expected := &ObjectStore{
+		Name:      "foo",
+		MaxSize: 100,
+		Status: "ready",
+		BucketURL: "https://objectstorage.lon1.civo.com/foo",
+	}
+
+	objectstore, err := client.NewObjectStore(config)
+	g.Expect(err).To(BeNil())
+	expected.ID = objectstore.ID
+	g.Expect(objectstore.Name).To(Equal(expected.Name))
+	g.Expect(objectstore.MaxSize).To(Equal(expected.MaxSize))
+
+	objectstore, err = client.GetObjectStore(objectstore.ID)
+	g.Expect(err).To(BeNil())
+	g.Expect(objectstore.Name).To(Equal(expected.Name))
+	g.Expect(objectstore.MaxSize).To(Equal(expected.MaxSize))
+	g.Expect(objectstore.Status).To(Equal(expected.Status))
+	g.Expect(objectstore.BucketURL).To(Equal(expected.BucketURL))
+
+	objectstores, err := client.ListObjectStores()
+	g.Expect(err).To(BeNil())
+	g.Expect(len(objectstores.Items)).To(Equal(1))
+
+	objectstore, err = client.FindObjectStore(objectstore.ID)
+	g.Expect(err).To(BeNil())
+	g.Expect(objectstore.Name).To(Equal(expected.Name))
+	g.Expect(objectstore.MaxSize).To(Equal(expected.MaxSize))
+	g.Expect(objectstore.Status).To(Equal(expected.Status))
+	g.Expect(objectstore.BucketURL).To(Equal(expected.BucketURL))
+
+	uc := &UpdateObjectStoreRequest{
+		MaxSizeGB: 200,
+	}
+	objectstore, err = client.UpdateObjectStore(objectstore.ID, uc)
+	g.Expect(err).To(BeNil())
+	g.Expect(objectstore.MaxSize).To(Equal(200))
+
+	ObjectStoreStats := &ObjectStoreStats{
+		SizeKBUtilised: 2000000,
+		MaxSizeKB:      10000000,
+		NumObjects:     1000,
+	}
+	objectstoreStats, err := client.GetObjectStoreStats(objectstore.ID)
+	g.Expect(err).To(BeNil())
+	g.Expect(objectstoreStats.SizeKBUtilised).To(Equal(ObjectStoreStats.SizeKBUtilised))
+	g.Expect(objectstoreStats.MaxSizeKB).To(Equal(ObjectStoreStats.MaxSizeKB))
+	g.Expect(objectstoreStats.NumObjects).To(Equal(ObjectStoreStats.NumObjects))
+
+	resp, err := client.DeleteObjectStore(objectstore.ID)
+	g.Expect(err).To(BeNil())
+	g.Expect(resp).To(Equal(&SimpleResponse{Result: "success"}))
 }

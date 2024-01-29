@@ -158,6 +158,36 @@ if err != nil {
 ```
 We can use `UnknownError` for errors that are not defined.
 
+## Test coverage
+Object | Test | fakeClient |
+:------------ | :-------------| :------------- |
+Account | <input type="checkbox" disabled checked /> | <input type="checkbox" disabled checked /> |
+Actions | <input type="checkbox" disabled checked /> | |
+Application | <input type="checkbox" disabled checked /> | |
+Charge | <input type="checkbox" disabled checked /> | |
+Domains | <input type="checkbox" disabled checked /> | <input type="checkbox" disabled checked /> |
+DomainsRecords | <input type="checkbox" disabled checked /> | <input type="checkbox" disabled checked /> |
+Firewall | <input type="checkbox" disabled checked /> | <input type="checkbox" disabled checked /> |
+FirewallRules | <input type="checkbox" disabled checked /> | <input type="checkbox" disabled checked /> |
+Instances | <input type="checkbox" disabled checked /> | <input type="checkbox" disabled checked /> |
+InstanceSizes | <input type="checkbox" disabled checked /> | <input type="checkbox" disabled checked /> |
+Kubernetes | <input type="checkbox" disabled checked /> | <input type="checkbox" disabled checked /> |
+KubernetesPools | <input type="checkbox" disabled checked /> | <input type="checkbox" disabled checked /> |
+IP | <input type="checkbox" disabled checked /> | <input type="checkbox" disabled checked /> |
+Networks | <input type="checkbox" disabled checked /> | <input type="checkbox" disabled checked /> |
+Volumes | <input type="checkbox" disabled checked /> | <input type="checkbox" disabled checked /> |
+SSHKey | <input type="checkbox" disabled checked /> | <input type="checkbox" disabled checked /> |
+WebHooks | <input type="checkbox" disabled checked /> | <input type="checkbox" disabled checked /> |
+DiskImage | <input type="checkbox" disabled checked /> | <input type="checkbox" disabled checked /> |
+Quota | <input type="checkbox" disabled checked /> | <input type="checkbox" disabled checked /> |
+LoadBalancer | <input type="checkbox" disabled checked /> | <input type="checkbox" disabled checked /> |
+ObjectStorage | <input type="checkbox" disabled checked /> | <input type="checkbox" disabled checked /> |
+ObjectStorageCredentials | <input type="checkbox" disabled checked /> | |
+Database | <input type="checkbox" disabled checked /> | |
+DatabaseBackup | <input type="checkbox" disabled checked /> | |
+Kfaas | <input type="checkbox" disabled checked /> | |
+
+
 ## Contributing
 
-If you want to get involved, we'd love to receive a pull request - or an offer to help over our KUBE100 Slack channel. Please see the [contribution guidelines](CONTRIBUTING.md).
+If you want to get involved, we'd love to receive a pull request - or an offer to help over our Slack channel. Please see the [contribution guidelines](CONTRIBUTING.md).
