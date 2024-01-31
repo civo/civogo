@@ -6,26 +6,25 @@ import (
 	"fmt"
 )
 
-// Scheduled represents scheduled backups
-type Scheduled struct {
-	Name     string   `json:"name,omitempty"`
-	Schedule string   `json:"schedule,omitempty"`
-	Count    int32    `json:"count,omitempty"`
-	Backups  []string `json:"backups,omitempty"`
-}
-
-// Manual represents manual backups
-type Manual struct {
-	Backup string `json:"backup,omitempty"`
-}
-
 // DatabaseBackup represents a backup
 type DatabaseBackup struct {
-	DatabaseName string     `json:"database_name"`
-	DatabaseID   string     `json:"database_id"`
-	Software     string     `json:"software"`
-	Scheduled    *Scheduled `json:"scheduled,omitempty"`
-	Manual       []Manual   `json:"manual,omitempty"`
+	ID           string `json:"id,omitempty"`
+	Name         string `json:"name,omitempty"`
+	Software     string `json:"software,omitempty"`
+	Status       string `json:"status,omitempty"`
+	Schedule     string `json:"schedule,omitempty"`
+	DatabaseName string `json:"database_name,omitempty"`
+	DatabaseID   string `json:"database_id,omitempty"`
+	Backup       string `json:"backup,omitempty"`
+	IsScheduled  bool   `json:"is_scheduled,omitempty"`
+}
+
+// PaginatedDatabases is the structure for list response from DB endpoint
+type PaginatedDatabaseBackup struct {
+	Page    int              `json:"page"`
+	PerPage int              `json:"per_page"`
+	Pages   int              `json:"pages"`
+	Items   []DatabaseBackup `json:"items"`
 }
 
 // DatabaseBackupCreateRequest represents a backup create request
@@ -46,13 +45,13 @@ type DatabaseBackupUpdateRequest struct {
 }
 
 // ListDatabaseBackup lists backups for database
-func (c *Client) ListDatabaseBackup(did string) (*DatabaseBackup, error) {
+func (c *Client) ListDatabaseBackup(did string) (*PaginatedDatabaseBackup, error) {
 	resp, err := c.SendGetRequest(fmt.Sprintf("/v2/databases/%s/backups", did))
 	if err != nil {
 		return nil, decodeError(err)
 	}
 
-	back := &DatabaseBackup{}
+	back := &PaginatedDatabaseBackup{}
 	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&back); err != nil {
 		return nil, decodeError(err)
 	}
