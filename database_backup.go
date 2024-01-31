@@ -19,7 +19,7 @@ type DatabaseBackup struct {
 	IsScheduled  bool   `json:"is_scheduled,omitempty"`
 }
 
-// PaginatedDatabases is the structure for list response from DB endpoint
+// PaginatedDatabaseBackup is the structure for list response from DB endpoint
 type PaginatedDatabaseBackup struct {
 	Page    int              `json:"page"`
 	PerPage int              `json:"per_page"`
