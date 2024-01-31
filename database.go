@@ -69,6 +69,7 @@ type SupportedSoftwareVersion struct {
 
 // RestoreDatabaseRequest is the request body for restoring a database
 type RestoreDatabaseRequest struct {
+	Name      string `json:"name"`
 	Software  string `json:"software"`
 	NetworkID string `json:"network_id"`
 	Backup    string `json:"backup"`
