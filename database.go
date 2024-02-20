@@ -29,6 +29,7 @@ type Database struct {
 	Username         string             `json:"username"`
 	Password         string             `json:"password"`
 	DatabaseUserInfo []DatabaseUserInfo `json:"database_user_info"`
+	DNSEntry         string             `json:"dns_entry,omitempty"`
 	Status           string             `json:"status"`
 }
 
