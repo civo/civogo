@@ -88,3 +88,26 @@ func (c *Client) CreateDatabaseBackup(did string, v *DatabaseBackupCreateRequest
 
 	return result, nil
 }
+
+// DeleteDatabaseBackup deletes a particular database backup
+func (c *Client) DeleteDatabaseBackup(did string, backupId string) error {
+	_, err := c.SendDeleteRequest(fmt.Sprintf("/v2/databases/%s/backups/%s/", did, backupId))
+	if err != nil {
+		return decodeError(err)
+	}
+	return nil
+}
+
+// GetDatabaseBackup deletes a particular database backup
+func (c *Client) GetDatabaseBackup(did string, backupId string) (*DatabaseBackup, error) {
+	body, err := c.SendGetRequest(fmt.Sprintf("/v2/databases/%s/backups/%s/", did, backupId))
+	if err != nil {
+		return nil, decodeError(err)
+	}
+	result := &DatabaseBackup{}
+	if err := json.NewDecoder(bytes.NewReader(body)).Decode(result); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
