@@ -184,6 +184,12 @@ type Clienter interface {
 	CreateLoadBalancer(r *LoadBalancerConfig) (*LoadBalancer, error)
 	UpdateLoadBalancer(id string, r *LoadBalancerUpdateConfig) (*LoadBalancer, error)
 	DeleteLoadBalancer(id string) (*SimpleResponse, error)
+
+	// DataBase Backup
+	CreateDatabaseBackup(dbID string, v *DatabaseBackupCreateRequest) (*DatabaseBackup, error)
+	GetDatabaseBackup(dbID string, backupID string) (*DatabaseBackup, error)
+	UpdateDatabaseBackup(dbID string, v *DatabaseBackupUpdateRequest) (*DatabaseBackup, error)
+	ListDatabaseBackup(dbID string) (*PaginatedDatabaseBackup, error)
 }
 
 // NewFakeClient initializes a Client that doesn't attach to a
@@ -1845,5 +1851,68 @@ func (c *FakeClient) AssignIP(id, resourceID, resourceType, region string) (*Sim
 func (c *FakeClient) UnassignIP(id, region string) (*SimpleResponse, error) {
 	return &SimpleResponse{
 		Result: "success",
+	}, nil
+}
+
+func (c *FakeClient) CreateDatabaseBackup(dbID string, v *DatabaseBackupCreateRequest) (*DatabaseBackup, error) {
+	return &DatabaseBackup{
+		ID:           c.generateID(),
+		Name:         v.Name,
+		Software:     "postgresSQL",
+		Status:       "ready",
+		Schedule:     v.Schedule,
+		DatabaseName: "root",
+		DatabaseID:   dbID,
+		Backup:       "",
+		IsScheduled:  false,
+	}, nil
+}
+
+func (c *FakeClient) GetDatabaseBackup(dbID string, backupID string) (*DatabaseBackup, error) {
+	return &DatabaseBackup{
+		ID:           backupID,
+		Name:         "test-db-backup",
+		Software:     "postgresSQL",
+		Status:       "ready",
+		Schedule:     "monthly",
+		DatabaseName: "root",
+		DatabaseID:   dbID,
+		Backup:       "",
+		IsScheduled:  false,
+	}, nil
+}
+
+func (c *FakeClient) UpdateDatabaseBackup(dbID string, v *DatabaseBackupUpdateRequest) (*DatabaseBackup, error) {
+	return &DatabaseBackup{
+		ID:           dbID,
+		Name:         v.Name,
+		Software:     "postgresSQL",
+		Status:       "ready",
+		Schedule:     v.Schedule,
+		DatabaseName: "root",
+		DatabaseID:   dbID,
+		Backup:       "",
+		IsScheduled:  false,
+	}, nil
+}
+
+func (c *FakeClient) ListDatabaseBackup(dbID string) (*PaginatedDatabaseBackup, error) {
+	return &PaginatedDatabaseBackup{
+		Page:    1,
+		PerPage: 20,
+		Pages:   10,
+		Items: []DatabaseBackup{
+			{
+				ID:           c.generateID(),
+				Name:         "test-db-backup",
+				Software:     "postgresSQL",
+				Status:       "ready",
+				Schedule:     "monthly",
+				DatabaseName: "root",
+				DatabaseID:   dbID,
+				Backup:       "",
+				IsScheduled:  false,
+			},
+		},
 	}, nil
 }
