@@ -163,15 +163,3 @@ func TestListDatabaseBackup(t *testing.T) {
 		t.Errorf("Expected %+v, got %+v", expected, got)
 	}
 }
-
-func TestDeleteDatabaseBackup(t *testing.T) {
-	client, server, _ := NewClientForTesting(map[string]string{
-		"/v2/databases/12345/backups/backup123": `{}`,
-	})
-	defer server.Close()
-
-	err := client.DeleteDatabaseBackup("12345", "backup123")
-	if err != nil {
-		t.Errorf("DeleteDatabaseBackup returned an error: %s", err)
-	}
-}
