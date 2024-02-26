@@ -1854,6 +1854,7 @@ func (c *FakeClient) UnassignIP(id, region string) (*SimpleResponse, error) {
 	}, nil
 }
 
+// CreateDatabaseBackup creates a fake db backup
 func (c *FakeClient) CreateDatabaseBackup(dbID string, v *DatabaseBackupCreateRequest) (*DatabaseBackup, error) {
 	return &DatabaseBackup{
 		ID:           c.generateID(),
@@ -1868,6 +1869,7 @@ func (c *FakeClient) CreateDatabaseBackup(dbID string, v *DatabaseBackupCreateRe
 	}, nil
 }
 
+// GetDatabaseBackup gets a fake db backup
 func (c *FakeClient) GetDatabaseBackup(dbID string, backupID string) (*DatabaseBackup, error) {
 	return &DatabaseBackup{
 		ID:           backupID,
@@ -1882,6 +1884,7 @@ func (c *FakeClient) GetDatabaseBackup(dbID string, backupID string) (*DatabaseB
 	}, nil
 }
 
+// UpdateDatabaseBackup updates a fake db backup
 func (c *FakeClient) UpdateDatabaseBackup(dbID string, v *DatabaseBackupUpdateRequest) (*DatabaseBackup, error) {
 	return &DatabaseBackup{
 		ID:           dbID,
@@ -1896,6 +1899,7 @@ func (c *FakeClient) UpdateDatabaseBackup(dbID string, v *DatabaseBackupUpdateRe
 	}, nil
 }
 
+// ListDatabaseBackup lists one fake db backup
 func (c *FakeClient) ListDatabaseBackup(dbID string) (*PaginatedDatabaseBackup, error) {
 	return &PaginatedDatabaseBackup{
 		Page:    1,
