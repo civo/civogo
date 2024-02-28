@@ -112,7 +112,8 @@ func TestCreateLoadBalancer(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/loadbalancers": `{
 			"id": "56dca3ae-ea3f-480f-9b25-abf90b439729",
-			"name": "test-lb",
+			"name": "test-default-lb",
+			"user_given_name": "lb",
 			"network_id": "b064d568-5869-427c-827a-77d48cde6a2e",
 			"algorithm": "round_robin",
 			"backends": [
@@ -142,9 +143,10 @@ func TestCreateLoadBalancer(t *testing.T) {
 	}
 
 	expected := &LoadBalancer{
-		ID:        "56dca3ae-ea3f-480f-9b25-abf90b439729",
-		Name:      "test-lb",
-		Algorithm: "round_robin",
+		ID:            "56dca3ae-ea3f-480f-9b25-abf90b439729",
+		Name:          "test-default-lb",
+		UserGivenName: "lb",
+		Algorithm:     "round_robin",
 		Backends: []LoadBalancerBackend{
 			{
 				IP:         "192.168.1.3",
@@ -172,6 +174,7 @@ func TestUpdateLoadBalancer(t *testing.T) {
 		"/v2/loadbalancers/a1bd123c-b7e2-4d4f-9fda-7940c7e06b38": `{
 			"id": "a1bd123c-b7e2-4d4f-9fda-7940c7e06b38",
 			"name": "test-lb-updated",
+			"user_given_name": "updated",
 			"network_id": "b064d568-5869-427c-827a-77d48cde6a2e",
 			"algorithm": "round_robin",
 			"external_traffic_policy": "Cluster",
@@ -206,6 +209,7 @@ func TestUpdateLoadBalancer(t *testing.T) {
 	expected := &LoadBalancer{
 		ID:                    "a1bd123c-b7e2-4d4f-9fda-7940c7e06b38",
 		Name:                  "test-lb-updated",
+		UserGivenName:         "updated",
 		Algorithm:             "round_robin",
 		ExternalTrafficPolicy: "Cluster",
 		Backends: []LoadBalancerBackend{
@@ -235,6 +239,7 @@ func TestGetLoadBalancer(t *testing.T) {
 		"/v2/loadbalancers/a1bd123c-b7e2-4d4f-9fda-7940c7e06b38": `{
 			"id": "a1bd123c-b7e2-4d4f-9fda-7940c7e06b38",
 			"name": "test-lb-updated",
+			"user_given_name": "updated",
 			"network_id": "b064d568-5869-427c-827a-77d48cde6a2e",
 			"algorithm": "round_robin",
 			"external_traffic_policy": "Cluster",
@@ -266,6 +271,7 @@ func TestGetLoadBalancer(t *testing.T) {
 	expected := &LoadBalancer{
 		ID:                    "a1bd123c-b7e2-4d4f-9fda-7940c7e06b38",
 		Name:                  "test-lb-updated",
+		UserGivenName:         "updated",
 		Algorithm:             "round_robin",
 		ExternalTrafficPolicy: "Cluster",
 		Backends: []LoadBalancerBackend{
