@@ -29,7 +29,7 @@ type LoadBalancerBackendConfig struct {
 type LoadBalancer struct {
 	ID                           string                `json:"id"`
 	Name                         string                `json:"name"`
-	UserGivenName                string                `json:"user_given_name,omitempty"`
+	ServiceName                  string                `json:"service_name,omitempty"`
 	Algorithm                    string                `json:"algorithm"`
 	Backends                     []LoadBalancerBackend `json:"backends"`
 	ExternalTrafficPolicy        string                `json:"external_traffic_policy,omitempty"`
@@ -52,7 +52,7 @@ type LoadBalancer struct {
 type LoadBalancerConfig struct {
 	Region                       string                      `json:"region"`
 	Name                         string                      `json:"name"`
-	UserGivenName                string                      `json:"user_given_name,omitempty"`
+	ServiceName                  string                      `json:"service_name,omitempty"`
 	NetworkID                    string                      `json:"network_id,omitempty"`
 	Algorithm                    string                      `json:"algorithm,omitempty"`
 	Backends                     []LoadBalancerBackendConfig `json:"backends"`
@@ -77,7 +77,7 @@ type LoadBalancerOptions struct {
 type LoadBalancerUpdateConfig struct {
 	Region                       string                      `json:"region"`
 	Name                         string                      `json:"name,omitempty"`
-	UserGivenName                string                      `json:"user_given_name,omitempty"`
+	ServiceName                  string                      `json:"service_name,omitempty"`
 	Algorithm                    string                      `json:"algorithm,omitempty"`
 	Backends                     []LoadBalancerBackendConfig `json:"backends,omitempty"`
 	ExternalTrafficPolicy        string                      `json:"external_traffic_policy,omitempty"`
