@@ -33,6 +33,7 @@ type FakeClient struct {
 	OrganisationTeamMembers map[string][]TeamMember
 	LoadBalancers           []LoadBalancer
 	Pools                   []KubernetesPool
+	PingErr                 error
 	// Snapshots            []Snapshot
 	// Templates            []Template
 }
@@ -184,6 +185,9 @@ type Clienter interface {
 	CreateLoadBalancer(r *LoadBalancerConfig) (*LoadBalancer, error)
 	UpdateLoadBalancer(id string, r *LoadBalancerUpdateConfig) (*LoadBalancer, error)
 	DeleteLoadBalancer(id string) (*SimpleResponse, error)
+
+	// Ping
+	Ping() error
 }
 
 // NewFakeClient initializes a Client that doesn't attach to a
@@ -260,6 +264,14 @@ func NewFakeClient() (*FakeClient, error) {
 			},
 		},
 	}, nil
+}
+
+// Ping implemented in a fake way for automated tests
+func (c *FakeClient) Ping() error {
+	if c.PingErr != nil {
+		return c.PingErr
+	}
+	return nil
 }
 
 func (c *FakeClient) generateID() string {
