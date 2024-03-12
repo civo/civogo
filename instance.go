@@ -174,7 +174,7 @@ func (c *Client) NewInstanceConfig() (*InstanceConfig, error) {
 		return nil, decodeError(err)
 	}
 
-	diskimage, err := c.GetDiskImageByName("ubuntu-focal")
+	diskimage, err := c.GetMostRecentDistro("ubuntu")
 	if err != nil {
 		return nil, decodeError(err)
 	}
