@@ -106,7 +106,7 @@ func (c *Client) DeleteDatabaseBackup(dbid, id string) (*SimpleResponse, error) 
 	return c.DecodeSimpleResponse(resp)
 }
 
-// GetDatabase finds a database by the database UUID
+// GetDatabaseBackup finds a database by the database UUID
 func (c *Client) GetDatabaseBackup(dbid, id string) (*DatabaseBackup, error) {
 	resp, err := c.SendGetRequest(fmt.Sprintf("/v2/databases/%s/backups/%s", dbid, id))
 	if err != nil {
@@ -121,7 +121,7 @@ func (c *Client) GetDatabaseBackup(dbid, id string) (*DatabaseBackup, error) {
 	return bk, nil
 }
 
-// FindDatabase finds a database by either part of the ID or part of the name
+// FindDatabaseBackup finds a database by either part of the ID or part of the name
 func (c *Client) FindDatabaseBackup(dbid, search string) (*DatabaseBackup, error) {
 	backups, err := c.ListDatabaseBackup(dbid)
 	if err != nil {
