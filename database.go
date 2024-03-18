@@ -70,12 +70,11 @@ type SupportedSoftwareVersion struct {
 
 // RestoreDatabaseRequest is the request body for restoring a database
 type RestoreDatabaseRequest struct {
-	// Name is the name of the database restore
-	Name string `json:"name"`
-	// Backup is the name of the database backup
-	Backup string `json:"backup"`
-	// Region is the name of the region
-	Region string `json:"region"`
+	Name      string `json:"name"`
+	Software  string `json:"software"`
+	NetworkID string `json:"network_id"`
+	Backup    string `json:"backup"`
+	Region    string `json:"region"`
 }
 
 // ListDatabases returns a list of all databases
