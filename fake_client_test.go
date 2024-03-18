@@ -1,6 +1,7 @@
 package civogo
 
 import (
+	"errors"
 	"testing"
 
 	. "github.com/onsi/gomega"
@@ -256,4 +257,30 @@ func TestKubernetesClustersPools(t *testing.T) {
 	pool, err = client.UpdateKubernetesClusterPool("9c89d8b9-463d-45f2-8928-455eb3f3726", "33de5de2-14fd-44ba-a621-f6efbeeb9639", &pc)
 	g.Expect(err).To(BeNil())
 	g.Expect(pool.Count).To(Equal(4))
+}
+
+func TestPing(t *testing.T) {
+	// Create a new FakeClient with a non-nil PingErr
+	client := &FakeClient{
+		PingErr: errors.New("ping error"),
+	}
+
+	// Call the Ping method
+	err := client.Ping()
+
+	// Check if the error returned by Ping is the same as the one we set
+	if err == nil || err.Error() != "ping error" {
+		t.Errorf("Expected 'ping error', got '%v'", err)
+	}
+
+	// Reset PingErr to nil
+	client.PingErr = nil
+
+	// Call the Ping method again
+	err = client.Ping()
+
+	// Check if the error is nil this time
+	if err != nil {
+		t.Errorf("Expected nil, got '%v'", err)
+	}
 }

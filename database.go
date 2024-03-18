@@ -29,6 +29,7 @@ type Database struct {
 	Username         string             `json:"username"`
 	Password         string             `json:"password"`
 	DatabaseUserInfo []DatabaseUserInfo `json:"database_user_info"`
+	DNSEntry         string             `json:"dns_entry,omitempty"`
 	Status           string             `json:"status"`
 }
 
@@ -69,10 +70,12 @@ type SupportedSoftwareVersion struct {
 
 // RestoreDatabaseRequest is the request body for restoring a database
 type RestoreDatabaseRequest struct {
-	Software  string `json:"software"`
-	NetworkID string `json:"network_id"`
-	Backup    string `json:"backup"`
-	Region    string `json:"region"`
+	// Name is the name of the database restore
+	Name string `json:"name"`
+	// Backup is the name of the database backup
+	Backup string `json:"backup"`
+	// Region is the name of the region
+	Region string `json:"region"`
 }
 
 // ListDatabases returns a list of all databases
