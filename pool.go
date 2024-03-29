@@ -4,9 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"strings"
-
 	corev1 "k8s.io/api/core/v1"
+	"strings"
 )
 
 // KubernetesClusterPoolUpdateConfig is used to create a new cluster pool

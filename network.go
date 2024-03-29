@@ -10,17 +10,18 @@ import (
 
 // Network represents a private network for instances to connect to
 type Network struct {
-	ID            string   `json:"id"`
-	Name          string   `json:"name,omitempty"`
-	Default       bool     `json:"default"`
-	CIDR          string   `json:"cidr,omitempty"`
-	CIDRV6        string   `json:"cidr_v6,omitempty"`
-	Label         string   `json:"label,omitempty"`
-	Status        string   `json:"status,omitempty"`
-	IPv4Enabled   bool     `json:"ipv4_enabled,omitempty"`
-	IPv6Enabled   bool     `json:"ipv6_enabled,omitempty"`
-	NameserversV4 []string `json:"nameservers_v4,omitempty"`
-	NameserversV6 []string `json:"nameservers_v6,omitempty"`
+	ID            string            `json:"id"`
+	Name          string            `json:"name,omitempty"`
+	Default       bool              `json:"default"`
+	CIDR          string            `json:"cidr,omitempty"`
+	CIDRV6        string            `json:"cidr_v6,omitempty"`
+	Label         string            `json:"label,omitempty"`
+	Status        string            `json:"status,omitempty"`
+	IPv4Enabled   bool              `json:"ipv4_enabled,omitempty"`
+	IPv6Enabled   bool              `json:"ipv6_enabled,omitempty"`
+	NameserversV4 []string          `json:"nameservers_v4,omitempty"`
+	NameserversV6 []string          `json:"nameservers_v6,omitempty"`
+	VLAN          VLANConnectConfig `json:"vlan,omitempty"`
 }
 
 // Subnet represents a subnet within a private network
@@ -52,16 +53,38 @@ type CreateRoute struct {
 	ResourceType string `json:"resource_type"`
 }
 
+// VLANConnectConfig represents the connection of a network to a VLAN
+type VLANConnectConfig struct {
+	// VLanID is the ID of the VLAN to connect to
+	VlanID int `json:"vlan_id" validate:"required" schema:"vlan_id"`
+
+	// HardwareAddr is the base interface(default: eth0) at which we want to setup VLAN.
+	HardwareAddr string `json:"hardware_addr,omitempty" schema:"hardware_addr"`
+
+	// CIDRv4 is the CIDR of the VLAN to connect to
+	CIDRv4 string `json:"cidr_v4" validate:"required" schema:"cidr_v4"`
+
+	// GatewayIP is the gateway IP address
+	GatewayIPv4 string `json:"gateway_ipv4" validate:"required" schema:"gateway_ipv4"`
+
+	// AllocationPoolV4Start address of the allocation pool
+	AllocationPoolV4Start string `json:"allocation_pool_v4_start" validate:"required" schema:"allocation_pool_v4_start"`
+
+	// AllocationPoolV4End address of the allocation pool
+	AllocationPoolV4End string `json:"allocation_pool_v4_end" validate:"required" schema:"allocation_pool_v4_end"`
+}
+
 // NetworkConfig contains incoming request parameters for the network object
 type NetworkConfig struct {
-	Label         string   `json:"label" validate:"required" schema:"label"`
-	Default       string   `json:"default" schema:"default"`
-	IPv4Enabled   *bool    `json:"ipv4_enabled"`
-	NameserversV4 []string `json:"nameservers_v4"`
-	CIDRv4        string   `json:"cidr_v4"`
-	IPv6Enabled   *bool    `json:"ipv6_enabled"`
-	NameserversV6 []string `json:"nameservers_v6"`
-	Region        string   `json:"region"`
+	Label         string             `json:"label" validate:"required" schema:"label"`
+	Default       string             `json:"default" schema:"default"`
+	IPv4Enabled   *bool              `json:"ipv4_enabled"`
+	NameserversV4 []string           `json:"nameservers_v4"`
+	CIDRv4        string             `json:"cidr_v4"`
+	IPv6Enabled   *bool              `json:"ipv6_enabled"`
+	NameserversV6 []string           `json:"nameservers_v6"`
+	Region        string             `json:"region"`
+	VLanConfig    *VLANConnectConfig `json:"vlan_connect,omitempty"`
 }
 
 // NetworkResult represents the result from a network create/update call

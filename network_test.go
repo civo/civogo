@@ -70,6 +70,85 @@ func TestNewNetwork(t *testing.T) {
 	}
 }
 
+func TestCreateNetwork(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/networks": `{
+			"id": "41e4b4f5-5be0-4ac1-8c62-7e58f14f9155",
+			"result": "success",
+			"label": "private-net"
+		}`,
+	})
+	defer server.Close()
+
+	configs := NetworkConfig{
+		Label: "private-net",
+	}
+	got, err := client.CreateNetwork(configs)
+	if err != nil {
+		t.Errorf("Request returned an error: %s", err)
+		return
+	}
+
+	expected := &NetworkResult{
+		ID:     "41e4b4f5-5be0-4ac1-8c62-7e58f14f9155",
+		Label:  "private-net",
+		Result: "success",
+	}
+
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Expected %+v, got %+v", expected, got)
+	}
+}
+
+func TestCreateNetworkWithVLAN(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/networks": `{
+			"id": "76cc107f-fbef-4e2b-b97f-f5d34f4075d3",
+			"label": "private-net",
+			"result": "success",
+			"vlan_connect": {
+				"vlan_id": 1,
+				"hardware_addr": "ETH0",
+				"cidr_v4": "10.0.0.0/24",
+				"gateway_ipv4": "10.0.0.4",
+				"allocation_pool_v4_start": "10.0.0.0",
+				"allocation_pool_v4_end": "10.0.0.11"
+			}
+		}`,
+	})
+	defer server.Close()
+
+	vlanConnectConfig := VLANConnectConfig{
+		VlanID:                1,
+		HardwareAddr:          "ETH0",
+		CIDRv4:                "10.0.0.0/24",
+		GatewayIPv4:           "10.0.0.4",
+		AllocationPoolV4Start: "10.0.0.0",
+		AllocationPoolV4End:   "10.0.0.11",
+	}
+
+	nc := NetworkConfig{
+		Label:      "private-net",
+		VLanConfig: &vlanConnectConfig,
+	}
+
+	got, err := client.CreateNetwork(nc)
+	if err != nil {
+		t.Errorf("Request returned an error: %s", err)
+		return
+	}
+
+	expected := &NetworkResult{
+		ID:     "76cc107f-fbef-4e2b-b97f-f5d34f4075d3",
+		Label:  "private-net",
+		Result: "success",
+	}
+
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Expected %+v, got %+v", expected, got)
+	}
+}
+
 func TestListNetworks(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/networks": `[{
