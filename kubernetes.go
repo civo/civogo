@@ -149,13 +149,13 @@ type KubernetesClusterConfig struct {
 
 // KubernetesClusterPoolConfig is used to create a new cluster pool
 type KubernetesClusterPoolConfig struct {
-	Region           string            `json:"region,omitempty"`
-	ID               string            `json:"id,omitempty"`
-	Count            int               `json:"count,omitempty"`
-	Size             string            `json:"size,omitempty"`
-	Labels           map[string]string `json:"labels,omitempty"`
-	Taints           []corev1.Taint    `json:"taints"`
-	PublicIPNodePool bool              `json:"public_ip_node_pool,omitempty"`
+	Region string `json:"region,omitempty"`
+	ID     string `json:"id,omitempty"`
+	Count  int    `json:"count,omitempty"`
+	Size   string `json:"size,omitempty"`
+	//Labels map[string]string `json:"labels,omitempty"`
+	//Taints           []corev1.Taint `json:"taints"`
+	PublicIPNodePool bool `json:"public_ip_node_pool,omitempty"`
 }
 
 // KubernetesPlanConfiguration is a value within a configuration for

@@ -114,6 +114,7 @@ type Clienter interface {
 	// Networks
 	GetDefaultNetwork() (*Network, error)
 	NewNetwork(label string) (*NetworkResult, error)
+	CreateNetwork(configs NetworkConfig) (*NetworkResult, error)
 	ListNetworks() ([]Network, error)
 	FindNetwork(search string) (*Network, error)
 	RenameNetwork(label, id string) (*NetworkResult, error)
@@ -905,6 +906,41 @@ func (c *FakeClient) NewNetwork(label string) (*NetworkResult, error) {
 		Result: "success",
 	}, nil
 
+}
+
+// CreateNetwork creates a new network within the FakeClient, including VLAN configurations
+func (c *FakeClient) CreateNetwork(config NetworkConfig) (*NetworkResult, error) {
+	networkID := c.generateID()
+
+	// Prepare the new Network object
+	newNetwork := Network{
+		ID:          networkID,
+		Name:        config.Label, // Assuming Name maps to Label in NetworkConfig
+		Default:     config.Default == "true",
+		CIDR:        config.CIDRv4,
+		Label:       config.Label,
+		IPv4Enabled: config.IPv4Enabled != nil && *config.IPv4Enabled,
+	}
+
+	// Handle VLAN configuration if present
+	if config.VLanConfig != nil {
+		newNetwork.VLAN.VlanID = config.VLanConfig.VlanID
+		newNetwork.VLAN.HardwareAddr = config.VLanConfig.HardwareAddr
+		newNetwork.VLAN.CIDRv4 = config.VLanConfig.CIDRv4
+		newNetwork.VLAN.GatewayIPv4 = config.VLanConfig.GatewayIPv4
+		newNetwork.VLAN.AllocationPoolV4Start = config.VLanConfig.AllocationPoolV4Start
+		newNetwork.VLAN.AllocationPoolV4Start = config.VLanConfig.AllocationPoolV4End
+	}
+
+	// Append the newly created network to the networks slice
+	c.Networks = append(c.Networks, newNetwork)
+
+	// Return a success result
+	return &NetworkResult{
+		ID:     networkID,
+		Label:  config.Label,
+		Result: "success",
+	}, nil
 }
 
 // ListNetworks implemented in a fake way for automated tests
