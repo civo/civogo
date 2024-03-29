@@ -915,7 +915,7 @@ func (c *FakeClient) CreateNetwork(config NetworkConfig) (*NetworkResult, error)
 	// Prepare the new Network object
 	newNetwork := Network{
 		ID:          networkID,
-		Name:        config.Label, // Assuming Name maps to Label in NetworkConfig
+		Name:        config.Label,
 		Default:     config.Default == "true",
 		CIDR:        config.CIDRv4,
 		Label:       config.Label,
