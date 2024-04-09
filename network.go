@@ -10,18 +10,23 @@ import (
 
 // Network represents a private network for instances to connect to
 type Network struct {
-	ID            string            `json:"id"`
-	Name          string            `json:"name,omitempty"`
-	Default       bool              `json:"default"`
-	CIDR          string            `json:"cidr,omitempty"`
-	CIDRV6        string            `json:"cidr_v6,omitempty"`
-	Label         string            `json:"label,omitempty"`
-	Status        string            `json:"status,omitempty"`
-	IPv4Enabled   bool              `json:"ipv4_enabled,omitempty"`
-	IPv6Enabled   bool              `json:"ipv6_enabled,omitempty"`
-	NameserversV4 []string          `json:"nameservers_v4,omitempty"`
-	NameserversV6 []string          `json:"nameservers_v6,omitempty"`
-	VLAN          VLANConnectConfig `json:"vlan,omitempty"`
+	ID                    string   `json:"id"`
+	Name                  string   `json:"name,omitempty"`
+	Default               bool     `json:"default"`
+	CIDR                  string   `json:"cidr,omitempty"`
+	CIDRV6                string   `json:"cidr_v6,omitempty"`
+	Label                 string   `json:"label,omitempty"`
+	Status                string   `json:"status,omitempty"`
+	IPv4Enabled           bool     `json:"ipv4_enabled,omitempty"`
+	IPv6Enabled           bool     `json:"ipv6_enabled,omitempty"`
+	NameserversV4         []string `json:"nameservers_v4,omitempty"`
+	NameserversV6         []string `json:"nameservers_v6,omitempty"`
+	VlanID                int      `json:"vlan_id" validate:"required" schema:"vlan_id"`
+	HardwareAddr          string   `json:"hardware_addr,omitempty" schema:"hardware_addr"`
+	CIDRv4                string   `json:"cidr_v4" validate:"required" schema:"cidr_v4"`
+	GatewayIPv4           string   `json:"gateway_ipv4" validate:"required" schema:"gateway_ipv4"`
+	AllocationPoolV4Start string   `json:"allocation_pool_v4_start" validate:"required" schema:"allocation_pool_v4_start"`
+	AllocationPoolV4End   string   `json:"allocation_pool_v4_end" validate:"required" schema:"allocation_pool_v4_end"`
 }
 
 // Subnet represents a subnet within a private network
