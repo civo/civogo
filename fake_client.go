@@ -924,12 +924,11 @@ func (c *FakeClient) CreateNetwork(config NetworkConfig) (*NetworkResult, error)
 
 	// Handle VLAN configuration if present
 	if config.VLanConfig != nil {
-		newNetwork.VLAN.VlanID = config.VLanConfig.VlanID
-		newNetwork.VLAN.HardwareAddr = config.VLanConfig.HardwareAddr
-		newNetwork.VLAN.CIDRv4 = config.VLanConfig.CIDRv4
-		newNetwork.VLAN.GatewayIPv4 = config.VLanConfig.GatewayIPv4
-		newNetwork.VLAN.AllocationPoolV4Start = config.VLanConfig.AllocationPoolV4Start
-		newNetwork.VLAN.AllocationPoolV4Start = config.VLanConfig.AllocationPoolV4End
+		newNetwork.VlanID = config.VLanConfig.VlanID
+		newNetwork.HardwareAddr = config.VLanConfig.HardwareAddr
+		newNetwork.GatewayIPv4 = config.VLanConfig.GatewayIPv4
+		newNetwork.AllocationPoolV4Start = config.VLanConfig.AllocationPoolV4Start
+		newNetwork.AllocationPoolV4Start = config.VLanConfig.AllocationPoolV4End
 	}
 
 	// Append the newly created network to the networks slice
