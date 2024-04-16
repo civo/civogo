@@ -80,6 +80,7 @@ type InstanceConfig struct {
 	Size             string   `json:"size"`
 	Region           string   `json:"region"`
 	PublicIPRequired string   `json:"public_ip"`
+	ReservedIPv4     string   `json:"reserved_ipv4"`
 	NetworkID        string   `json:"network_id"`
 	TemplateID       string   `json:"template_id"`
 	SourceType       string   `json:"source_type"`
