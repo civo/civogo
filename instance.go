@@ -81,6 +81,7 @@ type InstanceConfig struct {
 	Region           string   `json:"region"`
 	PublicIPRequired string   `json:"public_ip"`
 	ReservedIPv4     string   `json:"reserved_ipv4"`
+	PrivateIPv4      string   `json:"private_ipv4"`
 	NetworkID        string   `json:"network_id"`
 	TemplateID       string   `json:"template_id"`
 	SourceType       string   `json:"source_type"`
