@@ -925,7 +925,7 @@ func (c *FakeClient) CreateNetwork(config NetworkConfig) (*NetworkResult, error)
 	// Handle VLAN configuration if present
 	if config.VLanConfig != nil {
 		newNetwork.VlanID = config.VLanConfig.VlanID
-		newNetwork.HardwareAddr = config.VLanConfig.HardwareAddr
+		newNetwork.PhysicalInterface = config.VLanConfig.PhysicalInterface
 		newNetwork.GatewayIPv4 = config.VLanConfig.GatewayIPv4
 		newNetwork.AllocationPoolV4Start = config.VLanConfig.AllocationPoolV4Start
 		newNetwork.AllocationPoolV4Start = config.VLanConfig.AllocationPoolV4End
