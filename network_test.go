@@ -120,7 +120,7 @@ func TestCreateNetworkWithVLAN(t *testing.T) {
 
 	vlanConnectConfig := VLANConnectConfig{
 		VlanID:                1,
-		HardwareAddr:          "ETH0",
+		PhysicalInterface:     "ETH0",
 		CIDRv4:                "10.0.0.0/24",
 		GatewayIPv4:           "10.0.0.4",
 		AllocationPoolV4Start: "10.0.0.0",
