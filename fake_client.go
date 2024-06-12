@@ -125,6 +125,8 @@ type Clienter interface {
 
 	// Regions
 	ListRegions() ([]Region, error)
+	FindRegion(search string) (*Region, error)
+	GetDefaultRegion() (*Region, error)
 
 	// Snapshots
 	// CreateSnapshot(name string, r *SnapshotConfig) (*Snapshot, error)
@@ -1003,6 +1005,40 @@ func (c *FakeClient) ListRegions() ([]Region, error) {
 			Default: true,
 		},
 	}, nil
+}
+
+// FindRegion implemented in a fake way for automated tests
+func (c *FakeClient) FindRegion(search string) (*Region, error) {
+	regions, err := c.ListRegions()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, region := range regions {
+		if strings.Contains(region.Name, search) {
+			return &region, nil
+		}
+	}
+
+	err = fmt.Errorf("unable to find region %s, zero matches", search)
+	return nil, ZeroMatchesError.wrap(err)
+}
+
+// GetDefaultRegion implemented in a fake way for automated tests
+func (c *FakeClient) GetDefaultRegion() (*Region, error) {
+	regions, err := c.ListRegions()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, region := range regions {
+		if region.Default {
+			return &region, nil
+		}
+	}
+
+	err = fmt.Errorf("unable to find default region, zero matches")
+	return nil, ZeroMatchesError.wrap(err)
 }
 
 // CreateSnapshot implemented in a fake way for automated tests
