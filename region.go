@@ -46,6 +46,16 @@ type CreateRegionRequest struct {
 	Features                 map[string]bool `json:"features" `
 }
 
+// DisconnectRegionRequest is the request to disconnect a region
+type DisconnectRegionRequest struct {
+	Code string `json:"code"`
+}
+
+// ConnectRegionRequest is the request to connect a region
+type ConnectRegionRequest struct {
+	Code string `json:"code"`
+}
+
 // ListRegions returns all load balancers owned by the calling API account
 func (c *Client) ListRegions() ([]Region, error) {
 	resp, err := c.SendGetRequest("/v2/regions")
@@ -128,4 +138,22 @@ func (c *Client) CreateRegion(r *CreateRegionRequest) (*Region, error) {
 	}
 
 	return &region, nil
+}
+
+// ConnectRegion connects a region to CivoAPI
+func (c *Client) ConnectRegion(r *ConnectRegionRequest) error {
+	_, err := c.SendPostRequest("/v2/regions/connect", r)
+	if err != nil {
+		return decodeError(err)
+	}
+	return nil
+}
+
+// DisconnectRegion disconnects a region to CivoAPI
+func (c *Client) DisconnectRegion(r *DisconnectRegionRequest) error {
+	_, err := c.SendPostRequest("/v2/regions/disconnect", r)
+	if err != nil {
+		return decodeError(err)
+	}
+	return nil
 }

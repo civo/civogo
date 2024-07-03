@@ -97,3 +97,35 @@ func TestCreateRegion(t *testing.T) {
 	}
 
 }
+
+func TestConnectRegion(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/regions/connect": `{code: "TEST1"}`,
+	})
+	defer server.Close()
+
+	connectRegionRequest := &ConnectRegionRequest{
+		Code: "TEST1",
+	}
+
+	err := client.ConnectRegion(connectRegionRequest)
+	if err != nil {
+		t.Errorf("Request returned an error: %s", err)
+	}
+}
+
+func TestDisconnectRegion(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/regions/disconnect": `{code: "TEST1"}`,
+	})
+	defer server.Close()
+
+	disconnectRegionRequest := &DisconnectRegionRequest{
+		Code: "TEST1",
+	}
+
+	err := client.DisconnectRegion(disconnectRegionRequest)
+	if err != nil {
+		t.Errorf("Request returned an error: %s", err)
+	}
+}
