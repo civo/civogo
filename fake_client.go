@@ -126,6 +126,8 @@ type Clienter interface {
 	// Regions
 	ListRegions() ([]Region, error)
 	CreateRegion(r *CreateRegionRequest) (*Region, error)
+	ConnectRegion(r *ConnectRegionRequest) error
+	DisconnectRegion(r *DisconnectRegionRequest) error
 
 	// Snapshots
 	// CreateSnapshot(name string, r *SnapshotConfig) (*Snapshot, error)
@@ -1015,6 +1017,16 @@ func (c *FakeClient) CreateRegion(r *CreateRegionRequest) (*Region, error) {
 		Country:       r.CountryISOCode,
 	}
 	return &region, nil
+}
+
+// ConnectRegion implemented in a fake way for automated tests
+func (c *FakeClient) ConnectRegion(r *ConnectRegionRequest) error {
+	return nil
+}
+
+// DisconnectRegion implemented in a fake way for automated tests
+func (c *FakeClient) DisconnectRegion(r *DisconnectRegionRequest) error {
+	return nil
 }
 
 // CreateSnapshot implemented in a fake way for automated tests
