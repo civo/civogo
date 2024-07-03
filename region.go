@@ -33,6 +33,19 @@ type Feature struct {
 	PublicIPNodePools bool `json:"public_ip_node_pools"`
 }
 
+// CreateRegionRequest is the request to create a new region
+type CreateRegionRequest struct {
+	Code           string   `json:"code"`
+	CountryISOCode string   `json:"country_iso_code" `
+	Private        bool     `json:"private,omitempty"`
+	AccountIDs     []string `json:"account_ids,omitempty"`
+	// Kubeconfig should be a base64 encoded kubeconfig content
+	Kubeconfig string `json:"kubeconfig"`
+	// ComputeSoftDeletionHours can only be configured for private regions.
+	ComputeSoftDeletionHours *int            `json:"compute_soft_deletion_hours" `
+	Features                 map[string]bool `json:"features" `
+}
+
 // ListRegions returns all load balancers owned by the calling API account
 func (c *Client) ListRegions() ([]Region, error) {
 	resp, err := c.SendGetRequest("/v2/regions")
@@ -100,4 +113,19 @@ func (c *Client) GetDefaultRegion() (*Region, error) {
 	}
 
 	return nil, errors.New("no default region found")
+}
+
+// CreateRegion is a function to create a region
+func (c *Client) CreateRegion(r *CreateRegionRequest) (*Region, error) {
+	resp, err := c.SendPostRequest("/v2/regions", r)
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	region := Region{}
+	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&region); err != nil {
+		return nil, err
+	}
+
+	return &region, nil
 }
