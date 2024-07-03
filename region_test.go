@@ -41,3 +41,59 @@ func TestFindRegions(t *testing.T) {
 		t.Errorf("Expected %s, got %s", "New York 1", got.Name)
 	}
 }
+
+func TestCreateRegion(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/regions": `{
+			"code": "TEST1",
+			"country_iso_code": "US",
+			"private": false,
+			"account_ids": [],
+			"kubeconfig": "",
+			"compute_soft_deletion_hours": 24,
+			"features": {
+				"iaas": true,
+				"kubernetes": true,
+				"object_store": false,
+				"loadbalancer": false,
+				"dbaas": false,
+				"volume": true,
+				"paas": false,
+				"kfaas": false,
+				"public_ip_node_pools": false
+			}
+		}`,
+	})
+	defer server.Close()
+
+	createRegionRequest := &CreateRegionRequest{
+		Code:           "TEST1",
+		CountryISOCode: "US",
+		Private:        false,
+		AccountIDs:     []string{},
+		Kubeconfig:     "",
+		// ComputeSoftDeletionHours: utils.IntPtr(24),
+		Features: map[string]bool{
+			"iaas":                 true,
+			"kubernetes":           true,
+			"object_store":         false,
+			"loadbalancer":         false,
+			"dbaas":                false,
+			"volume":               true,
+			"paas":                 false,
+			"kfaas":                false,
+			"public_ip_node_pools": false,
+		},
+	}
+
+	got, err := client.CreateRegion(createRegionRequest)
+	if err != nil {
+		t.Errorf("Request returned an error: %s", err)
+		return
+	}
+
+	if got.Code != "TEST1" {
+		t.Errorf("Expected %s, got %s", "TEST1", got.Code)
+	}
+
+}

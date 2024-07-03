@@ -125,6 +125,7 @@ type Clienter interface {
 
 	// Regions
 	ListRegions() ([]Region, error)
+	CreateRegion(r *CreateRegionRequest) (*Region, error)
 
 	// Snapshots
 	// CreateSnapshot(name string, r *SnapshotConfig) (*Snapshot, error)
@@ -1003,6 +1004,17 @@ func (c *FakeClient) ListRegions() ([]Region, error) {
 			Default: true,
 		},
 	}, nil
+}
+
+// CreateRegion implemented in a fake way for automated tests
+func (c *FakeClient) CreateRegion(r *CreateRegionRequest) (*Region, error) {
+	region := Region{
+		Code:          r.Code,
+		Name:          r.Code,
+		OutOfCapacity: false,
+		Country:       r.CountryISOCode,
+	}
+	return &region, nil
 }
 
 // CreateSnapshot implemented in a fake way for automated tests
