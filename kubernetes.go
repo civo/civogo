@@ -144,6 +144,7 @@ type KubernetesClusterConfig struct {
 	Applications      string                        `json:"applications,omitempty"`
 	InstanceFirewall  string                        `json:"instance_firewall,omitempty"`
 	FirewallRule      string                        `json:"firewall_rule,omitempty"`
+	FirewallID        string                        `json:"firewall_id,omitempty"`
 	CNIPlugin         string                        `json:"cni_plugin,omitempty"`
 }
 
