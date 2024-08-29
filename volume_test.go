@@ -195,7 +195,10 @@ func TestAttachVolumes(t *testing.T) {
 		"/v2/volumes/12346/attach": `{"result": "success"}`,
 	})
 	defer server.Close()
-	got, err := client.AttachVolume("12346", "123456")
+	cfg := VolumeAttachConfig{
+		InstanceID: "123456",
+	}
+	got, err := client.AttachVolume("12346", cfg)
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return

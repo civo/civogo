@@ -12,47 +12,48 @@ import (
 
 // Instance represents a virtual server within Civo's infrastructure
 type Instance struct {
-	ID                       string    `json:"id,omitempty"`
-	OpenstackServerID        string    `json:"openstack_server_id,omitempty"`
-	Hostname                 string    `json:"hostname,omitempty"`
-	ReverseDNS               string    `json:"reverse_dns,omitempty"`
-	Size                     string    `json:"size,omitempty"`
-	Region                   string    `json:"region,omitempty"`
-	NetworkID                string    `json:"network_id,omitempty"`
-	PrivateIP                string    `json:"private_ip,omitempty"`
-	PublicIP                 string    `json:"public_ip,omitempty"`
-	IPv6                     string    `json:"ipv6,omitempty"`
-	PseudoIP                 string    `json:"pseudo_ip,omitempty"`
-	TemplateID               string    `json:"template_id,omitempty"`
-	SourceType               string    `json:"source_type,omitempty"`
-	SourceID                 string    `json:"source_id,omitempty"`
-	SnapshotID               string    `json:"snapshot_id,omitempty"`
-	InitialUser              string    `json:"initial_user,omitempty"`
-	InitialPassword          string    `json:"initial_password,omitempty"`
-	SSHKey                   string    `json:"ssh_key,omitempty"`
-	SSHKeyID                 string    `json:"ssh_key_id,omitempty"`
-	Status                   string    `json:"status,omitempty"`
-	Notes                    string    `json:"notes,omitempty"`
-	FirewallID               string    `json:"firewall_id,omitempty"`
-	Tags                     []string  `json:"tags,omitempty"`
-	CivostatsdToken          string    `json:"civostatsd_token,omitempty"`
-	CivostatsdStats          string    `json:"civostatsd_stats,omitempty"`
-	CivostatsdStatsPerMinute []string  `json:"civostatsd_stats_per_minute,omitempty"`
-	CivostatsdStatsPerHour   []string  `json:"civostatsd_stats_per_hour,omitempty"`
-	OpenstackImageID         string    `json:"openstack_image_id,omitempty"`
-	RescuePassword           string    `json:"rescue_password,omitempty"`
-	VolumeBacked             bool      `json:"volume_backed,omitempty"`
-	CPUCores                 int       `json:"cpu_cores,omitempty"`
-	RAMMegabytes             int       `json:"ram_mb,omitempty"`
-	DiskGigabytes            int       `json:"disk_gb,omitempty"`
-	GPUCount                 int       `json:"gpu_count,omitempty"`
-	GPUType                  string    `json:"gpu_type,omitempty"`
-	Script                   string    `json:"script,omitempty"`
-	CreatedAt                time.Time `json:"created_at,omitempty"`
-	ReservedIPID             string    `json:"reserved_ip_id,omitempty"`
-	ReservedIPName           string    `json:"reserved_ip_name,omitempty"`
-	ReservedIP               string    `json:"reserved_ip,omitempty"`
-	Subnets                  []Subnet  `json:"subnets,omitempty"`
+	ID                       string           `json:"id,omitempty"`
+	OpenstackServerID        string           `json:"openstack_server_id,omitempty"`
+	Hostname                 string           `json:"hostname,omitempty"`
+	ReverseDNS               string           `json:"reverse_dns,omitempty"`
+	Size                     string           `json:"size,omitempty"`
+	Region                   string           `json:"region,omitempty"`
+	NetworkID                string           `json:"network_id,omitempty"`
+	PrivateIP                string           `json:"private_ip,omitempty"`
+	PublicIP                 string           `json:"public_ip,omitempty"`
+	IPv6                     string           `json:"ipv6,omitempty"`
+	PseudoIP                 string           `json:"pseudo_ip,omitempty"`
+	TemplateID               string           `json:"template_id,omitempty"`
+	SourceType               string           `json:"source_type,omitempty"`
+	SourceID                 string           `json:"source_id,omitempty"`
+	SnapshotID               string           `json:"snapshot_id,omitempty"`
+	InitialUser              string           `json:"initial_user,omitempty"`
+	InitialPassword          string           `json:"initial_password,omitempty"`
+	SSHKey                   string           `json:"ssh_key,omitempty"`
+	SSHKeyID                 string           `json:"ssh_key_id,omitempty"`
+	Status                   string           `json:"status,omitempty"`
+	Notes                    string           `json:"notes,omitempty"`
+	FirewallID               string           `json:"firewall_id,omitempty"`
+	Tags                     []string         `json:"tags,omitempty"`
+	CivostatsdToken          string           `json:"civostatsd_token,omitempty"`
+	CivostatsdStats          string           `json:"civostatsd_stats,omitempty"`
+	CivostatsdStatsPerMinute []string         `json:"civostatsd_stats_per_minute,omitempty"`
+	CivostatsdStatsPerHour   []string         `json:"civostatsd_stats_per_hour,omitempty"`
+	OpenstackImageID         string           `json:"openstack_image_id,omitempty"`
+	RescuePassword           string           `json:"rescue_password,omitempty"`
+	VolumeBacked             bool             `json:"volume_backed,omitempty"`
+	CPUCores                 int              `json:"cpu_cores,omitempty"`
+	RAMMegabytes             int              `json:"ram_mb,omitempty"`
+	DiskGigabytes            int              `json:"disk_gb,omitempty"`
+	GPUCount                 int              `json:"gpu_count,omitempty"`
+	GPUType                  string           `json:"gpu_type,omitempty"`
+	Script                   string           `json:"script,omitempty"`
+	CreatedAt                time.Time        `json:"created_at,omitempty"`
+	ReservedIPID             string           `json:"reserved_ip_id,omitempty"`
+	ReservedIPName           string           `json:"reserved_ip_name,omitempty"`
+	ReservedIP               string           `json:"reserved_ip,omitempty"`
+	Subnets                  []Subnet         `json:"subnets,omitempty"`
+	AttachedVolume           []AttachedVolume `json:"attached_volume,omitempty"`
 }
 
 //"cpu_cores":1,"ram_mb":2048,"disk_gb":25
@@ -70,30 +71,37 @@ type PaginatedInstanceList struct {
 	Items   []Instance `json:"items"`
 }
 
+// AttachedVolume disk information
+type AttachedVolume struct {
+	// ID of the volume to attach
+	ID string `json:"id"`
+}
+
 // InstanceConfig describes the parameters for a new instance
 // none of the fields are mandatory and will be automatically
 // set with default values
 type InstanceConfig struct {
-	Count            int      `json:"count"`
-	Hostname         string   `json:"hostname"`
-	ReverseDNS       string   `json:"reverse_dns"`
-	Size             string   `json:"size"`
-	Region           string   `json:"region"`
-	PublicIPRequired string   `json:"public_ip"`
-	ReservedIPv4     string   `json:"reserved_ipv4"`
-	PrivateIPv4      string   `json:"private_ipv4"`
-	NetworkID        string   `json:"network_id"`
-	TemplateID       string   `json:"template_id"`
-	SourceType       string   `json:"source_type"`
-	SourceID         string   `json:"source_id"`
-	SnapshotID       string   `json:"snapshot_id"`
-	Subnets          []string `json:"subnets,omitempty"`
-	InitialUser      string   `json:"initial_user"`
-	SSHKeyID         string   `json:"ssh_key_id"`
-	Script           string   `json:"script"`
-	Tags             []string `json:"-"`
-	TagsList         string   `json:"tags"`
-	FirewallID       string   `json:"firewall_id"`
+	Count            int              `json:"count"`
+	Hostname         string           `json:"hostname"`
+	ReverseDNS       string           `json:"reverse_dns"`
+	Size             string           `json:"size"`
+	Region           string           `json:"region"`
+	PublicIPRequired string           `json:"public_ip"`
+	ReservedIPv4     string           `json:"reserved_ipv4"`
+	PrivateIPv4      string           `json:"private_ipv4"`
+	NetworkID        string           `json:"network_id"`
+	TemplateID       string           `json:"template_id"`
+	SourceType       string           `json:"source_type"`
+	SourceID         string           `json:"source_id"`
+	SnapshotID       string           `json:"snapshot_id"`
+	Subnets          []string         `json:"subnets,omitempty"`
+	InitialUser      string           `json:"initial_user"`
+	SSHKeyID         string           `json:"ssh_key_id"`
+	Script           string           `json:"script"`
+	Tags             []string         `json:"-"`
+	TagsList         string           `json:"tags"`
+	FirewallID       string           `json:"firewall_id"`
+	AttachedVolume   []AttachedVolume `json:"attached_volume"`
 }
 
 // ListInstances returns a page of Instances owned by the calling API account

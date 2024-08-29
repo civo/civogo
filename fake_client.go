@@ -161,7 +161,7 @@ type Clienter interface {
 	FindVolume(search string) (*Volume, error)
 	NewVolume(v *VolumeConfig) (*VolumeResult, error)
 	ResizeVolume(id string, size int) (*SimpleResponse, error)
-	AttachVolume(id string, instance string) (*SimpleResponse, error)
+	AttachVolume(id string, cfg VolumeAttachConfig) (*SimpleResponse, error)
 	DetachVolume(id string) (*SimpleResponse, error)
 	DeleteVolume(id string) (*SimpleResponse, error)
 
@@ -1283,10 +1283,10 @@ func (c *FakeClient) ResizeVolume(id string, size int) (*SimpleResponse, error) 
 }
 
 // AttachVolume implemented in a fake way for automated tests
-func (c *FakeClient) AttachVolume(id string, instance string) (*SimpleResponse, error) {
+func (c *FakeClient) AttachVolume(id string, cfg VolumeAttachConfig) (*SimpleResponse, error) {
 	for i, volume := range c.Volumes {
 		if volume.ID == id {
-			c.Volumes[i].InstanceID = instance
+			c.Volumes[i].InstanceID = cfg.InstanceID
 			c.Volumes[i].Status = "attached"
 			return &SimpleResponse{Result: "success"}, nil
 		}
