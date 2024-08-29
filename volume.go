@@ -41,6 +41,12 @@ type VolumeConfig struct {
 	Bootable      bool   `json:"bootable"`
 }
 
+type VolumeAttachConfig struct {
+	InstanceID   string `json:"instance_id"`
+	AttachAtBoot bool   `json:"attach_at_boot"`
+	Region       string `json:"region"`
+}
+
 // ListVolumes returns all volumes owned by the calling API account
 // https://www.civo.com/api/volumes#list-volumes
 func (c *Client) ListVolumes() ([]Volume, error) {
@@ -199,11 +205,8 @@ func (c *Client) ResizeVolume(id string, size int) (*SimpleResponse, error) {
 
 // AttachVolume attaches a volume to an instance
 // https://www.civo.com/api/volumes#attach-a-volume-to-an-instance
-func (c *Client) AttachVolume(id string, instance string) (*SimpleResponse, error) {
-	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/volumes/%s/attach", id), map[string]string{
-		"instance_id": instance,
-		"region":      c.Region,
-	})
+func (c *Client) AttachVolume(id string, v VolumeAttachConfig) (*SimpleResponse, error) {
+	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/volumes/%s/attach", id), v)
 	if err != nil {
 		return nil, decodeError(err)
 	}
