@@ -41,6 +41,7 @@ type VolumeConfig struct {
 	Bootable      bool   `json:"bootable"`
 }
 
+// VolumeAttachConfig is the configuration used to attach volume
 type VolumeAttachConfig struct {
 	InstanceID   string `json:"instance_id"`
 	AttachAtBoot bool   `json:"attach_at_boot"`
