@@ -1826,7 +1826,7 @@ func (c *FakeClient) UpdateKubernetesClusterPool(cid, pid string, config *Kubern
 			for _, p := range cs.Pools {
 				if p.ID == pid {
 					poolFound = true
-					p.Count = config.Count
+					p.Count = *config.Count
 					pool = p
 				}
 			}

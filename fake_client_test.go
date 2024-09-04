@@ -252,7 +252,7 @@ func TestKubernetesClustersPools(t *testing.T) {
 	g.Expect(string(result.Result)).To(Equal("success"))
 
 	pc := KubernetesClusterPoolUpdateConfig{
-		Count: 4,
+		Count: &[]int{4}[0],
 	}
 	pool, err = client.UpdateKubernetesClusterPool("9c89d8b9-463d-45f2-8928-455eb3f3726", "33de5de2-14fd-44ba-a621-f6efbeeb9639", &pc)
 	g.Expect(err).To(BeNil())
