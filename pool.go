@@ -4,14 +4,15 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	corev1 "k8s.io/api/core/v1"
 	"strings"
+
+	corev1 "k8s.io/api/core/v1"
 )
 
 // KubernetesClusterPoolUpdateConfig is used to create a new cluster pool
 type KubernetesClusterPoolUpdateConfig struct {
 	ID               string            `json:"id,omitempty"`
-	Count            int               `json:"count,omitempty"`
+	Count            *int              `json:"count,omitempty"`
 	Size             string            `json:"size,omitempty"`
 	Labels           map[string]string `json:"labels,omitempty"`
 	Taints           []corev1.Taint    `json:"taints"`

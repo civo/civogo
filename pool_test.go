@@ -15,7 +15,7 @@ func TestCreateKubernetesClusterPool(t *testing.T) {
 
 	newPool := &KubernetesClusterPoolUpdateConfig{
 		ID:     "8a849cc5-bd51-45ce-814a-c378b09dcb06",
-		Count:  3,
+		Count:  &[]int{3}[0],
 		Size:   "g4s.kube.small",
 		Labels: map[string]string{},
 		Taints: []corev1.Taint{},
@@ -190,7 +190,7 @@ func TestUpdateKubernetesPool(t *testing.T) {
 	defer server.Close()
 
 	updatePool := &KubernetesClusterPoolUpdateConfig{
-		Count: 3,
+		Count: &[]int{3}[0],
 		Labels: map[string]string{
 			"label1": "label",
 		},
