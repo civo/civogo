@@ -15,7 +15,7 @@ func TestListVolumes(t *testing.T) {
 			"openstack_id": "null",
 			"size_gb": 25,
 			"bootable": false
-		  }]`,
+		}]`,
 	})
 	defer server.Close()
 	got, err := client.ListVolumes()

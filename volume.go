@@ -18,6 +18,7 @@ type Volume struct {
 	NetworkID     string    `json:"network_id"`
 	MountPoint    string    `json:"mountpoint"`
 	Status        string    `json:"status"`
+	VolumeType    string    `json:"volume_type"`
 	SizeGigabytes int       `json:"size_gb"`
 	Bootable      bool      `json:"bootable"`
 	CreatedAt     time.Time `json:"created_at"`
