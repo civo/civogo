@@ -53,7 +53,7 @@ type Instance struct {
 	ReservedIPName           string           `json:"reserved_ip_name,omitempty"`
 	ReservedIP               string           `json:"reserved_ip,omitempty"`
 	Subnets                  []Subnet         `json:"subnets,omitempty"`
-	AttachedVolume           []AttachedVolume `json:"attached_volume,omitempty"`
+	AttachedVolumes          []AttachedVolume `json:"attached_volumes,omitempty"`
 }
 
 //"cpu_cores":1,"ram_mb":2048,"disk_gb":25
@@ -101,7 +101,7 @@ type InstanceConfig struct {
 	Tags             []string         `json:"-"`
 	TagsList         string           `json:"tags"`
 	FirewallID       string           `json:"firewall_id"`
-	AttachedVolume   []AttachedVolume `json:"attached_volume"`
+	AttachedVolumes  []AttachedVolume `json:"attached_volumes"`
 }
 
 // ListInstances returns a page of Instances owned by the calling API account
