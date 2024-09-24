@@ -7,20 +7,20 @@ import (
 
 func TestListObjectStoreCredentials(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
-		"/v2/objectstore/credentials": `{"page": 1, "per_page": 20, "pages": 2, "items":[{"id": "12345", "name": "test-objectstore-cred"}]}`,
+		"/v2/objectstore/credentials?page=2&per_page=40": `{"page": 2, "per_page": 40, "pages": 3, "items":[{"id": "12345", "name": "test-objectstore-cred"}]}`,
 	})
 	defer server.Close()
 
-	got, err := client.ListObjectStoreCredentials()
+	got, err := client.ListObjectStoreCredentials(2, 40)
 	if err != nil {
 		t.Errorf("Request returned an error: %s", err)
 		return
 	}
 
 	expected := &PaginatedObjectStoreCredentials{
-		Page:    1,
-		PerPage: 20,
-		Pages:   2,
+		Page:    2,
+		PerPage: 40,
+		Pages:   3,
 		Items: []ObjectStoreCredential{
 			{
 				ID:   "12345",
