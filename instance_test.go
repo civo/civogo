@@ -437,7 +437,7 @@ func TestSetInstanceFirewall(t *testing.T) {
 	EnsureSuccessfulSimpleResponse(t, got, err)
 }
 
-func TestGetInstanceVNCDetailsSuccessful(t *testing.T) {
+func TestInitInstanceVNCSuccessful(t *testing.T) {
 	client, server, _ := NewAdvancedClientForTesting([]ConfigAdvanceClientForTesting{
 		{
 			Method: "PUT",
@@ -452,7 +452,7 @@ func TestGetInstanceVNCDetailsSuccessful(t *testing.T) {
 	})
 	defer server.Close()
 
-	got, _ := client.GetInstanceVNCDetails("12345")
+	got, _ := client.InitInstanceVNC("12345")
 
 	tests := []struct {
 		field, expected, actual string
@@ -470,7 +470,7 @@ func TestGetInstanceVNCDetailsSuccessful(t *testing.T) {
 	}
 }
 
-func TestGetInstanceVNCDetailsInvalid(t *testing.T) {
+func TestInitInstanceVNCInvalid(t *testing.T) {
 	client, server, _ := NewAdvancedClientForTesting([]ConfigAdvanceClientForTesting{
 		{
 			Method: "PUT",
@@ -485,7 +485,7 @@ func TestGetInstanceVNCDetailsInvalid(t *testing.T) {
 	})
 	defer server.Close()
 
-	got, _ := client.GetInstanceVNCDetails("invalidid")
+	got, _ := client.InitInstanceVNC("invalidid")
 
 	tests := []struct {
 		field, expected, actual string

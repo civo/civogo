@@ -392,8 +392,8 @@ func (c *Client) SetInstanceFirewall(id, firewallID string) (*SimpleResponse, er
 	return response, err
 }
 
-// GetInstanceVNCDetails gets the VNC details for an instance
-func (c *Client) GetInstanceVNCDetails(id string) (*InstanceVNCDetails, error) {
+// InitInstanceVNC gets the VNC details for an instance
+func (c *Client) InitInstanceVNC(id string) (*InstanceVNCDetails, error) {
 	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/vnc", id), "")
 	if err != nil {
 		return nil, decodeError(err)
