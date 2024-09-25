@@ -104,6 +104,17 @@ type InstanceConfig struct {
 	AttachedVolume   []AttachedVolume `json:"attached_volume"`
 }
 
+// Instance VNC details
+type InstanceVNCDetails struct {
+	URI    string `json:"uri"`
+	Result string `json:"result"`
+	Name   string `json:"name"`
+	Label  string `json:"label"`
+	// Adding code and reason to the struct to handle the error response as well
+	Code   string `json:"code"`
+	Reason string `json:"reason"`
+}
+
 // ListInstances returns a page of Instances owned by the calling API account
 func (c *Client) ListInstances(page int, perPage int) (*PaginatedInstanceList, error) {
 	url := "/v2/instances"
@@ -379,4 +390,16 @@ func (c *Client) SetInstanceFirewall(id, firewallID string) (*SimpleResponse, er
 
 	response, err := c.DecodeSimpleResponse(resp)
 	return response, err
+}
+
+// GetInstanceVNCDetails gets the VNC details for an instance
+func (c *Client) GetInstanceVNCDetails(id string) (*InstanceVNCDetails, error) {
+	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/vnc", id), "")
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	instance := InstanceVNCDetails{}
+	err = json.NewDecoder(bytes.NewReader(resp)).Decode(&instance)
+	return &instance, err
 }

@@ -436,3 +436,71 @@ func TestSetInstanceFirewall(t *testing.T) {
 	got, err := client.SetInstanceFirewall("12345", "67890")
 	EnsureSuccessfulSimpleResponse(t, got, err)
 }
+
+func TestGetInstanceVNCDetailsSuccessful(t *testing.T) {
+	client, server, _ := NewAdvancedClientForTesting([]ConfigAdvanceClientForTesting{
+		{
+			Method: "PUT",
+			Value: []ValueAdvanceClientForTesting{
+				{
+					RequestBody:  `""`,
+					URL:          "/v2/instances/12345/vnc",
+					ResponseBody: `{"uri": "https://vnc.example.com/12345", "result": "success", "name": "vnc.randomnumber.nyc1", "label": "VNC Access details"}`,
+				},
+			},
+		},
+	})
+	defer server.Close()
+
+	got, _ := client.GetInstanceVNCDetails("12345")
+
+	tests := []struct {
+		field, expected, actual string
+	}{
+		{"URI", "https://vnc.example.com/12345", got.URI},
+		{"Name", "vnc.randomnumber.nyc1", got.Name},
+		{"Label", "VNC Access details", got.Label},
+		{"Result", "success", got.Result},
+	}
+
+	for _, tt := range tests {
+		if tt.expected != tt.actual {
+			t.Errorf("Expected %s: %s, got %s", tt.field, tt.expected, tt.actual)
+		}
+	}
+}
+
+func TestGetInstanceVNCDetailsInvalid(t *testing.T) {
+	client, server, _ := NewAdvancedClientForTesting([]ConfigAdvanceClientForTesting{
+		{
+			Method: "PUT",
+			Value: []ValueAdvanceClientForTesting{
+				{
+					RequestBody:  `""`,
+					URL:          "/v2/instances/invalidid/vnc",
+					ResponseBody: `{"code": "database_instance_not_found", "reason": "The requested instance doesn't exist"}`,
+				},
+			},
+		},
+	})
+	defer server.Close()
+
+	got, _ := client.GetInstanceVNCDetails("invalidid")
+
+	tests := []struct {
+		field, expected, actual string
+	}{
+		{"URI", "", got.URI},
+		{"Name", "", got.Name},
+		{"Label", "", got.Label},
+		{"Result", "", got.Result},
+		{"Code", "database_instance_not_found", got.Code},
+		{"Reason", "The requested instance doesn't exist", got.Reason},
+	}
+
+	for _, tt := range tests {
+		if tt.expected != tt.actual {
+			t.Errorf("Expected %s: %s, got %s", tt.field, tt.expected, tt.actual)
+		}
+	}
+}
