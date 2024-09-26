@@ -63,6 +63,14 @@ type InstanceConsole struct {
 	URL string `json:"url"`
 }
 
+// InstanceVnc represents VNC information for an instances
+type InstanceVnc struct {
+	URI    string `json:"uri"`
+	Result string `json:"result"`
+	Name   string `json:"name"`
+	Label  string `json:"label"`
+}
+
 // PaginatedInstanceList returns a paginated list of Instance object
 type PaginatedInstanceList struct {
 	Page    int        `json:"page"`
@@ -259,6 +267,21 @@ func (c *Client) UpdateInstance(i *Instance) (*SimpleResponse, error) {
 
 	response, err := c.DecodeSimpleResponse(resp)
 	return response, err
+}
+
+// GetInstanceVnc enables and gets the VNC information for an instance
+func (c *Client) GetInstanceVnc(id string) (InstanceVnc, error) {
+	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/vnc", id), map[string]string{
+		"region": c.Region,
+	})
+	vnc := InstanceVnc{}
+
+	if err != nil {
+		return vnc, decodeError(err)
+	}
+
+	err = json.NewDecoder(bytes.NewReader(resp)).Decode(&vnc)
+	return vnc, err
 }
 
 // DeleteInstance deletes an instance and frees its resources
