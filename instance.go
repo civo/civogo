@@ -54,6 +54,7 @@ type Instance struct {
 	ReservedIP               string           `json:"reserved_ip,omitempty"`
 	Subnets                  []Subnet         `json:"subnets,omitempty"`
 	AttachedVolumes          []AttachedVolume `json:"attached_volumes,omitempty"`
+	PlacementRule            PlacementRule    `json:"placement_rule,omitempty"`
 }
 
 //"cpu_cores":1,"ram_mb":2048,"disk_gb":25
@@ -110,6 +111,20 @@ type InstanceConfig struct {
 	TagsList         string           `json:"tags"`
 	FirewallID       string           `json:"firewall_id"`
 	AttachedVolumes  []AttachedVolume `json:"attached_volumes"`
+	PlacementRule    PlacementRule    `json:"placement_rule"`
+}
+
+// AffinityRule represents a affinity rule
+type AffinityRule struct {
+	Type      string   `json:"type"`
+	Exclusive bool     `json:"exclusive"`
+	Tags      []string `json:"tags"`
+}
+
+// PlacementRule represents a placement rule
+type PlacementRule struct {
+	AffinityRules []AffinityRule    `json:"affinity_rules,omitempty"`
+	NodeSelector  map[string]string `json:"node_selector,omitempty"`
 }
 
 // ListInstances returns a page of Instances owned by the calling API account
