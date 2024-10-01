@@ -52,6 +52,7 @@ type Instance struct {
 	ReservedIPID             string           `json:"reserved_ip_id,omitempty"`
 	ReservedIPName           string           `json:"reserved_ip_name,omitempty"`
 	ReservedIP               string           `json:"reserved_ip,omitempty"`
+	VolumeType               string           `json:"volume_type,omitempty"`
 	Subnets                  []Subnet         `json:"subnets,omitempty"`
 	AttachedVolumes          []AttachedVolume `json:"attached_volumes,omitempty"`
 	PlacementRule            PlacementRule    `json:"placement_rule,omitempty"`
