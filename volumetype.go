@@ -2,7 +2,6 @@ package civogo
 
 import (
 	"encoding/json"
-	"fmt"
 )
 
 // VolumeType represent the storage class related to a volume
@@ -22,7 +21,6 @@ func (c *Client) ListVolumeTypes() ([]VolumeType, error) {
 	}
 
 	volumeTypes := make([]VolumeType, 0)
-	fmt.Println(string(resp))
 	if err := json.Unmarshal(resp, &volumeTypes); err != nil {
 		return nil, err
 	}
