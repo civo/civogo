@@ -52,8 +52,10 @@ type Instance struct {
 	ReservedIPID             string           `json:"reserved_ip_id,omitempty"`
 	ReservedIPName           string           `json:"reserved_ip_name,omitempty"`
 	ReservedIP               string           `json:"reserved_ip,omitempty"`
+	VolumeType               string           `json:"volume_type,omitempty"`
 	Subnets                  []Subnet         `json:"subnets,omitempty"`
 	AttachedVolumes          []AttachedVolume `json:"attached_volumes,omitempty"`
+	PlacementRule            PlacementRule    `json:"placement_rule,omitempty"`
 }
 
 //"cpu_cores":1,"ram_mb":2048,"disk_gb":25
@@ -61,6 +63,14 @@ type Instance struct {
 // InstanceConsole represents a link to a webconsole for an instances
 type InstanceConsole struct {
 	URL string `json:"url"`
+}
+
+// InstanceVnc represents VNC information for an instances
+type InstanceVnc struct {
+	URI    string `json:"uri"`
+	Result string `json:"result"`
+	Name   string `json:"name"`
+	Label  string `json:"label"`
 }
 
 // PaginatedInstanceList returns a paginated list of Instance object
@@ -102,6 +112,20 @@ type InstanceConfig struct {
 	TagsList         string           `json:"tags"`
 	FirewallID       string           `json:"firewall_id"`
 	AttachedVolumes  []AttachedVolume `json:"attached_volumes"`
+	PlacementRule    PlacementRule    `json:"placement_rule"`
+}
+
+// AffinityRule represents a affinity rule
+type AffinityRule struct {
+	Type      string   `json:"type"`
+	Exclusive bool     `json:"exclusive"`
+	Tags      []string `json:"tags"`
+}
+
+// PlacementRule represents a placement rule
+type PlacementRule struct {
+	AffinityRules []AffinityRule    `json:"affinity_rules,omitempty"`
+	NodeSelector  map[string]string `json:"node_selector,omitempty"`
 }
 
 // ListInstances returns a page of Instances owned by the calling API account
@@ -259,6 +283,21 @@ func (c *Client) UpdateInstance(i *Instance) (*SimpleResponse, error) {
 
 	response, err := c.DecodeSimpleResponse(resp)
 	return response, err
+}
+
+// GetInstanceVnc enables and gets the VNC information for an instance
+func (c *Client) GetInstanceVnc(id string) (InstanceVnc, error) {
+	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/vnc", id), map[string]string{
+		"region": c.Region,
+	})
+	vnc := InstanceVnc{}
+
+	if err != nil {
+		return vnc, decodeError(err)
+	}
+
+	err = json.NewDecoder(bytes.NewReader(resp)).Decode(&vnc)
+	return vnc, err
 }
 
 // DeleteInstance deletes an instance and frees its resources
