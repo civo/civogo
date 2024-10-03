@@ -111,6 +111,7 @@ type InstanceConfig struct {
 	Tags             []string         `json:"-"`
 	TagsList         string           `json:"tags"`
 	FirewallID       string           `json:"firewall_id"`
+	VolumeType       string           `json:"volume_type,omitempty"`
 	AttachedVolumes  []AttachedVolume `json:"attached_volumes"`
 	PlacementRule    PlacementRule    `json:"placement_rule"`
 }
