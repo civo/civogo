@@ -26,6 +26,7 @@ type Feature struct {
 	Kubernetes        bool `json:"kubernetes"`
 	ObjectStore       bool `json:"object_store"`
 	LoadBalancer      bool `json:"loadbalancer"`
+	GPU               bool `json:"gpu"`
 	DBaaS             bool `json:"dbaas"`
 	Volume            bool `json:"volume"`
 	PaaS              bool `json:"paas"`
