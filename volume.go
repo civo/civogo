@@ -40,6 +40,7 @@ type VolumeConfig struct {
 	Region        string `json:"region"`
 	SizeGigabytes int    `json:"size_gb"`
 	Bootable      bool   `json:"bootable"`
+	VolumeType    string `json:"volume_type"`
 }
 
 // VolumeAttachConfig is the configuration used to attach volume
