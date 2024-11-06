@@ -192,6 +192,8 @@ type Clienter interface {
 
 	// Ping
 	Ping() error
+
+	ListMemberships() (*MembershipResponse, error)
 }
 
 // NewFakeClient initializes a Client that doesn't attach to a
@@ -267,6 +269,13 @@ func NewFakeClient() (*FakeClient, error) {
 				Label:        "",
 			},
 		},
+	}, nil
+}
+
+// ListMemberships implemented in a fake way for automated tests
+func (c *FakeClient) ListMemberships() (*MembershipResponse, error) {
+	return &MembershipResponse{
+		Accounts: c.OrganisationAccounts,
 	}, nil
 }
 
