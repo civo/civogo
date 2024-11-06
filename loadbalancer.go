@@ -56,6 +56,7 @@ type LoadBalancer struct {
 	ID                           string                `json:"id"`
 	Name                         string                `json:"name"`
 	ServiceName                  string                `json:"service_name,omitempty"`
+	NetworkID                    string                `json:"network_id,omitempty"`
 	Algorithm                    string                `json:"algorithm"`
 	Backends                     []LoadBalancerBackend `json:"backends,omitempty"`
 	InstancePool                 []InstancePool        `json:"instance_pools,omitempty"`
