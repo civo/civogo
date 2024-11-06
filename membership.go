@@ -1,0 +1,27 @@
+package civogo
+
+import (
+	"bytes"
+	"encoding/json"
+)
+
+// MembershipResponse is the response for the memberships of a user
+type MembershipResponse struct {
+	Accounts      []Account
+	Organisations []Organisation
+}
+
+// ListMemberships returns all the memberships(to accounts and organisations) for the user
+func (c *Client) ListMemberships() (*MembershipResponse, error) {
+	resp, err := c.SendGetRequest("/v2/memberships")
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	mrs := &MembershipResponse{}
+	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&mrs); err != nil {
+		return nil, err
+	}
+
+	return mrs, nil
+}
