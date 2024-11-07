@@ -7,8 +7,8 @@ import (
 
 // MembershipResponse is the response for the memberships of a user
 type MembershipResponse struct {
-	Accounts      []Account
-	Organisations []Organisation
+	Accounts      []MembershipAccount
+	Organisations []MembershipOrganisation
 }
 
 // MembershipAccount is the DTO for an account.

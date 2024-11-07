@@ -274,9 +274,7 @@ func NewFakeClient() (*FakeClient, error) {
 
 // ListMemberships implemented in a fake way for automated tests
 func (c *FakeClient) ListMemberships() (*MembershipResponse, error) {
-	return &MembershipResponse{
-		Accounts: c.OrganisationAccounts,
-	}, nil
+	return &MembershipResponse{}, nil
 }
 
 // Ping implemented in a fake way for automated tests
