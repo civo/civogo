@@ -35,6 +35,11 @@ func TestListMemberships(t *testing.T) {
 	if got.Accounts[0].ID != "4f229791-6088-42dd-8fbe-3f64ec47567f" {
 		t.Errorf("Expected User ID %s, got %s", "4f229791-6088-42dd-8fbe-3f64ec47567f", got.Accounts[0].ID)
 	}
+
+	if got.Accounts[0].OrganisationID != "63bd4fe4-eeff-421b-aa24-1518decc5464" {
+		t.Errorf("Expected User ID %s, got %s", "63bd4fe4-eeff-421b-aa24-1518decc5464", got.Accounts[0].OrganisationID)
+	}
+
 	if got.Organisations[0].ID != "63bd4fe4-eeff-421b-aa24-1518decc5464" {
 		t.Errorf("Expected User ID %s, got %s", "63bd4fe4-eeff-421b-aa24-1518decc5464", got.Organisations[0].ID)
 	}
