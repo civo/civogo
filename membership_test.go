@@ -11,9 +11,6 @@ func TestListMemberships(t *testing.T) {
 					"api_key": "75e521bc74d34b21b42827fb58fcd590",
 					"email_address": "team@civo.com",
 					"label": "team testing",
-					"flags": null,
-					"salt": null,
-					"timezone": "Europe/London",
 					"organisation_id": "63bd4fe4-eeff-421b-aa24-1518decc5464"
 				}
 			],
