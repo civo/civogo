@@ -242,3 +242,31 @@ func (c *Client) DeleteVolume(id string) (*SimpleResponse, error) {
 
 	return c.DecodeSimpleResponse(resp)
 }
+
+// GetVolumeSnapshotByVolumeID retrieves a specific volume snapshot by volume ID and snapshot ID
+func (c *Client) GetVolumeSnapshotByVolumeID(volumeID, snapshotID string) (VolumeSnapshot, error) {
+	resp, err := c.SendGetRequest(fmt.Sprintf("/v2/volumes/%s/snapshot/%s", volumeID, snapshotID))
+	if err != nil {
+		return VolumeSnapshot{}, decodeError(err)
+	}
+	var volumeSnapshot = VolumeSnapshot{}
+	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&volumeSnapshot); err != nil {
+		return VolumeSnapshot{}, err
+	}
+	return volumeSnapshot, nil
+}
+
+// ListVolumeSnapshotsByVolumeID returns all snapshots for a specific volume by volume ID
+func (c *Client) ListVolumeSnapshotsByVolumeID(volumeID string) ([]VolumeSnapshot, error) {
+	resp, err := c.SendGetRequest(fmt.Sprintf("/v2/volumes/%s/snapshots", volumeID))
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	var volumeSnapshots = make([]VolumeSnapshot, 0)
+	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&volumeSnapshots); err != nil {
+		return nil, err
+	}
+
+	return volumeSnapshots, nil
+}
