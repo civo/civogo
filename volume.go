@@ -270,3 +270,17 @@ func (c *Client) ListVolumeSnapshotsByVolumeID(volumeID string) ([]VolumeSnapsho
 
 	return volumeSnapshots, nil
 }
+
+func (c *Client) CreateVolumeSnapshot(volumeID string, config *VolumeSnapshotConfig) (*VolumeSnapshot, error) {
+	body, err := c.SendPostRequest(fmt.Sprintf("/v2/volumes/%s/snapshots", volumeID), config)
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	var result = &VolumeSnapshot{}
+	if err := json.NewDecoder(bytes.NewReader(body)).Decode(result); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
