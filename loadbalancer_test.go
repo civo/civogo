@@ -146,6 +146,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 		ID:          "56dca3ae-ea3f-480f-9b25-abf90b439729",
 		Name:        "test-default-lb",
 		ServiceName: "lb",
+		NetworkID:   "b064d568-5869-427c-827a-77d48cde6a2e",
 		Algorithm:   "round_robin",
 		Backends: []LoadBalancerBackend{
 			{
@@ -210,6 +211,7 @@ func TestUpdateLoadBalancer(t *testing.T) {
 		ID:                    "a1bd123c-b7e2-4d4f-9fda-7940c7e06b38",
 		Name:                  "test-lb-updated",
 		ServiceName:           "updated",
+		NetworkID:             "b064d568-5869-427c-827a-77d48cde6a2e",
 		Algorithm:             "round_robin",
 		ExternalTrafficPolicy: "Cluster",
 		Backends: []LoadBalancerBackend{
@@ -272,6 +274,7 @@ func TestGetLoadBalancer(t *testing.T) {
 		ID:                    "a1bd123c-b7e2-4d4f-9fda-7940c7e06b38",
 		Name:                  "test-lb-updated",
 		ServiceName:           "updated",
+		NetworkID:             "b064d568-5869-427c-827a-77d48cde6a2e",
 		Algorithm:             "round_robin",
 		ExternalTrafficPolicy: "Cluster",
 		Backends: []LoadBalancerBackend{
