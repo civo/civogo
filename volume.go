@@ -33,14 +33,15 @@ type VolumeResult struct {
 
 // VolumeConfig are the settings required to create a new Volume
 type VolumeConfig struct {
-	Name          string `json:"name"`
-	Namespace     string `json:"namespace"`
-	ClusterID     string `json:"cluster_id"`
-	NetworkID     string `json:"network_id"`
-	Region        string `json:"region"`
-	SizeGigabytes int    `json:"size_gb"`
-	Bootable      bool   `json:"bootable"`
-	VolumeType    string `json:"volume_type"`
+	Name          string  `json:"name"`
+	Namespace     string  `json:"namespace"`
+	ClusterID     string  `json:"cluster_id"`
+	NetworkID     string  `json:"network_id"`
+	Region        string  `json:"region"`
+	SizeGigabytes int     `json:"size_gb"`
+	Bootable      bool    `json:"bootable"`
+	VolumeType    string  `json:"volume_type"`
+	SnapshotID    *string `json:"snapshot_id,omitempty"`
 }
 
 // VolumeAttachConfig is the configuration used to attach volume
@@ -271,6 +272,7 @@ func (c *Client) ListVolumeSnapshotsByVolumeID(volumeID string) ([]VolumeSnapsho
 	return volumeSnapshots, nil
 }
 
+// CreateVolumeSnapshot creates a snapshot of a volume
 func (c *Client) CreateVolumeSnapshot(volumeID string, config *VolumeSnapshotConfig) (*VolumeSnapshot, error) {
 	body, err := c.SendPostRequest(fmt.Sprintf("/v2/volumes/%s/snapshots", volumeID), config)
 	if err != nil {
@@ -283,4 +285,14 @@ func (c *Client) CreateVolumeSnapshot(volumeID string, config *VolumeSnapshotCon
 	}
 
 	return result, nil
+}
+
+// Deletes a volume and all its snapshots
+func (c *Client) DeleteVolumeAndAllSnapshot(volumeID string) (*SimpleResponse, error) {
+	resp, err := c.SendDeleteRequest(fmt.Sprintf("/v2/volumes/%s?delete_snapshot=true", volumeID))
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	return c.DecodeSimpleResponse(resp)
 }
