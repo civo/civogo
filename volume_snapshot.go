@@ -23,7 +23,7 @@ type VolumeSnapshotConfig struct {
 	Description string `json:"description"`
 }
 
-// ListSnapshots returns all snapshots owned by the calling API account
+// ListVolumeSnapshots returns all snapshots owned by the calling API account
 func (c *Client) ListVolumeSnapshots() ([]VolumeSnapshot, error) {
 	resp, err := c.SendGetRequest("/v2/snapshots?resource_type=volume")
 	if err != nil {

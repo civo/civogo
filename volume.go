@@ -287,7 +287,7 @@ func (c *Client) CreateVolumeSnapshot(volumeID string, config *VolumeSnapshotCon
 	return result, nil
 }
 
-// Deletes a volume and all its snapshots
+// DeleteVolumeAndAllSnapshot deletes a volume and all its snapshots
 func (c *Client) DeleteVolumeAndAllSnapshot(volumeID string) (*SimpleResponse, error) {
 	resp, err := c.SendDeleteRequest(fmt.Sprintf("/v2/volumes/%s?delete_snapshot=true", volumeID))
 	if err != nil {
