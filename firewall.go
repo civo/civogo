@@ -225,9 +225,7 @@ func (c *Client) DeleteFirewallRule(id string, ruleID string) (*SimpleResponse, 
 	return c.DecodeSimpleResponse(resp)
 }
 
-
-
-// Check if the firewall is using the default rules
+// IsUsingDefaultRules checks if the firewall is using the default rules
 func (c *Client) IsUsingDefaultRules(firewallID string) (bool, error) {
 	// Define default firewall rules
 	var defaultRules = []FirewallRule{
@@ -272,4 +270,3 @@ func areDefaultRules(rules []FirewallRule, defaultRules []FirewallRule) bool {
 
 	return true
 }
-
