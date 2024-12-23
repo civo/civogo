@@ -260,3 +260,136 @@ func TestResizeVolume(t *testing.T) {
 		t.Errorf("Expected %+v, got %+v", expected, got)
 	}
 }
+
+func TestCreateVolumeSnapshot(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/volumes/12346/snapshot": `{
+			"snapshot_id": "12345",
+			"name": "test-snapshot",
+			"snapshot_description": "snapshot for testing",
+			"volume_id": "12346",
+			"instance_id": "instance-123",
+			"source_volume_name": "source-volume",
+			"state": "available",
+			"creation_time": "2020-01-01T00:00:00Z"
+		}`,
+	})
+	defer server.Close()
+	cfg := &VolumeSnapshotConfig{Name: "my-snapshot"}
+	got, err := client.CreateVolumeSnapshot("12346", cfg)
+	if err != nil {
+		t.Errorf("Request returned an error: %s", err)
+		return
+	}
+
+	expected := &VolumeSnapshot{
+		SnapshotID:          "12345",
+		Name:                "test-snapshot",
+		SnapshotDescription: "snapshot for testing",
+		VolumeID:            "12346",
+		InstanceID:          "instance-123",
+		SourceVolumeName:    "source-volume",
+		State:               "available",
+		CreationTime:        "2020-01-01T00:00:00Z",
+	}
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Expected %+v, got %+v", expected, got)
+	}
+}
+
+func TestGetVolumeSnapshotByVolumeID(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/volumes/12346/snapshots/12345": `{
+			"snapshot_id": "12345",
+			"name": "test-snapshot",
+			"snapshot_description": "snapshot for testing",
+			"volume_id": "12346",
+			"instance_id": "instance-123",
+			"source_volume_name": "source-volume",
+			"state": "available",
+			"creation_time": "2020-01-01T00:00:00Z"
+		}`,
+	})
+	defer server.Close()
+
+	got, err := client.GetVolumeSnapshotByVolumeID("12346", "12345")
+	if err != nil {
+		t.Errorf("Request returned an error: %s", err)
+		return
+	}
+
+	expected := VolumeSnapshot{
+		SnapshotID:          "12345",
+		Name:                "test-snapshot",
+		SnapshotDescription: "snapshot for testing",
+		VolumeID:            "12346",
+		InstanceID:          "instance-123",
+		SourceVolumeName:    "source-volume",
+		State:               "available",
+		CreationTime:        "2020-01-01T00:00:00Z",
+	}
+
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Expected %+v, got %+v", expected, got)
+	}
+}
+
+func TestListVolumeSnapshotsByVolumeID(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/volumes/12346/snapshots": `[{
+			"snapshot_id": "12345",
+			"name": "test-snapshot",
+			"snapshot_description": "snapshot for testing",
+			"volume_id": "12346",
+			"instance_id": "instance-123",
+			"source_volume_name": "source-volume",
+			"state": "available",
+			"creation_time": "2020-01-01T00:00:00Z"
+		}]`,
+	})
+	defer server.Close()
+
+	got, err := client.ListVolumeSnapshotsByVolumeID("12346")
+	if err != nil {
+		t.Errorf("Request returned an error: %s", err)
+		return
+	}
+
+	expected := []VolumeSnapshot{
+		{
+			SnapshotID:          "12345",
+			Name:                "test-snapshot",
+			SnapshotDescription: "snapshot for testing",
+			VolumeID:            "12346",
+			InstanceID:          "instance-123",
+			SourceVolumeName:    "source-volume",
+			State:               "available",
+			CreationTime:        "2020-01-01T00:00:00Z",
+		},
+	}
+
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Expected %+v, got %+v", expected, got)
+	}
+}
+
+func TestDeleteVolumeAndAllSnapshot(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/volumes/12346?delete_snapshot=true": `{"result": "success"}`,
+	})
+	defer server.Close()
+
+	got, err := client.DeleteVolumeAndAllSnapshot("12346")
+	if err != nil {
+		t.Errorf("Request returned an error: %s", err)
+		return
+	}
+
+	expected := &SimpleResponse{
+		Result: "success",
+	}
+
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Expected %+v, got %+v", expected, got)
+	}
+}
