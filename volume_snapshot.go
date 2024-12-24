@@ -23,6 +23,7 @@ type VolumeSnapshot struct {
 type VolumeSnapshotConfig struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
+	Region      string `json:"region"`
 }
 
 // ListVolumeSnapshots returns all snapshots owned by the calling API account
