@@ -35,7 +35,7 @@ func (c *Client) ListDiskImages() ([]DiskImage, error) {
 
 	filteredDiskImages := make([]DiskImage, 0)
 	for _, diskImage := range diskImages {
-		if !strings.Contains(diskImage.Name, "k3s") {
+		if !strings.Contains(diskImage.Name, "k3s") && !strings.Contains(diskImage.Name, "talos") {
 			filteredDiskImages = append(filteredDiskImages, diskImage)
 		}
 	}
