@@ -209,11 +209,6 @@ func (c *Client) NewInstanceConfig() (*InstanceConfig, error) {
 		return nil, decodeError(err)
 	}
 
-	diskimage, err := c.GetMostRecentDistro("ubuntu")
-	if err != nil {
-		return nil, decodeError(err)
-	}
-
 	return &InstanceConfig{
 		Count:            1,
 		Hostname:         utils.RandomName(),
@@ -222,7 +217,6 @@ func (c *Client) NewInstanceConfig() (*InstanceConfig, error) {
 		Region:           c.Region,
 		PublicIPRequired: "true",
 		NetworkID:        network.ID,
-		TemplateID:       diskimage.ID,
 		SnapshotID:       "",
 		InitialUser:      "civo",
 		SSHKeyID:         "",
