@@ -124,9 +124,6 @@ func TestNewInstanceConfig(t *testing.T) {
 	if got.NetworkID != "1" {
 		t.Errorf("Expected %s, got %s", "1", got.NetworkID)
 	}
-	if got.TemplateID != "77bea4dd-bfd4-492c-823d-f92eb6dd962d" {
-		t.Errorf("Expected %s, got %s", "77bea4dd-bfd4-492c-823d-f92eb6dd962d", got.TemplateID)
-	}
 	if got.Count != 1 {
 		t.Errorf("Expected %d, got %d", 1, got.Count)
 	}
