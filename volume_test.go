@@ -318,7 +318,7 @@ func TestGetVolumeSnapshotByVolumeID(t *testing.T) {
 		return
 	}
 
-	expected := VolumeSnapshot{
+	expected := &VolumeSnapshot{
 		SnapshotID:          "12345",
 		Name:                "test-snapshot",
 		SnapshotDescription: "snapshot for testing",
