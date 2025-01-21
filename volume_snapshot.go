@@ -42,16 +42,16 @@ func (c *Client) ListVolumeSnapshots() ([]VolumeSnapshot, error) {
 }
 
 // GetVolumeSnapshot finds a volume by the full ID
-func (c *Client) GetVolumeSnapshot(id string) (VolumeSnapshot, error) {
+func (c *Client) GetVolumeSnapshot(id string) (*VolumeSnapshot, error) {
 	resp, err := c.SendGetRequest(fmt.Sprintf("/v2/snapshots/%s?resource_type=volume", id))
 	if err != nil {
-		return VolumeSnapshot{}, decodeError(err)
+		return nil, decodeError(err)
 	}
 	var volumeSnapshot = VolumeSnapshot{}
 	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&volumeSnapshot); err != nil {
-		return VolumeSnapshot{}, err
+		return nil, err
 	}
-	return volumeSnapshot, nil
+	return &volumeSnapshot, nil
 }
 
 // DeleteVolumeSnapshot deletes a volume snapshot

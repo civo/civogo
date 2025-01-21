@@ -15,7 +15,7 @@ func TestListVolumeSnapshots(t *testing.T) {
 			"source_volume_name": "test-volume",
 			"instance_id": "ins1234",
 			"restore_size": 20,
-			"state": "available",
+			"state": "Ready",
 			"creation_time": "2020-01-01T00:00:00Z"
 		}]`,
 	})
@@ -37,7 +37,7 @@ func TestListVolumeSnapshots(t *testing.T) {
 			SourceVolumeName:    "test-volume",
 			InstanceID:          "ins1234",
 			RestoreSize:         20,
-			State:               "available",
+			State:               "Ready",
 			CreationTime:        "2020-01-01T00:00:00Z",
 		},
 	}
@@ -57,7 +57,7 @@ func TestGetVolumeSnapshot(t *testing.T) {
 			"source_volume_name": "test-volume",
 			"instance_id": "ins1234",
 			"restore_size": 20,
-			"state": "available",
+			"state": "Ready",
 			"creation_time": "2020-01-01T00:00:00Z"
 		}`,
 	})
@@ -69,7 +69,7 @@ func TestGetVolumeSnapshot(t *testing.T) {
 		return
 	}
 
-	expected := VolumeSnapshot{
+	expected := &VolumeSnapshot{
 		Name:                "test-snapshot",
 		SnapshotID:          "snapshot-uuid",
 		SnapshotDescription: "snapshot for testing",
@@ -77,7 +77,7 @@ func TestGetVolumeSnapshot(t *testing.T) {
 		SourceVolumeName:    "test-volume",
 		InstanceID:          "ins1234",
 		RestoreSize:         20,
-		State:               "available",
+		State:               "Ready",
 		CreationTime:        "2020-01-01T00:00:00Z",
 	}
 
