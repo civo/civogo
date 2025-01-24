@@ -41,7 +41,7 @@ func (c *Client) ListVolumeSnapshots() ([]VolumeSnapshot, error) {
 	return volumeSnapshots, nil
 }
 
-// GetVolumeSnapshot finds a volume by the full ID
+// GetVolumeSnapshot retrieves a volume snapshot based on the provided snapshot ID.
 func (c *Client) GetVolumeSnapshot(id string) (*VolumeSnapshot, error) {
 	resp, err := c.SendGetRequest(fmt.Sprintf("/v2/snapshots/%s?resource_type=volume", id))
 	if err != nil {
