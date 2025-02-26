@@ -171,10 +171,14 @@ func (c *Client) FindInstance(search string) (*Instance, error) {
 		if value.Hostname == search || value.ID == search {
 			exactMatch = true
 			result = value
+			break
 		} else if strings.Contains(value.Hostname, search) || strings.Contains(value.ID, search) {
 			if !exactMatch {
 				result = value
 				partialMatchesCount++
+				if partialMatchesCount > 1 {
+					break
+				}
 			}
 		}
 	}
