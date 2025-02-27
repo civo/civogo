@@ -434,3 +434,13 @@ func (c *Client) DisableRecoveryMode(id string) (*SimpleResponse, error) {
 
 	return c.DecodeSimpleResponse(resp)
 }
+
+// GetRecoveryStatus gets the recovery status for the specified instance
+func (c *Client) GetRecoveryStatus(id string) (*SimpleResponse, error) {
+	resp, err := c.SendGetRequest(fmt.Sprintf("/v2/instances/%s/recovery", id))
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	return c.DecodeSimpleResponse(resp)
+}
