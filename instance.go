@@ -285,8 +285,14 @@ func (c *Client) UpdateInstance(i *Instance) (*SimpleResponse, error) {
 }
 
 // GetInstanceVnc enables and gets the VNC information for an instance
-func (c *Client) GetInstanceVnc(id string) (InstanceVnc, error) {
-	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/vnc", id), map[string]string{
+// duration is optional and follows Go's duration string format (e.g. "30m", "1h", "24h")
+func (c *Client) GetInstanceVnc(id string, duration ...string) (InstanceVnc, error) {
+	url := fmt.Sprintf("/v2/instances/%s/vnc", id)
+	if len(duration) > 0 && duration[0] != "" {
+		url = fmt.Sprintf("%s?duration=%s", url, duration[0])
+	}
+
+	resp, err := c.SendPutRequest(url, map[string]string{
 		"region": c.Region,
 	})
 	vnc := InstanceVnc{}
