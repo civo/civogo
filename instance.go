@@ -424,3 +424,33 @@ func (c *Client) SetInstanceFirewall(id, firewallID string) (*SimpleResponse, er
 	response, err := c.DecodeSimpleResponse(resp)
 	return response, err
 }
+
+// EnableRecoveryMode enables recovery mode for the specified instance
+func (c *Client) EnableRecoveryMode(id string) (*SimpleResponse, error) {
+	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/recovery", id), nil)
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	return c.DecodeSimpleResponse(resp)
+}
+
+// DisableRecoveryMode disables recovery mode for the specified instance
+func (c *Client) DisableRecoveryMode(id string) (*SimpleResponse, error) {
+	resp, err := c.SendDeleteRequest(fmt.Sprintf("/v2/instances/%s/recovery", id))
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	return c.DecodeSimpleResponse(resp)
+}
+
+// GetRecoveryStatus gets the recovery status for the specified instance
+func (c *Client) GetRecoveryStatus(id string) (*SimpleResponse, error) {
+	resp, err := c.SendGetRequest(fmt.Sprintf("/v2/instances/%s/recovery", id))
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	return c.DecodeSimpleResponse(resp)
+}

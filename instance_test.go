@@ -433,3 +433,33 @@ func TestSetInstanceFirewall(t *testing.T) {
 	got, err := client.SetInstanceFirewall("12345", "67890")
 	EnsureSuccessfulSimpleResponse(t, got, err)
 }
+
+func TestEnableRecoveryMode(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/instances/12345/recovery": `{"result": "success"}`,
+	})
+	defer server.Close()
+
+	got, err := client.EnableRecoveryMode("12345")
+	EnsureSuccessfulSimpleResponse(t, got, err)
+}
+
+func TestDisableRecoveryMode(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/instances/12345/recovery": `{"result": "success"}`,
+	})
+	defer server.Close()
+
+	got, err := client.DisableRecoveryMode("12345")
+	EnsureSuccessfulSimpleResponse(t, got, err)
+}
+
+func TestGetRecoveryStatus(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/instances/12345/recovery": `{"result": "success"}`,
+	})
+	defer server.Close()
+
+	got, err := client.GetRecoveryStatus("12345")
+	EnsureSuccessfulSimpleResponse(t, got, err)
+}
