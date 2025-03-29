@@ -1290,11 +1290,27 @@ func (c *FakeClient) NewVolume(v *VolumeConfig) (*VolumeResult, error) {
 func (c *FakeClient) ResizeVolume(id string, size int) (*SimpleResponse, error) {
 	for i, volume := range c.Volumes {
 		if volume.ID == id {
+			// Simulate API behavior: Check for possible failures
+			if volume.Attached {
+				return nil, fmt.Errorf("VolumeResizeOnlineError: volume %s cannot be resized while attached", id)
+			}
+			if size <= volume.SizeGigabytes {
+				return nil, fmt.Errorf("ResizeError: new size must be greater than current size")
+			}
+			if size > 1000 { // Assume an upper limit for simulation
+				return nil, fmt.Errorf("ResizeError: requested size exceeds allowed limit")
+			}
+			if rand.Intn(10) < 2 { // Simulate a 20% chance of a retryable error
+				return nil, fmt.Errorf("RetryableError: temporary failure, please retry")
+			}
+
+			// If no errors, update the size
 			c.Volumes[i].SizeGigabytes = size
 			return &SimpleResponse{Result: "success"}, nil
 		}
 	}
 
+	// Volume not found error
 	err := fmt.Errorf("unable to find volume %s, zero matches", id)
 	return nil, ZeroMatchesError.wrap(err)
 }
