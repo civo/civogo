@@ -2022,3 +2022,121 @@ func (c *FakeClient) UnassignIP(id, region string) (*SimpleResponse, error) {
 		Result: "success",
 	}, nil
 }
+
+// InstanceSnapshots represents a list of instance snapshots in the fake client
+type InstanceSnapshots struct {
+	ID              string                 `json:"id"`
+	Name            string                 `json:"name"`
+	Description     string                 `json:"description,omitempty"`
+	IncludedVolumes []string               `json:"included_volumes"`
+	Status          InstanceSnapshotStatus `json:"status"`
+	CreatedAt       time.Time              `json:"created_at"`
+}
+
+// CreateInstanceSnapshot implemented in a fake way for automated tests
+func (c *FakeClient) CreateInstanceSnapshot(instanceID string, config *CreateInstanceSnapshotConfig) (*InstanceSnapshot, error) {
+	snapshot := InstanceSnapshot{
+		ID:              c.generateID(),
+		Name:            config.Name,
+		Description:     config.Description,
+		IncludedVolumes: []string{},
+		Status: InstanceSnapshotStatus{
+			State:   "pending",
+			Message: "Creating snapshot",
+		},
+		CreatedAt: time.Now(),
+	}
+
+	if config.IncludeVolumes {
+		// Add some fake volume IDs
+		snapshot.IncludedVolumes = []string{"vol-1", "vol-2"}
+		snapshot.Status.Volumes = []InstanceSnapshotVolume{
+			{ID: "vol-1", State: "pending"},
+			{ID: "vol-2", State: "pending"},
+		}
+	}
+
+	return &snapshot, nil
+}
+
+// GetInstanceSnapshot implemented in a fake way for automated tests
+func (c *FakeClient) GetInstanceSnapshot(instanceID, snapshotID string) (*InstanceSnapshot, error) {
+	// Return a fake completed snapshot
+	return &InstanceSnapshot{
+		ID:              snapshotID,
+		Name:            "test-snapshot",
+		Description:     "Test snapshot",
+		IncludedVolumes: []string{"vol-1", "vol-2"},
+		Status: InstanceSnapshotStatus{
+			State:   "completed",
+			Message: "Snapshot completed successfully",
+			Volumes: []InstanceSnapshotVolume{
+				{ID: "vol-1", State: "completed"},
+				{ID: "vol-2", State: "completed"},
+			},
+		},
+		CreatedAt: time.Now(),
+	}, nil
+}
+
+// ListInstanceSnapshots implemented in a fake way for automated tests
+func (c *FakeClient) ListInstanceSnapshots(instanceID string) ([]InstanceSnapshot, error) {
+	// Return a list of fake snapshots
+	return []InstanceSnapshot{
+		{
+			ID:              "snapshot-1",
+			Name:            "test-snapshot-1",
+			Description:     "Test snapshot 1",
+			IncludedVolumes: []string{"vol-1"},
+			Status: InstanceSnapshotStatus{
+				State:   "completed",
+				Message: "Snapshot completed successfully",
+				Volumes: []InstanceSnapshotVolume{
+					{ID: "vol-1", State: "completed"},
+				},
+			},
+			CreatedAt: time.Now(),
+		},
+		{
+			ID:              "snapshot-2",
+			Name:            "test-snapshot-2",
+			Description:     "Test snapshot 2",
+			IncludedVolumes: []string{"vol-2"},
+			Status: InstanceSnapshotStatus{
+				State:   "completed",
+				Message: "Snapshot completed successfully",
+				Volumes: []InstanceSnapshotVolume{
+					{ID: "vol-2", State: "completed"},
+				},
+			},
+			CreatedAt: time.Now(),
+		},
+	}, nil
+}
+
+// UpdateInstanceSnapshot implemented in a fake way for automated tests
+func (c *FakeClient) UpdateInstanceSnapshot(instanceID, snapshotID string, config *UpdateInstanceSnapshotConfig) (*InstanceSnapshot, error) {
+	// Return a fake updated snapshot
+	return &InstanceSnapshot{
+		ID:              snapshotID,
+		Name:            config.Name,
+		Description:     config.Description,
+		IncludedVolumes: []string{"vol-1", "vol-2"},
+		Status: InstanceSnapshotStatus{
+			State:   "completed",
+			Message: "Snapshot completed successfully",
+			Volumes: []InstanceSnapshotVolume{
+				{ID: "vol-1", State: "completed"},
+				{ID: "vol-2", State: "completed"},
+			},
+		},
+		CreatedAt: time.Now(),
+	}, nil
+}
+
+// DeleteInstanceSnapshot implemented in a fake way for automated tests
+func (c *FakeClient) DeleteInstanceSnapshot(instanceID, snapshotID string) (*SimpleResponse, error) {
+	return &SimpleResponse{
+		Result: "success",
+	}, nil
+}
