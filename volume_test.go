@@ -2,6 +2,7 @@ package civogo
 
 import (
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -245,19 +246,49 @@ func TestDeleteVolumes(t *testing.T) {
 }
 
 func TestResizeVolume(t *testing.T) {
-	client, server, _ := NewClientForTesting(map[string]string{
-		"/v2/volumes/12346/resize": `{"result": "success"}`,
-	})
-	defer server.Close()
-	got, err := client.ResizeVolume("12346", 20)
+	client, _ := NewFakeClient()
+
+	// Test case 1: Successful resize
+	volume := Volume{
+		ID:            "test-vol-1",
+		Name:          "test-volume-1",
+		SizeGigabytes: 20,
+		Status:        "available",
+	}
+	client.Volumes = append(client.Volumes, volume)
+
+	got, err := client.ResizeVolume("test-vol-1", 25)
 	if err != nil {
-		t.Errorf("Request returned an error: %s", err)
-		return
+		t.Errorf("Expected successful resize, got error: %s", err)
+	}
+	if got.Result != "success" {
+		t.Errorf("Expected result 'success', got %s", got.Result)
 	}
 
-	expected := &SimpleResponse{Result: "success"}
-	if !reflect.DeepEqual(got, expected) {
-		t.Errorf("Expected %+v, got %+v", expected, got)
+	// Test case 2: Volume not found
+	_, err = client.ResizeVolume("non-existent", 25)
+	if err == nil || !strings.Contains(err.Error(), "zero matches") {
+		t.Errorf("Expected 'zero matches' error, got %v", err)
+	}
+
+	// Test case 3: Volume still attached
+	attachedVolume := Volume{
+		ID:         "test-vol-2",
+		Name:       "test-volume-2",
+		InstanceID: "test-instance-1",
+		Status:     "in-use",
+	}
+	client.Volumes = append(client.Volumes, attachedVolume)
+
+	_, err = client.ResizeVolume("test-vol-2", 25)
+	if err == nil || !strings.Contains(err.Error(), "still attached") {
+		t.Errorf("Expected 'still attached' error, got %v", err)
+	}
+
+	// Test case 4: Invalid size (not increasing)
+	_, err = client.ResizeVolume("test-vol-1", 15)
+	if err == nil || !strings.Contains(err.Error(), "must be larger than current size") {
+		t.Errorf("Expected 'must be larger' error, got %v", err)
 	}
 }
 

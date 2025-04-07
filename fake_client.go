@@ -1290,6 +1290,25 @@ func (c *FakeClient) NewVolume(v *VolumeConfig) (*VolumeResult, error) {
 func (c *FakeClient) ResizeVolume(id string, size int) (*SimpleResponse, error) {
 	for i, volume := range c.Volumes {
 		if volume.ID == id {
+			// Check if volume is attached
+			if volume.InstanceID != "" {
+				err := fmt.Errorf("cannot resize volume while it is still attached to an instance")
+				return nil, DatabaseVolumeStillAttachedCannotResizeError.wrap(err)
+			}
+
+			// Check if new size is valid (must be larger than current)
+			if size <= volume.SizeGigabytes {
+				err := fmt.Errorf("new size must be larger than current size")
+				return nil, ParameterVolumeSizeMustIncreaseError.wrap(err)
+			}
+
+			// Simulate occasional resize failures (1 in 10 chance)
+			if rand.Float32() < 0.1 {
+				err := fmt.Errorf("volume resize operation failed, please retry")
+				return nil, CannotResizeVolumeError.wrap(err)
+			}
+
+			// If all checks pass, perform the resize
 			c.Volumes[i].SizeGigabytes = size
 			return &SimpleResponse{Result: "success"}, nil
 		}
