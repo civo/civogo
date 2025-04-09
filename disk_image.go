@@ -21,6 +21,33 @@ type DiskImage struct {
 	Label        string `json:"label,omitempty"`
 }
 
+// CreateDiskImageParams represents the parameters for creating a new disk image
+type CreateDiskImageParams struct {
+	Name         string `json:"name"`
+	Distribution string `json:"distribution"`
+	Version      string `json:"version"`
+	OS           string `json:"os,omitempty"`
+	Region       string `json:"region,omitempty"`
+	ImageSHA256  string `json:"image_sha256"`
+	ImageMD5     string `json:"image_md5"`
+	LogoBase64   string `json:"logo_base64,omitempty"`
+	ImageSize    int64  `json:"image_size_bytes"` // Changed from image_size to image_size_bytes
+}
+
+// CreateDiskImageResponse represents the response from creating a new disk image
+type CreateDiskImageResponse struct {
+	ID           string `json:"id"`
+	Name         string `json:"name"`
+	Distribution string `json:"distribution"`
+	Version      string `json:"version"`
+	OS           string `json:"os"`
+	Region       string `json:"region"`
+	Status       string `json:"status"`
+	DiskImageURL string `json:"disk_image_url"`
+	LogoURL      string `json:"logo_url"`
+	ImageSize    int64  `json:"image_size"`
+}
+
 // ListDiskImages return all disk image in system
 func (c *Client) ListDiskImages() ([]DiskImage, error) {
 	resp, err := c.SendGetRequest("/v2/disk_images")
@@ -133,4 +160,21 @@ func (c *Client) GetMostRecentDistro(name string) (*DiskImage, error) {
 	}
 
 	return highestVersionDistro, nil
+}
+
+// CreateDiskImage creates a new disk image entry and returns a pre-signed URL for uploading
+func (c *Client) CreateDiskImage(params *CreateDiskImageParams) (*CreateDiskImageResponse, error) {
+	url := "/v2/disk_images"
+	resp, err := c.SendPostRequest(url, params)
+
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	diskImage := &CreateDiskImageResponse{}
+	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&diskImage); err != nil {
+		return nil, err
+	}
+
+	return diskImage, nil
 }
