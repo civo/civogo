@@ -49,8 +49,19 @@ type CreateDiskImageResponse struct {
 }
 
 // ListDiskImages return all disk image in system
-func (c *Client) ListDiskImages() ([]DiskImage, error) {
-	resp, err := c.SendGetRequest("/v2/disk_images")
+// includeCustom when true will also return custom images (default: false)
+func (c *Client) ListDiskImages(includeCustom ...bool) ([]DiskImage, error) {
+	includeCustomFlag := false
+	if len(includeCustom) > 0 {
+		includeCustomFlag = includeCustom[0]
+	}
+
+	url := "/v2/disk_images"
+	if includeCustomFlag {
+		url += "/?type=custom"
+	}
+
+	resp, err := c.SendGetRequest(url)
 	if err != nil {
 		return nil, decodeError(err)
 	}
