@@ -58,7 +58,7 @@ func (c *Client) ListDiskImages(includeCustom ...bool) ([]DiskImage, error) {
 
 	url := "/v2/disk_images"
 	if includeCustomFlag {
-		url += "/?type=custom"
+		url += "?type=custom"
 	}
 
 	resp, err := c.SendGetRequest(url)
