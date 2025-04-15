@@ -189,3 +189,13 @@ func (c *Client) CreateDiskImage(params *CreateDiskImageParams) (*CreateDiskImag
 
 	return diskImage, nil
 }
+
+// DeleteDiskImage deletes a disk image by its ID
+func (c *Client) DeleteDiskImage(id string) error {
+	_, err := c.SendDeleteRequest(fmt.Sprintf("/v2/disk_images/%s", id))
+	if err != nil {
+		return decodeError(err)
+	}
+
+	return nil
+}
