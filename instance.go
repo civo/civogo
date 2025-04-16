@@ -427,7 +427,7 @@ func (c *Client) SetInstanceFirewall(id, firewallID string) (*SimpleResponse, er
 
 // EnableRecoveryMode enables recovery mode for the specified instance
 func (c *Client) EnableRecoveryMode(id string) (*SimpleResponse, error) {
-	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/recovery", id), nil)
+	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/recovery?region=%s", id, c.Region), nil)
 	if err != nil {
 		return nil, decodeError(err)
 	}
@@ -437,7 +437,7 @@ func (c *Client) EnableRecoveryMode(id string) (*SimpleResponse, error) {
 
 // DisableRecoveryMode disables recovery mode for the specified instance
 func (c *Client) DisableRecoveryMode(id string) (*SimpleResponse, error) {
-	resp, err := c.SendDeleteRequest(fmt.Sprintf("/v2/instances/%s/recovery", id))
+	resp, err := c.SendDeleteRequest(fmt.Sprintf("/v2/instances/%s/recovery?region=%s", id, c.Region))
 	if err != nil {
 		return nil, decodeError(err)
 	}
