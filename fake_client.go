@@ -152,7 +152,7 @@ type Clienter interface {
 	// DeleteTemplate(id string) (*SimpleResponse, error)
 
 	// DiskImages
-	ListDiskImages() ([]DiskImage, error)
+	ListDiskImages(includeCustom ...bool) ([]DiskImage, error)
 	GetDiskImage(id string) (*DiskImage, error)
 	FindDiskImage(search string) (*DiskImage, error)
 
@@ -1212,7 +1212,7 @@ func (c *FakeClient) DeleteSSHKey(id string) (*SimpleResponse, error) {
 // }
 
 // ListDiskImages implemented in a fake way for automated tests
-func (c *FakeClient) ListDiskImages() ([]DiskImage, error) {
+func (c *FakeClient) ListDiskImages(includeCustom ...bool) ([]DiskImage, error) {
 	return c.DiskImage, nil
 }
 
