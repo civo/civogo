@@ -62,6 +62,13 @@ type CreateSnapshotInstance struct {
 	IncludeVolumes bool   `json:"include_volumes"`
 }
 
+// UpdateSnapshotScheduleRequest represents the request to update a snapshot schedule
+type UpdateSnapshotScheduleRequest struct {
+	Name        string `json:"name,omitempty"`
+	Description string `json:"description,omitempty"`
+	Paused      bool   `json:"paused,omitempty"`
+}
+
 // CreateSnapshotSchedule creates a new snapshot schedule
 func (c *Client) CreateSnapshotSchedule(r *CreateSnapshotScheduleRequest) (*SnapshotSchedule, error) {
 	body, err := c.SendPostRequest("/v2/resourcesnapshotschedules", r)
@@ -149,4 +156,19 @@ func (c *Client) DeleteSnapshotSchedule(id string) (*SimpleResponse, error) {
 	}
 
 	return c.DecodeSimpleResponse(resp)
+}
+
+// UpdateSnapshotSchedule updates a snapshot schedule
+func (c *Client) UpdateSnapshotSchedule(id string, r *UpdateSnapshotScheduleRequest) (*SnapshotSchedule, error) {
+	body, err := c.SendPutRequest(fmt.Sprintf("/v2/resourcesnapshotschedules/%s", id), r)
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	var schedule = &SnapshotSchedule{}
+	if err := json.NewDecoder(bytes.NewReader(body)).Decode(schedule); err != nil {
+		return nil, err
+	}
+
+	return schedule, nil
 }
