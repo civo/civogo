@@ -3,6 +3,7 @@ package civogo
 import (
 	"reflect"
 	"testing"
+	"time"
 )
 
 func TestClienterDiskImage(t *testing.T) {
@@ -14,7 +15,25 @@ func TestClienterDiskImage(t *testing.T) {
 }
 
 func TestGetDiskImage(t *testing.T) {
-	client, _ := NewFakeClient()
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/disk_images/b82168fe-66f6-4b38-a3b8-5283542d5475": `{
+			"id": "b82168fe-66f6-4b38-a3b8-5283542d5475",
+			"name": "centos-7",
+			"version": "7",
+			"state": "available",
+			"initial_user": "centos",
+			"distribution": "centos",
+			"os": "linux",
+			"description": "CentOS 7 disk image",
+			"label": "centos",
+			"disk_image_url": "https://example.com/centos-7.img",
+			"disk_image_size_bytes": 1073741824,
+			"logo_url": "https://example.com/centos-logo.png",
+			"created_at": "2023-01-01T00:00:00Z",
+			"created_by": "system",
+			"distribution_default": true
+		}`})
+	defer server.Close()
 
 	results, err := client.GetDiskImage("b82168fe-66f6-4b38-a3b8-5283542d5475")
 	if err != nil {
@@ -22,20 +41,49 @@ func TestGetDiskImage(t *testing.T) {
 		return
 	}
 
-	if results.ID != "b82168fe-66f6-4b38-a3b8-5283542d5475" {
-		t.Errorf("Expected %+v, got %+v", "b82168fe-66f6-4b38-a3b8-5283542d5475", results.ID)
-		return
+	expected := &DiskImage{
+		ID:                  "b82168fe-66f6-4b38-a3b8-5283542d5475",
+		Name:                "centos-7",
+		Version:             "7",
+		State:               "available",
+		InitialUser:         "centos",
+		Distribution:        "centos",
+		OS:                  "linux",
+		Description:         "CentOS 7 disk image",
+		Label:               "centos",
+		DiskImageURL:        "https://example.com/centos-7.img",
+		DiskImageSizeBytes:  1073741824,
+		LogoURL:             "https://example.com/centos-logo.png",
+		CreatedAt:           time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC),
+		CreatedBy:           "system",
+		DistributionDefault: true,
 	}
 
-	if results.Name != "centos-7" {
-		t.Errorf("Expected %+v, got %+v", "centos-7", results.Name)
-		return
+	if !reflect.DeepEqual(results, expected) {
+		t.Errorf("Expected %+v, got %+v", expected, results)
 	}
-
 }
 
 func TestFindDiskImage(t *testing.T) {
-	client, _ := NewFakeClient()
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/disk_images": `[{
+			"id": "b82168fe-66f6-4b38-a3b8-52835428965",
+			"name": "debian-10",
+			"version": "10",
+			"state": "available",
+			"initial_user": "debian",
+			"distribution": "debian",
+			"os": "linux",
+			"description": "Debian 10 disk image",
+			"label": "debian",
+			"disk_image_url": "https://example.com/debian-10.img",
+			"disk_image_size_bytes": 2147483648,
+			"logo_url": "https://example.com/debian-logo.png",
+			"created_at": "2023-01-01T00:00:00Z",
+			"created_by": "system",
+			"distribution_default": true
+		}]`})
+	defer server.Close()
 
 	results, err := client.FindDiskImage("debian-10")
 	if err != nil {
@@ -43,16 +91,27 @@ func TestFindDiskImage(t *testing.T) {
 		return
 	}
 
-	if results.ID != "b82168fe-66f6-4b38-a3b8-52835428965" {
-		t.Errorf("Expected %+v, got %+v", "b82168fe-66f6-4b38-a3b8-52835428965", results.ID)
-		return
+	expected := &DiskImage{
+		ID:                  "b82168fe-66f6-4b38-a3b8-52835428965",
+		Name:                "debian-10",
+		Version:             "10",
+		State:               "available",
+		InitialUser:         "debian",
+		Distribution:        "debian",
+		OS:                  "linux",
+		Description:         "Debian 10 disk image",
+		Label:               "debian",
+		DiskImageURL:        "https://example.com/debian-10.img",
+		DiskImageSizeBytes:  2147483648,
+		LogoURL:             "https://example.com/debian-logo.png",
+		CreatedAt:           time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC),
+		CreatedBy:           "system",
+		DistributionDefault: true,
 	}
 
-	if results.Name != "debian-10" {
-		t.Errorf("Expected %+v, got %+v", "debian-10", results.Name)
-		return
+	if !reflect.DeepEqual(results, expected) {
+		t.Errorf("Expected %+v, got %+v", expected, results)
 	}
-
 }
 
 func TestListDiskImages(t *testing.T) {
@@ -68,13 +127,21 @@ func TestListDiskImages(t *testing.T) {
 	}
 	expected := []DiskImage{
 		{
-			ID:           "22552dcf-aea3-4403-ae62-93651932bbd7",
-			Name:         "centos-7",
-			Version:      "7",
-			State:        "available",
-			Distribution: "centos",
-			Description:  "",
-			Label:        "",
+			ID:                  "22552dcf-aea3-4403-ae62-93651932bbd7",
+			Name:                "centos-7",
+			Version:             "7",
+			State:               "available",
+			InitialUser:         "centos",
+			Distribution:        "centos",
+			OS:                  "linux",
+			Description:         "",
+			Label:               "",
+			DiskImageURL:        "https://example.com/centos-7.img",
+			DiskImageSizeBytes:  1073741824,
+			LogoURL:             "https://example.com/centos-logo.png",
+			CreatedAt:           time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC),
+			CreatedBy:           "system",
+			DistributionDefault: true,
 		},
 		{
 			ID:           "4204229c-510c-4ba4-ab07-522e2aaa2cf8",
