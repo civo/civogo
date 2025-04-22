@@ -6,46 +6,62 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 
 	"golang.org/x/mod/semver"
 )
 
-// DiskImage represents a DiskImage for launching instances from
+// DiskImage represents a serialized structure
 type DiskImage struct {
-	ID           string `json:"id,omitempty"`
-	Name         string `json:"name,omitempty"`
-	Version      string `json:"version,omitempty"`
-	State        string `json:"state,omitempty"`
-	Distribution string `json:"distribution,omitempty"`
-	Description  string `json:"description,omitempty"`
-	Label        string `json:"label,omitempty"`
+	ID                  string    `json:"id"`
+	Name                string    `json:"name"`
+	Version             string    `json:"version"`
+	State               string    `json:"state"`
+	InitialUser         string    `json:"initial_user,omitempty"`
+	Distribution        string    `json:"distribution"`
+	OS                  string    `json:"os,omitempty"`
+	Description         string    `json:"description"`
+	Label               string    `json:"label"`
+	DiskImageURL        string    `json:"disk_image_url,omitempty"`
+	DiskImageSizeBytes  int64     `json:"disk_image_size_bytes,omitempty"`
+	LogoURL             string    `json:"logo_url,omitempty"`
+	CreatedAt           time.Time `json:"created_at,omitempty"`
+	CreatedBy           string    `json:"created_by,omitempty"` // User information (because multiple users can operate under the same account)
+	DistributionDefault bool      `json:"distribution_default"`
 }
 
 // CreateDiskImageParams represents the parameters for creating a new disk image
 type CreateDiskImageParams struct {
-	Name         string `json:"name"`
-	Distribution string `json:"distribution"`
-	Version      string `json:"version"`
-	OS           string `json:"os,omitempty"`
-	Region       string `json:"region,omitempty"`
-	ImageSHA256  string `json:"image_sha256"`
-	ImageMD5     string `json:"image_md5"`
-	LogoBase64   string `json:"logo_base64,omitempty"`
-	ImageSize    int64  `json:"image_size_bytes"` // Changed from image_size to image_size_bytes
+	Name           string `json:"name"`
+	Distribution   string `json:"distribution"`
+	Version        string `json:"version"`
+	Source         string `json:"source"`
+	OS             string `json:"os,omitempty"`
+	InitialUser    string `json:"initial_user,omitempty"`
+	Region         string `json:"region,omitempty"`
+	ImageSHA256    string `json:"image_sha256"`
+	ImageMD5       string `json:"image_md5"`
+	LogoBase64     string `json:"logo_base64,omitempty"`
+	ImageSizeBytes int64  `json:"image_size_bytes"` // Size of the image in bytes
 }
 
 // CreateDiskImageResponse represents the response from creating a new disk image
 type CreateDiskImageResponse struct {
-	ID           string `json:"id"`
-	Name         string `json:"name"`
-	Distribution string `json:"distribution"`
-	Version      string `json:"version"`
-	OS           string `json:"os"`
-	Region       string `json:"region"`
-	Status       string `json:"status"`
-	DiskImageURL string `json:"disk_image_url"`
-	LogoURL      string `json:"logo_url"`
-	ImageSize    int64  `json:"image_size"`
+	ID                  string    `json:"id"`
+	Name                string    `json:"name"`
+	Distribution        string    `json:"distribution"`
+	Version             string    `json:"version"`
+	OS                  string    `json:"os"`
+	Region              string    `json:"region"`
+	Status              string    `json:"status"`
+	InitialUser         string    `json:"initial_user,omitempty"`
+	DiskImageURL        string    `json:"disk_image_url"`
+	DiskImageSizeBytes  int64     `json:"disk_image_size_bytes,omitempty"`
+	LogoURL             string    `json:"logo_url"`
+	ImageSize           int64     `json:"image_size"`
+	CreatedAt           time.Time `json:"created_at,omitempty"`
+	CreatedBy           string    `json:"created_by,omitempty"`
+	DistributionDefault bool      `json:"distribution_default,omitempty"`
 }
 
 // ListDiskImages return all disk image in system
