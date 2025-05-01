@@ -100,7 +100,7 @@ func (c *Client) ListInstanceSnapshots(instanceID string) ([]InstanceSnapshot, e
 }
 
 // UpdateInstanceSnapshot updates a snapshot of an instance
-	func (c *Client) UpdateInstanceSnapshot(instanceID, snapshotID string, params *UpdateInstanceSnapshotParams) (*InstanceSnapshot, error) {
+func (c *Client) UpdateInstanceSnapshot(instanceID, snapshotID string, params *UpdateInstanceSnapshotParams) (*InstanceSnapshot, error) {
 	url := fmt.Sprintf("/v2/instances/%s/snapshots/%s", instanceID, snapshotID)
 	resp, err := c.SendPutRequest(url, params)
 	if err != nil {
