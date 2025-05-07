@@ -1,5 +1,7 @@
-on: [push, pull_request]
 name: Test
+
+on: [push, pull_request]
+
 jobs:
   test:
     strategy:
@@ -8,14 +10,28 @@ jobs:
         os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
-    - name: Install Go
-      uses: actions/setup-go@v2
-      with:
-        go-version: ${{ matrix.go-version }}
-    - name: Checkout code
-      uses: actions/checkout@v2
-    - name: Test
-      run: go test ./...
-    - name: Ensure correctly formatted
-      if: runner.os == 'Linux'
-      run: test -z "$(gofmt -l $(find . -type f -name '*.go'))"
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go-version }}
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Run tests
+        run: go test ./...
+
+      - name: Ensure correctly formatted on Linux
+        if: runner.os == 'Linux'
+        run: test -z "$(gofmt -l $(find . -type f -name '*.go'))"
+
+      - name: Ensure correctly formatted on Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $files = gofmt -l .
+          if ($files) {
+            Write-Output "The following files need formatting:"
+            Write-Output $files
+            exit 1
+          } else {
+            Write-Output "All files are correctly formatted."
+          }
