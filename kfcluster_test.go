@@ -41,17 +41,34 @@ func TestFindKfCluster(t *testing.T) {
 			"pages": 1,
 			"items": [
 			  {
-				"id": "12345",
-				"name": "test-kfcluster"
-			  }
+					"id": "12345",
+					"name": "test-kfcluster"
+			  },
+				{
+					"id": "12346",
+					"name": "demo-kfcluster"
+				}
 			]
 		  }`,
 	})
 	defer server.Close()
 
+	// Exact Match
 	got, _ := client.FindKfCluster("test-kfcluster")
 	if got.ID != "12345" {
 		t.Errorf("Expected %s, got %s", "12345", got.ID)
+	}
+
+	// Multiple Match
+	_, err := client.FindKfCluster("kfcluster")
+	if err.Error() != "MultipleMatchesError: unable to find kfcluster because there were multiple matches" {
+		t.Errorf("Expected %s, got %s", "unable to find kfcluster as there were multiple matches found", err.Error())
+	}
+
+	// Zero Match
+	_, err = client.FindKfCluster("missing")
+	if err.Error() != "ZeroMatchesError: unable to find missing, zero matches" {
+		t.Errorf("Expected %s, got %s", "unable to find missing, zero matches", err.Error())
 	}
 }
 
