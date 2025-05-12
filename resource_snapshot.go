@@ -143,7 +143,7 @@ func (c *Client) RestoreResourceSnapshot(id string, req *RestoreResourceSnapshot
 
 	var restoreInfo ResourceSnapshotRestore
 	if err := json.NewDecoder(bytes.NewReader(body)).Decode(&restoreInfo); err != nil {
-		return nil, err
+		return nil, decodeError(err)
 	}
 
 	return &restoreInfo, nil
