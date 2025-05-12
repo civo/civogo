@@ -130,7 +130,6 @@ func TestRestoreResourceSnapshot(t *testing.T) {
 				"description": "Restored snapshot",
 				"from_snapshot": "12345",
 				"private_ipv4": "10.0.0.5",
-				"include_volumes": true,
 				"overwrite_existing": false,
 				"status": {
 					"state": "in_progress"

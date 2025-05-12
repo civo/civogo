@@ -50,7 +50,6 @@ type InstanceRestoreInfo struct {
 	Description       string `json:"description"`
 	FromSnapshot      string `json:"from_snapshot"`
 	PrivateIPv4       string `json:"private_ipv4"`
-	IncludeVolumes    bool   `json:"include_volumes"`
 	OverwriteExisting bool   `json:"overwrite_existing"`
 	Status            struct {
 		State string `json:"state"`
