@@ -36,6 +36,28 @@ type VolumeStatus struct {
 	State string `json:"state"`
 }
 
+// ResourceSnapshotRestore represents the response from a restore operation
+type ResourceSnapshotRestore struct {
+	ResourceType string               `json:"resource_type"`
+	Instance     *InstanceRestoreInfo `json:"instance,omitempty"`
+}
+
+// InstanceRestoreInfo represents the instance details in a restore operation response
+type InstanceRestoreInfo struct {
+	ID                string `json:"id"`
+	Name              string `json:"name"`
+	Hostname          string `json:"hostname"`
+	Description       string `json:"description"`
+	FromSnapshot      string `json:"from_snapshot"`
+	PrivateIPv4       string `json:"private_ipv4"`
+	OverwriteExisting bool   `json:"overwrite_existing"`
+	Status            struct {
+		State string `json:"state"`
+	} `json:"status"`
+	CreatedAt   time.Time  `json:"created_at"`
+	CompletedAt *time.Time `json:"completed_at"` // Use pointer for nullable time
+}
+
 // UpdateResourceSnapshotRequest represents the request to update a resource snapshot
 type UpdateResourceSnapshotRequest struct {
 	Name        string `json:"name,omitempty"`
@@ -112,16 +134,16 @@ func (c *Client) DeleteResourceSnapshot(id string) (*SimpleResponse, error) {
 }
 
 // RestoreResourceSnapshot restores a resource from a snapshot
-func (c *Client) RestoreResourceSnapshot(id string, req *RestoreResourceSnapshotRequest) (*ResourceSnapshot, error) {
+func (c *Client) RestoreResourceSnapshot(id string, req *RestoreResourceSnapshotRequest) (*ResourceSnapshotRestore, error) {
 	body, err := c.SendPostRequest(fmt.Sprintf("/v2/resourcesnapshots/%s/restore", id), req)
 	if err != nil {
 		return nil, decodeError(err)
 	}
 
-	var snapshot ResourceSnapshot
-	if err := json.NewDecoder(bytes.NewReader(body)).Decode(&snapshot); err != nil {
-		return nil, err
+	var restoreInfo ResourceSnapshotRestore
+	if err := json.NewDecoder(bytes.NewReader(body)).Decode(&restoreInfo); err != nil {
+		return nil, decodeError(err)
 	}
 
-	return &snapshot, nil
+	return &restoreInfo, nil
 }

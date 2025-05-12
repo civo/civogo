@@ -122,11 +122,21 @@ func TestDeleteResourceSnapshot(t *testing.T) {
 func TestRestoreResourceSnapshot(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/resourcesnapshots/12345/restore": `{
-			"id": "12345",
-			"name": "restored-snapshot",
-			"description": "Restored snapshot",
 			"resource_type": "instance",
-			"created_at": "2023-01-01T12:00:00Z"
+			"instance": {
+				"id": "restore-op-67890",
+				"name": "restored-snapshot-op-name",
+				"hostname": "restored-instance",
+				"description": "Restored snapshot",
+				"from_snapshot": "12345",
+				"private_ipv4": "10.0.0.5",
+				"overwrite_existing": false,
+				"status": {
+					"state": "in_progress"
+				},
+				"created_at": "2023-01-01T12:00:00Z",
+				"completed_at": null
+			}
 		}`,
 	})
 	defer server.Close()
@@ -145,7 +155,21 @@ func TestRestoreResourceSnapshot(t *testing.T) {
 		t.Errorf("Expected no error, got %v", err)
 	}
 
-	if got.Name != "restored-snapshot" {
-		t.Errorf("Expected name 'restored-snapshot', got %s", got.Name)
+	if got.Instance == nil {
+		t.Fatalf("Expected Instance to be non-nil")
+	}
+
+	// Check a few fields from the new response structure
+	if got.ResourceType != "instance" {
+		t.Errorf("Expected ResourceType 'instance', got %s", got.ResourceType)
+	}
+	if got.Instance.Name != "restored-snapshot-op-name" {
+		t.Errorf("Expected Instance.Name 'restored-snapshot-op-name', got %s", got.Instance.Name)
+	}
+	if got.Instance.Hostname != "restored-instance" {
+		t.Errorf("Expected Instance.Hostname 'restored-instance', got %s", got.Instance.Hostname)
+	}
+	if got.Instance.FromSnapshot != "12345" {
+		t.Errorf("Expected Instance.FromSnapshot '12345', got %s", got.Instance.FromSnapshot)
 	}
 }
