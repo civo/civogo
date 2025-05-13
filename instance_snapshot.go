@@ -31,9 +31,8 @@ type InstanceSnapshotVolumeStatus struct {
 
 // CreateInstanceSnapshotParams represents the parameters for creating a new instance snapshot
 type CreateInstanceSnapshotParams struct {
-	Name           string `json:"name"`
-	Description    string `json:"description,omitempty"`
-	IncludeVolumes bool   `json:"include_volumes,omitempty"`
+	Name        string `json:"name"`
+	Description string `json:"description,omitempty"`
 }
 
 // UpdateInstanceSnapshotParams represents the parameters for updating an instance snapshot
@@ -47,7 +46,6 @@ type RestoreInstanceSnapshotParams struct {
 	Description       string `json:"description,omitempty"`
 	Hostname          string `json:"hostname,omitempty"`
 	PrivateIPv4       string `json:"private_ipv4,omitempty"`
-	IncludeVolumes    bool   `json:"include_volumes,omitempty"`
 	OverwriteExisting bool   `json:"overwrite_existing,omitempty"`
 }
 
@@ -127,16 +125,16 @@ func (c *Client) DeleteInstanceSnapshot(instanceID, snapshotID string) error {
 }
 
 // RestoreInstanceSnapshot restores a snapshot of an instance
-func (c *Client) RestoreInstanceSnapshot(instanceID, snapshotID string, params *RestoreInstanceSnapshotParams) (*ResourceSnapshotRestore, error) {
+func (c *Client) RestoreInstanceSnapshot(instanceID, snapshotID string, params *RestoreInstanceSnapshotParams) (*InstanceRestoreInfo, error) {
 	url := fmt.Sprintf("/v2/instances/%s/snapshots/%s/restore", instanceID, snapshotID)
 	body, err := c.SendPostRequest(url, params)
 	if err != nil {
 		return nil, decodeError(err)
 	}
-	var restoreInfo ResourceSnapshotRestore
-	if err := json.NewDecoder(bytes.NewReader(body)).Decode(&restoreInfo); err != nil {
+	var instanceRestoreInfo InstanceRestoreInfo
+	if err := json.NewDecoder(bytes.NewReader(body)).Decode(&instanceRestoreInfo); err != nil {
 		return nil, decodeError(err)
 	}
 
-	return &restoreInfo, nil
+	return &instanceRestoreInfo, nil
 }
