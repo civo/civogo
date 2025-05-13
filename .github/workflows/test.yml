@@ -17,5 +17,4 @@ jobs:
     - name: Test
       run: go test ./...
     - name: Ensure correctly formatted
-      if: runner.os == 'Linux'
       run: test -z "$(gofmt -l $(find . -type f -name '*.go'))"
