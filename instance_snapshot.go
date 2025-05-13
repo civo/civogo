@@ -127,12 +127,17 @@ func (c *Client) DeleteInstanceSnapshot(instanceID, snapshotID string) error {
 }
 
 // RestoreInstanceSnapshot restores a snapshot of an instance
-func (c *Client) RestoreInstanceSnapshot(instanceID, snapshotID string, params *RestoreInstanceSnapshotParams) error {
+func (c *Client) RestoreInstanceSnapshot(instanceID, snapshotID string, params *RestoreInstanceSnapshotParams) (*ResourceSnapshotRestore, error) {
 	url := fmt.Sprintf("/v2/instances/%s/snapshots/%s/restore", instanceID, snapshotID)
-	_, err := c.SendPostRequest(url, params)
+	body, err := c.SendPostRequest(url, params)
 	if err != nil {
-		return decodeError(err)
+		return nil, decodeError(err)
 	}
 
-	return nil
+	var restoreInfo ResourceSnapshotRestore
+	if err := json.NewDecoder(bytes.NewReader(body)).Decode(&restoreInfo); err != nil {
+		return nil, decodeError(err)
+	}
+
+	return &restoreInfo, nil
 }
