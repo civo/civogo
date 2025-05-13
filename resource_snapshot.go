@@ -19,21 +19,13 @@ type ResourceSnapshot struct {
 
 // InstanceSnapshotInfo represents instance-specific snapshot details
 type InstanceSnapshotInfo struct {
-	ID              string   `json:"id"`
-	Name            string   `json:"name"`
-	Description     string   `json:"description"`
-	IncludedVolumes []string `json:"included_volumes,omitempty"`
-	Status          struct {
-		State   string         `json:"state"`
-		Volumes []VolumeStatus `json:"volumes,omitempty"`
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Status      struct {
+		State string `json:"state"`
 	} `json:"status"`
 	CreatedAt time.Time `json:"created_at"`
-}
-
-// VolumeStatus represents the status of a volume in a snapshot
-type VolumeStatus struct {
-	ID    string `json:"id"`
-	State string `json:"state"`
 }
 
 // UpdateResourceSnapshotRequest represents the request to update a resource snapshot
