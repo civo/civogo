@@ -308,19 +308,37 @@ func (c *Client) GetInstanceVnc(id string, duration ...string) (InstanceVnc, err
 // GetInstanceVncStatus retrieves the VNC status for an instance by its ID.
 // Returns VNC details if a session exists, or an error if not found or on failure.
 func (c *Client) GetInstanceVncStatus(id string) (*InstanceVnc, error) {
-    url := fmt.Sprintf("/v2/instances/%s/vnc", id)
+	url := fmt.Sprintf("/v2/instances/%s/vnc", id)
 
-    resp, err := c.SendGetRequest(url)
-    if err != nil {
-        return nil, decodeError(err)
-    }
+	resp, err := c.SendGetRequest(url)
+	if err != nil {
+		return nil, decodeError(err)
+	}
 
-    var vnc InstanceVnc
-    if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&vnc); err != nil {
-        return nil, decodeError(err)
-    }
+	var vnc InstanceVnc
+	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&vnc); err != nil {
+		return nil, decodeError(err)
+	}
 
-    return &vnc, nil
+	return &vnc, nil
+}
+
+// DeleteInstanceVncSession deletes the VNC session for an instance by its ID.
+// Returns VNC details of the deleted session, or an error if not found or on failure.
+func (c *Client) DeleteInstanceVncSession(id string) (*InstanceVnc, error) {
+	url := fmt.Sprintf("/v2/instances/%s/vnc", id)
+
+	resp, err := c.SendDeleteRequest(url)
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	var vnc InstanceVnc
+	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&vnc); err != nil {
+		return nil, decodeError(err)
+	}
+
+	return &vnc, nil
 }
 
 // DeleteInstance deletes an instance and frees its resources
