@@ -463,3 +463,41 @@ func TestGetRecoveryStatus(t *testing.T) {
 	got, err := client.GetRecoveryStatus("12345")
 	EnsureSuccessfulSimpleResponse(t, got, err)
 }
+
+func TestUpdateInstanceAllowedIPs(t *testing.T) {
+	client, server, _ := NewAdvancedClientForTesting([]ConfigAdvanceClientForTesting{
+		{
+			Method: "PUT",
+			Value: []ValueAdvanceClientForTesting{
+				{
+					RequestBody:  `"{"allowed_ips": ["192.168.1.10", "192.168.1.11"]"`,
+					URL:          "/v2/instances/12345/allowed_ips",
+					ResponseBody: `{"result": "success"}`,
+				},
+			},
+		},
+	})
+	defer server.Close()
+
+	got, err := client.UpdateInstanceAllowedIPs("12345", []string{"192.168.1.10", "192.168.1.11"})
+	EnsureSuccessfulSimpleResponse(t, got, err)
+}
+
+func TestUpdateInstanceBandwidth(t *testing.T) {
+	client, server, _ := NewAdvancedClientForTesting([]ConfigAdvanceClientForTesting{
+		{
+			Method: "PUT",
+			Value: []ValueAdvanceClientForTesting{
+				{
+					RequestBody:  `"{"network_bandwidth_limit":"10"}"`,
+					URL:          "/v2/instances/12345/network_bandwidth_limit",
+					ResponseBody: `{"result": "success"}`,
+				},
+			},
+		},
+	})
+	defer server.Close()
+
+	got, err := client.UpdateInstanceBandwidth("12345", 10)
+	EnsureSuccessfulSimpleResponse(t, got, err)
+}

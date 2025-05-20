@@ -56,6 +56,8 @@ type Instance struct {
 	Subnets                  []Subnet         `json:"subnets,omitempty"`
 	AttachedVolumes          []AttachedVolume `json:"attached_volumes,omitempty"`
 	PlacementRule            PlacementRule    `json:"placement_rule,omitempty"`
+	NetworkBandwidthLimit    int              `json:"network_bandwidth_limit,omitempty"`
+	AllowedIPs               []string         `json:"allowed_ips,omitempty"`
 }
 
 //"cpu_cores":1,"ram_mb":2048,"disk_gb":25
@@ -91,29 +93,31 @@ type AttachedVolume struct {
 // none of the fields are mandatory and will be automatically
 // set with default values
 type InstanceConfig struct {
-	Count            int              `json:"count"`
-	Hostname         string           `json:"hostname"`
-	ReverseDNS       string           `json:"reverse_dns"`
-	Size             string           `json:"size"`
-	Region           string           `json:"region"`
-	PublicIPRequired string           `json:"public_ip"`
-	ReservedIPv4     string           `json:"reserved_ipv4"`
-	PrivateIPv4      string           `json:"private_ipv4"`
-	NetworkID        string           `json:"network_id"`
-	TemplateID       string           `json:"template_id"`
-	SourceType       string           `json:"source_type"`
-	SourceID         string           `json:"source_id"`
-	SnapshotID       string           `json:"snapshot_id"`
-	Subnets          []string         `json:"subnets,omitempty"`
-	InitialUser      string           `json:"initial_user"`
-	SSHKeyID         string           `json:"ssh_key_id"`
-	Script           string           `json:"script"`
-	Tags             []string         `json:"-"`
-	TagsList         string           `json:"tags"`
-	FirewallID       string           `json:"firewall_id"`
-	VolumeType       string           `json:"volume_type,omitempty"`
-	AttachedVolumes  []AttachedVolume `json:"attached_volumes"`
-	PlacementRule    PlacementRule    `json:"placement_rule"`
+	Count                 int              `json:"count"`
+	Hostname              string           `json:"hostname"`
+	ReverseDNS            string           `json:"reverse_dns"`
+	Size                  string           `json:"size"`
+	Region                string           `json:"region"`
+	PublicIPRequired      string           `json:"public_ip"`
+	ReservedIPv4          string           `json:"reserved_ipv4"`
+	PrivateIPv4           string           `json:"private_ipv4"`
+	NetworkID             string           `json:"network_id"`
+	TemplateID            string           `json:"template_id"`
+	SourceType            string           `json:"source_type"`
+	SourceID              string           `json:"source_id"`
+	SnapshotID            string           `json:"snapshot_id"`
+	Subnets               []string         `json:"subnets,omitempty"`
+	InitialUser           string           `json:"initial_user"`
+	SSHKeyID              string           `json:"ssh_key_id"`
+	Script                string           `json:"script"`
+	Tags                  []string         `json:"-"`
+	TagsList              string           `json:"tags"`
+	FirewallID            string           `json:"firewall_id"`
+	VolumeType            string           `json:"volume_type,omitempty"`
+	AttachedVolumes       []AttachedVolume `json:"attached_volumes"`
+	PlacementRule         PlacementRule    `json:"placement_rule"`
+	NetworkBandwidthLimit int              `json:"network_bandwidth_limit,omitempty"`
+	AllowedIPs            []string         `json:"allowed_ips,omitempty"`
 }
 
 // AffinityRule represents a affinity rule
@@ -448,6 +452,26 @@ func (c *Client) DisableRecoveryMode(id string) (*SimpleResponse, error) {
 // GetRecoveryStatus gets the recovery status for the specified instance
 func (c *Client) GetRecoveryStatus(id string) (*SimpleResponse, error) {
 	resp, err := c.SendGetRequest(fmt.Sprintf("/v2/instances/%s/recovery", id))
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	return c.DecodeSimpleResponse(resp)
+}
+
+// UpdateInstanceAllowedIPs sets the list of IP addresses that an instance is allowed to use
+func (c *Client) UpdateInstanceAllowedIPs(id string, allowedIPs []string) (*SimpleResponse, error) {
+	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/allowed_ips", id), allowedIPs)
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	return c.DecodeSimpleResponse(resp)
+}
+
+// UpdateInstanceAllowedIPs sets the list of IP addresses that an instance is allowed to use
+func (c *Client) UpdateInstanceBandwidth(id string, bandwidthLimit int) (*SimpleResponse, error) {
+	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/network_bandwidth_limit", id), bandwidthLimit)
 	if err != nil {
 		return nil, decodeError(err)
 	}
