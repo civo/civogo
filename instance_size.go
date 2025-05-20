@@ -23,7 +23,7 @@ type InstanceSize struct {
 }
 
 // ListInstanceSizes returns all availble sizes of instances
-// TODO: Rename to Size because this return all size (k8s, vm, database)
+// TODO: Rename to Size because this return all size (k8s, vm, database, kfaas)
 func (c *Client) ListInstanceSizes() ([]InstanceSize, error) {
 	resp, err := c.SendGetRequest("/v2/sizes")
 	if err != nil {
