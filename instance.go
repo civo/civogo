@@ -469,7 +469,7 @@ func (c *Client) UpdateInstanceAllowedIPs(id string, allowedIPs []string) (*Simp
 	return c.DecodeSimpleResponse(resp)
 }
 
-// UpdateInstanceAllowedIPs sets the list of IP addresses that an instance is allowed to use
+// UpdateInstanceBandwidth sets the list of IP addresses that an instance is allowed to use
 func (c *Client) UpdateInstanceBandwidth(id string, bandwidthLimit int) (*SimpleResponse, error) {
 	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/network_bandwidth_limit", id), bandwidthLimit)
 	if err != nil {
