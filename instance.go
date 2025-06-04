@@ -466,7 +466,7 @@ func (c *Client) UpdateInstanceAllowedIPs(id string, allowedIPs []string) (*Simp
 		"allowed_ips": allowedIPs,
 	}
 	// Send the payload map instead of the raw allowedIPs slice
-	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/allowed_ips", id), payload) 
+	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/allowed_ips", id), payload)
 	if err != nil {
 		return nil, decodeError(err)
 	}
