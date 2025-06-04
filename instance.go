@@ -461,7 +461,12 @@ func (c *Client) GetRecoveryStatus(id string) (*SimpleResponse, error) {
 
 // UpdateInstanceAllowedIPs sets the list of IP addresses that an instance is allowed to use
 func (c *Client) UpdateInstanceAllowedIPs(id string, allowedIPs []string) (*SimpleResponse, error) {
-	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/allowed_ips", id), allowedIPs)
+	// Create a map to match the expected JSON structure
+	payload := map[string][]string{
+		"allowed_ips": allowedIPs,
+	}
+	// Send the payload map instead of the raw allowedIPs slice
+	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/allowed_ips", id), payload)
 	if err != nil {
 		return nil, decodeError(err)
 	}
@@ -471,10 +476,12 @@ func (c *Client) UpdateInstanceAllowedIPs(id string, allowedIPs []string) (*Simp
 
 // UpdateInstanceBandwidth sets the list of IP addresses that an instance is allowed to use
 func (c *Client) UpdateInstanceBandwidth(id string, bandwidthLimit int) (*SimpleResponse, error) {
-	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/network_bandwidth_limit", id), bandwidthLimit)
+	payload := map[string]int{
+		"network_bandwidth_limit": bandwidthLimit,
+	}
+	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/network_bandwidth_limit", id), payload)
 	if err != nil {
 		return nil, decodeError(err)
 	}
-
 	return c.DecodeSimpleResponse(resp)
 }
