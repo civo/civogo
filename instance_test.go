@@ -260,6 +260,25 @@ func TestDeleteInstance(t *testing.T) {
 	EnsureSuccessfulSimpleResponse(t, got, err)
 }
 
+func TestDeleteInstanceVncSession(t *testing.T) {
+	client, server, _ := NewAdvancedClientForTesting([]ConfigAdvanceClientForTesting{
+		{
+			Method: "DELETE",
+			Value: []ValueAdvanceClientForTesting{
+				{
+					RequestBody:  "",
+					URL:          "/v2/instances/12345/vnc",
+					ResponseBody: `{"result": "ok"}`,
+				},
+			},
+		},
+	})
+	defer server.Close()
+
+	got, err := client.DeleteInstanceVncSession("12345")
+	EnsureSuccessfulSimpleResponse(t, got, err)
+}
+
 func TestRebootInstance(t *testing.T) {
 	client, server, _ := NewAdvancedClientForTesting([]ConfigAdvanceClientForTesting{
 		{
@@ -391,6 +410,36 @@ func TestMovePublicIPToInstance(t *testing.T) {
 
 	got, err := client.MovePublicIPToInstance("12345", "1.2.3.4")
 	EnsureSuccessfulSimpleResponse(t, got, err)
+}
+
+func TestGetInstanceVncStatus(t *testing.T) {
+	client, server, _ := NewAdvancedClientForTesting([]ConfigAdvanceClientForTesting{
+		{
+			Method: "GET",
+			Value: []ValueAdvanceClientForTesting{
+				{
+					RequestBody:  `""`,
+					URL:          "/v2/instances/12345/vnc",
+					ResponseBody: `{"uri": "https://vnc.example.com/12345", "expiration": "2025-06-02T12:00:00Z"}`,
+				},
+			},
+		},
+	})
+	defer server.Close()
+
+	got, err := client.GetInstanceVncStatus("12345")
+
+	if got.URI != "https://vnc.example.com/12345" {
+		t.Errorf("Expected URI %s, got %s", "https://vnc.example.com/12345", got.URI)
+	}
+
+	if got.Expiration != "2025-06-02T12:00:00Z" {
+		t.Errorf("Expected Expiration %s, got %s", "2025-06-02T12:00:00Z", got.Expiration)
+	}
+
+	if err != nil {
+		t.Errorf("Request returned an error: %s", err)
+	}
 }
 
 func TestGetInstanceConsoleURL(t *testing.T) {

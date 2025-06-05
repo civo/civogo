@@ -69,10 +69,11 @@ type InstanceConsole struct {
 
 // InstanceVnc represents VNC information for an instances
 type InstanceVnc struct {
-	URI    string `json:"uri"`
-	Result string `json:"result"`
-	Name   string `json:"name"`
-	Label  string `json:"label"`
+	URI        string `json:"uri,omitempty"`
+	Result     string `json:"result,omitempty"`
+	Name       string `json:"name,omitempty"`
+	Label      string `json:"label,omitempty"`
+	Expiration string `json:"expiration,omitempty"`
 }
 
 // PaginatedInstanceList returns a paginated list of Instance object
@@ -307,6 +308,30 @@ func (c *Client) GetInstanceVnc(id string, duration ...string) (InstanceVnc, err
 
 	err = json.NewDecoder(bytes.NewReader(resp)).Decode(&vnc)
 	return vnc, err
+}
+
+// GetInstanceVncStatus returns the VNC status for an instance
+func (c *Client) GetInstanceVncStatus(id string) (*InstanceVnc, error) {
+	url := fmt.Sprintf("/v2/instances/%s/vnc", id)
+	resp, err := c.SendGetRequest(url)
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	vnc := InstanceVnc{}
+	err = json.NewDecoder(bytes.NewReader(resp)).Decode(&vnc)
+	return &vnc, err
+
+}
+
+// DeleteInstanceVncSession terminates the VNC session for an instance.
+func (c *Client) DeleteInstanceVncSession(id string) (*SimpleResponse, error) {
+	url := fmt.Sprintf("/v2/instances/%s/vnc", id)
+	resp, err := c.SendDeleteRequest(url)
+	if err != nil {
+		return nil, decodeError(err)
+	}
+	return c.DecodeSimpleResponse(resp)
 }
 
 // DeleteInstance deletes an instance and frees its resources
