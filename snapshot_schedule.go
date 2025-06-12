@@ -66,7 +66,7 @@ type CreateSnapshotInstance struct {
 type UpdateSnapshotScheduleRequest struct {
 	Name        string `json:"name,omitempty"`
 	Description string `json:"description,omitempty"`
-	Paused      bool   `json:"paused,omitempty"`
+	Paused      *bool  `json:"paused,omitempty"`
 }
 
 // CreateSnapshotSchedule creates a new snapshot schedule
