@@ -442,28 +442,6 @@ func TestGetInstanceVncStatus(t *testing.T) {
 	}
 }
 
-func TestGetInstanceConsoleURL(t *testing.T) {
-	client, server, _ := NewAdvancedClientForTesting([]ConfigAdvanceClientForTesting{
-		{
-			Method: "GET",
-			Value: []ValueAdvanceClientForTesting{
-				{
-					RequestBody:  `""`,
-					URL:          "/v2/instances/12345/console",
-					ResponseBody: `{"url": "https://console.example.com/12345"}`,
-				},
-			},
-		},
-	})
-	defer server.Close()
-
-	got, _ := client.GetInstanceConsoleURL("12345")
-
-	if got != "https://console.example.com/12345" {
-		t.Errorf("Expected %s, got %s", "https://console.example.com/12345", got)
-	}
-}
-
 func TestSetInstanceFirewall(t *testing.T) {
 	client, server, _ := NewAdvancedClientForTesting([]ConfigAdvanceClientForTesting{
 		{

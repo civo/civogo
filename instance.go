@@ -60,20 +60,16 @@ type Instance struct {
 	AllowedIPs               []string         `json:"allowed_ips,omitempty"`
 }
 
-//"cpu_cores":1,"ram_mb":2048,"disk_gb":25
-
-// InstanceConsole represents a link to a webconsole for an instances
-type InstanceConsole struct {
-	URL string `json:"url"`
-}
-
 // InstanceVnc represents VNC information for an instances
 type InstanceVnc struct {
 	URI        string `json:"uri,omitempty"`
-	Result     string `json:"result,omitempty"`
-	Name       string `json:"name,omitempty"`
-	Label      string `json:"label,omitempty"`
 	Expiration string `json:"expiration,omitempty"`
+}
+
+// CreateInstanceVncResp represents VNC information for a new instance console
+type CreateInstanceVncResp struct {
+	URI      string `json:"uri,omitempty"`
+	Duration string `json:"duration,omitempty"`
 }
 
 // PaginatedInstanceList returns a paginated list of Instance object
@@ -291,7 +287,7 @@ func (c *Client) UpdateInstance(i *Instance) (*SimpleResponse, error) {
 
 // GetInstanceVnc enables and gets the VNC information for an instance
 // duration is optional and follows Go's duration string format (e.g. "30m", "1h", "24h")
-func (c *Client) GetInstanceVnc(id string, duration ...string) (InstanceVnc, error) {
+func (c *Client) GetInstanceVnc(id string, duration ...string) (CreateInstanceVncResp, error) {
 	url := fmt.Sprintf("/v2/instances/%s/vnc", id)
 	if len(duration) > 0 && duration[0] != "" {
 		url = fmt.Sprintf("%s?duration=%s", url, duration[0])
@@ -300,7 +296,7 @@ func (c *Client) GetInstanceVnc(id string, duration ...string) (InstanceVnc, err
 	resp, err := c.SendPutRequest(url, map[string]string{
 		"region": c.Region,
 	})
-	vnc := InstanceVnc{}
+	vnc := CreateInstanceVncResp{}
 
 	if err != nil {
 		return vnc, decodeError(err)
@@ -400,18 +396,6 @@ func (c *Client) StartInstance(id string) (*SimpleResponse, error) {
 
 	response, err := c.DecodeSimpleResponse(resp)
 	return response, err
-}
-
-// GetInstanceConsoleURL gets the web URL for an instance's console
-func (c *Client) GetInstanceConsoleURL(id string) (string, error) {
-	resp, err := c.SendGetRequest(fmt.Sprintf("/v2/instances/%s/console", id))
-	if err != nil {
-		return "", decodeError(err)
-	}
-
-	console := InstanceConsole{}
-	err = json.NewDecoder(bytes.NewReader(resp)).Decode(&console)
-	return console.URL, err
 }
 
 // UpgradeInstance resizes the instance up to the new specification
