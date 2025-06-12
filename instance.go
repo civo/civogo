@@ -60,17 +60,16 @@ type Instance struct {
 	AllowedIPs               []string         `json:"allowed_ips,omitempty"`
 }
 
-//"cpu_cores":1,"ram_mb":2048,"disk_gb":25
-
-// InstanceConsole represents a link to a webconsole for an instances
-type InstanceConsole struct {
-	URL string `json:"url"`
-}
-
 // InstanceVnc represents VNC information for an instances
 type InstanceVnc struct {
 	URI        string `json:"uri,omitempty"`
 	Expiration string `json:"expiration,omitempty"`
+}
+
+// CreateInstanceVncResp represents VNC information for a new instance console
+type CreateInstanceVncResp struct {
+	URI      string `json:"uri,omitempty"`
+	Duration string `json:"duration,omitempty"`
 }
 
 // PaginatedInstanceList returns a paginated list of Instance object
@@ -397,18 +396,6 @@ func (c *Client) StartInstance(id string) (*SimpleResponse, error) {
 
 	response, err := c.DecodeSimpleResponse(resp)
 	return response, err
-}
-
-// GetInstanceConsoleURL gets the web URL for an instance's console
-func (c *Client) GetInstanceConsoleURL(id string) (string, error) {
-	resp, err := c.SendGetRequest(fmt.Sprintf("/v2/instances/%s/console", id))
-	if err != nil {
-		return "", decodeError(err)
-	}
-
-	console := InstanceConsole{}
-	err = json.NewDecoder(bytes.NewReader(resp)).Decode(&console)
-	return console.URL, err
 }
 
 // UpgradeInstance resizes the instance up to the new specification

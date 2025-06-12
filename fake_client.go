@@ -83,7 +83,6 @@ type Clienter interface {
 	SoftRebootInstance(id string) (*SimpleResponse, error)
 	StopInstance(id string) (*SimpleResponse, error)
 	StartInstance(id string) (*SimpleResponse, error)
-	GetInstanceConsoleURL(id string) (string, error)
 	UpgradeInstance(id, newSize string) (*SimpleResponse, error)
 	MovePublicIPToInstance(id, ipAddress string) (*SimpleResponse, error)
 	SetInstanceFirewall(id, firewallID string) (*SimpleResponse, error)
