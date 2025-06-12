@@ -70,9 +70,6 @@ type InstanceConsole struct {
 // InstanceVnc represents VNC information for an instances
 type InstanceVnc struct {
 	URI        string `json:"uri,omitempty"`
-	Result     string `json:"result,omitempty"`
-	Name       string `json:"name,omitempty"`
-	Label      string `json:"label,omitempty"`
 	Expiration string `json:"expiration,omitempty"`
 }
 
