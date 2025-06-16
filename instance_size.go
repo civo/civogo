@@ -9,17 +9,19 @@ import (
 
 // InstanceSize represents an available size for instances to launch
 type InstanceSize struct {
-	Type              string `json:"type,omitempty"`
-	Name              string `json:"name,omitempty"`
-	NiceName          string `json:"nice_name,omitempty"`
-	CPUCores          int    `json:"cpu_cores,omitempty"`
-	GPUCount          int    `json:"gpu_count,omitempty"`
-	GPUType           string `json:"gpu_type,omitempty"`
-	RAMMegabytes      int    `json:"ram_mb,omitempty"`
-	DiskGigabytes     int    `json:"disk_gb,omitempty"`
-	TransferTerabytes int    `json:"transfer_tb,omitempty"`
-	Description       string `json:"description,omitempty"`
-	Selectable        bool   `json:"selectable,omitempty"`
+	Type              string  `json:"type,omitempty"`
+	Name              string  `json:"name,omitempty"`
+	NiceName          string  `json:"nice_name,omitempty"`
+	CPUCores          int     `json:"cpu_cores,omitempty"`
+	GPUCount          int     `json:"gpu_count,omitempty"`
+	GPUType           string  `json:"gpu_type,omitempty"`
+	RAMMegabytes      int     `json:"ram_mb,omitempty"`
+	DiskGigabytes     int     `json:"disk_gb,omitempty"`
+	TransferTerabytes int     `json:"transfer_tb,omitempty"`
+	Description       string  `json:"description,omitempty"`
+	Selectable        bool    `json:"selectable,omitempty"`
+	PriceMonthly      float64 `json:"price_monthly,omitempty"`
+	PriceHourly       float64 `json:"price_hourly,omitempty"`
 }
 
 // ListInstanceSizes returns all availble sizes of instances

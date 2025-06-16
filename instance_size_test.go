@@ -18,7 +18,9 @@ func TestListInstanceSizes(t *testing.T) {
         "disk_gb": 25,
         "transfer_tb": 1,
         "description": "xSmall - Standard",
-        "selectable": true
+        "selectable": true,
+        "price_monthly": 5.00,
+        "price_hourly": 0.00684
     }
 		]
 		`,
@@ -54,6 +56,12 @@ func TestListInstanceSizes(t *testing.T) {
 	if got[0].Description != "xSmall - Standard" {
 		t.Errorf("Expected %s, got %s", "xSmall - Standard", got[0].Description)
 	}
+	if got[0].PriceMonthly != 5.00 {
+		t.Errorf("Expected monthly price %f, got %f", 5.00, got[0].PriceMonthly)
+	}
+	if got[0].PriceHourly != 0.00684 {
+		t.Errorf("Expected hourly price %f, got %f", 0.00684, got[0].PriceHourly)
+	}
 }
 
 func TestFindInstanceSizes(t *testing.T) {
@@ -70,7 +78,9 @@ func TestFindInstanceSizes(t *testing.T) {
         "disk_gb": 25,
         "transfer_tb": 1,
         "description": "Extra Small",
-        "selectable": true
+        "selectable": true,
+        "price_monthly": 5.00,
+        "price_hourly": 0.00684
     },
     {
         "type": "Instance",
@@ -83,7 +93,9 @@ func TestFindInstanceSizes(t *testing.T) {
         "disk_gb": 25,
         "transfer_tb": 2,
         "description": "Small",
-        "selectable": true
+        "selectable": true,
+        "price_monthly": 10.00,
+        "price_hourly": 0.01369
     }
 		]
 		`,
