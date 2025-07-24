@@ -108,6 +108,7 @@ type KubernetesCluster struct {
 	CNIPlugin             string                           `json:"cni_plugin,omitempty"`
 	CCMInstalled          string                           `json:"ccm_installed,omitempty"`
 	Conditions            []Condition                      `json:"conditions"`
+	VolumeType            string                           `json:"volume_type,omitempty"`
 }
 
 // RequiredPools returns the required pools for a given Kubernetes cluster
