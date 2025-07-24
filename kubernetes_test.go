@@ -56,7 +56,8 @@ func TestListKubernetesClusters(t *testing.T) {
 			"configuration": {}
 		  }],
 			"cni_plugin": "flannel",
-			"ccm_installed": "true"
+			"ccm_installed": "true",
+			"volume_type": "standard"
 		}]}`,
 	})
 	defer server.Close()
@@ -130,6 +131,7 @@ func TestListKubernetesClusters(t *testing.T) {
 				}},
 				CNIPlugin:    "flannel",
 				CCMInstalled: "true",
+				VolumeType:   "standard",
 			},
 		},
 	}
