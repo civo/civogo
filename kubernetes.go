@@ -147,6 +147,7 @@ type KubernetesClusterConfig struct {
 	FirewallRule      string                        `json:"firewall_rule,omitempty"`
 	FirewallID        string                        `json:"firewall_id,omitempty"`
 	CNIPlugin         string                        `json:"cni_plugin,omitempty"`
+	VolumeType        string                        `json:"volume_type,omitempty"`
 }
 
 // KubernetesClusterPoolConfig is used to create a new cluster pool
