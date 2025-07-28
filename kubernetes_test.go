@@ -230,7 +230,8 @@ func TestNewKubernetesClusters(t *testing.T) {
 			"plan": null,
 			"configuration": {}
 		  }],
-			"cni_plugin": "flannel"
+			"cni_plugin": "flannel",
+			"volume_type": "encrypted-standard"
 		}`,
 	})
 	defer server.Close()
@@ -242,6 +243,7 @@ func TestNewKubernetesClusters(t *testing.T) {
 		NumTargetNodes:    3,
 		TargetNodesSize:   "g2.xsmall",
 		Applications:      "traefik",
+		VolumeType:        "encrypted-standard",
 	}
 	got, err := client.NewKubernetesClusters(cfg)
 
@@ -295,7 +297,8 @@ func TestNewKubernetesClusters(t *testing.T) {
 			ImageURL:      "https://api.civo.com/k3s-marketplace/traefik.png",
 			Configuration: map[string]ApplicationConfiguration{},
 		}},
-		CNIPlugin: "flannel",
+		CNIPlugin:  "flannel",
+		VolumeType: "encrypted-standard",
 	}
 
 	if !reflect.DeepEqual(got, expected) {
