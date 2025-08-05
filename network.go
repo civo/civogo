@@ -26,6 +26,7 @@ type Network struct {
 	GatewayIPv4           string   `json:"gateway_ipv4" validate:"required" schema:"gateway_ipv4"`
 	AllocationPoolV4Start string   `json:"allocation_pool_v4_start" validate:"required" schema:"allocation_pool_v4_start"`
 	AllocationPoolV4End   string   `json:"allocation_pool_v4_end" validate:"required" schema:"allocation_pool_v4_end"`
+	FreeIPCount           int      `json:"free_ip_count,omitempty"`
 }
 
 // Subnet represents a subnet within a private network
