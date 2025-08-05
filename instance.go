@@ -164,27 +164,19 @@ func (c *Client) FindInstance(search string) (*Instance, error) {
 		return nil, decodeError(err)
 	}
 
-	exactMatch := false
 	partialMatchesCount := 0
 	result := Instance{}
 
 	for _, value := range instances {
 		if value.Hostname == search || value.ID == search {
-			exactMatch = true
-			result = value
-			break
+			return &value, nil
 		} else if strings.Contains(value.Hostname, search) || strings.Contains(value.ID, search) {
-			if !exactMatch {
-				result = value
-				partialMatchesCount++
-				if partialMatchesCount > 1 {
-					break
-				}
-			}
+			partialMatchesCount++
+			result = value
 		}
 	}
 
-	if exactMatch || partialMatchesCount == 1 {
+	if partialMatchesCount == 1 {
 		return &result, nil
 	} else if partialMatchesCount > 1 {
 		err := fmt.Errorf("unable to find %s because there were multiple matches", search)

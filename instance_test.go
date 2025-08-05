@@ -22,7 +22,30 @@ func TestListInstances(t *testing.T) {
 
 func TestFindInstance(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
-		"/v2/instances": `{"page": 1, "per_page": 20, "pages": 2, "items":[{"id": "12345", "hostname": "foo.example.com"}, {"id":"67890", "hostname": "bar.zip.com"}]}`,
+		"/v2/instances": `
+		{
+			"page": 1,
+			"per_page": 20,
+			"pages": 2,
+			"items": [
+				{
+					"id": "12345",
+					"hostname": "foo.example.com"
+				}, 
+				{
+					"id": "67890",
+					"hostname": "bar.zip.com"
+				},
+				{
+					"id": "98765",
+					"hostname": "baz.zip.com"
+				},
+				{
+					"id": "43210",
+					"hostname": "zip.com"
+				}
+			]
+		}`,
 	})
 	defer server.Close()
 
@@ -46,9 +69,19 @@ func TestFindInstance(t *testing.T) {
 		t.Errorf("Expected %s, got %s", "67890", got.ID)
 	}
 
+	got, _ = client.FindInstance("baz.zip.com")
+	if got.ID != "98765" {
+		t.Errorf("Expected %s, got %s", "98765", got.ID)
+	}
+
 	_, err := client.FindInstance("com")
 	if err.Error() != "MultipleMatchesError: unable to find com because there were multiple matches" {
 		t.Errorf("Expected %s, got %s", "unable to find com because there were multiple matches", err.Error())
+	}
+
+	got, _ = client.FindInstance("zip.com")
+	if got.ID != "43210" {
+		t.Errorf("Expected %s, got %s", "43210", got.ID)
 	}
 
 	_, err = client.FindInstance("missing")
