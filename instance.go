@@ -11,6 +11,7 @@ import (
 )
 
 const (
+	// DefaultInstanceUser is the default username used in newly created instances.
 	DefaultInstanceUser string = "civo"
 )
 
