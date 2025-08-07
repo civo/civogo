@@ -10,6 +10,11 @@ import (
 	"github.com/civo/civogo/utils"
 )
 
+const (
+	// DefaultInstanceUser is the default username used in newly created instances.
+	DefaultInstanceUser string = "civo"
+)
+
 // Instance represents a virtual server within Civo's infrastructure
 type Instance struct {
 	ID                       string           `json:"id,omitempty"`
@@ -210,12 +215,11 @@ func (c *Client) NewInstanceConfig() (*InstanceConfig, error) {
 		Count:            1,
 		Hostname:         utils.RandomName(),
 		ReverseDNS:       "",
-		Size:             "g3.medium",
 		Region:           c.Region,
 		PublicIPRequired: "true",
 		NetworkID:        network.ID,
 		SnapshotID:       "",
-		InitialUser:      "civo",
+		InitialUser:      DefaultInstanceUser,
 		SSHKeyID:         "",
 		Script:           "",
 		Tags:             []string{""},
