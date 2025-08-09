@@ -43,16 +43,34 @@ func TestFindDatabase(t *testing.T) {
 			  {
 				"id": "12345",
 				"name": "test-db"
-			  }
+			  },
+				{
+					"id": "123456",
+					"name": "testing-db"
+				}
 			]
 		  }`,
 	})
 	defer server.Close()
 
+	// Exact Match
 	got, _ := client.FindDatabase("test-db")
 	if got.ID != "12345" {
 		t.Errorf("Expected %s, got %s", "12345", got.ID)
 	}
+
+	// Multiple Match
+	_, err := client.FindDatabase("test")
+	if err.Error() != "MultipleMatchesError: unable to find test because there were multiple matches" {
+		t.Errorf("Expected %s, got %s", "unable to find volume test there were multiple matches", err.Error())
+	}
+
+	// Zero Match
+	_, err = client.FindDatabase("missing")
+	if err.Error() != "ZeroMatchesError: unable to find missing, zero matches" {
+		t.Errorf("Expected %s, got %s", "unable to find missing, zero matches", err.Error())
+	}
+
 }
 
 func TestNewDatabase(t *testing.T) {
