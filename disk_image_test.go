@@ -6,14 +6,6 @@ import (
 	"time"
 )
 
-func TestClienterDiskImage(t *testing.T) {
-	var c Clienter
-
-	c, _ = NewClient("foo", "NYC1")
-	c, _ = NewFakeClient()
-	_, _ = c.ListDiskImages()
-}
-
 func TestGetDiskImage(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/disk_images/b82168fe-66f6-4b38-a3b8-5283542d5475": `{

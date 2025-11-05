@@ -1060,7 +1060,7 @@ func decodeError(err error) error {
 			err := errors.New(msg.String())
 			return KubernetesClusterInvalidNameError.wrap(err)
 		default:
-			err := fmt.Errorf(fmt.Sprintf("Unknown error response - status: %s, code: %d, reason: %s", errorData.Status, errorData.Code, errorData.Reason))
+			err := fmt.Errorf("unknown error response - status: %s, code: %d, reason: %s", errorData.Status, errorData.Code, errorData.Reason)
 			return CommonError.wrap(err)
 		}
 	}

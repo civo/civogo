@@ -10,10 +10,12 @@ import (
 func TestClienter(t *testing.T) {
 	var c Clienter
 
-	c, _ = NewClient("foo", "NYC1")
-	c, _ = NewFakeClient()
-	_, _ = c.ListAllInstances()
-	c.ListIPs()
+	c, err := NewClient("foo", "NYC1")
+	if err != nil {
+		t.Fail()
+	}
+
+	_ = c
 }
 
 // TestIPs is a test for the IPs method.
@@ -60,7 +62,11 @@ func TestInstances(t *testing.T) {
 		Count:    1,
 		Hostname: "foo.example.com",
 	}
-	client.CreateInstance(config)
+	_, err := client.CreateInstance(config)
+	if err != nil {
+		t.Errorf("Request returned an error: %s", err)
+		return
+	}
 
 	results, err := client.ListInstances(1, 10)
 	if err != nil {
