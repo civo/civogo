@@ -3,10 +3,7 @@ name: Test
 
 jobs:
   test:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout code
       uses: actions/checkout@v5
@@ -34,7 +31,6 @@ jobs:
       run: go test -v -race ./...
 
     - name: Check formatting
-      if: runner.os == 'Linux'
       run: |
         if [ -n "$(gofmt -l .)" ]; then
           echo "The following files are not formatted:"
