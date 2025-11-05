@@ -1,6 +1,6 @@
 module github.com/civo/civogo
 
-go 1.23.0
+go 1.24.9
 
 require (
 	github.com/google/go-querystring v1.1.0
