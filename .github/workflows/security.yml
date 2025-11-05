@@ -8,12 +8,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v5
 
-    - name: Install Go
-      uses: actions/setup-go@v6
-      with:
-        go-version: ${{ vars.GO_VERSION || '1.23.x' }}
-        cache: true
-
     - name: Run govulncheck
       uses: golang/govulncheck-action@v1
       with:
