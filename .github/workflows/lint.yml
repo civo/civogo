@@ -2,7 +2,7 @@ on: [push, pull_request]
 name: lint
 
 jobs:
-  golangci-lint:
+  lint:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
