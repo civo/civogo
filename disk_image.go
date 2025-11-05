@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"strings"
 	"time"
-
-	"golang.org/x/mod/semver"
 )
 
 // DiskImage represents a serialized structure
@@ -160,33 +158,6 @@ func (c *Client) GetDiskImageByName(name string) (*DiskImage, error) {
 	}
 
 	return nil, errors.New("diskimage not found")
-}
-
-// GetMostRecentDistro finds the highest version of a specified distro
-func (c *Client) GetMostRecentDistro(name string) (*DiskImage, error) {
-	resp, err := c.ListDiskImages()
-	if err != nil {
-		return nil, decodeError(err)
-	}
-
-	var highestVersionDistro *DiskImage
-
-	for _, diskimage := range resp {
-		if strings.Contains(diskimage.Name, name) {
-			if highestVersionDistro == nil {
-				highestVersionDistro = &diskimage
-			} else {
-				if semver.Compare(highestVersionDistro.Version, diskimage.Version) < 0 {
-					highestVersionDistro = &diskimage
-				}
-			}
-		}
-	}
-	if highestVersionDistro == nil {
-		return nil, fmt.Errorf("%s image not found", name)
-	}
-
-	return highestVersionDistro, nil
 }
 
 // CreateDiskImage creates a new disk image entry and returns a pre-signed URL for uploading

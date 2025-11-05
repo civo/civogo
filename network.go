@@ -107,7 +107,9 @@ func (c *Client) GetDefaultNetwork() (*Network, error) {
 	}
 
 	networks := make([]Network, 0)
-	json.NewDecoder(bytes.NewReader(resp)).Decode(&networks)
+	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&networks); err != nil {
+		return nil, fmt.Errorf("could not decode networks: %w", err)
+	}
 	for _, network := range networks {
 		if network.Default {
 			return &network, nil

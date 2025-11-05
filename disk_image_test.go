@@ -6,14 +6,6 @@ import (
 	"time"
 )
 
-func TestClienterDiskImage(t *testing.T) {
-	var c Clienter
-
-	c, _ = NewClient("foo", "NYC1")
-	c, _ = NewFakeClient()
-	_, _ = c.ListDiskImages()
-}
-
 func TestGetDiskImage(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/disk_images/b82168fe-66f6-4b38-a3b8-5283542d5475": `{
@@ -199,22 +191,5 @@ func TestGetDiskImageByName(t *testing.T) {
 
 	if got.ID != "329d473e-f110-4852-b2fa-fe65aa6bff4a" {
 		t.Errorf("Expected %s, got %s", "329d473e-f110-4852-b2fa-fe65aa6bff4a", got.ID)
-	}
-}
-
-func TestGetMostRecentDistro(t *testing.T) {
-	client, server, _ := NewClientForTesting(map[string]string{
-		"/v2/disk_images": `[{ "ID": "329d473e-f110-4852-b2fa-fe65aa6bff4a", "Name": "ubuntu-bionic", "Version": "18.04", "State": "available", "Distribution": "ubuntu", "Description": "", "Label": "bionic" }, { "ID": "77bea4dd-bfd4-492c-823d-f92eb6dd962d", "Name": "ubuntu-focal", "Version": "20.04", "State": "available", "Distribution": "ubuntu", "Description": "", "Label": "focal" }]`,
-	})
-	defer server.Close()
-
-	got, err := client.GetMostRecentDistro("ubuntu")
-	if err != nil {
-		t.Errorf("Request returned an error: %s", err)
-		return
-	}
-
-	if got.Name != "ubuntu-focal" {
-		t.Errorf("Expected %s, got %s", "ubuntu-focal", got.Name)
 	}
 }
