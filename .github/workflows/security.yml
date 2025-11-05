@@ -1,8 +1,8 @@
 on: [push, pull_request]
-name: Lint
+name: Security
 
 jobs:
-  golangci-lint:
+  govulncheck:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
@@ -14,8 +14,8 @@ jobs:
         go-version: ${{ vars.GO_VERSION || '1.23.x' }}
         cache: true
 
-    - name: Run golangci-lint
-      uses: golangci/golangci-lint-action@v8
+    - name: Run govulncheck
+      uses: golang/govulncheck-action@v1
       with:
-        version: latest
-        args: --timeout=5m
+        go-version-input: ${{ vars.GO_VERSION || '1.23.x' }}
+        go-package: ./...
