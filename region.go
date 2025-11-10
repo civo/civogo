@@ -30,7 +30,6 @@ type Feature struct {
 	DBaaS             bool `json:"dbaas"`
 	Volume            bool `json:"volume"`
 	PaaS              bool `json:"paas"`
-	KFaaS             bool `json:"kfaas"`
 	PublicIPNodePools bool `json:"public_ip_node_pools"`
 }
 
