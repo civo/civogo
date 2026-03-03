@@ -135,7 +135,17 @@ type PlacementRule struct {
 	NodeSelector  map[string]string `json:"node_selector,omitempty"`
 }
 
-// ListInstances returns a page of Instances owned by the calling API account
+// ListInstances returns a paginated list of instances owned by the calling API account.
+// This method supports pagination to handle large numbers of instances efficiently.
+// Use page=0 and perPage=0 to get default pagination settings.
+//
+// Parameters:
+//   - page: The page number to retrieve (1-based indexing)
+//   - perPage: Number of instances per page (0 for default)
+//
+// Returns:
+//   - *PaginatedInstanceList: Paginated list with instances and metadata
+//   - error: Any error that occurred during the API request
 func (c *Client) ListInstances(page int, perPage int) (*PaginatedInstanceList, error) {
 	url := "/v2/instances"
 	if page != 0 && perPage != 0 {
@@ -152,7 +162,13 @@ func (c *Client) ListInstances(page int, perPage int) (*PaginatedInstanceList, e
 	return &PaginatedInstances, err
 }
 
-// ListAllInstances returns all (well, upto 99,999,999 instances) Instances owned by the calling API account
+// ListAllInstances returns all instances owned by the calling API account.
+// This is a convenience method that fetches all instances by requesting
+// a very large page size. Use with caution for accounts with many instances.
+//
+// Returns:
+//   - []Instance: A slice containing all instances
+//   - error: Any error that occurred during the API request
 func (c *Client) ListAllInstances() ([]Instance, error) {
 	instances, err := c.ListInstances(1, 99999999)
 	if err != nil {
@@ -162,7 +178,17 @@ func (c *Client) ListAllInstances() ([]Instance, error) {
 	return instances.Items, nil
 }
 
-// FindInstance finds a instance by either part of the ID or part of the hostname
+// FindInstance searches for an instance by partial ID or hostname match.
+// This method provides a convenient way to locate instances when you only
+// know part of the identifier. Returns an error if no matches or multiple
+// partial matches are found.
+//
+// Parameters:
+//   - search: Partial instance ID or hostname to search for
+//
+// Returns:
+//   - *Instance: The found instance (exact match preferred over partial)
+//   - error: MultipleMatchesError, ZeroMatchesError, or API errors
 func (c *Client) FindInstance(search string) (*Instance, error) {
 	instances, err := c.ListAllInstances()
 	if err != nil {
@@ -192,7 +218,16 @@ func (c *Client) FindInstance(search string) (*Instance, error) {
 	}
 }
 
-// GetInstance returns a single Instance by its full ID
+// GetInstance retrieves detailed information about a specific instance by its full ID.
+// This method returns complete instance details including status, configuration,
+// network settings, and resource allocations.
+//
+// Parameters:
+//   - id: The complete instance ID (UUID)
+//
+// Returns:
+//   - *Instance: Complete instance information
+//   - error: Any error that occurred during retrieval
 func (c *Client) GetInstance(id string) (*Instance, error) {
 	resp, err := c.SendGetRequest("/v2/instances/" + id)
 	if err != nil {
@@ -204,7 +239,13 @@ func (c *Client) GetInstance(id string) (*Instance, error) {
 	return &instance, err
 }
 
-// NewInstanceConfig returns an initialized config for a new instance
+// NewInstanceConfig returns an initialized configuration for creating a new instance.
+// This method sets up sensible defaults including a random hostname, default network,
+// and standard configuration options. Modify the returned config as needed.
+//
+// Returns:
+//   - *InstanceConfig: Pre-configured instance settings with defaults
+//   - error: Any error that occurred while fetching default network
 func (c *Client) NewInstanceConfig() (*InstanceConfig, error) {
 	network, err := c.GetDefaultNetwork()
 	if err != nil {
@@ -227,7 +268,16 @@ func (c *Client) NewInstanceConfig() (*InstanceConfig, error) {
 	}, nil
 }
 
-// CreateInstance creates a new instance in the account
+// CreateInstance creates a new virtual server instance with the specified configuration.
+// This provisions a new instance in the account with the given settings. The instance
+// will be created asynchronously and its status can be monitored using GetInstance.
+//
+// Parameters:
+//   - config: Complete instance configuration including size, image, network, etc.
+//
+// Returns:
+//   - *Instance: The newly created instance information
+//   - error: Any error that occurred during instance creation
 func (c *Client) CreateInstance(config *InstanceConfig) (*Instance, error) {
 	config.TagsList = strings.Join(config.Tags, " ")
 	body, err := c.SendPostRequest("/v2/instances", config)
@@ -243,7 +293,17 @@ func (c *Client) CreateInstance(config *InstanceConfig) (*Instance, error) {
 	return &instance, nil
 }
 
-// SetInstanceTags sets the tags for the specified instance
+// SetInstanceTags updates the tags associated with the specified instance.
+// Tags are space-separated labels that help organize and categorize instances.
+// This operation replaces all existing tags with the new ones.
+//
+// Parameters:
+//   - i: The instance to update (only ID is used)
+//   - tags: Space-separated string of tags to apply
+//
+// Returns:
+//   - *SimpleResponse: Response indicating success or failure
+//   - error: Any error that occurred during the tag update
 func (c *Client) SetInstanceTags(i *Instance, tags string) (*SimpleResponse, error) {
 	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/tags", i.ID), map[string]string{
 		"tags":   tags,
@@ -257,7 +317,16 @@ func (c *Client) SetInstanceTags(i *Instance, tags string) (*SimpleResponse, err
 	return response, err
 }
 
-// UpdateInstance updates an Instance's hostname, reverse DNS or notes
+// UpdateInstance modifies an existing instance's configuration.
+// This method can update hostname, reverse DNS, notes, public IP, and subnet assignments.
+// Use empty notes field with notes_delete=true to remove existing notes.
+//
+// Parameters:
+//   - i: Instance object with updated fields (ID must be set)
+//
+// Returns:
+//   - *SimpleResponse: Response indicating success or failure
+//   - error: Any error that occurred during the update
 func (c *Client) UpdateInstance(i *Instance) (*SimpleResponse, error) {
 	params := map[string]interface{}{
 		"hostname":    i.Hostname,
@@ -281,8 +350,17 @@ func (c *Client) UpdateInstance(i *Instance) (*SimpleResponse, error) {
 	return response, err
 }
 
-// GetInstanceVnc enables and gets the VNC information for an instance
-// duration is optional and follows Go's duration string format (e.g. "30m", "1h", "24h")
+// GetInstanceVnc enables and retrieves VNC access information for an instance.
+// This creates a VNC session that allows remote desktop access to the instance.
+// The session has a configurable duration and will expire automatically.
+//
+// Parameters:
+//   - id: The instance ID to enable VNC for
+//   - duration: Optional session duration (e.g., "30m", "1h", "24h"). If empty, uses default
+//
+// Returns:
+//   - CreateInstanceVncResp: VNC connection details including URI and duration
+//   - error: Any error that occurred during VNC session creation
 func (c *Client) GetInstanceVnc(id string, duration ...string) (CreateInstanceVncResp, error) {
 	url := fmt.Sprintf("/v2/instances/%s/vnc", id)
 	if len(duration) > 0 && duration[0] != "" {
@@ -302,7 +380,16 @@ func (c *Client) GetInstanceVnc(id string, duration ...string) (CreateInstanceVn
 	return vnc, err
 }
 
-// GetInstanceVncStatus returns the VNC status for an instance
+// GetInstanceVncStatus returns the current VNC session status for an instance.
+// This method checks if there's an active VNC session and provides connection
+// details if one exists, including expiration time.
+//
+// Parameters:
+//   - id: The instance ID to check VNC status for
+//
+// Returns:
+//   - *InstanceVnc: Current VNC session information (URI and expiration)
+//   - error: Any error that occurred during status retrieval
 func (c *Client) GetInstanceVncStatus(id string) (*InstanceVnc, error) {
 	url := fmt.Sprintf("/v2/instances/%s/vnc", id)
 	resp, err := c.SendGetRequest(url)
@@ -316,7 +403,16 @@ func (c *Client) GetInstanceVncStatus(id string) (*InstanceVnc, error) {
 
 }
 
-// DeleteInstanceVncSession terminates the VNC session for an instance.
+// DeleteInstanceVncSession terminates the active VNC session for an instance.
+// This immediately closes any active VNC connections and prevents further
+// remote desktop access until a new session is created.
+//
+// Parameters:
+//   - id: The instance ID to terminate VNC session for
+//
+// Returns:
+//   - *SimpleResponse: Response indicating success or failure
+//   - error: Any error that occurred during session termination
 func (c *Client) DeleteInstanceVncSession(id string) (*SimpleResponse, error) {
 	url := fmt.Sprintf("/v2/instances/%s/vnc", id)
 	resp, err := c.SendDeleteRequest(url)
@@ -326,7 +422,16 @@ func (c *Client) DeleteInstanceVncSession(id string) (*SimpleResponse, error) {
 	return c.DecodeSimpleResponse(resp)
 }
 
-// DeleteInstance deletes an instance and frees its resources
+// DeleteInstance permanently removes an instance and frees all its resources.
+// This action is irreversible and will destroy the instance, its local storage,
+// and any data that hasn't been backed up. Network resources may be freed for reuse.
+//
+// Parameters:
+//   - id: The instance ID to delete
+//
+// Returns:
+//   - *SimpleResponse: Response indicating success or failure
+//   - error: Any error that occurred during deletion
 func (c *Client) DeleteInstance(id string) (*SimpleResponse, error) {
 	resp, err := c.SendDeleteRequest("/v2/instances/" + id)
 	if err != nil {
@@ -337,12 +442,30 @@ func (c *Client) DeleteInstance(id string) (*SimpleResponse, error) {
 	return response, err
 }
 
-// RebootInstance reboots an instance (short version of HardRebootInstance)
+// RebootInstance restarts an instance using a hard reboot method.
+// This is equivalent to calling HardRebootInstance and forces an immediate
+// restart similar to pressing a physical power button.
+//
+// Parameters:
+//   - id: The instance ID to reboot
+//
+// Returns:
+//   - *SimpleResponse: Response indicating success or failure
+//   - error: Any error that occurred during reboot initiation
 func (c *Client) RebootInstance(id string) (*SimpleResponse, error) {
 	return c.HardRebootInstance(id)
 }
 
-// HardRebootInstance harshly reboots an instance (like shutting the power off and booting it again)
+// HardRebootInstance performs a forced restart of an instance.
+// This is equivalent to pulling the power cord and reconnecting it - the instance
+// is immediately powered off and restarted without graceful shutdown procedures.
+//
+// Parameters:
+//   - id: The instance ID to hard reboot
+//
+// Returns:
+//   - *SimpleResponse: Response indicating success or failure
+//   - error: Any error that occurred during hard reboot initiation
 func (c *Client) HardRebootInstance(id string) (*SimpleResponse, error) {
 	resp, err := c.SendPostRequest(fmt.Sprintf("/v2/instances/%s/hard_reboots", id), map[string]string{
 		"region": c.Region,
@@ -355,7 +478,16 @@ func (c *Client) HardRebootInstance(id string) (*SimpleResponse, error) {
 	return response, err
 }
 
-// SoftRebootInstance requests the VM to shut down nicely
+// SoftRebootInstance performs a graceful restart of an instance.
+// This sends a shutdown signal to the operating system, allowing it to
+// close applications and services cleanly before restarting.
+//
+// Parameters:
+//   - id: The instance ID to soft reboot
+//
+// Returns:
+//   - *SimpleResponse: Response indicating success or failure
+//   - error: Any error that occurred during soft reboot initiation
 func (c *Client) SoftRebootInstance(id string) (*SimpleResponse, error) {
 	resp, err := c.SendPostRequest(fmt.Sprintf("/v2/instances/%s/soft_reboots", id), map[string]string{
 		"region": c.Region,
@@ -368,7 +500,16 @@ func (c *Client) SoftRebootInstance(id string) (*SimpleResponse, error) {
 	return response, err
 }
 
-// StopInstance shuts the power down to the instance
+// StopInstance gracefully shuts down an instance without destroying it.
+// The instance remains allocated and can be restarted later using StartInstance.
+// This is similar to shutting down a computer - it's powered off but not deleted.
+//
+// Parameters:
+//   - id: The instance ID to stop
+//
+// Returns:
+//   - *SimpleResponse: Response indicating success or failure
+//   - error: Any error that occurred during shutdown initiation
 func (c *Client) StopInstance(id string) (*SimpleResponse, error) {
 	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/stop", id), map[string]string{
 		"region": c.Region,
@@ -381,7 +522,16 @@ func (c *Client) StopInstance(id string) (*SimpleResponse, error) {
 	return response, err
 }
 
-// StartInstance starts the instance booting from the shutdown state
+// StartInstance powers on a previously stopped instance.
+// This boots the instance from its shutdown state, resuming normal operation.
+// The instance retains all its configuration and data from before it was stopped.
+//
+// Parameters:
+//   - id: The instance ID to start
+//
+// Returns:
+//   - *SimpleResponse: Response indicating success or failure
+//   - error: Any error that occurred during startup initiation
 func (c *Client) StartInstance(id string) (*SimpleResponse, error) {
 	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/start", id), map[string]string{
 		"region": c.Region,
@@ -394,8 +544,17 @@ func (c *Client) StartInstance(id string) (*SimpleResponse, error) {
 	return response, err
 }
 
-// UpgradeInstance resizes the instance up to the new specification
-// it's not possible to resize the instance to a smaller size
+// UpgradeInstance resizes an instance to a larger specification.
+// This increases the instance's resources (CPU, RAM, disk) to the specified size.
+// Note: Instances can only be upgraded to larger sizes, not downgraded to smaller ones.
+//
+// Parameters:
+//   - id: The instance ID to upgrade
+//   - newSize: The target size identifier (e.g., "g3.medium", "g3.large")
+//
+// Returns:
+//   - *SimpleResponse: Response indicating success or failure
+//   - error: Any error that occurred during upgrade initiation
 func (c *Client) UpgradeInstance(id, newSize string) (*SimpleResponse, error) {
 	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/resize", id), map[string]string{
 		"size":   newSize,
@@ -409,7 +568,17 @@ func (c *Client) UpgradeInstance(id, newSize string) (*SimpleResponse, error) {
 	return response, err
 }
 
-// MovePublicIPToInstance moves a public IP to the specified instance
+// MovePublicIPToInstance transfers a public IP address to the specified instance.
+// This operation moves an existing public IP from another instance or the IP pool
+// to the target instance, updating network routing accordingly.
+//
+// Parameters:
+//   - id: The instance ID to receive the public IP
+//   - ipAddress: The public IP address to move
+//
+// Returns:
+//   - *SimpleResponse: Response indicating success or failure
+//   - error: Any error that occurred during IP address migration
 func (c *Client) MovePublicIPToInstance(id, ipAddress string) (*SimpleResponse, error) {
 	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/ip/%s", id, ipAddress), "")
 	if err != nil {
@@ -420,7 +589,17 @@ func (c *Client) MovePublicIPToInstance(id, ipAddress string) (*SimpleResponse, 
 	return response, err
 }
 
-// SetInstanceFirewall changes the current firewall for an instance
+// SetInstanceFirewall assigns a firewall to an instance.
+// This changes the network security rules applied to the instance by associating
+// it with a different firewall. The change takes effect immediately.
+//
+// Parameters:
+//   - id: The instance ID to update
+//   - firewallID: The ID of the firewall to assign
+//
+// Returns:
+//   - *SimpleResponse: Response indicating success or failure
+//   - error: Any error that occurred during firewall assignment
 func (c *Client) SetInstanceFirewall(id, firewallID string) (*SimpleResponse, error) {
 	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/firewall", id), map[string]string{
 		"firewall_id": firewallID,
@@ -434,7 +613,16 @@ func (c *Client) SetInstanceFirewall(id, firewallID string) (*SimpleResponse, er
 	return response, err
 }
 
-// EnableRecoveryMode enables recovery mode for the specified instance
+// EnableRecoveryMode activates recovery mode for an instance.
+// Recovery mode allows access to an instance that may be in an unbootable state,
+// providing emergency access for troubleshooting and data recovery.
+//
+// Parameters:
+//   - id: The instance ID to enable recovery mode for
+//
+// Returns:
+//   - *SimpleResponse: Response indicating success or failure
+//   - error: Any error that occurred during recovery mode activation
 func (c *Client) EnableRecoveryMode(id string) (*SimpleResponse, error) {
 	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/recovery?region=%s", id, c.Region), nil)
 	if err != nil {
@@ -444,7 +632,16 @@ func (c *Client) EnableRecoveryMode(id string) (*SimpleResponse, error) {
 	return c.DecodeSimpleResponse(resp)
 }
 
-// DisableRecoveryMode disables recovery mode for the specified instance
+// DisableRecoveryMode deactivates recovery mode for an instance.
+// This returns the instance to normal operation mode, removing special
+// recovery access and restoring standard boot procedures.
+//
+// Parameters:
+//   - id: The instance ID to disable recovery mode for
+//
+// Returns:
+//   - *SimpleResponse: Response indicating success or failure
+//   - error: Any error that occurred during recovery mode deactivation
 func (c *Client) DisableRecoveryMode(id string) (*SimpleResponse, error) {
 	resp, err := c.SendDeleteRequest(fmt.Sprintf("/v2/instances/%s/recovery?region=%s", id, c.Region))
 	if err != nil {
@@ -454,7 +651,16 @@ func (c *Client) DisableRecoveryMode(id string) (*SimpleResponse, error) {
 	return c.DecodeSimpleResponse(resp)
 }
 
-// GetRecoveryStatus gets the recovery status for the specified instance
+// GetRecoveryStatus retrieves the current recovery mode status for an instance.
+// This method checks whether recovery mode is currently active and provides
+// relevant status information about the recovery state.
+//
+// Parameters:
+//   - id: The instance ID to check recovery status for
+//
+// Returns:
+//   - *SimpleResponse: Recovery status information
+//   - error: Any error that occurred during status retrieval
 func (c *Client) GetRecoveryStatus(id string) (*SimpleResponse, error) {
 	resp, err := c.SendGetRequest(fmt.Sprintf("/v2/instances/%s/recovery", id))
 	if err != nil {
@@ -464,7 +670,17 @@ func (c *Client) GetRecoveryStatus(id string) (*SimpleResponse, error) {
 	return c.DecodeSimpleResponse(resp)
 }
 
-// UpdateInstanceAllowedIPs sets the list of IP addresses that an instance is allowed to use
+// UpdateInstanceAllowedIPs sets the list of IP addresses that an instance is allowed to communicate with.
+// This configures network access control by restricting the instance's outbound connections
+// to only the specified IP addresses or CIDR blocks.
+//
+// Parameters:
+//   - id: The instance ID to update
+//   - allowedIPs: List of IP addresses or CIDR blocks to allow
+//
+// Returns:
+//   - *SimpleResponse: Response indicating success or failure
+//   - error: Any error that occurred during the update
 func (c *Client) UpdateInstanceAllowedIPs(id string, allowedIPs []string) (*SimpleResponse, error) {
 	// Create a map to match the expected JSON structure
 	payload := map[string][]string{
@@ -479,7 +695,16 @@ func (c *Client) UpdateInstanceAllowedIPs(id string, allowedIPs []string) (*Simp
 	return c.DecodeSimpleResponse(resp)
 }
 
-// UpdateInstanceBandwidth sets the list of IP addresses that an instance is allowed to use
+// UpdateInstanceBandwidth updates the network bandwidth limit for a specific instance.
+// This sets the maximum network bandwidth in MB/s that the instance can use.
+//
+// Parameters:
+//   - id: The ID of the instance to update
+//   - bandwidthLimit: The network bandwidth limit in MB/s
+//
+// Returns:
+//   - *SimpleResponse: Response indicating success or failure
+//   - error: Any error that occurred during the operation
 func (c *Client) UpdateInstanceBandwidth(id string, bandwidthLimit int) (*SimpleResponse, error) {
 	payload := map[string]int{
 		"network_bandwidth_limit": bandwidthLimit,

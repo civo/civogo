@@ -70,7 +70,18 @@ func (e HTTPError) Error() string {
 	return fmt.Sprintf("%d: %s, %s", e.Code, e.Status, e.Reason)
 }
 
-// NewClientWithURL initializes a Client with a specific API URL
+// NewClientWithURL initializes a Client with a specific API URL endpoint.
+// This allows connecting to custom Civo API endpoints, which is useful for
+// testing against staging environments or custom deployments.
+//
+// Parameters:
+//   - apiKey: The API key for authentication (required, cannot be empty)
+//   - civoAPIURL: The base URL of the Civo API endpoint (e.g., "https://api.civo.com")
+//   - region: The region code to operate in (e.g., "LON1", "NYC1")
+//
+// Returns:
+//   - *Client: A configured client instance ready for API calls
+//   - error: NoAPIKeySuppliedError if apiKey is empty, or URL parsing errors
 func NewClientWithURL(apiKey, civoAPIURL, region string) (*Client, error) {
 	if apiKey == "" {
 		err := errors.New("no API Key supplied, this is required")
@@ -102,7 +113,18 @@ func NewClient(apiKey, region string) (*Client, error) {
 	return NewClientWithURL(apiKey, "https://api.civo.com", region)
 }
 
-// NewAdvancedClientForTesting initializes a Client connecting to a local test server and allows for specifying methods
+// NewAdvancedClientForTesting creates a client for testing with custom HTTP responses.
+// It sets up a local test server that responds with predefined responses based on the
+// method, URL, and request body criteria specified in the responses slice.
+//
+// Parameters:
+//   - responses: A slice of ConfigAdvanceClientForTesting defining expected requests and responses.
+//     Each element specifies HTTP method and a list of URL/request/response body combinations.
+//
+// Returns:
+//   - *Client: A client configured to use the test server
+//   - *httptest.Server: The test server instance (should be closed when done testing)
+//   - error: Any error that occurred during setup
 func NewAdvancedClientForTesting(responses []ConfigAdvanceClientForTesting) (*Client, *httptest.Server, error) {
 	var responseSent bool
 
@@ -150,7 +172,17 @@ func NewAdvancedClientForTesting(responses []ConfigAdvanceClientForTesting) (*Cl
 	return client, server, err
 }
 
-// NewClientForTesting initializes a Client connecting to a local test server
+// NewClientForTesting initializes a Client connecting to a local test server.
+// This is a simpler alternative to NewAdvancedClientForTesting that accepts
+// a basic URL-to-response mapping for testing API interactions.
+//
+// Parameters:
+//   - responses: A map where keys are URL patterns and values are JSON response bodies
+//
+// Returns:
+//   - *Client: A client configured to use the test server
+//   - *httptest.Server: The test server instance (should be closed when done testing)
+//   - error: Any error that occurred during setup
 func NewClientForTesting(responses map[string]string) (*Client, *httptest.Server, error) {
 	var responseSent bool
 
@@ -175,7 +207,16 @@ func NewClientForTesting(responses map[string]string) (*Client, *httptest.Server
 	return client, server, err
 }
 
-// NewClientForTestingWithServer initializes a Client connecting to a passed-in local test server
+// NewClientForTestingWithServer initializes a Client using an existing test server.
+// This method allows you to use a pre-configured httptest.Server instance,
+// providing maximum flexibility for custom testing scenarios.
+//
+// Parameters:
+//   - server: An existing httptest.Server instance to connect the client to
+//
+// Returns:
+//   - *Client: A client configured to use the provided server
+//   - error: Any error that occurred during client configuration
 func NewClientForTestingWithServer(server *httptest.Server) (*Client, error) {
 	client, err := NewClientWithURL("TEST-API-KEY", server.URL, "TEST")
 	if err != nil {
@@ -228,7 +269,16 @@ func (c *Client) sendRequest(req *http.Request) ([]byte, error) {
 	return body, err
 }
 
-// SendGetRequest sends a correctly authenticated get request to the API server
+// SendGetRequest sends a correctly authenticated GET request to the API server.
+// This method handles all the authentication headers, region parameters, and
+// response processing automatically.
+//
+// Parameters:
+//   - requestURL: The API endpoint path (e.g., "/v2/instances")
+//
+// Returns:
+//   - []byte: The raw response body from the API
+//   - error: HTTPError for API errors, or network/parsing errors
 func (c *Client) SendGetRequest(requestURL string) ([]byte, error) {
 	u := c.prepareClientURL(requestURL)
 	req, err := http.NewRequest("GET", u.String(), nil)
@@ -239,7 +289,17 @@ func (c *Client) SendGetRequest(requestURL string) ([]byte, error) {
 	return c.sendRequest(req)
 }
 
-// SendPostRequest sends a correctly authenticated post request to the API server
+// SendPostRequest sends a correctly authenticated POST request to the API server.
+// The request payload is automatically JSON-encoded and proper headers are set.
+// This method is used for creating new resources.
+//
+// Parameters:
+//   - requestURL: The API endpoint path (e.g., "/v2/instances")
+//   - params: The request payload that will be JSON-encoded
+//
+// Returns:
+//   - []byte: The raw response body from the API
+//   - error: HTTPError for API errors, or network/encoding errors
 func (c *Client) SendPostRequest(requestURL string, params interface{}) ([]byte, error) {
 	u := c.prepareClientURL(requestURL)
 
@@ -253,7 +313,17 @@ func (c *Client) SendPostRequest(requestURL string, params interface{}) ([]byte,
 	return c.sendRequest(req)
 }
 
-// SendPutRequest sends a correctly authenticated put request to the API server
+// SendPutRequest sends a correctly authenticated PUT request to the API server.
+// The request payload is automatically JSON-encoded and proper headers are set.
+// This method is used for updating existing resources.
+//
+// Parameters:
+//   - requestURL: The API endpoint path (e.g., "/v2/instances/12345")
+//   - params: The request payload that will be JSON-encoded
+//
+// Returns:
+//   - []byte: The raw response body from the API
+//   - error: HTTPError for API errors, or network/encoding errors
 func (c *Client) SendPutRequest(requestURL string, params interface{}) ([]byte, error) {
 	u := c.prepareClientURL(requestURL)
 
@@ -267,7 +337,16 @@ func (c *Client) SendPutRequest(requestURL string, params interface{}) ([]byte, 
 	return c.sendRequest(req)
 }
 
-// SendDeleteRequest sends a correctly authenticated delete request to the API server
+// SendDeleteRequest sends a correctly authenticated DELETE request to the API server.
+// This method handles authentication headers and region parameters automatically.
+// Used for permanently removing resources.
+//
+// Parameters:
+//   - requestURL: The API endpoint path (e.g., "/v2/instances/12345")
+//
+// Returns:
+//   - []byte: The raw response body from the API
+//   - error: HTTPError for API errors, or network errors
 func (c *Client) SendDeleteRequest(requestURL string) ([]byte, error) {
 	u := c.prepareClientURL(requestURL)
 	req, err := http.NewRequest("DELETE", u.String(), nil)
@@ -278,14 +357,29 @@ func (c *Client) SendDeleteRequest(requestURL string) ([]byte, error) {
 	return c.sendRequest(req)
 }
 
-// DecodeSimpleResponse parses a response body in to a SimpleResponse object
+// DecodeSimpleResponse parses a response body into a SimpleResponse object.
+// This is a utility method for handling standard API responses that contain
+// result status, error codes, and basic operation confirmations.
+//
+// Parameters:
+//   - resp: Raw response body bytes from an API call
+//
+// Returns:
+//   - *SimpleResponse: Parsed response with result status and any error details
+//   - error: JSON decoding errors if the response format is invalid
 func (c *Client) DecodeSimpleResponse(resp []byte) (*SimpleResponse, error) {
 	response := SimpleResponse{}
 	err := json.NewDecoder(bytes.NewReader(resp)).Decode(&response)
 	return &response, err
 }
 
-// SetUserAgent sets the user agent for the client
+// SetUserAgent sets a custom user agent string for the HTTP client.
+// This allows applications to identify themselves in API requests, which
+// is useful for usage analytics and debugging.
+//
+// Parameters:
+//   - component: Component information including name, version, and optional ID
+//     If ID is empty, format will be "name/version"; otherwise "name/version-id"
 func (c *Client) SetUserAgent(component *Component) {
 	if component.ID == "" {
 		c.UserAgent = fmt.Sprintf("%s/%s %s", component.Name, component.Version, c.UserAgent)
