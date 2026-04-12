@@ -197,7 +197,6 @@ func (c *Client) NewVolume(v *VolumeConfig) (*VolumeResult, error) {
 func (c *Client) ResizeVolume(id string, size int) (*SimpleResponse, error) {
 	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/volumes/%s/resize", id), map[string]interface{}{
 		"size_gb": size,
-		"region":  c.Region,
 	})
 	if err != nil {
 		return nil, decodeError(err)
@@ -222,9 +221,7 @@ func (c *Client) AttachVolume(id string, v VolumeAttachConfig) (*SimpleResponse,
 // DetachVolume attach volume from any instances
 // https://www.civo.com/api/volumes#attach-a-volume-to-an-instance
 func (c *Client) DetachVolume(id string) (*SimpleResponse, error) {
-	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/volumes/%s/detach", id), map[string]string{
-		"region": c.Region,
-	})
+	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/volumes/%s/detach", id), nil)
 	if err != nil {
 		return nil, decodeError(err)
 	}

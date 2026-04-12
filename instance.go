@@ -246,8 +246,7 @@ func (c *Client) CreateInstance(config *InstanceConfig) (*Instance, error) {
 // SetInstanceTags sets the tags for the specified instance
 func (c *Client) SetInstanceTags(i *Instance, tags string) (*SimpleResponse, error) {
 	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/tags", i.ID), map[string]string{
-		"tags":   tags,
-		"region": c.Region,
+		"tags": tags,
 	})
 	if err != nil {
 		return nil, decodeError(err)
@@ -263,7 +262,6 @@ func (c *Client) UpdateInstance(i *Instance) (*SimpleResponse, error) {
 		"hostname":    i.Hostname,
 		"reverse_dns": i.ReverseDNS,
 		"notes":       i.Notes,
-		"region":      c.Region,
 		"public_ip":   i.PublicIP,
 		"subnets":     i.Subnets,
 	}
@@ -289,9 +287,7 @@ func (c *Client) GetInstanceVnc(id string, duration ...string) (CreateInstanceVn
 		url = fmt.Sprintf("%s?duration=%s", url, duration[0])
 	}
 
-	resp, err := c.SendPutRequest(url, map[string]string{
-		"region": c.Region,
-	})
+	resp, err := c.SendPutRequest(url, nil)
 	vnc := CreateInstanceVncResp{}
 
 	if err != nil {
@@ -344,9 +340,7 @@ func (c *Client) RebootInstance(id string) (*SimpleResponse, error) {
 
 // HardRebootInstance harshly reboots an instance (like shutting the power off and booting it again)
 func (c *Client) HardRebootInstance(id string) (*SimpleResponse, error) {
-	resp, err := c.SendPostRequest(fmt.Sprintf("/v2/instances/%s/hard_reboots", id), map[string]string{
-		"region": c.Region,
-	})
+	resp, err := c.SendPostRequest(fmt.Sprintf("/v2/instances/%s/hard_reboots", id), nil)
 	if err != nil {
 		return nil, decodeError(err)
 	}
@@ -357,9 +351,7 @@ func (c *Client) HardRebootInstance(id string) (*SimpleResponse, error) {
 
 // SoftRebootInstance requests the VM to shut down nicely
 func (c *Client) SoftRebootInstance(id string) (*SimpleResponse, error) {
-	resp, err := c.SendPostRequest(fmt.Sprintf("/v2/instances/%s/soft_reboots", id), map[string]string{
-		"region": c.Region,
-	})
+	resp, err := c.SendPostRequest(fmt.Sprintf("/v2/instances/%s/soft_reboots", id), nil)
 	if err != nil {
 		return nil, decodeError(err)
 	}
@@ -370,9 +362,7 @@ func (c *Client) SoftRebootInstance(id string) (*SimpleResponse, error) {
 
 // StopInstance shuts the power down to the instance
 func (c *Client) StopInstance(id string) (*SimpleResponse, error) {
-	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/stop", id), map[string]string{
-		"region": c.Region,
-	})
+	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/stop", id), nil)
 	if err != nil {
 		return nil, decodeError(err)
 	}
@@ -383,9 +373,7 @@ func (c *Client) StopInstance(id string) (*SimpleResponse, error) {
 
 // StartInstance starts the instance booting from the shutdown state
 func (c *Client) StartInstance(id string) (*SimpleResponse, error) {
-	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/start", id), map[string]string{
-		"region": c.Region,
-	})
+	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/start", id), nil)
 	if err != nil {
 		return nil, decodeError(err)
 	}
@@ -398,8 +386,7 @@ func (c *Client) StartInstance(id string) (*SimpleResponse, error) {
 // it's not possible to resize the instance to a smaller size
 func (c *Client) UpgradeInstance(id, newSize string) (*SimpleResponse, error) {
 	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/resize", id), map[string]string{
-		"size":   newSize,
-		"region": c.Region,
+		"size": newSize,
 	})
 	if err != nil {
 		return nil, decodeError(err)
@@ -424,7 +411,6 @@ func (c *Client) MovePublicIPToInstance(id, ipAddress string) (*SimpleResponse, 
 func (c *Client) SetInstanceFirewall(id, firewallID string) (*SimpleResponse, error) {
 	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/firewall", id), map[string]string{
 		"firewall_id": firewallID,
-		"region":      c.Region,
 	})
 	if err != nil {
 		return nil, decodeError(err)
