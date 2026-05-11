@@ -1,6 +1,7 @@
 package civogo
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 )
@@ -921,5 +922,59 @@ func TestDeleteVPCIP(t *testing.T) {
 	expected := &SimpleResponse{Result: "success"}
 	if !reflect.DeepEqual(got, expected) {
 		t.Errorf("Expected %+v, got %+v", expected, got)
+	}
+}
+
+// TestListVPCIPs_IteratesAllPages verifies that ListVPCIPs auto-paginates
+// across the /v2/vpc/ips endpoint when the account owns more than the
+// server-side default per_page. Prior to this fix, the SDK sent a single
+// request without pagination params and silently truncated.
+//
+// Uses the multi-page mock server from pagination_test.go (same package),
+// which serves itemsPerPage entries on each page up to totalItems.
+func TestListVPCIPs_IteratesAllPages(t *testing.T) {
+	const total = paginationPerPage + 5 // forces a 2nd page
+	client, server := newMultiPageServer(t, "/v2/vpc/ips", total, paginationPerPage, func(i int) string {
+		return fmt.Sprintf(`{"id":"ip-%d","name":"ip-%d","ip":"10.0.0.%d"}`, i, i, i)
+	})
+	defer server.Close()
+
+	got, err := client.ListVPCIPs()
+	if err != nil {
+		t.Errorf("Request returned an error: %s", err)
+		return
+	}
+
+	if len(got.Items) != total {
+		t.Errorf("Expected %d items across all pages, got %d", total, len(got.Items))
+	}
+
+	// Verify the alphabetically-last item (the one historically dropped by
+	// the api-go off-by-one before deployment) is present.
+	wantLastID := fmt.Sprintf("ip-%d", total-1)
+	if got.Items[total-1].ID != wantLastID {
+		t.Errorf("Expected last item ID %s, got %s", wantLastID, got.Items[total-1].ID)
+	}
+}
+
+// TestFindVPCIP_OnSecondPage exercises the customer-visible terraform-provider
+// path: data "civo_reserved_ip" with an ID that sits past page 1 of /v2/vpc/ips.
+// Before this fix FindVPCIP returned a ZeroMatchesError for any such ID.
+func TestFindVPCIP_OnSecondPage(t *testing.T) {
+	const total = paginationPerPage + 1
+	const targetIdx = paginationPerPage // exclusively on page 2 (0-indexed)
+	client, server := newMultiPageServer(t, "/v2/vpc/ips", total, paginationPerPage, func(i int) string {
+		return fmt.Sprintf(`{"id":"ip-%d","name":"ip-%d","ip":"10.0.0.%d"}`, i, i, i)
+	})
+	defer server.Close()
+
+	wantID := fmt.Sprintf("ip-%d", targetIdx)
+	got, err := client.FindVPCIP(wantID)
+	if err != nil {
+		t.Errorf("Expected to find %s on page 2, got error: %s", wantID, err)
+		return
+	}
+	if got.ID != wantID {
+		t.Errorf("Expected ID %s, got %s", wantID, got.ID)
 	}
 }

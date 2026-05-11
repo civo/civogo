@@ -162,58 +162,14 @@ func TestPaginateAll_CapExceeded(t *testing.T) {
 	}
 }
 
-// TestListVPCIPs_TrailingItem mirrors TestPaginateAll_TrailingItem but
-// against the VPC /v2/vpc/ips endpoint used by FindVPCIP — the path the
-// terraform-provider-civo civo_reserved_ip data source migrated to.
-// Without iteration, the alphabetically-last item on the last page was
-// silently dropped.
-func TestListVPCIPs_TrailingItem(t *testing.T) {
-	const total = paginationPerPage + 1
-	client, server := newMultiPageServer(t, "/v2/vpc/ips", total, paginationPerPage, func(i int) string {
-		return fmt.Sprintf(`{"id":"vpc-ip-%d"}`, i)
-	})
-	defer server.Close()
-
-	got, err := client.ListVPCIPs()
-	if err != nil {
-		t.Fatalf("ListVPCIPs: %v", err)
-	}
-	if len(got.Items) != total {
-		t.Fatalf("expected %d items, got %d", total, len(got.Items))
-	}
-	if got.Items[total-1].ID != fmt.Sprintf("vpc-ip-%d", total-1) {
-		t.Errorf("expected trailing item ID vpc-ip-%d, got %q", total-1, got.Items[total-1].ID)
-	}
-	if got.Page != 1 || got.Pages != 1 || got.PerPage != total {
-		t.Errorf("expected merged Page=1 Pages=1 PerPage=%d, got Page=%d Pages=%d PerPage=%d", total, got.Page, got.Pages, got.PerPage)
-	}
-}
-
-// TestFindVPCIP_FindsItemPastFirstPage covers the customer-visible
-// terraform-provider-civo symptom: data "civo_reserved_ip" with an id
-// whose owning IP sits past the first server page must resolve cleanly.
-func TestFindVPCIP_FindsItemPastFirstPage(t *testing.T) {
-	const total = paginationPerPage + 1
-	const target = paginationPerPage // 0-indexed; last item, exclusively on page 2
-	client, server := newMultiPageServer(t, "/v2/vpc/ips", total, paginationPerPage, func(i int) string {
-		return fmt.Sprintf(`{"id":"vpc-ip-%d","name":"name-%d"}`, i, i)
-	})
-	defer server.Close()
-
-	want := fmt.Sprintf("vpc-ip-%d", target)
-	got, err := client.FindVPCIP(want)
-	if err != nil {
-		t.Fatalf("FindVPCIP(%q): %v", want, err)
-	}
-	if got.ID != want {
-		t.Errorf("FindVPCIP returned ID=%q, want %q", got.ID, want)
-	}
-}
-
 // TestListDatabaseBackup_TrailingItem covers ListDatabaseBackup against the
 // /v2/databases/{id}/backups endpoint. The endpoint paginates server-side
 // unconditionally and the SDK previously sent no per_page param, so any
 // database with > 20 backups silently truncated.
+//
+// (Per-file regression tests for ListVPCIPs / FindVPCIP live in vpc_test.go;
+// ListAllActions has them in action_test.go. This package has no
+// database_backup_test.go file, so the regression sits here.)
 func TestListDatabaseBackup_TrailingItem(t *testing.T) {
 	const total = paginationPerPage + 1
 	const dbID = "db-1234"
@@ -237,30 +193,5 @@ func TestListDatabaseBackup_TrailingItem(t *testing.T) {
 	}
 	if got.Page != 1 || got.Pages != 1 || got.PerPage != total {
 		t.Errorf("expected merged Page=1 Pages=1 PerPage=%d, got Page=%d Pages=%d PerPage=%d", total, got.Page, got.Pages, got.PerPage)
-	}
-}
-
-// TestListAllActions_MultiPage covers the new auto-iterating wrapper.
-// Filters supplied by the caller are preserved across page fetches;
-// any Page/PerPage in the filters is overridden by the iterator.
-func TestListAllActions_MultiPage(t *testing.T) {
-	const total = paginationPerPage*2 + 3 // forces 3 pages
-	client, server := newMultiPageServer(t, "/v2/actions", total, paginationPerPage, func(i int) string {
-		return fmt.Sprintf(`{"id":%d,"resource_type":"instance"}`, i)
-	})
-	defer server.Close()
-
-	// Caller passes filters with bogus Page/PerPage — iterator must override.
-	filters := &ActionListRequest{
-		ResourceType: "instance",
-		Page:         999,
-		PerPage:      999,
-	}
-	got, err := client.ListAllActions(filters)
-	if err != nil {
-		t.Fatalf("ListAllActions: %v", err)
-	}
-	if len(got) != total {
-		t.Fatalf("expected %d items, got %d", total, len(got))
 	}
 }
