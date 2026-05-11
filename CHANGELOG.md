@@ -1,4 +1,21 @@
 
+Unreleased
+=============
+
+* **Behaviour change**: `ListIPs`, `ListAccounts`, `ListApplications`,
+  `ListDatabases`, `ListKubernetesClusters`, and `ListObjectStores` now
+  iterate server-side pagination internally and return every item the
+  account owns, not just the first 20. The merged response always reports
+  `Page=1, Pages=1, PerPage=len(Items)`. Callers iterating `Items` are
+  unaffected; callers inspecting `Page`/`Pages`/`PerPage` to drive their
+  own iteration should drop that logic.
+* `ListAllInstances` and `FindObjectStoreCredential` no longer use the
+  brittle `per_page=99999999` / `per_page=10000` workaround; both go
+  through the new shared iterator (`paginateAll` in `pagination.go`).
+* Hard cap: each `List*` call returns `ErrPaginationCapExceeded` rather
+  than spinning if the server reports more than 100 pages / 10,000 items.
+* Originating customer report: api-go epic civo&598 + civogo epic civo&599.
+
 0.2.57
 =============
 2021-11-02

@@ -81,17 +81,21 @@ type RestoreDatabaseRequest struct {
 
 // ListDatabases returns a list of all databases
 func (c *Client) ListDatabases() (*PaginatedDatabases, error) {
-	resp, err := c.SendGetRequest("/v2/databases")
+	items, err := paginateAll("databases", func(page, perPage int) ([]Database, int, error) {
+		resp, err := c.SendGetRequest(fmt.Sprintf("/v2/databases?page=%d&per_page=%d", page, perPage))
+		if err != nil {
+			return nil, 0, decodeError(err)
+		}
+		pg := PaginatedDatabases{}
+		if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&pg); err != nil {
+			return nil, 0, err
+		}
+		return pg.Items, pg.Pages, nil
+	})
 	if err != nil {
-		return nil, decodeError(err)
-	}
-
-	databases := &PaginatedDatabases{}
-	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&databases); err != nil {
 		return nil, err
 	}
-
-	return databases, nil
+	return &PaginatedDatabases{Page: 1, Pages: 1, PerPage: len(items), Items: items}, nil
 }
 
 // GetDatabase finds a database by the database UUID

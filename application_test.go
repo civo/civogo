@@ -40,9 +40,11 @@ func TestListApplications(t *testing.T) {
 		return
 	}
 
+	// The SDK auto-paginates: the merged response always reports
+	// Page=1, Pages=1, PerPage=len(Items) — see paginateAll in pagination.go.
 	expected := &PaginatedApplications{
 		Page:    1,
-		PerPage: 20,
+		PerPage: 1,
 		Pages:   1,
 		Items: []Application{
 			{

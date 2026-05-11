@@ -3,6 +3,7 @@ package civogo
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 )
 
 // PaginatedAccounts returns a paginated list of Account object
@@ -15,17 +16,21 @@ type PaginatedAccounts struct {
 
 // ListAccounts lists all accounts
 func (c *Client) ListAccounts() (*PaginatedAccounts, error) {
-	resp, err := c.SendGetRequest("/v2/accounts")
+	items, err := paginateAll("accounts", func(page, perPage int) ([]Account, int, error) {
+		resp, err := c.SendGetRequest(fmt.Sprintf("/v2/accounts?page=%d&per_page=%d", page, perPage))
+		if err != nil {
+			return nil, 0, decodeError(err)
+		}
+		pg := PaginatedAccounts{}
+		if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&pg); err != nil {
+			return nil, 0, decodeError(err)
+		}
+		return pg.Items, pg.Pages, nil
+	})
 	if err != nil {
-		return nil, decodeError(err)
+		return nil, err
 	}
-
-	accounts := &PaginatedAccounts{}
-	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&accounts); err != nil {
-		return nil, decodeError(err)
-	}
-
-	return accounts, nil
+	return &PaginatedAccounts{Page: 1, Pages: 1, PerPage: len(items), Items: items}, nil
 }
 
 // GetAccountID returns the account ID

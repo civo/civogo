@@ -72,9 +72,11 @@ func TestListKubernetesClusters(t *testing.T) {
 	createAtInstance, _ := time.Parse(time.RFC3339, "2019-09-23T13:03:00.000+01:00")
 	updateAt, _ := time.Parse(time.RFC3339, "2019-09-23T13:02:59.000+01:00")
 
+	// The SDK auto-paginates: the merged response always reports
+	// Page=1, Pages=1, PerPage=len(Items) — see paginateAll in pagination.go.
 	expected := &PaginatedKubernetesClusters{
 		Page:    1,
-		PerPage: 20,
+		PerPage: 1,
 		Pages:   1,
 		Items: []KubernetesCluster{
 			{
