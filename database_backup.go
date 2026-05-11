@@ -51,19 +51,27 @@ type DatabaseBackupUpdateRequest struct {
 	Region string `json:"region"`
 }
 
-// ListDatabaseBackup lists backups for database
+// ListDatabaseBackup lists backups for database.
+//
+// The SDK iterates server-side pagination internally so the returned
+// PaginatedDatabaseBackup always contains every backup for the database.
+// The merged response has Page=1, Pages=1, PerPage=len(Items).
 func (c *Client) ListDatabaseBackup(did string) (*PaginatedDatabaseBackup, error) {
-	resp, err := c.SendGetRequest(fmt.Sprintf("/v2/databases/%s/backups", did))
+	items, err := paginateAll("databases/"+did+"/backups", func(page, perPage int) ([]DatabaseBackup, int, error) {
+		resp, err := c.SendGetRequest(fmt.Sprintf("/v2/databases/%s/backups?page=%d&per_page=%d", did, page, perPage))
+		if err != nil {
+			return nil, 0, decodeError(err)
+		}
+		pg := PaginatedDatabaseBackup{}
+		if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&pg); err != nil {
+			return nil, 0, decodeError(err)
+		}
+		return pg.Items, pg.Pages, nil
+	})
 	if err != nil {
-		return nil, decodeError(err)
+		return nil, err
 	}
-
-	back := &PaginatedDatabaseBackup{}
-	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&back); err != nil {
-		return nil, decodeError(err)
-	}
-
-	return back, nil
+	return &PaginatedDatabaseBackup{Page: 1, Pages: 1, PerPage: len(items), Items: items}, nil
 }
 
 // UpdateDatabaseBackup update database backup

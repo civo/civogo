@@ -161,3 +161,37 @@ func TestPaginateAll_CapExceeded(t *testing.T) {
 		t.Errorf("expected Resource=ips, got %q", capErr.Resource)
 	}
 }
+
+// TestListDatabaseBackup_TrailingItem covers ListDatabaseBackup against the
+// /v2/databases/{id}/backups endpoint. The endpoint paginates server-side
+// unconditionally and the SDK previously sent no per_page param, so any
+// database with > 20 backups silently truncated.
+//
+// (Per-file regression tests for ListVPCIPs / FindVPCIP live in vpc_test.go;
+// ListAllActions has them in action_test.go. This package has no
+// database_backup_test.go file, so the regression sits here.)
+func TestListDatabaseBackup_TrailingItem(t *testing.T) {
+	const total = paginationPerPage + 1
+	const dbID = "db-1234"
+	client, server := newMultiPageServer(t,
+		fmt.Sprintf("/v2/databases/%s/backups", dbID),
+		total, paginationPerPage,
+		func(i int) string {
+			return fmt.Sprintf(`{"id":"bk-%d"}`, i)
+		})
+	defer server.Close()
+
+	got, err := client.ListDatabaseBackup(dbID)
+	if err != nil {
+		t.Fatalf("ListDatabaseBackup: %v", err)
+	}
+	if len(got.Items) != total {
+		t.Fatalf("expected %d items, got %d", total, len(got.Items))
+	}
+	if got.Items[total-1].ID != fmt.Sprintf("bk-%d", total-1) {
+		t.Errorf("expected trailing item ID bk-%d, got %q", total-1, got.Items[total-1].ID)
+	}
+	if got.Page != 1 || got.Pages != 1 || got.PerPage != total {
+		t.Errorf("expected merged Page=1 Pages=1 PerPage=%d, got Page=%d Pages=%d PerPage=%d", total, got.Page, got.Pages, got.PerPage)
+	}
+}
