@@ -78,18 +78,26 @@ func (c *Client) GetObjectStoreCredential(id string) (*ObjectStoreCredential, er
 	return &oscr, nil
 }
 
-// FindObjectStoreCredential finds an objectstore credential by name or by accesskeyID
+// FindObjectStoreCredential finds an objectstore credential by name or by accesskeyID.
+// All pages of the credential list are iterated so the search covers every
+// credential the account owns, not just the first page.
 func (c *Client) FindObjectStoreCredential(search string) (*ObjectStoreCredential, error) {
-	creds, err := c.ListObjectStoreCredentials(1, 10000)
+	items, err := paginateAll("objectstore/credentials", func(page, perPage int) ([]ObjectStoreCredential, int, error) {
+		pg, err := c.ListObjectStoreCredentials(page, perPage)
+		if err != nil {
+			return nil, 0, err
+		}
+		return pg.Items, pg.Pages, nil
+	})
 	if err != nil {
-		return nil, decodeError(err)
+		return nil, err
 	}
 
 	exactMatch := false
 	partialMatchesCount := 0
 	result := ObjectStoreCredential{}
 
-	for _, value := range creds.Items {
+	for _, value := range items {
 		if value.AccessKeyID == search || value.Name == search || value.ID == search {
 			exactMatch = true
 			result = value

@@ -7,7 +7,7 @@ import (
 
 func TestListDatabases(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
-		"/v2/databases": `{"page": 1, "per_page": 20, "pages": 2, "items":[{"id": "12345", "name": "test-db"}]}`,
+		"/v2/databases": `{"page": 1, "per_page": 20, "pages": 1, "items":[{"id": "12345", "name": "test-db"}]}`,
 	})
 	defer server.Close()
 
@@ -17,10 +17,12 @@ func TestListDatabases(t *testing.T) {
 		return
 	}
 
+	// The SDK auto-paginates: the merged response always reports
+	// Page=1, Pages=1, PerPage=len(Items) — see paginateAll in pagination.go.
 	expected := &PaginatedDatabases{
 		Page:    1,
-		PerPage: 20,
-		Pages:   2,
+		PerPage: 1,
+		Pages:   1,
 		Items: []Database{
 			{
 				ID:   "12345",

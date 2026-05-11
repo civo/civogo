@@ -152,14 +152,20 @@ func (c *Client) ListInstances(page int, perPage int) (*PaginatedInstanceList, e
 	return &PaginatedInstances, err
 }
 
-// ListAllInstances returns all (well, upto 99,999,999 instances) Instances owned by the calling API account
+// ListAllInstances returns every Instance owned by the calling API account
+// by iterating the paginated /v2/instances endpoint until exhausted.
 func (c *Client) ListAllInstances() ([]Instance, error) {
-	instances, err := c.ListInstances(1, 99999999)
+	items, err := paginateAll("instances", func(page, perPage int) ([]Instance, int, error) {
+		pg, err := c.ListInstances(page, perPage)
+		if err != nil {
+			return nil, 0, err
+		}
+		return pg.Items, pg.Pages, nil
+	})
 	if err != nil {
-		return []Instance{}, decodeError(err)
+		return []Instance{}, err
 	}
-
-	return instances.Items, nil
+	return items, nil
 }
 
 // FindInstance finds a instance by either part of the ID or part of the hostname

@@ -61,17 +61,21 @@ type Actions struct {
 
 // ListIPs returns all reserved IPs in that specific region
 func (c *Client) ListIPs() (*PaginatedIPs, error) {
-	resp, err := c.SendGetRequest("/v2/ips")
+	items, err := paginateAll("ips", func(page, perPage int) ([]IP, int, error) {
+		resp, err := c.SendGetRequest(fmt.Sprintf("/v2/ips?page=%d&per_page=%d", page, perPage))
+		if err != nil {
+			return nil, 0, decodeError(err)
+		}
+		pg := PaginatedIPs{}
+		if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&pg); err != nil {
+			return nil, 0, err
+		}
+		return pg.Items, pg.Pages, nil
+	})
 	if err != nil {
-		return nil, decodeError(err)
-	}
-
-	ips := &PaginatedIPs{}
-	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&ips); err != nil {
 		return nil, err
 	}
-
-	return ips, nil
+	return &PaginatedIPs{Page: 1, Pages: 1, PerPage: len(items), Items: items}, nil
 }
 
 // GetIP finds an reserved IP by the full ID
