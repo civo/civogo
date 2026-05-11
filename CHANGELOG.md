@@ -21,6 +21,16 @@ Unreleased
   is the path the terraform-provider-civo `civo_reserved_ip` data source
   migrated to, so customers hitting the v0.7.1 SDK via terraform still
   saw Reserved IPs past page 1 silently dropped until this follow-up.
+* **Same audit**: `ListDatabaseBackup` (and therefore `FindDatabaseBackup`)
+  now iterate internally. Previously sent no pagination params to the
+  `/v2/databases/{id}/backups` endpoint, so any database with > 20 backups
+  silently truncated — affecting `civo db backup list` and
+  `civo db backup delete <name>` in civo-cli.
+* New `ListAllActions(filters *ActionListRequest) ([]Action, error)`
+  function pairs with `ListActions` the way `ListAllInstances` pairs with
+  `ListInstances`. Iterates server-side pagination internally; ignores
+  any `Page`/`PerPage` set on the filters. Use this when enumerating all
+  actions; keep `ListActions` when you genuinely want a single page.
 
 0.2.57
 =============

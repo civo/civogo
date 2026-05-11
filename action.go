@@ -46,7 +46,10 @@ type ActionListRequest struct {
 	UserID       string `json:"user_id,omitempty" url:"user_id,omitempty"`
 }
 
-// ListActions returns a page of actions
+// ListActions returns a page of actions. Callers that want to enumerate
+// every action matching the supplied filters should use ListAllActions
+// instead — without explicit Page/PerPage values this function returns
+// only the server-side first page (default 20 items).
 func (c *Client) ListActions(listRequest *ActionListRequest) (*PaginateActionList, error) {
 	url := "/v2/actions"
 
@@ -63,4 +66,36 @@ func (c *Client) ListActions(listRequest *ActionListRequest) (*PaginateActionLis
 	paginateActionList := PaginateActionList{}
 	err = json.NewDecoder(bytes.NewReader(resp)).Decode(&paginateActionList)
 	return &paginateActionList, err
+}
+
+// ListAllActions returns every action matching the supplied filters by
+// iterating server-side pagination internally. Any Page/PerPage values
+// set on filters are ignored (the SDK chooses these to maximise iteration
+// safety; see paginateAll in pagination.go).
+//
+// Pass nil for filters to enumerate all actions on the account with no
+// filter criteria.
+func (c *Client) ListAllActions(filters *ActionListRequest) ([]Action, error) {
+	return paginateAll("actions", func(page, perPage int) ([]Action, int, error) {
+		req := ActionListRequest{}
+		if filters != nil {
+			req = *filters
+		}
+		req.Page = page
+		req.PerPage = perPage
+
+		vals, err := query.Values(&req)
+		if err != nil {
+			return nil, 0, err
+		}
+		resp, err := c.SendGetRequest(fmt.Sprintf("/v2/actions?%s", vals.Encode()))
+		if err != nil {
+			return nil, 0, decodeError(err)
+		}
+		pg := PaginateActionList{}
+		if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&pg); err != nil {
+			return nil, 0, err
+		}
+		return pg.Items, pg.Pages, nil
+	})
 }

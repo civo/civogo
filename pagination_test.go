@@ -209,3 +209,58 @@ func TestFindVPCIP_FindsItemPastFirstPage(t *testing.T) {
 		t.Errorf("FindVPCIP returned ID=%q, want %q", got.ID, want)
 	}
 }
+
+// TestListDatabaseBackup_TrailingItem covers ListDatabaseBackup against the
+// /v2/databases/{id}/backups endpoint. The endpoint paginates server-side
+// unconditionally and the SDK previously sent no per_page param, so any
+// database with > 20 backups silently truncated.
+func TestListDatabaseBackup_TrailingItem(t *testing.T) {
+	const total = paginationPerPage + 1
+	const dbID = "db-1234"
+	client, server := newMultiPageServer(t,
+		fmt.Sprintf("/v2/databases/%s/backups", dbID),
+		total, paginationPerPage,
+		func(i int) string {
+			return fmt.Sprintf(`{"id":"bk-%d"}`, i)
+		})
+	defer server.Close()
+
+	got, err := client.ListDatabaseBackup(dbID)
+	if err != nil {
+		t.Fatalf("ListDatabaseBackup: %v", err)
+	}
+	if len(got.Items) != total {
+		t.Fatalf("expected %d items, got %d", total, len(got.Items))
+	}
+	if got.Items[total-1].ID != fmt.Sprintf("bk-%d", total-1) {
+		t.Errorf("expected trailing item ID bk-%d, got %q", total-1, got.Items[total-1].ID)
+	}
+	if got.Page != 1 || got.Pages != 1 || got.PerPage != total {
+		t.Errorf("expected merged Page=1 Pages=1 PerPage=%d, got Page=%d Pages=%d PerPage=%d", total, got.Page, got.Pages, got.PerPage)
+	}
+}
+
+// TestListAllActions_MultiPage covers the new auto-iterating wrapper.
+// Filters supplied by the caller are preserved across page fetches;
+// any Page/PerPage in the filters is overridden by the iterator.
+func TestListAllActions_MultiPage(t *testing.T) {
+	const total = paginationPerPage*2 + 3 // forces 3 pages
+	client, server := newMultiPageServer(t, "/v2/actions", total, paginationPerPage, func(i int) string {
+		return fmt.Sprintf(`{"id":%d,"resource_type":"instance"}`, i)
+	})
+	defer server.Close()
+
+	// Caller passes filters with bogus Page/PerPage — iterator must override.
+	filters := &ActionListRequest{
+		ResourceType: "instance",
+		Page:         999,
+		PerPage:      999,
+	}
+	got, err := client.ListAllActions(filters)
+	if err != nil {
+		t.Fatalf("ListAllActions: %v", err)
+	}
+	if len(got) != total {
+		t.Fatalf("expected %d items, got %d", total, len(got))
+	}
+}
