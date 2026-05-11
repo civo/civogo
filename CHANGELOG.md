@@ -15,6 +15,12 @@ Unreleased
 * Hard cap: each `List*` call returns `ErrPaginationCapExceeded` rather
   than spinning if the server reports more than 100 pages / 10,000 items.
 * Originating customer report: api-go epic civo&598 + civogo epic civo&599.
+* **Follow-up**: `ListVPCIPs` (and therefore `FindVPCIP`) now also iterate
+  internally. Missed in the v0.7.1 cut — the VPC API uses a different
+  endpoint (`/v2/vpc/ips`) and was not covered by the initial audit. This
+  is the path the terraform-provider-civo `civo_reserved_ip` data source
+  migrated to, so customers hitting the v0.7.1 SDK via terraform still
+  saw Reserved IPs past page 1 silently dropped until this follow-up.
 
 0.2.57
 =============

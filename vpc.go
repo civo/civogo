@@ -567,19 +567,27 @@ func (c *Client) DeleteVPCLoadBalancer(id string) (*SimpleResponse, error) {
 // VPC Reserved IPs - /v2/vpc/ips
 // =============================================================================
 
-// ListVPCIPs returns all reserved IPs in that specific region using VPC API path
+// ListVPCIPs returns all reserved IPs in that specific region using VPC API path.
+//
+// The SDK iterates server-side pagination internally so the returned
+// PaginatedIPs always contains every IP the account owns in the region.
+// The merged response has Page=1, Pages=1, PerPage=len(Items).
 func (c *Client) ListVPCIPs() (*PaginatedIPs, error) {
-	resp, err := c.SendGetRequest("/v2/vpc/ips")
+	items, err := paginateAll("vpc/ips", func(page, perPage int) ([]IP, int, error) {
+		resp, err := c.SendGetRequest(fmt.Sprintf("/v2/vpc/ips?page=%d&per_page=%d", page, perPage))
+		if err != nil {
+			return nil, 0, decodeError(err)
+		}
+		pg := PaginatedIPs{}
+		if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&pg); err != nil {
+			return nil, 0, err
+		}
+		return pg.Items, pg.Pages, nil
+	})
 	if err != nil {
-		return nil, decodeError(err)
-	}
-
-	ips := &PaginatedIPs{}
-	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&ips); err != nil {
 		return nil, err
 	}
-
-	return ips, nil
+	return &PaginatedIPs{Page: 1, Pages: 1, PerPage: len(items), Items: items}, nil
 }
 
 // GetVPCIP finds a reserved IP by the full ID using VPC API path
