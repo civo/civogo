@@ -56,7 +56,8 @@ func TestListKubernetesClusters(t *testing.T) {
 			"configuration": {}
 		  }],
 			"cni_plugin": "flannel",
-			"ccm_installed": "true"
+			"ccm_installed": "true",
+			"volume_type": "standard"
 		}]}`,
 	})
 	defer server.Close()
@@ -71,9 +72,11 @@ func TestListKubernetesClusters(t *testing.T) {
 	createAtInstance, _ := time.Parse(time.RFC3339, "2019-09-23T13:03:00.000+01:00")
 	updateAt, _ := time.Parse(time.RFC3339, "2019-09-23T13:02:59.000+01:00")
 
+	// The SDK auto-paginates: the merged response always reports
+	// Page=1, Pages=1, PerPage=len(Items) — see paginateAll in pagination.go.
 	expected := &PaginatedKubernetesClusters{
 		Page:    1,
-		PerPage: 20,
+		PerPage: 1,
 		Pages:   1,
 		Items: []KubernetesCluster{
 			{
@@ -130,6 +133,7 @@ func TestListKubernetesClusters(t *testing.T) {
 				}},
 				CNIPlugin:    "flannel",
 				CCMInstalled: "true",
+				VolumeType:   "standard",
 			},
 		},
 	}
@@ -228,7 +232,8 @@ func TestNewKubernetesClusters(t *testing.T) {
 			"plan": null,
 			"configuration": {}
 		  }],
-			"cni_plugin": "flannel"
+			"cni_plugin": "flannel",
+			"volume_type": "encrypted-standard"
 		}`,
 	})
 	defer server.Close()
@@ -240,6 +245,7 @@ func TestNewKubernetesClusters(t *testing.T) {
 		NumTargetNodes:    3,
 		TargetNodesSize:   "g2.xsmall",
 		Applications:      "traefik",
+		VolumeType:        "encrypted-standard",
 	}
 	got, err := client.NewKubernetesClusters(cfg)
 
@@ -293,7 +299,8 @@ func TestNewKubernetesClusters(t *testing.T) {
 			ImageURL:      "https://api.civo.com/k3s-marketplace/traefik.png",
 			Configuration: map[string]ApplicationConfiguration{},
 		}},
-		CNIPlugin: "flannel",
+		CNIPlugin:  "flannel",
+		VolumeType: "encrypted-standard",
 	}
 
 	if !reflect.DeepEqual(got, expected) {

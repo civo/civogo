@@ -83,7 +83,6 @@ type Clienter interface {
 	SoftRebootInstance(id string) (*SimpleResponse, error)
 	StopInstance(id string) (*SimpleResponse, error)
 	StartInstance(id string) (*SimpleResponse, error)
-	GetInstanceConsoleURL(id string) (string, error)
 	UpgradeInstance(id, newSize string) (*SimpleResponse, error)
 	MovePublicIPToInstance(id, ipAddress string) (*SimpleResponse, error)
 	SetInstanceFirewall(id, firewallID string) (*SimpleResponse, error)
@@ -152,7 +151,7 @@ type Clienter interface {
 	// DeleteTemplate(id string) (*SimpleResponse, error)
 
 	// DiskImages
-	ListDiskImages() ([]DiskImage, error)
+	ListDiskImages(includeCustom ...bool) ([]DiskImage, error)
 	GetDiskImage(id string) (*DiskImage, error)
 	FindDiskImage(search string) (*DiskImage, error)
 
@@ -1212,7 +1211,7 @@ func (c *FakeClient) DeleteSSHKey(id string) (*SimpleResponse, error) {
 // }
 
 // ListDiskImages implemented in a fake way for automated tests
-func (c *FakeClient) ListDiskImages() ([]DiskImage, error) {
+func (c *FakeClient) ListDiskImages(includeCustom ...bool) ([]DiskImage, error) {
 	return c.DiskImage, nil
 }
 

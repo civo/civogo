@@ -6,7 +6,7 @@ import (
 
 func TestListInstances(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
-		"/v2/instances": `{"page": 1, "per_page": 20, "pages": 2, "items":[{"id": "12345", "hostname": "foo.example.com"}]}`,
+		"/v2/instances": `{"page": 1, "per_page": 20, "pages": 1, "items":[{"id": "12345", "hostname": "foo.example.com"}]}`,
 	})
 	defer server.Close()
 
@@ -22,7 +22,30 @@ func TestListInstances(t *testing.T) {
 
 func TestFindInstance(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
-		"/v2/instances": `{"page": 1, "per_page": 20, "pages": 2, "items":[{"id": "12345", "hostname": "foo.example.com"}, {"id":"67890", "hostname": "bar.zip.com"}]}`,
+		"/v2/instances": `
+		{
+			"page": 1,
+			"per_page": 20,
+			"pages": 1,
+			"items": [
+				{
+					"id": "12345",
+					"hostname": "foo.example.com"
+				}, 
+				{
+					"id": "67890",
+					"hostname": "bar.zip.com"
+				},
+				{
+					"id": "98765",
+					"hostname": "baz.zip.com"
+				},
+				{
+					"id": "43210",
+					"hostname": "zip.com"
+				}
+			]
+		}`,
 	})
 	defer server.Close()
 
@@ -46,9 +69,19 @@ func TestFindInstance(t *testing.T) {
 		t.Errorf("Expected %s, got %s", "67890", got.ID)
 	}
 
+	got, _ = client.FindInstance("baz.zip.com")
+	if got.ID != "98765" {
+		t.Errorf("Expected %s, got %s", "98765", got.ID)
+	}
+
 	_, err := client.FindInstance("com")
 	if err.Error() != "MultipleMatchesError: unable to find com because there were multiple matches" {
 		t.Errorf("Expected %s, got %s", "unable to find com because there were multiple matches", err.Error())
+	}
+
+	got, _ = client.FindInstance("zip.com")
+	if got.ID != "43210" {
+		t.Errorf("Expected %s, got %s", "43210", got.ID)
 	}
 
 	_, err = client.FindInstance("missing")
@@ -260,6 +293,25 @@ func TestDeleteInstance(t *testing.T) {
 	EnsureSuccessfulSimpleResponse(t, got, err)
 }
 
+func TestDeleteInstanceVncSession(t *testing.T) {
+	client, server, _ := NewAdvancedClientForTesting([]ConfigAdvanceClientForTesting{
+		{
+			Method: "DELETE",
+			Value: []ValueAdvanceClientForTesting{
+				{
+					RequestBody:  "",
+					URL:          "/v2/instances/12345/vnc",
+					ResponseBody: `{"result": "ok"}`,
+				},
+			},
+		},
+	})
+	defer server.Close()
+
+	got, err := client.DeleteInstanceVncSession("12345")
+	EnsureSuccessfulSimpleResponse(t, got, err)
+}
+
 func TestRebootInstance(t *testing.T) {
 	client, server, _ := NewAdvancedClientForTesting([]ConfigAdvanceClientForTesting{
 		{
@@ -393,25 +445,33 @@ func TestMovePublicIPToInstance(t *testing.T) {
 	EnsureSuccessfulSimpleResponse(t, got, err)
 }
 
-func TestGetInstanceConsoleURL(t *testing.T) {
+func TestGetInstanceVncStatus(t *testing.T) {
 	client, server, _ := NewAdvancedClientForTesting([]ConfigAdvanceClientForTesting{
 		{
 			Method: "GET",
 			Value: []ValueAdvanceClientForTesting{
 				{
 					RequestBody:  `""`,
-					URL:          "/v2/instances/12345/console",
-					ResponseBody: `{"url": "https://console.example.com/12345"}`,
+					URL:          "/v2/instances/12345/vnc",
+					ResponseBody: `{"uri": "https://vnc.example.com/12345", "expiration": "2025-06-02T12:00:00Z"}`,
 				},
 			},
 		},
 	})
 	defer server.Close()
 
-	got, _ := client.GetInstanceConsoleURL("12345")
+	got, err := client.GetInstanceVncStatus("12345")
 
-	if got != "https://console.example.com/12345" {
-		t.Errorf("Expected %s, got %s", "https://console.example.com/12345", got)
+	if got.URI != "https://vnc.example.com/12345" {
+		t.Errorf("Expected URI %s, got %s", "https://vnc.example.com/12345", got.URI)
+	}
+
+	if got.Expiration != "2025-06-02T12:00:00Z" {
+		t.Errorf("Expected Expiration %s, got %s", "2025-06-02T12:00:00Z", got.Expiration)
+	}
+
+	if err != nil {
+		t.Errorf("Request returned an error: %s", err)
 	}
 }
 
@@ -461,5 +521,43 @@ func TestGetRecoveryStatus(t *testing.T) {
 	defer server.Close()
 
 	got, err := client.GetRecoveryStatus("12345")
+	EnsureSuccessfulSimpleResponse(t, got, err)
+}
+
+func TestUpdateInstanceAllowedIPs(t *testing.T) {
+	client, server, _ := NewAdvancedClientForTesting([]ConfigAdvanceClientForTesting{
+		{
+			Method: "PUT",
+			Value: []ValueAdvanceClientForTesting{
+				{
+					RequestBody:  `"{"allowed_ips": ["192.168.1.10", "192.168.1.11"]"`,
+					URL:          "/v2/instances/12345/allowed_ips",
+					ResponseBody: `{"result": "success"}`,
+				},
+			},
+		},
+	})
+	defer server.Close()
+
+	got, err := client.UpdateInstanceAllowedIPs("12345", []string{"192.168.1.10", "192.168.1.11"})
+	EnsureSuccessfulSimpleResponse(t, got, err)
+}
+
+func TestUpdateInstanceBandwidth(t *testing.T) {
+	client, server, _ := NewAdvancedClientForTesting([]ConfigAdvanceClientForTesting{
+		{
+			Method: "PUT",
+			Value: []ValueAdvanceClientForTesting{
+				{
+					RequestBody:  `"{"network_bandwidth_limit":"10"}"`,
+					URL:          "/v2/instances/12345/network_bandwidth_limit",
+					ResponseBody: `{"result": "success"}`,
+				},
+			},
+		},
+	})
+	defer server.Close()
+
+	got, err := client.UpdateInstanceBandwidth("12345", 10)
 	EnsureSuccessfulSimpleResponse(t, got, err)
 }

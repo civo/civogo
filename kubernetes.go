@@ -108,6 +108,7 @@ type KubernetesCluster struct {
 	CNIPlugin             string                           `json:"cni_plugin,omitempty"`
 	CCMInstalled          string                           `json:"ccm_installed,omitempty"`
 	Conditions            []Condition                      `json:"conditions"`
+	VolumeType            string                           `json:"volume_type,omitempty"`
 }
 
 // RequiredPools returns the required pools for a given Kubernetes cluster
@@ -146,6 +147,7 @@ type KubernetesClusterConfig struct {
 	FirewallRule      string                        `json:"firewall_rule,omitempty"`
 	FirewallID        string                        `json:"firewall_id,omitempty"`
 	CNIPlugin         string                        `json:"cni_plugin,omitempty"`
+	VolumeType        string                        `json:"volume_type,omitempty"`
 }
 
 // KubernetesClusterPoolConfig is used to create a new cluster pool
@@ -198,17 +200,21 @@ type KubernetesVersion struct {
 
 // ListKubernetesClusters returns all cluster of kubernetes in the account
 func (c *Client) ListKubernetesClusters() (*PaginatedKubernetesClusters, error) {
-	resp, err := c.SendGetRequest("/v2/kubernetes/clusters")
+	items, err := paginateAll("kubernetes/clusters", func(page, perPage int) ([]KubernetesCluster, int, error) {
+		resp, err := c.SendGetRequest(fmt.Sprintf("/v2/kubernetes/clusters?page=%d&per_page=%d", page, perPage))
+		if err != nil {
+			return nil, 0, decodeError(err)
+		}
+		pg := PaginatedKubernetesClusters{}
+		if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&pg); err != nil {
+			return nil, 0, err
+		}
+		return pg.Items, pg.Pages, nil
+	})
 	if err != nil {
-		return nil, decodeError(err)
-	}
-
-	kubernetes := &PaginatedKubernetesClusters{}
-	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&kubernetes); err != nil {
 		return nil, err
 	}
-
-	return kubernetes, nil
+	return &PaginatedKubernetesClusters{Page: 1, Pages: 1, PerPage: len(items), Items: items}, nil
 }
 
 // FindKubernetesCluster finds a Kubernetes cluster by either part of the ID or part of the name

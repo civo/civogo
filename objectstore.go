@@ -57,17 +57,21 @@ type UpdateObjectStoreRequest struct {
 
 // ListObjectStores returns all objectstores in that specific region
 func (c *Client) ListObjectStores() (*PaginatedObjectstores, error) {
-	resp, err := c.SendGetRequest("/v2/objectstores")
+	items, err := paginateAll("objectstores", func(page, perPage int) ([]ObjectStore, int, error) {
+		resp, err := c.SendGetRequest(fmt.Sprintf("/v2/objectstores?page=%d&per_page=%d", page, perPage))
+		if err != nil {
+			return nil, 0, decodeError(err)
+		}
+		pg := PaginatedObjectstores{}
+		if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&pg); err != nil {
+			return nil, 0, err
+		}
+		return pg.Items, pg.Pages, nil
+	})
 	if err != nil {
-		return nil, decodeError(err)
-	}
-
-	stores := &PaginatedObjectstores{}
-	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&stores); err != nil {
 		return nil, err
 	}
-
-	return stores, nil
+	return &PaginatedObjectstores{Page: 1, Pages: 1, PerPage: len(items), Items: items}, nil
 }
 
 // GetObjectStore finds an objectstore by the full ID

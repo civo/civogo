@@ -7,7 +7,7 @@ import (
 
 func TestListObjectStores(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
-		"/v2/objectstores": `{"page": 1, "per_page": 20, "pages": 2, "items":[{"id": "12345", "name": "test-objectstore"}]}`,
+		"/v2/objectstores": `{"page": 1, "per_page": 20, "pages": 1, "items":[{"id": "12345", "name": "test-objectstore"}]}`,
 	})
 	defer server.Close()
 
@@ -17,10 +17,12 @@ func TestListObjectStores(t *testing.T) {
 		return
 	}
 
+	// The SDK auto-paginates: the merged response always reports
+	// Page=1, Pages=1, PerPage=len(Items) — see paginateAll in pagination.go.
 	expected := &PaginatedObjectstores{
 		Page:    1,
-		PerPage: 20,
-		Pages:   2,
+		PerPage: 1,
+		Pages:   1,
 		Items: []ObjectStore{
 			{
 				ID:   "12345",

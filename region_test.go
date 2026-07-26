@@ -59,7 +59,6 @@ func TestCreateRegion(t *testing.T) {
 				"dbaas": false,
 				"volume": true,
 				"paas": false,
-				"kfaas": false,
 				"public_ip_node_pools": false
 			}
 		}`,
@@ -81,7 +80,6 @@ func TestCreateRegion(t *testing.T) {
 			"dbaas":                false,
 			"volume":               true,
 			"paas":                 false,
-			"kfaas":                false,
 			"public_ip_node_pools": false,
 		},
 	}

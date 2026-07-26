@@ -10,6 +10,11 @@ import (
 	"github.com/civo/civogo/utils"
 )
 
+const (
+	// DefaultInstanceUser is the default username used in newly created instances.
+	DefaultInstanceUser string = "civo"
+)
+
 // Instance represents a virtual server within Civo's infrastructure
 type Instance struct {
 	ID                       string           `json:"id,omitempty"`
@@ -56,21 +61,20 @@ type Instance struct {
 	Subnets                  []Subnet         `json:"subnets,omitempty"`
 	AttachedVolumes          []AttachedVolume `json:"attached_volumes,omitempty"`
 	PlacementRule            PlacementRule    `json:"placement_rule,omitempty"`
-}
-
-//"cpu_cores":1,"ram_mb":2048,"disk_gb":25
-
-// InstanceConsole represents a link to a webconsole for an instances
-type InstanceConsole struct {
-	URL string `json:"url"`
+	NetworkBandwidthLimit    int              `json:"network_bandwidth_limit,omitempty"`
+	AllowedIPs               []string         `json:"allowed_ips,omitempty"`
 }
 
 // InstanceVnc represents VNC information for an instances
 type InstanceVnc struct {
-	URI    string `json:"uri"`
-	Result string `json:"result"`
-	Name   string `json:"name"`
-	Label  string `json:"label"`
+	URI        string `json:"uri,omitempty"`
+	Expiration string `json:"expiration,omitempty"`
+}
+
+// CreateInstanceVncResp represents VNC information for a new instance console
+type CreateInstanceVncResp struct {
+	URI      string `json:"uri,omitempty"`
+	Duration string `json:"duration,omitempty"`
 }
 
 // PaginatedInstanceList returns a paginated list of Instance object
@@ -91,29 +95,31 @@ type AttachedVolume struct {
 // none of the fields are mandatory and will be automatically
 // set with default values
 type InstanceConfig struct {
-	Count            int              `json:"count"`
-	Hostname         string           `json:"hostname"`
-	ReverseDNS       string           `json:"reverse_dns"`
-	Size             string           `json:"size"`
-	Region           string           `json:"region"`
-	PublicIPRequired string           `json:"public_ip"`
-	ReservedIPv4     string           `json:"reserved_ipv4"`
-	PrivateIPv4      string           `json:"private_ipv4"`
-	NetworkID        string           `json:"network_id"`
-	TemplateID       string           `json:"template_id"`
-	SourceType       string           `json:"source_type"`
-	SourceID         string           `json:"source_id"`
-	SnapshotID       string           `json:"snapshot_id"`
-	Subnets          []string         `json:"subnets,omitempty"`
-	InitialUser      string           `json:"initial_user"`
-	SSHKeyID         string           `json:"ssh_key_id"`
-	Script           string           `json:"script"`
-	Tags             []string         `json:"-"`
-	TagsList         string           `json:"tags"`
-	FirewallID       string           `json:"firewall_id"`
-	VolumeType       string           `json:"volume_type,omitempty"`
-	AttachedVolumes  []AttachedVolume `json:"attached_volumes"`
-	PlacementRule    PlacementRule    `json:"placement_rule"`
+	Count                 int              `json:"count"`
+	Hostname              string           `json:"hostname"`
+	ReverseDNS            string           `json:"reverse_dns"`
+	Size                  string           `json:"size"`
+	Region                string           `json:"region"`
+	PublicIPRequired      string           `json:"public_ip"`
+	ReservedIPv4          string           `json:"reserved_ipv4"`
+	PrivateIPv4           string           `json:"private_ipv4"`
+	NetworkID             string           `json:"network_id"`
+	TemplateID            string           `json:"template_id"`
+	SourceType            string           `json:"source_type"`
+	SourceID              string           `json:"source_id"`
+	SnapshotID            string           `json:"snapshot_id"`
+	Subnets               []string         `json:"subnets,omitempty"`
+	InitialUser           string           `json:"initial_user"`
+	SSHKeyID              string           `json:"ssh_key_id"`
+	Script                string           `json:"script"`
+	Tags                  []string         `json:"-"`
+	TagsList              string           `json:"tags"`
+	FirewallID            string           `json:"firewall_id"`
+	VolumeType            string           `json:"volume_type,omitempty"`
+	AttachedVolumes       []AttachedVolume `json:"attached_volumes"`
+	PlacementRule         PlacementRule    `json:"placement_rule"`
+	NetworkBandwidthLimit int              `json:"network_bandwidth_limit,omitempty"`
+	AllowedIPs            []string         `json:"allowed_ips,omitempty"`
 }
 
 // AffinityRule represents a affinity rule
@@ -146,14 +152,20 @@ func (c *Client) ListInstances(page int, perPage int) (*PaginatedInstanceList, e
 	return &PaginatedInstances, err
 }
 
-// ListAllInstances returns all (well, upto 99,999,999 instances) Instances owned by the calling API account
+// ListAllInstances returns every Instance owned by the calling API account
+// by iterating the paginated /v2/instances endpoint until exhausted.
 func (c *Client) ListAllInstances() ([]Instance, error) {
-	instances, err := c.ListInstances(1, 99999999)
+	items, err := paginateAll("instances", func(page, perPage int) ([]Instance, int, error) {
+		pg, err := c.ListInstances(page, perPage)
+		if err != nil {
+			return nil, 0, err
+		}
+		return pg.Items, pg.Pages, nil
+	})
 	if err != nil {
-		return []Instance{}, decodeError(err)
+		return []Instance{}, err
 	}
-
-	return instances.Items, nil
+	return items, nil
 }
 
 // FindInstance finds a instance by either part of the ID or part of the hostname
@@ -163,27 +175,19 @@ func (c *Client) FindInstance(search string) (*Instance, error) {
 		return nil, decodeError(err)
 	}
 
-	exactMatch := false
 	partialMatchesCount := 0
 	result := Instance{}
 
 	for _, value := range instances {
 		if value.Hostname == search || value.ID == search {
-			exactMatch = true
-			result = value
-			break
+			return &value, nil
 		} else if strings.Contains(value.Hostname, search) || strings.Contains(value.ID, search) {
-			if !exactMatch {
-				result = value
-				partialMatchesCount++
-				if partialMatchesCount > 1 {
-					break
-				}
-			}
+			partialMatchesCount++
+			result = value
 		}
 	}
 
-	if exactMatch || partialMatchesCount == 1 {
+	if partialMatchesCount == 1 {
 		return &result, nil
 	} else if partialMatchesCount > 1 {
 		err := fmt.Errorf("unable to find %s because there were multiple matches", search)
@@ -217,12 +221,11 @@ func (c *Client) NewInstanceConfig() (*InstanceConfig, error) {
 		Count:            1,
 		Hostname:         utils.RandomName(),
 		ReverseDNS:       "",
-		Size:             "g3.medium",
 		Region:           c.Region,
 		PublicIPRequired: "true",
 		NetworkID:        network.ID,
 		SnapshotID:       "",
-		InitialUser:      "civo",
+		InitialUser:      DefaultInstanceUser,
 		SSHKeyID:         "",
 		Script:           "",
 		Tags:             []string{""},
@@ -286,7 +289,7 @@ func (c *Client) UpdateInstance(i *Instance) (*SimpleResponse, error) {
 
 // GetInstanceVnc enables and gets the VNC information for an instance
 // duration is optional and follows Go's duration string format (e.g. "30m", "1h", "24h")
-func (c *Client) GetInstanceVnc(id string, duration ...string) (InstanceVnc, error) {
+func (c *Client) GetInstanceVnc(id string, duration ...string) (CreateInstanceVncResp, error) {
 	url := fmt.Sprintf("/v2/instances/%s/vnc", id)
 	if len(duration) > 0 && duration[0] != "" {
 		url = fmt.Sprintf("%s?duration=%s", url, duration[0])
@@ -295,7 +298,7 @@ func (c *Client) GetInstanceVnc(id string, duration ...string) (InstanceVnc, err
 	resp, err := c.SendPutRequest(url, map[string]string{
 		"region": c.Region,
 	})
-	vnc := InstanceVnc{}
+	vnc := CreateInstanceVncResp{}
 
 	if err != nil {
 		return vnc, decodeError(err)
@@ -303,6 +306,30 @@ func (c *Client) GetInstanceVnc(id string, duration ...string) (InstanceVnc, err
 
 	err = json.NewDecoder(bytes.NewReader(resp)).Decode(&vnc)
 	return vnc, err
+}
+
+// GetInstanceVncStatus returns the VNC status for an instance
+func (c *Client) GetInstanceVncStatus(id string) (*InstanceVnc, error) {
+	url := fmt.Sprintf("/v2/instances/%s/vnc", id)
+	resp, err := c.SendGetRequest(url)
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	vnc := InstanceVnc{}
+	err = json.NewDecoder(bytes.NewReader(resp)).Decode(&vnc)
+	return &vnc, err
+
+}
+
+// DeleteInstanceVncSession terminates the VNC session for an instance.
+func (c *Client) DeleteInstanceVncSession(id string) (*SimpleResponse, error) {
+	url := fmt.Sprintf("/v2/instances/%s/vnc", id)
+	resp, err := c.SendDeleteRequest(url)
+	if err != nil {
+		return nil, decodeError(err)
+	}
+	return c.DecodeSimpleResponse(resp)
 }
 
 // DeleteInstance deletes an instance and frees its resources
@@ -373,18 +400,6 @@ func (c *Client) StartInstance(id string) (*SimpleResponse, error) {
 	return response, err
 }
 
-// GetInstanceConsoleURL gets the web URL for an instance's console
-func (c *Client) GetInstanceConsoleURL(id string) (string, error) {
-	resp, err := c.SendGetRequest(fmt.Sprintf("/v2/instances/%s/console", id))
-	if err != nil {
-		return "", decodeError(err)
-	}
-
-	console := InstanceConsole{}
-	err = json.NewDecoder(bytes.NewReader(resp)).Decode(&console)
-	return console.URL, err
-}
-
 // UpgradeInstance resizes the instance up to the new specification
 // it's not possible to resize the instance to a smaller size
 func (c *Client) UpgradeInstance(id, newSize string) (*SimpleResponse, error) {
@@ -427,7 +442,7 @@ func (c *Client) SetInstanceFirewall(id, firewallID string) (*SimpleResponse, er
 
 // EnableRecoveryMode enables recovery mode for the specified instance
 func (c *Client) EnableRecoveryMode(id string) (*SimpleResponse, error) {
-	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/recovery", id), nil)
+	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/recovery?region=%s", id, c.Region), nil)
 	if err != nil {
 		return nil, decodeError(err)
 	}
@@ -437,7 +452,7 @@ func (c *Client) EnableRecoveryMode(id string) (*SimpleResponse, error) {
 
 // DisableRecoveryMode disables recovery mode for the specified instance
 func (c *Client) DisableRecoveryMode(id string) (*SimpleResponse, error) {
-	resp, err := c.SendDeleteRequest(fmt.Sprintf("/v2/instances/%s/recovery", id))
+	resp, err := c.SendDeleteRequest(fmt.Sprintf("/v2/instances/%s/recovery?region=%s", id, c.Region))
 	if err != nil {
 		return nil, decodeError(err)
 	}
@@ -452,5 +467,32 @@ func (c *Client) GetRecoveryStatus(id string) (*SimpleResponse, error) {
 		return nil, decodeError(err)
 	}
 
+	return c.DecodeSimpleResponse(resp)
+}
+
+// UpdateInstanceAllowedIPs sets the list of IP addresses that an instance is allowed to use
+func (c *Client) UpdateInstanceAllowedIPs(id string, allowedIPs []string) (*SimpleResponse, error) {
+	// Create a map to match the expected JSON structure
+	payload := map[string][]string{
+		"allowed_ips": allowedIPs,
+	}
+	// Send the payload map instead of the raw allowedIPs slice
+	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/allowed_ips", id), payload)
+	if err != nil {
+		return nil, decodeError(err)
+	}
+
+	return c.DecodeSimpleResponse(resp)
+}
+
+// UpdateInstanceBandwidth sets the list of IP addresses that an instance is allowed to use
+func (c *Client) UpdateInstanceBandwidth(id string, bandwidthLimit int) (*SimpleResponse, error) {
+	payload := map[string]int{
+		"network_bandwidth_limit": bandwidthLimit,
+	}
+	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/instances/%s/network_bandwidth_limit", id), payload)
+	if err != nil {
+		return nil, decodeError(err)
+	}
 	return c.DecodeSimpleResponse(resp)
 }
