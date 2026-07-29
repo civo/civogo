@@ -195,7 +195,7 @@ func (c *Client) NewVolume(v *VolumeConfig) (*VolumeResult, error) {
 // ResizeVolume resizes a volume
 // https://www.civo.com/api/volumes#resizing-a-volume
 func (c *Client) ResizeVolume(id string, size int) (*SimpleResponse, error) {
-	resp, err := c.SendPutRequest(fmt.Sprintf("/v2/volumes/%s/resize", id), map[string]interface{}{
+	resp, err := c.SendPutRequest(fmt.Sprintf("/v3alpha1/volumes/%s/resize", id), map[string]interface{}{
 		"size_gb": size,
 		"region":  c.Region,
 	})
