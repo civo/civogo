@@ -55,6 +55,36 @@ func TestFindObjectStoreCredential(t *testing.T) {
 	}
 }
 
+func TestFindObjectStoreCredentialLongName(t *testing.T) {
+	// Credentials auto-created alongside an object store whose name exceeds
+	// 30 characters get a generated name: the first 29 characters of the
+	// object store name plus a hash/uid suffix. Searching by the original
+	// full-length name must still find them.
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/objectstore/credentials": `{
+			"page": 1,
+			"per_page": 20,
+			"pages": 1,
+			"items": [
+			  {
+				"id": "12345",
+				"name": "k1-project-prod-project-bp-st-d6ca-160390"
+			  }
+			]
+		  }`,
+	})
+	defer server.Close()
+
+	got, err := client.FindObjectStoreCredential("k1-project-prod-project-bp-ste2")
+	if err != nil {
+		t.Errorf("Request returned an error: %s", err)
+		return
+	}
+	if got.ID != "12345" {
+		t.Errorf("Expected %s, got %s", "12345", got.ID)
+	}
+}
+
 func TestNewObjectStoreCredential(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
 		"/v2/objectstore/credentials": `{
