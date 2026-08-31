@@ -89,11 +89,19 @@ func (c *Client) FindObjectStoreCredential(search string) (*ObjectStoreCredentia
 	partialMatchesCount := 0
 	result := ObjectStoreCredential{}
 
+	// The API generates credential names by trimming name prefixes longer
+	// than 30 characters down to 29 before appending a hash/uid suffix, so
+	// also try the trimmed prefix when matching long names.
+	trimmedSearch := search
+	if len(search) > 30 {
+		trimmedSearch = search[:29]
+	}
+
 	for _, value := range creds.Items {
 		if value.AccessKeyID == search || value.Name == search || value.ID == search {
 			exactMatch = true
 			result = value
-		} else if strings.Contains(value.AccessKeyID, search) || strings.Contains(value.Name, search) || strings.Contains(value.ID, search) {
+		} else if strings.Contains(value.AccessKeyID, search) || strings.Contains(value.Name, search) || strings.Contains(value.ID, search) || strings.Contains(value.Name, trimmedSearch) {
 			if !exactMatch {
 				result = value
 				partialMatchesCount++
