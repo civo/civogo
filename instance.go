@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"net"
 	"strings"
 	"time"
 
@@ -472,6 +473,15 @@ func (c *Client) GetRecoveryStatus(id string) (*SimpleResponse, error) {
 
 // UpdateInstanceAllowedIPs sets the list of IP addresses that an instance is allowed to use
 func (c *Client) UpdateInstanceAllowedIPs(id string, allowedIPs []string) (*SimpleResponse, error) {
+	// Validate entries up front so invalid addresses fail locally instead of
+	// surfacing as an opaque API error later.
+	for _, ip := range allowedIPs {
+		if net.ParseIP(ip) == nil {
+			if _, _, err := net.ParseCIDR(ip); err != nil {
+				return nil, fmt.Errorf("invalid IP address: %s", ip)
+			}
+		}
+	}
 	// Create a map to match the expected JSON structure
 	payload := map[string][]string{
 		"allowed_ips": allowedIPs,
