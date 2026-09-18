@@ -56,7 +56,7 @@ func (c *Client) GetVolumeSnapshot(id string) (*VolumeSnapshot, error) {
 
 // DeleteVolumeSnapshot deletes a volume snapshot
 func (c *Client) DeleteVolumeSnapshot(id string) (*SimpleResponse, error) {
-	resp, err := c.SendDeleteRequest(fmt.Sprintf("/v2/snapshots/%s", id))
+	resp, err := c.SendDeleteRequest(fmt.Sprintf("/v2/snapshots/%s?resource_type=volume", id))
 	if err != nil {
 		return nil, decodeError(err)
 	}
