@@ -2,6 +2,8 @@ module github.com/civo/civogo
 
 go 1.25.13
 
+toolchain go1.26.8
+
 require (
 	github.com/google/go-querystring v1.1.0
 	github.com/onsi/gomega v1.27.4
