@@ -22,6 +22,47 @@ type Volume struct {
 	SizeGigabytes int       `json:"size_gb"`
 	Bootable      bool      `json:"bootable"`
 	CreatedAt     time.Time `json:"created_at"`
+	// DeliveredSizeGigabytes is the size the volume currently delivers, in GB. It equals
+	// SizeGigabytes unless a resize is still in progress or the last one failed, in which case it
+	// is the size the volume still has (and is billed at). Zero on API versions that predate it.
+	DeliveredSizeGigabytes int `json:"delivered_size_gb,omitempty"`
+	// Resize is the outcome of the most recent resize of the volume, nil when none was attempted
+	// or the API does not report it yet.
+	Resize *VolumeResize `json:"resize,omitempty"`
+}
+
+// The states a VolumeResize can be in.
+const (
+	VolumeResizeInProgress = "in_progress"
+	VolumeResizeCompleted  = "completed"
+	VolumeResizeFailed     = "failed"
+	VolumeResizeCancelled  = "cancelled"
+)
+
+// VolumeResize is the outcome of the most recent resize of a volume
+type VolumeResize struct {
+	// State is one of VolumeResizeInProgress, VolumeResizeCompleted, VolumeResizeFailed or
+	// VolumeResizeCancelled
+	State string `json:"state"`
+	// Reason is the platform's own reason for the state, verbatim (for example Expanding, Completed,
+	// Timeout, InsufficientStorage, RequiresDetach, RequiresRunningInstance, Cancelled)
+	Reason string `json:"reason"`
+	// Message is a human-readable explanation, when one was recorded
+	Message string `json:"message,omitempty"`
+	// UpdatedAt is when the resize last changed state
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+// Settled reports whether the most recent resize has reached a final state, that is, it is not
+// still in progress. A nil VolumeResize counts as settled: nothing is outstanding.
+func (r *VolumeResize) Settled() bool {
+	return r == nil || r.State != VolumeResizeInProgress
+}
+
+// Succeeded reports whether the most recent resize delivered the requested size. A nil
+// VolumeResize reports false: there is no outcome to report.
+func (r *VolumeResize) Succeeded() bool {
+	return r != nil && r.State == VolumeResizeCompleted
 }
 
 // VolumeResult is the response from one of our simple API calls
