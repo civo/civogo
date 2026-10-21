@@ -14,7 +14,7 @@ jobs:
     - name: Install Go
       uses: actions/setup-go@v6
       with:
-        go-version: ${{ vars.GO_VERSION || '1.25.10' }}
+        go-version-file: go.mod
         cache: true
 
     - name: Verify dependencies

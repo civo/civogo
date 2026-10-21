@@ -14,8 +14,9 @@ jobs:
     - name: Run govulncheck
       uses: golang/govulncheck-action@v1
       with:
-        # govulncheck (x/vuln v1.8.0+) needs Go 1.26, and setup-go runs with GOTOOLCHAIN=local, so the
-        # scan cannot borrow the go.mod toolchain: give it the 1.26 line (check-latest picks the
-        # newest patch) independently of the GO_VERSION variable used by lint and test.
-        go-version-input: '1.26'
+        # The action runs with GOTOOLCHAIN=local, so the scan uses exactly the Go it installs:
+        # read the toolchain line from go.mod so govulncheck checks the same patched standard
+        # library that test and lint build with.
+        go-version-input: ""
+        go-version-file: go.mod
         go-package: ./...
