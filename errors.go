@@ -31,9 +31,11 @@ var (
 	VolumeInvalidSizeError                  = constError("VolumeInvalidSizeError")
 
 	DatabaseAccountDestroyError      = constError("DatabaseAccountDestroyError")
-	DatabaseAccountNotFoundError     = constError("DatabaseAccountNotFoundError")
 	DatabaseAccountAccessDeniedError = constError("DatabaseAccountAccessDeniedError")
 	DatabaseCreatingAccountError     = constError("DatabaseCreatingAccountError")
+
+	// Invalid API Key Error
+	InvalidAPIKeyError = constError("InvalidAPIKeyError")
 
 	DatabaseUpdatingAccountError = constError("DatabaseUpdatingAccountError")
 	DatabaseAccountStatsError    = constError("DatabaseAccountStatsError")
@@ -396,8 +398,9 @@ func decodeError(err error) error {
 			err := errors.New(msg.String())
 			return DatabaseAccountDestroyError.wrap(err)
 		case "database_account_not_found":
-			err := errors.New(msg.String())
-			return DatabaseAccountNotFoundError.wrap(err)
+			msg := "API Key is invalid, please visit https://dashboard.civo.com/security to generate a new one"
+			err := errors.New(msg)
+			return InvalidAPIKeyError.wrap(err)
 		case "database_account_access_denied":
 			err := errors.New(msg.String())
 			return DatabaseAccountAccessDeniedError.wrap(err)
