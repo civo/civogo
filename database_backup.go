@@ -19,6 +19,10 @@ type DatabaseBackup struct {
 	DatabaseID   string    `json:"database_id,omitempty"`
 	IsScheduled  bool      `json:"is_scheduled,omitempty"`
 	CreatedAt    time.Time `json:"created_at"`
+	Region       string    `json:"region,omitempty"`
+	// Destination is where the backup is stored; only reported by the
+	// v3alpha1 methods and nil for this region's default Civo Object Store.
+	Destination *DatabaseBackupDestination `json:"destination,omitempty"`
 }
 
 // PaginatedDatabaseBackup is the structure for list response from DB endpoint
@@ -39,6 +43,8 @@ type DatabaseBackupCreateRequest struct {
 	Type string `json:"type"`
 	// Region is name of the region
 	Region string `json:"region"`
+	// Destination is honoured by CreateDatabaseBackupV3alpha1 only.
+	Destination *DatabaseBackupDestination `json:"destination,omitempty"`
 }
 
 // DatabaseBackupUpdateRequest represents a backup update request

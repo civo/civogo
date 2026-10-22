@@ -207,7 +207,14 @@ func (c *Client) sendRequest(req *http.Request) ([]byte, error) {
 		param := req.URL.Query()
 		// Check if region is already present to avoid duplicates (e.g. if manually added in the path)
 		if param.Get("region") == "" && c.Region != "" {
-			param.Add("region", c.Region)
+			region := c.Region
+			if strings.HasPrefix(req.URL.Path, "/v3alpha1/") {
+				// The v3alpha1 gateway matches region codes case-sensitively
+				// (REGION_ACCESS_DENIED for "LON1" where "lon1" passes), while
+				// configs and the /v2 API use either case.
+				region = strings.ToLower(region)
+			}
+			param.Add("region", region)
 			req.URL.RawQuery = param.Encode()
 		}
 	}
@@ -261,6 +268,20 @@ func (c *Client) SendPutRequest(requestURL string, params interface{}) ([]byte, 
 	jsonValue, _ := json.Marshal(params)
 
 	req, err := http.NewRequest("PUT", u.String(), bytes.NewBuffer(jsonValue))
+	if err != nil {
+		return nil, err
+	}
+	return c.sendRequest(req)
+}
+
+// SendPatchRequest sends a correctly authenticated patch request to the API server
+func (c *Client) SendPatchRequest(requestURL string, params interface{}) ([]byte, error) {
+	u := c.prepareClientURL(requestURL)
+
+	// we create a new buffer and encode everything to json to send it in the request
+	jsonValue, _ := json.Marshal(params)
+
+	req, err := http.NewRequest("PATCH", u.String(), bytes.NewBuffer(jsonValue))
 	if err != nil {
 		return nil, err
 	}

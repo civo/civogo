@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 )
 
 // DatabaseUserInfo represents the user information
@@ -32,6 +33,24 @@ type Database struct {
 	DatabaseUserInfo []DatabaseUserInfo `json:"database_user_info"`
 	DNSEntry         string             `json:"dns_entry,omitempty"`
 	Status           string             `json:"status"`
+	Region           string             `json:"region,omitempty"`
+	BackupConfigured bool               `json:"backup_configured,omitempty"`
+	CreatedAt        *time.Time         `json:"created_at,omitempty"`
+	// The fields below are only populated by the v3alpha1 methods
+	// (GetDatabaseV3alpha1, ListDatabasesV3alpha1, ForkDatabase, ...).
+	// ReadEndpoint is the read-only endpoint of a 3+ node database.
+	ReadEndpoint *DatabaseReadEndpoint `json:"read_endpoint,omitempty"`
+	// StorageGB is the storage of every node; BaseStorageGB is what the plan
+	// includes, the difference is the billed storage add-on.
+	StorageGB     int `json:"storage_gb,omitempty"`
+	BaseStorageGB int `json:"base_storage_gb,omitempty"`
+	// Extensions are the enabled PostgreSQL extensions.
+	Extensions []string `json:"extensions,omitempty"`
+	// DatabaseParameters are the custom server parameters.
+	DatabaseParameters map[string]string `json:"database_parameters,omitempty"`
+	// EarliestRestoreTime is the oldest moment a point-in-time restore or
+	// fork can target. Nil until the first full backup has completed.
+	EarliestRestoreTime *time.Time `json:"earliest_restore_time,omitempty"`
 }
 
 // PaginatedDatabases is the structure for list response from DB endpoint
