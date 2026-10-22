@@ -2,6 +2,7 @@ package civogo
 
 import (
 	"errors"
+	"net/http"
 	"reflect"
 	"strings"
 	"testing"
@@ -124,7 +125,7 @@ func TestForkDatabase(t *testing.T) {
 			Value: []ValueAdvanceClientForTesting{
 				{
 					URL:          "/v3alpha1/databases",
-					RequestBody:  `{"name":"test-db-fork","size":"g3.db.small","nodes":1,"source_database_id":"12345","source_target_time":"2026-10-21T10:00:00Z","region":"LON1"}`,
+					RequestBody:  `{"name":"test-db-fork","size":"g3.db.small","nodes":1,"source_database_id":"12345","source_target_time":"2026-10-21T10:00:00Z","region":"lon1"}`,
 					ResponseBody: `{"database": {"id": "67890", "name": "test-db-fork", "nodes": 1, "status": "Pending"}}`,
 				},
 			},
@@ -156,7 +157,7 @@ func TestRestoreDatabaseToPointInTime(t *testing.T) {
 			Value: []ValueAdvanceClientForTesting{
 				{
 					URL:          "/v3alpha1/databases/12345/restore",
-					RequestBody:  `{"name":"test-db-pitr","target_time":"2026-10-21T10:00:00Z","region":"LON1"}`,
+					RequestBody:  `{"name":"test-db-pitr","target_time":"2026-10-21T10:00:00Z","region":"lon1"}`,
 					ResponseBody: `{"database": {"id": "12345", "name": "test-db", "status": "Restoring"}}`,
 				},
 			},
@@ -184,7 +185,7 @@ func TestResizeDatabaseStorage(t *testing.T) {
 			Value: []ValueAdvanceClientForTesting{
 				{
 					URL:          "/v3alpha1/databases/12345",
-					RequestBody:  `{"storage_gb":120,"region":"TEST"}`,
+					RequestBody:  `{"storage_gb":120,"region":"test"}`,
 					ResponseBody: `{"database": {"id": "12345", "storageGb": 120, "baseStorageGb": 40}}`,
 				},
 			},
@@ -208,7 +209,7 @@ func TestUpdateDatabaseExtensions(t *testing.T) {
 			Value: []ValueAdvanceClientForTesting{
 				{
 					URL:          "/v3alpha1/databases/12345",
-					RequestBody:  `{"update_extensions":true,"region":"TEST"}`,
+					RequestBody:  `{"update_extensions":true,"region":"test"}`,
 					ResponseBody: `{"database": {"id": "12345", "extensions": []}}`,
 				},
 			},
@@ -233,7 +234,7 @@ func TestUpdateDatabaseParameters(t *testing.T) {
 			Value: []ValueAdvanceClientForTesting{
 				{
 					URL:          "/v3alpha1/databases/12345",
-					RequestBody:  `{"database_parameters":{"max_connections":"200"},"update_database_parameters":true,"region":"TEST"}`,
+					RequestBody:  `{"database_parameters":{"max_connections":"200"},"update_database_parameters":true,"region":"test"}`,
 					ResponseBody: `{"database": {"id": "12345", "databaseParameters": {"max_connections": "200"}}}`,
 				},
 			},
@@ -326,7 +327,7 @@ func TestCreateDatabaseBackupV3alpha1WithDestination(t *testing.T) {
 			Value: []ValueAdvanceClientForTesting{
 				{
 					URL:          "/v3alpha1/databases/12345/backups",
-					RequestBody:  `{"name":"offsite","schedule":"0 0 * * *","type":"scheduled","region":"LON1","destination":{"object_store":{"region":"FRA1"}}}`,
+					RequestBody:  `{"name":"offsite","schedule":"0 0 * * *","type":"scheduled","region":"lon1","destination":{"object_store":{"region":"FRA1"}}}`,
 					ResponseBody: `{"backup": {"id": "b-3", "name": "offsite", "state": "DATABASE_BACKUP_STATE_READY", "isScheduled": true, "destination": {"objectStore": {"region": "FRA1", "objectStoreId": "os-9"}}}}`,
 				},
 			},
@@ -373,7 +374,7 @@ func TestUpdateDatabaseBackupV3alpha1SendsOnlyWhatIsSet(t *testing.T) {
 				{
 					URL: "/v3alpha1/databases/12345/backups",
 					// No name and no schedule: an explicit "" would clear them on the server.
-					RequestBody:  `{"destination":{"object_store":{"region":"FRA1"}},"region":"LON1"}`,
+					RequestBody:  `{"destination":{"object_store":{"region":"FRA1"}},"region":"lon1"}`,
 					ResponseBody: `{"backup": {"id": "scheduled", "name": "nightly", "schedule": "0 0 * * *", "state": "DATABASE_BACKUP_STATE_READY", "isScheduled": true}}`,
 				},
 			},
@@ -428,5 +429,27 @@ func TestDecodeGatewayError(t *testing.T) {
 	err := decodeError(HTTPError{Code: 400, Status: "400 Bad Request", Reason: `{"error":{"code":400,"status":"INVALID_ARGUMENT","message":"storage can only grow"}}`})
 	if err == nil || !strings.Contains(err.Error(), "storage can only grow") {
 		t.Errorf("expected the gateway message to be kept, got %v", err)
+	}
+}
+
+func TestV3alpha1RegionIsLowercased(t *testing.T) {
+	seen := ""
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v3alpha1/databases/12345": `{"database": {"id": "12345"}}`,
+	})
+	defer server.Close()
+	client.Region = "LON1"
+	// Wrap the test server handler to capture the query the SDK sent.
+	orig := server.Config.Handler
+	server.Config.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		seen = r.URL.Query().Get("region")
+		orig.ServeHTTP(w, r)
+	})
+
+	if _, err := client.GetDatabaseV3alpha1("12345"); err != nil {
+		t.Fatalf("Request returned an error: %s", err)
+	}
+	if seen != "lon1" {
+		t.Errorf("expected the region query to be lowercased for v3alpha1, got %q", seen)
 	}
 }

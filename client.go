@@ -207,7 +207,14 @@ func (c *Client) sendRequest(req *http.Request) ([]byte, error) {
 		param := req.URL.Query()
 		// Check if region is already present to avoid duplicates (e.g. if manually added in the path)
 		if param.Get("region") == "" && c.Region != "" {
-			param.Add("region", c.Region)
+			region := c.Region
+			if strings.HasPrefix(req.URL.Path, "/v3alpha1/") {
+				// The v3alpha1 gateway matches region codes case-sensitively
+				// (REGION_ACCESS_DENIED for "LON1" where "lon1" passes), while
+				// configs and the /v2 API use either case.
+				region = strings.ToLower(region)
+			}
+			param.Add("region", region)
 			req.URL.RawQuery = param.Encode()
 		}
 	}

@@ -311,6 +311,16 @@ func (c *Client) GetDatabaseV3alpha1(id string) (*Database, error) {
 	return decodeV3alpha1Database(resp)
 }
 
+// v3alpha1Region returns the region code the v3alpha1 gateway expects: the
+// request's own when set, else the client's, always lowercase since the
+// gateway matches region codes case-sensitively.
+func (c *Client) v3alpha1Region(region string) string {
+	if region == "" {
+		region = c.Region
+	}
+	return strings.ToLower(region)
+}
+
 // ForkDatabase creates a new database from the backups of an existing one.
 // Software and SoftwareVersion should be set to the source's: the API does
 // not derive them from the source and falls back to its default engine.
@@ -321,6 +331,7 @@ func (c *Client) ForkDatabase(v *ForkDatabaseRequest) (*Database, error) {
 	if v.Name == "" || v.Size == "" || v.Nodes < 1 {
 		return nil, fmt.Errorf("a name, a size and at least one node are required to fork a database")
 	}
+	v.Region = c.v3alpha1Region(v.Region)
 	body, err := c.SendPostRequest("/v3alpha1/databases", v)
 	if err != nil {
 		return nil, decodeError(err)
@@ -337,6 +348,7 @@ func (c *Client) RestoreDatabaseToPointInTime(id string, v *RestoreDatabaseToPoi
 	if v.Name == "" {
 		return nil, fmt.Errorf("a name is required to restore a database")
 	}
+	v.Region = c.v3alpha1Region(v.Region)
 	body, err := c.SendPostRequest(fmt.Sprintf("/v3alpha1/databases/%s/restore", id), v)
 	if err != nil {
 		return nil, decodeError(err)
@@ -346,6 +358,10 @@ func (c *Client) RestoreDatabaseToPointInTime(id string, v *RestoreDatabaseToPoi
 
 // UpdateDatabaseV3alpha1 applies a partial update through the v3alpha1 API.
 func (c *Client) UpdateDatabaseV3alpha1(id string, v *UpdateDatabaseV3alpha1Request) (*Database, error) {
+	if v == nil {
+		return nil, fmt.Errorf("an update request is required")
+	}
+	v.Region = c.v3alpha1Region(v.Region)
 	body, err := c.SendPatchRequest(fmt.Sprintf("/v3alpha1/databases/%s", id), v)
 	if err != nil {
 		return nil, decodeError(err)
@@ -484,6 +500,10 @@ func (c *Client) GetDatabaseBackupV3alpha1(did, id string) (*DatabaseBackup, err
 // the v3alpha1 API, optionally in a Civo Object Store of another region or an
 // external S3 bucket (see DatabaseBackupCreateRequest.Destination).
 func (c *Client) CreateDatabaseBackupV3alpha1(did string, v *DatabaseBackupCreateRequest) (*DatabaseBackup, error) {
+	if v == nil {
+		return nil, fmt.Errorf("a backup request is required")
+	}
+	v.Region = c.v3alpha1Region(v.Region)
 	body, err := c.SendPostRequest(fmt.Sprintf("/v3alpha1/databases/%s/backups", did), v)
 	if err != nil {
 		return nil, decodeError(err)
@@ -495,6 +515,10 @@ func (c *Client) CreateDatabaseBackupV3alpha1(did string, v *DatabaseBackupCreat
 // through the v3alpha1 API, including its destination. Only the fields set
 // in the request are changed.
 func (c *Client) UpdateDatabaseBackupV3alpha1(did string, v *UpdateDatabaseBackupV3alpha1Request) (*DatabaseBackup, error) {
+	if v == nil {
+		return nil, fmt.Errorf("a backup update request is required")
+	}
+	v.Region = c.v3alpha1Region(v.Region)
 	body, err := c.SendPatchRequest(fmt.Sprintf("/v3alpha1/databases/%s/backups", did), v)
 	if err != nil {
 		return nil, decodeError(err)
