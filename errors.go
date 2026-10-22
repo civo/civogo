@@ -64,11 +64,15 @@ var (
 	DatabaseDNSRecordUpdateError        = constError("DatabaseDNSRecordUpdateError")
 	DatabaseListingDNSDomainsError      = constError("DatabaseListingDNSDomainsError")
 
-	DatabaseFirewallCreateError           = constError("DatabaseFirewallCreateError")
-	DatabaseFirewallRulesInvalidParams    = constError("DatabaseFirewallRulesInvalidParams")
-	DatabaseFirewallDuplicateNameError    = constError("DatabaseFirewallDuplicateNameError")
-	DatabaseFirewallMismatchError         = constError("DatabaseFirewallMismatchError")
-	DatabaseFirewallNotFoundError         = constError("DatabaseFirewallNotFoundError")
+	DatabaseFirewallCreateError        = constError("DatabaseFirewallCreateError")
+	DatabaseFirewallRulesInvalidParams = constError("DatabaseFirewallRulesInvalidParams")
+	DatabaseFirewallDuplicateNameError = constError("DatabaseFirewallDuplicateNameError")
+	DatabaseFirewallMismatchError      = constError("DatabaseFirewallMismatchError")
+	DatabaseFirewallNotFoundError      = constError("DatabaseFirewallNotFoundError")
+	// DBaaSDatabaseNotFoundError and DBaaSBackupNotFoundError are the v3alpha1
+	// database API's "no such database" and "no such backup".
+	DBaaSDatabaseNotFoundError            = constError("DBaaSDatabaseNotFoundError")
+	DBaaSBackupNotFoundError              = constError("DBaaSBackupNotFoundError")
 	DatabaseFirewallSaveFailedError       = constError("DatabaseFirewallSaveFailedError")
 	DatabaseFirewallDeleteFailedError     = constError("DatabaseFirewallDeleteFailedError")
 	DatabaseFirewallRuleCreateError       = constError("DatabaseFirewallRuleCreateError")
@@ -346,6 +350,11 @@ func decodeError(err error) error {
 		if err := json.Unmarshal(reason, &response); err != nil {
 			err := fmt.Errorf("failed to decode the response expected from the API - status: %s, code: %d, reason: %s", errorData.Status, errorData.Code, errorData.Reason)
 			return ResponseDecodeFailedError.wrap(err)
+		}
+
+		// The v3alpha1 gateway wraps gRPC errors as {"error": {"code", "status", "message", "details"}}.
+		if envelope, ok := response["error"].(map[string]interface{}); ok {
+			return decodeGatewayError(envelope)
 		}
 
 		if _, ok := response["status"].(float64); ok {
@@ -1066,4 +1075,52 @@ func decodeError(err error) error {
 	}
 
 	return UnknownError.wrap(err)
+}
+
+// decodeGatewayError maps the v3alpha1 gateway's error envelope onto the
+// typed errors the /v2 responses already produce, so callers can match the
+// same error values whichever API served the request.
+func decodeGatewayError(envelope map[string]interface{}) error {
+	message, _ := envelope["message"].(string)
+	status, _ := envelope["status"].(string)
+	reason := ""
+	if details, ok := envelope["details"].([]interface{}); ok {
+		for _, d := range details {
+			if detail, ok := d.(map[string]interface{}); ok {
+				if r, ok := detail["reason"].(string); ok && r != "" {
+					reason = r
+					break
+				}
+			}
+		}
+	}
+	if message == "" {
+		message = strings.ToLower(strings.ReplaceAll(status, "_", " "))
+	}
+	err := errors.New(message)
+
+	switch reason {
+	case "DATABASE_NOT_FOUND":
+		return DBaaSDatabaseNotFoundError.wrap(err)
+	case "BACKUP_NOT_FOUND":
+		return DBaaSBackupNotFoundError.wrap(err)
+	case "NETWORK_NOT_FOUND":
+		return DatabaseNetworkNotFoundError.wrap(err)
+	case "FIREWALL_NOT_FOUND":
+		return DatabaseFirewallNotFoundError.wrap(err)
+	case "REGION_UNAVAILABLE", "REGION_FEATURE_UNAVAILABLE":
+		return RegionUnavailableError.wrap(err)
+	}
+
+	switch status {
+	case "UNAUTHENTICATED":
+		return AuthenticationError.wrap(err)
+	case "RESOURCE_EXHAUSTED":
+		return QuotaLimitReachedError.wrap(err)
+	case "INTERNAL":
+		return InternalServerError.wrap(err)
+	case "NOT_FOUND":
+		return DBaaSDatabaseNotFoundError.wrap(err)
+	}
+	return CommonError.wrap(err)
 }

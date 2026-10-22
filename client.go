@@ -267,6 +267,20 @@ func (c *Client) SendPutRequest(requestURL string, params interface{}) ([]byte, 
 	return c.sendRequest(req)
 }
 
+// SendPatchRequest sends a correctly authenticated patch request to the API server
+func (c *Client) SendPatchRequest(requestURL string, params interface{}) ([]byte, error) {
+	u := c.prepareClientURL(requestURL)
+
+	// we create a new buffer and encode everything to json to send it in the request
+	jsonValue, _ := json.Marshal(params)
+
+	req, err := http.NewRequest("PATCH", u.String(), bytes.NewBuffer(jsonValue))
+	if err != nil {
+		return nil, err
+	}
+	return c.sendRequest(req)
+}
+
 // SendDeleteRequest sends a correctly authenticated delete request to the API server
 func (c *Client) SendDeleteRequest(requestURL string) ([]byte, error) {
 	u := c.prepareClientURL(requestURL)
