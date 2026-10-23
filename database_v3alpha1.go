@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"strings"
 	"time"
 )
@@ -152,6 +153,8 @@ type v3alpha1Database struct {
 	Extensions          []string          `json:"extensions"`
 	DatabaseParameters  map[string]string `json:"databaseParameters"`
 	EarliestRestoreTime *time.Time        `json:"earliestRestoreTime,omitempty"`
+	EngineVersion       string            `json:"engineVersion"`
+	UpgradeAvailableTo  string            `json:"upgradeAvailableTo"`
 }
 
 func (d *v3alpha1Database) toDatabase() Database {
@@ -180,6 +183,8 @@ func (d *v3alpha1Database) toDatabase() Database {
 		Extensions:          d.Extensions,
 		DatabaseParameters:  d.DatabaseParameters,
 		EarliestRestoreTime: d.EarliestRestoreTime,
+		EngineVersion:       d.EngineVersion,
+		UpgradeAvailableTo:  d.UpgradeAvailableTo,
 	}
 	if d.ReadEndpoint != nil {
 		db.ReadEndpoint = &DatabaseReadEndpoint{Host: d.ReadEndpoint.Host, Port: d.ReadEndpoint.Port, DNSEntry: d.ReadEndpoint.DNSEntry}
@@ -563,4 +568,96 @@ func decodeV3alpha1DatabaseBackup(body []byte) (*DatabaseBackup, error) {
 	}
 	bk := out.Backup.toDatabaseBackup()
 	return &bk, nil
+}
+
+// UpgradeDatabaseRequest upgrades a database to a newer engine release.
+type UpgradeDatabaseRequest struct {
+	// TargetVersion is the engine release to upgrade to; empty means the
+	// newest available.
+	TargetVersion string `json:"target_version,omitempty"`
+	// ValidateOnly only reports what would be upgraded.
+	ValidateOnly bool   `json:"validate_only,omitempty"`
+	Region       string `json:"region,omitempty"`
+}
+
+// DatabaseUpgrade describes an engine upgrade.
+type DatabaseUpgrade struct {
+	FromVersion string `json:"from_version"`
+	ToVersion   string `json:"to_version"`
+	// Databases are every database upgraded: the requested one and the others
+	// on its network, which share the engine.
+	Databases []DatabaseUpgradeTarget `json:"databases"`
+	// Started is false for validate-only requests.
+	Started bool `json:"started"`
+}
+
+// DatabaseUpgradeTarget is a database included in an upgrade.
+type DatabaseUpgradeTarget struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
+// UpgradeDatabase upgrades a database, and the other databases on its network,
+// to a newer engine release. Each database restarts once while it moves; until
+// this is called nothing restarts. Use ValidateOnly to list the databases that
+// would be upgraded first.
+func (c *Client) UpgradeDatabase(id string, v *UpgradeDatabaseRequest) (*DatabaseUpgrade, error) {
+	if v == nil {
+		v = &UpgradeDatabaseRequest{}
+	}
+	v.Region = c.v3alpha1Region(v.Region)
+	body, err := c.SendPostRequest(fmt.Sprintf("/v3alpha1/databases/%s/upgrade", id), v)
+	if err != nil {
+		return nil, decodeError(err)
+	}
+	out := struct {
+		FromVersion string `json:"fromVersion"`
+		ToVersion   string `json:"toVersion"`
+		Databases   []struct {
+			ID   string `json:"id"`
+			Name string `json:"name"`
+		} `json:"databases"`
+		Started bool `json:"started"`
+	}{}
+	if err := json.NewDecoder(bytes.NewReader(body)).Decode(&out); err != nil {
+		return nil, err
+	}
+	result := &DatabaseUpgrade{FromVersion: out.FromVersion, ToVersion: out.ToVersion, Started: out.Started, Databases: []DatabaseUpgradeTarget{}}
+	for _, d := range out.Databases {
+		result.Databases = append(result.Databases, DatabaseUpgradeTarget{ID: d.ID, Name: d.Name})
+	}
+	return result, nil
+}
+
+// ListDatabaseVersionsForNetwork returns the database versions a new database
+// on a network can use in the client's region. Databases on a network share an
+// engine release, which may not run every version until it is upgraded. An
+// empty networkID returns the region's offering.
+func (c *Client) ListDatabaseVersionsForNetwork(networkID string) (map[string][]SupportedSoftwareVersion, error) {
+	path := "/v3alpha1/databases/versions"
+	if networkID != "" {
+		path += "?network_id=" + url.QueryEscape(networkID)
+	}
+	resp, err := c.SendGetRequest(path)
+	if err != nil {
+		return nil, decodeError(err)
+	}
+	out := struct {
+		Versions map[string]struct {
+			Versions []struct {
+				SoftwareVersion string `json:"softwareVersion"`
+				Default         bool   `json:"default"`
+			} `json:"versions"`
+		} `json:"versions"`
+	}{}
+	if err := json.NewDecoder(bytes.NewReader(resp)).Decode(&out); err != nil {
+		return nil, err
+	}
+	versions := make(map[string][]SupportedSoftwareVersion, len(out.Versions))
+	for software, list := range out.Versions {
+		for _, v := range list.Versions {
+			versions[software] = append(versions[software], SupportedSoftwareVersion{SoftwareVersion: v.SoftwareVersion, Default: v.Default})
+		}
+	}
+	return versions, nil
 }
