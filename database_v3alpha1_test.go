@@ -453,3 +453,69 @@ func TestV3alpha1RegionIsLowercased(t *testing.T) {
 		t.Errorf("expected the region query to be lowercased for v3alpha1, got %q", seen)
 	}
 }
+
+func TestUpgradeDatabase(t *testing.T) {
+	client, server, _ := NewAdvancedClientForTesting([]ConfigAdvanceClientForTesting{
+		{
+			Method: "POST",
+			Value: []ValueAdvanceClientForTesting{
+				{
+					URL:          "/v3alpha1/databases/12345/upgrade",
+					RequestBody:  `{"validate_only":true,"region":"lon1"}`,
+					ResponseBody: `{"fromVersion": "2.7.0", "toVersion": "2.9.0", "databases": [{"id": "12345", "name": "app"}, {"id": "67890", "name": "analytics"}], "started": false}`,
+				},
+			},
+		},
+	})
+	defer server.Close()
+	client.Region = "LON1"
+
+	got, err := client.UpgradeDatabase("12345", &UpgradeDatabaseRequest{ValidateOnly: true})
+	if err != nil {
+		t.Fatalf("Request returned an error: %s", err)
+	}
+	expected := &DatabaseUpgrade{FromVersion: "2.7.0", ToVersion: "2.9.0", Started: false, Databases: []DatabaseUpgradeTarget{{ID: "12345", Name: "app"}, {ID: "67890", Name: "analytics"}}}
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Expected %+v, got %+v", expected, got)
+	}
+}
+
+func TestListDatabaseVersionsForNetwork(t *testing.T) {
+	seen := ""
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v3alpha1/databases/versions": `{"versions": {"PostgreSQL": {"versions": [{"softwareVersion": "16", "default": false}, {"softwareVersion": "17", "default": true}]}}}`,
+	})
+	defer server.Close()
+	orig := server.Config.Handler
+	server.Config.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		seen = r.URL.Query().Get("network_id")
+		orig.ServeHTTP(w, r)
+	})
+
+	got, err := client.ListDatabaseVersionsForNetwork("net-1")
+	if err != nil {
+		t.Fatalf("Request returned an error: %s", err)
+	}
+	if seen != "net-1" {
+		t.Errorf("expected network_id=net-1, got %q", seen)
+	}
+	expected := map[string][]SupportedSoftwareVersion{"PostgreSQL": {{SoftwareVersion: "16"}, {SoftwareVersion: "17", Default: true}}}
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Expected %+v, got %+v", expected, got)
+	}
+}
+
+func TestGetDatabaseV3alpha1EngineFields(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v3alpha1/databases/12345": `{"database": {"id": "12345", "engineVersion": "2.7.0", "upgradeAvailableTo": "2.9.0"}}`,
+	})
+	defer server.Close()
+
+	got, err := client.GetDatabaseV3alpha1("12345")
+	if err != nil {
+		t.Fatalf("Request returned an error: %s", err)
+	}
+	if got.EngineVersion != "2.7.0" || got.UpgradeAvailableTo != "2.9.0" {
+		t.Errorf("unexpected engine fields %+v", got)
+	}
+}

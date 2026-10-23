@@ -51,6 +51,12 @@ type Database struct {
 	// EarliestRestoreTime is the oldest moment a point-in-time restore or
 	// fork can target. Nil until the first full backup has completed.
 	EarliestRestoreTime *time.Time `json:"earliest_restore_time,omitempty"`
+	// EngineVersion is the engine release (Percona PostgreSQL operator) the
+	// database runs on; databases on the same network share it.
+	EngineVersion string `json:"engine_version,omitempty"`
+	// UpgradeAvailableTo is the newer engine release the database can be
+	// upgraded to with UpgradeDatabase; empty when it is up to date.
+	UpgradeAvailableTo string `json:"upgrade_available_to,omitempty"`
 }
 
 // PaginatedDatabases is the structure for list response from DB endpoint
