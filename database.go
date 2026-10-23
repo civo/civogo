@@ -63,6 +63,13 @@ type Database struct {
 	// VersionUpgrade is the latest in-place major version upgrade of the
 	// database; nil when it never had one.
 	VersionUpgrade *DatabaseVersionUpgrade `json:"version_upgrade,omitempty"`
+	// PostgresVersion is the full PostgreSQL version the database runs,
+	// e.g. "17.9".
+	PostgresVersion string `json:"postgres_version,omitempty"`
+	// MinorUpgradeAvailableTo is the newer PostgreSQL minor of the same major
+	// the database can be upgraded to with UpgradeDatabaseMinorVersion; empty
+	// when it runs the newest one.
+	MinorUpgradeAvailableTo string `json:"minor_upgrade_available_to,omitempty"`
 }
 
 // DatabaseVersionUpgrade is the progress of an in-place PostgreSQL major

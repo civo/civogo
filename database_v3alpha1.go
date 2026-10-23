@@ -148,15 +148,17 @@ type v3alpha1Database struct {
 		Port     int    `json:"port"`
 		DNSEntry string `json:"dnsEntry"`
 	} `json:"readEndpoint,omitempty"`
-	StorageGB              int               `json:"storageGb"`
-	BaseStorageGB          int               `json:"baseStorageGb"`
-	Extensions             []string          `json:"extensions"`
-	DatabaseParameters     map[string]string `json:"databaseParameters"`
-	EarliestRestoreTime    *time.Time        `json:"earliestRestoreTime,omitempty"`
-	EngineVersion          string            `json:"engineVersion"`
-	UpgradeAvailableTo     string            `json:"upgradeAvailableTo"`
-	MajorUpgradesAvailable []string          `json:"majorUpgradesAvailable"`
-	VersionUpgrade         *struct {
+	StorageGB               int               `json:"storageGb"`
+	BaseStorageGB           int               `json:"baseStorageGb"`
+	Extensions              []string          `json:"extensions"`
+	DatabaseParameters      map[string]string `json:"databaseParameters"`
+	EarliestRestoreTime     *time.Time        `json:"earliestRestoreTime,omitempty"`
+	EngineVersion           string            `json:"engineVersion"`
+	UpgradeAvailableTo      string            `json:"upgradeAvailableTo"`
+	MajorUpgradesAvailable  []string          `json:"majorUpgradesAvailable"`
+	PostgresVersion         string            `json:"postgresVersion"`
+	MinorUpgradeAvailableTo string            `json:"minorUpgradeAvailableTo"`
+	VersionUpgrade          *struct {
 		Phase         string     `json:"phase"`
 		FromVersion   string     `json:"fromVersion"`
 		TargetVersion string     `json:"targetVersion"`
@@ -169,33 +171,35 @@ type v3alpha1Database struct {
 
 func (d *v3alpha1Database) toDatabase() Database {
 	db := Database{
-		ID:                     d.ID,
-		Name:                   d.Name,
-		Nodes:                  d.Nodes,
-		Size:                   d.Size,
-		Software:               d.Software,
-		SoftwareVersion:        d.SoftwareVersion,
-		PublicIPv4:             d.PublicIPv4,
-		PrivateIPv4:            d.PrivateIPv4,
-		NetworkID:              d.NetworkID,
-		FirewallID:             d.FirewallID,
-		Port:                   d.Port,
-		Username:               d.Username,
-		Password:               d.Password,
-		DatabaseUserInfo:       d.DatabaseUserInfo,
-		DNSEntry:               d.DNSEntry,
-		Status:                 d.Status,
-		Region:                 d.Region,
-		BackupConfigured:       d.BackupConfigured,
-		CreatedAt:              d.CreatedAt,
-		StorageGB:              d.StorageGB,
-		BaseStorageGB:          d.BaseStorageGB,
-		Extensions:             d.Extensions,
-		DatabaseParameters:     d.DatabaseParameters,
-		EarliestRestoreTime:    d.EarliestRestoreTime,
-		EngineVersion:          d.EngineVersion,
-		UpgradeAvailableTo:     d.UpgradeAvailableTo,
-		MajorUpgradesAvailable: d.MajorUpgradesAvailable,
+		ID:                      d.ID,
+		Name:                    d.Name,
+		Nodes:                   d.Nodes,
+		Size:                    d.Size,
+		Software:                d.Software,
+		SoftwareVersion:         d.SoftwareVersion,
+		PublicIPv4:              d.PublicIPv4,
+		PrivateIPv4:             d.PrivateIPv4,
+		NetworkID:               d.NetworkID,
+		FirewallID:              d.FirewallID,
+		Port:                    d.Port,
+		Username:                d.Username,
+		Password:                d.Password,
+		DatabaseUserInfo:        d.DatabaseUserInfo,
+		DNSEntry:                d.DNSEntry,
+		Status:                  d.Status,
+		Region:                  d.Region,
+		BackupConfigured:        d.BackupConfigured,
+		CreatedAt:               d.CreatedAt,
+		StorageGB:               d.StorageGB,
+		BaseStorageGB:           d.BaseStorageGB,
+		Extensions:              d.Extensions,
+		DatabaseParameters:      d.DatabaseParameters,
+		EarliestRestoreTime:     d.EarliestRestoreTime,
+		EngineVersion:           d.EngineVersion,
+		UpgradeAvailableTo:      d.UpgradeAvailableTo,
+		MajorUpgradesAvailable:  d.MajorUpgradesAvailable,
+		PostgresVersion:         d.PostgresVersion,
+		MinorUpgradeAvailableTo: d.MinorUpgradeAvailableTo,
 	}
 	if u := d.VersionUpgrade; u != nil {
 		db.VersionUpgrade = &DatabaseVersionUpgrade{
@@ -722,6 +726,49 @@ func (c *Client) UpgradeDatabaseVersion(id string, v *UpgradeDatabaseVersionRequ
 		result.Checks = append(result.Checks, DatabaseVersionUpgradeCheck{Name: ch.Name, Passed: ch.Passed, Message: ch.Message})
 	}
 	return result, nil
+}
+
+// UpgradeDatabaseMinorVersionRequest upgrades a PostgreSQL database to the
+// newest minor of its major version.
+type UpgradeDatabaseMinorVersionRequest struct {
+	// ValidateOnly only checks that the upgrade can run.
+	ValidateOnly bool   `json:"validate_only,omitempty"`
+	Region       string `json:"region,omitempty"`
+}
+
+// UpgradeDatabaseMinorVersionResponse is the result of a minor version upgrade
+// request.
+type UpgradeDatabaseMinorVersionResponse struct {
+	FromVersion string `json:"from_version"`
+	ToVersion   string `json:"to_version"`
+	// Started is false for validate-only requests.
+	Started bool `json:"started"`
+}
+
+// UpgradeDatabaseMinorVersion upgrades a PostgreSQL database to the newest
+// minor of its major version, e.g. 17.9 to 17.10. The database restarts
+// (replicas first, then a switchover); its data, endpoint and point-in-time
+// restore window are unaffected. There is no downgrade. When the upgrade
+// cannot run (already on the newest minor, not ready, another upgrade in
+// progress) the API returns an error saying why.
+func (c *Client) UpgradeDatabaseMinorVersion(id string, v *UpgradeDatabaseMinorVersionRequest) (*UpgradeDatabaseMinorVersionResponse, error) {
+	if v == nil {
+		v = &UpgradeDatabaseMinorVersionRequest{}
+	}
+	v.Region = c.v3alpha1Region(v.Region)
+	body, err := c.SendPostRequest(fmt.Sprintf("/v3alpha1/databases/%s/upgrade-minor-version", id), v)
+	if err != nil {
+		return nil, decodeError(err)
+	}
+	out := struct {
+		FromVersion string `json:"fromVersion"`
+		ToVersion   string `json:"toVersion"`
+		Started     bool   `json:"started"`
+	}{}
+	if err := json.NewDecoder(bytes.NewReader(body)).Decode(&out); err != nil {
+		return nil, err
+	}
+	return &UpgradeDatabaseMinorVersionResponse{FromVersion: out.FromVersion, ToVersion: out.ToVersion, Started: out.Started}, nil
 }
 
 // ListDatabaseVersionsForNetwork returns the database versions a new database

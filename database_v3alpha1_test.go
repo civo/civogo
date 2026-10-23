@@ -598,3 +598,69 @@ func TestGetDatabaseV3alpha1VersionUpgradeFields(t *testing.T) {
 		t.Errorf("unexpected version upgrade %+v", u)
 	}
 }
+
+func TestUpgradeDatabaseMinorVersion(t *testing.T) {
+	client, server, _ := NewAdvancedClientForTesting([]ConfigAdvanceClientForTesting{
+		{
+			Method: "POST",
+			Value: []ValueAdvanceClientForTesting{
+				{
+					URL:          "/v3alpha1/databases/12345/upgrade-minor-version",
+					RequestBody:  `{"validate_only":true,"region":"lon1"}`,
+					ResponseBody: `{"fromVersion": "17.9", "toVersion": "17.10", "started": false}`,
+				},
+			},
+		},
+	})
+	defer server.Close()
+	client.Region = "LON1"
+
+	got, err := client.UpgradeDatabaseMinorVersion("12345", &UpgradeDatabaseMinorVersionRequest{ValidateOnly: true})
+	if err != nil {
+		t.Fatalf("Request returned an error: %s", err)
+	}
+	expected := &UpgradeDatabaseMinorVersionResponse{FromVersion: "17.9", ToVersion: "17.10"}
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Expected %+v, got %+v", expected, got)
+	}
+}
+
+func TestUpgradeDatabaseMinorVersionStarted(t *testing.T) {
+	client, server, _ := NewAdvancedClientForTesting([]ConfigAdvanceClientForTesting{
+		{
+			Method: "POST",
+			Value: []ValueAdvanceClientForTesting{
+				{
+					URL:          "/v3alpha1/databases/12345/upgrade-minor-version",
+					RequestBody:  `{"region":"lon1"}`,
+					ResponseBody: `{"fromVersion": "17.9", "toVersion": "17.10", "started": true}`,
+				},
+			},
+		},
+	})
+	defer server.Close()
+	client.Region = "LON1"
+
+	got, err := client.UpgradeDatabaseMinorVersion("12345", nil)
+	if err != nil {
+		t.Fatalf("Request returned an error: %s", err)
+	}
+	if !got.Started || got.FromVersion != "17.9" || got.ToVersion != "17.10" {
+		t.Errorf("unexpected response %+v", got)
+	}
+}
+
+func TestGetDatabaseV3alpha1MinorVersionFields(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v3alpha1/databases/12345": `{"database": {"id": "12345", "postgresVersion": "17.9", "minorUpgradeAvailableTo": "17.10"}}`,
+	})
+	defer server.Close()
+
+	got, err := client.GetDatabaseV3alpha1("12345")
+	if err != nil {
+		t.Fatalf("Request returned an error: %s", err)
+	}
+	if got.PostgresVersion != "17.9" || got.MinorUpgradeAvailableTo != "17.10" {
+		t.Errorf("unexpected minor version fields %+v", got)
+	}
+}
