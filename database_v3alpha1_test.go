@@ -519,3 +519,82 @@ func TestGetDatabaseV3alpha1EngineFields(t *testing.T) {
 		t.Errorf("unexpected engine fields %+v", got)
 	}
 }
+
+func TestUpgradeDatabaseVersion(t *testing.T) {
+	client, server, _ := NewAdvancedClientForTesting([]ConfigAdvanceClientForTesting{
+		{
+			Method: "POST",
+			Value: []ValueAdvanceClientForTesting{
+				{
+					URL:          "/v3alpha1/databases/12345/upgrade-version",
+					RequestBody:  `{"target_version":"18","validate_only":true,"region":"lon1"}`,
+					ResponseBody: `{"fromVersion": "17", "toVersion": "18", "checks": [{"name": "database_ready", "passed": true}, {"name": "storage_headroom", "passed": false, "message": "the data volume is 91% full; grow the storage first"}], "started": false}`,
+				},
+			},
+		},
+	})
+	defer server.Close()
+	client.Region = "LON1"
+
+	got, err := client.UpgradeDatabaseVersion("12345", &UpgradeDatabaseVersionRequest{TargetVersion: "18", ValidateOnly: true})
+	if err != nil {
+		t.Fatalf("Request returned an error: %s", err)
+	}
+	expected := &UpgradeDatabaseVersionResponse{
+		FromVersion: "17",
+		ToVersion:   "18",
+		Checks: []DatabaseVersionUpgradeCheck{
+			{Name: "database_ready", Passed: true},
+			{Name: "storage_headroom", Passed: false, Message: "the data volume is 91% full; grow the storage first"},
+		},
+	}
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Expected %+v, got %+v", expected, got)
+	}
+}
+
+func TestUpgradeDatabaseVersionStarted(t *testing.T) {
+	client, server, _ := NewAdvancedClientForTesting([]ConfigAdvanceClientForTesting{
+		{
+			Method: "POST",
+			Value: []ValueAdvanceClientForTesting{
+				{
+					URL:          "/v3alpha1/databases/12345/upgrade-version",
+					RequestBody:  `{"target_version":"18","region":"lon1"}`,
+					ResponseBody: `{"fromVersion": "17", "toVersion": "18", "checks": [], "started": true, "backupName": "pre-upgrade-pg18"}`,
+				},
+			},
+		},
+	})
+	defer server.Close()
+	client.Region = "LON1"
+
+	got, err := client.UpgradeDatabaseVersion("12345", &UpgradeDatabaseVersionRequest{TargetVersion: "18"})
+	if err != nil {
+		t.Fatalf("Request returned an error: %s", err)
+	}
+	if !got.Started || got.BackupName != "pre-upgrade-pg18" || len(got.Checks) != 0 {
+		t.Errorf("unexpected response %+v", got)
+	}
+}
+
+func TestGetDatabaseV3alpha1VersionUpgradeFields(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v3alpha1/databases/12345": `{"database": {"id": "12345", "majorUpgradesAvailable": ["18"], "versionUpgrade": {"phase": "Upgrading", "fromVersion": "16", "targetVersion": "17", "backupName": "pre-upgrade-pg17", "startedAt": "2026-10-23T15:00:00Z"}}}`,
+	})
+	defer server.Close()
+
+	got, err := client.GetDatabaseV3alpha1("12345")
+	if err != nil {
+		t.Fatalf("Request returned an error: %s", err)
+	}
+	if !reflect.DeepEqual(got.MajorUpgradesAvailable, []string{"18"}) {
+		t.Errorf("unexpected major upgrades %v", got.MajorUpgradesAvailable)
+	}
+	u := got.VersionUpgrade
+	started := time.Date(2026, 10, 23, 15, 0, 0, 0, time.UTC)
+	if u == nil || u.Phase != "Upgrading" || u.FromVersion != "16" || u.TargetVersion != "17" || u.BackupName != "pre-upgrade-pg17" ||
+		u.StartedAt == nil || !u.StartedAt.Equal(started) || u.FinishedAt != nil {
+		t.Errorf("unexpected version upgrade %+v", u)
+	}
+}

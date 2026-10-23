@@ -148,43 +148,65 @@ type v3alpha1Database struct {
 		Port     int    `json:"port"`
 		DNSEntry string `json:"dnsEntry"`
 	} `json:"readEndpoint,omitempty"`
-	StorageGB           int               `json:"storageGb"`
-	BaseStorageGB       int               `json:"baseStorageGb"`
-	Extensions          []string          `json:"extensions"`
-	DatabaseParameters  map[string]string `json:"databaseParameters"`
-	EarliestRestoreTime *time.Time        `json:"earliestRestoreTime,omitempty"`
-	EngineVersion       string            `json:"engineVersion"`
-	UpgradeAvailableTo  string            `json:"upgradeAvailableTo"`
+	StorageGB              int               `json:"storageGb"`
+	BaseStorageGB          int               `json:"baseStorageGb"`
+	Extensions             []string          `json:"extensions"`
+	DatabaseParameters     map[string]string `json:"databaseParameters"`
+	EarliestRestoreTime    *time.Time        `json:"earliestRestoreTime,omitempty"`
+	EngineVersion          string            `json:"engineVersion"`
+	UpgradeAvailableTo     string            `json:"upgradeAvailableTo"`
+	MajorUpgradesAvailable []string          `json:"majorUpgradesAvailable"`
+	VersionUpgrade         *struct {
+		Phase         string     `json:"phase"`
+		FromVersion   string     `json:"fromVersion"`
+		TargetVersion string     `json:"targetVersion"`
+		BackupName    string     `json:"backupName"`
+		Message       string     `json:"message"`
+		StartedAt     *time.Time `json:"startedAt,omitempty"`
+		FinishedAt    *time.Time `json:"finishedAt,omitempty"`
+	} `json:"versionUpgrade,omitempty"`
 }
 
 func (d *v3alpha1Database) toDatabase() Database {
 	db := Database{
-		ID:                  d.ID,
-		Name:                d.Name,
-		Nodes:               d.Nodes,
-		Size:                d.Size,
-		Software:            d.Software,
-		SoftwareVersion:     d.SoftwareVersion,
-		PublicIPv4:          d.PublicIPv4,
-		PrivateIPv4:         d.PrivateIPv4,
-		NetworkID:           d.NetworkID,
-		FirewallID:          d.FirewallID,
-		Port:                d.Port,
-		Username:            d.Username,
-		Password:            d.Password,
-		DatabaseUserInfo:    d.DatabaseUserInfo,
-		DNSEntry:            d.DNSEntry,
-		Status:              d.Status,
-		Region:              d.Region,
-		BackupConfigured:    d.BackupConfigured,
-		CreatedAt:           d.CreatedAt,
-		StorageGB:           d.StorageGB,
-		BaseStorageGB:       d.BaseStorageGB,
-		Extensions:          d.Extensions,
-		DatabaseParameters:  d.DatabaseParameters,
-		EarliestRestoreTime: d.EarliestRestoreTime,
-		EngineVersion:       d.EngineVersion,
-		UpgradeAvailableTo:  d.UpgradeAvailableTo,
+		ID:                     d.ID,
+		Name:                   d.Name,
+		Nodes:                  d.Nodes,
+		Size:                   d.Size,
+		Software:               d.Software,
+		SoftwareVersion:        d.SoftwareVersion,
+		PublicIPv4:             d.PublicIPv4,
+		PrivateIPv4:            d.PrivateIPv4,
+		NetworkID:              d.NetworkID,
+		FirewallID:             d.FirewallID,
+		Port:                   d.Port,
+		Username:               d.Username,
+		Password:               d.Password,
+		DatabaseUserInfo:       d.DatabaseUserInfo,
+		DNSEntry:               d.DNSEntry,
+		Status:                 d.Status,
+		Region:                 d.Region,
+		BackupConfigured:       d.BackupConfigured,
+		CreatedAt:              d.CreatedAt,
+		StorageGB:              d.StorageGB,
+		BaseStorageGB:          d.BaseStorageGB,
+		Extensions:             d.Extensions,
+		DatabaseParameters:     d.DatabaseParameters,
+		EarliestRestoreTime:    d.EarliestRestoreTime,
+		EngineVersion:          d.EngineVersion,
+		UpgradeAvailableTo:     d.UpgradeAvailableTo,
+		MajorUpgradesAvailable: d.MajorUpgradesAvailable,
+	}
+	if u := d.VersionUpgrade; u != nil {
+		db.VersionUpgrade = &DatabaseVersionUpgrade{
+			Phase:         u.Phase,
+			FromVersion:   u.FromVersion,
+			TargetVersion: u.TargetVersion,
+			BackupName:    u.BackupName,
+			Message:       u.Message,
+			StartedAt:     u.StartedAt,
+			FinishedAt:    u.FinishedAt,
+		}
 	}
 	if d.ReadEndpoint != nil {
 		db.ReadEndpoint = &DatabaseReadEndpoint{Host: d.ReadEndpoint.Host, Port: d.ReadEndpoint.Port, DNSEntry: d.ReadEndpoint.DNSEntry}
@@ -598,7 +620,7 @@ type DatabaseUpgradeTarget struct {
 }
 
 // UpgradeDatabase upgrades a database, and the other databases on its network,
-// to a newer engine release. Each database restarts once while it moves; until
+// to a newer engine release. Each database restarts while it moves; until
 // this is called nothing restarts. Use ValidateOnly to list the databases that
 // would be upgraded first.
 func (c *Client) UpgradeDatabase(id string, v *UpgradeDatabaseRequest) (*DatabaseUpgrade, error) {
@@ -625,6 +647,79 @@ func (c *Client) UpgradeDatabase(id string, v *UpgradeDatabaseRequest) (*Databas
 	result := &DatabaseUpgrade{FromVersion: out.FromVersion, ToVersion: out.ToVersion, Started: out.Started, Databases: []DatabaseUpgradeTarget{}}
 	for _, d := range out.Databases {
 		result.Databases = append(result.Databases, DatabaseUpgradeTarget{ID: d.ID, Name: d.Name})
+	}
+	return result, nil
+}
+
+// UpgradeDatabaseVersionRequest upgrades a PostgreSQL database in place to a
+// newer major version.
+type UpgradeDatabaseVersionRequest struct {
+	// TargetVersion is the PostgreSQL major to upgrade to, e.g. "18".
+	TargetVersion string `json:"target_version"`
+	// ValidateOnly only runs the pre-flight checks.
+	ValidateOnly bool   `json:"validate_only,omitempty"`
+	Region       string `json:"region,omitempty"`
+}
+
+// DatabaseVersionUpgradeCheck is one pre-flight check of a major version
+// upgrade.
+type DatabaseVersionUpgradeCheck struct {
+	Name    string `json:"name"`
+	Passed  bool   `json:"passed"`
+	Message string `json:"message"`
+}
+
+// UpgradeDatabaseVersionResponse is the result of a major version upgrade
+// request.
+type UpgradeDatabaseVersionResponse struct {
+	FromVersion string `json:"from_version"`
+	ToVersion   string `json:"to_version"`
+	// Checks are every pre-flight check, passed or not.
+	Checks []DatabaseVersionUpgradeCheck `json:"checks"`
+	// Started is false for validate-only requests.
+	Started bool `json:"started"`
+	// BackupName is the backup taken before the upgrade.
+	BackupName string `json:"backup_name,omitempty"`
+}
+
+// UpgradeDatabaseVersion upgrades a PostgreSQL database in place to a newer
+// major version. A backup is taken first and kept; the database then stops
+// for a few minutes while its data is upgraded, and its replicas re-sync
+// afterwards. There is no downgrade. Use ValidateOnly to run the pre-flight
+// checks without changing anything; when a check fails on a real request the
+// API returns an error listing the failed checks.
+func (c *Client) UpgradeDatabaseVersion(id string, v *UpgradeDatabaseVersionRequest) (*UpgradeDatabaseVersionResponse, error) {
+	if v == nil {
+		v = &UpgradeDatabaseVersionRequest{}
+	}
+	v.Region = c.v3alpha1Region(v.Region)
+	body, err := c.SendPostRequest(fmt.Sprintf("/v3alpha1/databases/%s/upgrade-version", id), v)
+	if err != nil {
+		return nil, decodeError(err)
+	}
+	out := struct {
+		FromVersion string `json:"fromVersion"`
+		ToVersion   string `json:"toVersion"`
+		Checks      []struct {
+			Name    string `json:"name"`
+			Passed  bool   `json:"passed"`
+			Message string `json:"message"`
+		} `json:"checks"`
+		Started    bool   `json:"started"`
+		BackupName string `json:"backupName"`
+	}{}
+	if err := json.NewDecoder(bytes.NewReader(body)).Decode(&out); err != nil {
+		return nil, err
+	}
+	result := &UpgradeDatabaseVersionResponse{
+		FromVersion: out.FromVersion,
+		ToVersion:   out.ToVersion,
+		Started:     out.Started,
+		BackupName:  out.BackupName,
+		Checks:      []DatabaseVersionUpgradeCheck{},
+	}
+	for _, ch := range out.Checks {
+		result.Checks = append(result.Checks, DatabaseVersionUpgradeCheck{Name: ch.Name, Passed: ch.Passed, Message: ch.Message})
 	}
 	return result, nil
 }
