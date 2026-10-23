@@ -57,6 +57,27 @@ type Database struct {
 	// UpgradeAvailableTo is the newer engine release the database can be
 	// upgraded to with UpgradeDatabase; empty when it is up to date.
 	UpgradeAvailableTo string `json:"upgrade_available_to,omitempty"`
+	// MajorUpgradesAvailable are the newer PostgreSQL majors the database can
+	// be upgraded to in place with UpgradeDatabaseVersion.
+	MajorUpgradesAvailable []string `json:"major_upgrades_available,omitempty"`
+	// VersionUpgrade is the latest in-place major version upgrade of the
+	// database; nil when it never had one.
+	VersionUpgrade *DatabaseVersionUpgrade `json:"version_upgrade,omitempty"`
+}
+
+// DatabaseVersionUpgrade is the progress of an in-place PostgreSQL major
+// version upgrade.
+type DatabaseVersionUpgrade struct {
+	// Phase is BackingUp, Upgrading, Finalizing, Completed or Failed.
+	Phase         string `json:"phase,omitempty"`
+	FromVersion   string `json:"from_version,omitempty"`
+	TargetVersion string `json:"target_version,omitempty"`
+	// BackupName is the backup taken before the upgrade; it is kept so the
+	// old major can be restored into a new database.
+	BackupName string     `json:"backup_name,omitempty"`
+	Message    string     `json:"message,omitempty"`
+	StartedAt  *time.Time `json:"started_at,omitempty"`
+	FinishedAt *time.Time `json:"finished_at,omitempty"`
 }
 
 // PaginatedDatabases is the structure for list response from DB endpoint
