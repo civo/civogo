@@ -3,6 +3,7 @@ package civogo
 import (
 	"reflect"
 	"testing"
+	"time"
 )
 
 func TestListVolumes(t *testing.T) {
@@ -391,5 +392,74 @@ func TestDeleteVolumeAndAllSnapshot(t *testing.T) {
 
 	if !reflect.DeepEqual(got, expected) {
 		t.Errorf("Expected %+v, got %+v", expected, got)
+	}
+}
+
+func TestGetVolumeResizeOutcome(t *testing.T) {
+	client, server, _ := NewClientForTesting(map[string]string{
+		"/v2/volumes/12345": `{
+			"id": "12345",
+			"name": "my-volume",
+			"status": "attached",
+			"size_gb": 300,
+			"delivered_size_gb": 6,
+			"resize": {
+				"state": "failed",
+				"reason": "InsufficientStorage",
+				"message": "the pool cannot fit the requested size",
+				"updated_at": "2026-10-07T14:21:19Z"
+			}
+		}`,
+	})
+	defer server.Close()
+	got, err := client.GetVolume("12345")
+	if err != nil {
+		t.Errorf("Request returned an error: %s", err)
+		return
+	}
+
+	expected := &Volume{
+		ID:                     "12345",
+		Name:                   "my-volume",
+		Status:                 "attached",
+		SizeGigabytes:          300,
+		DeliveredSizeGigabytes: 6,
+		Resize: &VolumeResize{
+			State:     VolumeResizeFailed,
+			Reason:    "InsufficientStorage",
+			Message:   "the pool cannot fit the requested size",
+			UpdatedAt: time.Date(2026, 10, 7, 14, 21, 19, 0, time.UTC),
+		},
+	}
+	if !reflect.DeepEqual(got, expected) {
+		t.Errorf("Expected %+v, got %+v", expected, got)
+	}
+	if got.Resize.Succeeded() || !got.Resize.Settled() {
+		t.Errorf("a failed resize must be settled and not succeeded, got %+v", got.Resize)
+	}
+}
+
+func TestVolumeResizeHelpers(t *testing.T) {
+	cases := []struct {
+		name      string
+		resize    *VolumeResize
+		settled   bool
+		succeeded bool
+	}{
+		{name: "no resize reported", resize: nil, settled: true, succeeded: false},
+		{name: "in progress", resize: &VolumeResize{State: VolumeResizeInProgress, Reason: "Expanding"}, settled: false, succeeded: false},
+		{name: "completed", resize: &VolumeResize{State: VolumeResizeCompleted, Reason: "Completed"}, settled: true, succeeded: true},
+		{name: "failed", resize: &VolumeResize{State: VolumeResizeFailed, Reason: "Timeout"}, settled: true, succeeded: false},
+		{name: "cancelled", resize: &VolumeResize{State: VolumeResizeCancelled, Reason: "Cancelled"}, settled: true, succeeded: false},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := tc.resize.Settled(); got != tc.settled {
+				t.Errorf("Settled() = %v, want %v", got, tc.settled)
+			}
+			if got := tc.resize.Succeeded(); got != tc.succeeded {
+				t.Errorf("Succeeded() = %v, want %v", got, tc.succeeded)
+			}
+		})
 	}
 }

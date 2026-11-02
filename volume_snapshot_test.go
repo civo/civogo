@@ -88,7 +88,7 @@ func TestGetVolumeSnapshot(t *testing.T) {
 
 func TestDeleteVolumeSnapshot(t *testing.T) {
 	client, server, _ := NewClientForTesting(map[string]string{
-		"/v2/snapshots/12346": `{"result": "success"}`,
+		"/v2/snapshots/12346?region=TEST&resource_type=volume": `{"result": "success"}`,
 	})
 	defer server.Close()
 	got, err := client.DeleteVolumeSnapshot("12346")

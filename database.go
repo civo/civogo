@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 )
 
 // DatabaseUserInfo represents the user information
@@ -32,6 +33,51 @@ type Database struct {
 	DatabaseUserInfo []DatabaseUserInfo `json:"database_user_info"`
 	DNSEntry         string             `json:"dns_entry,omitempty"`
 	Status           string             `json:"status"`
+	Region           string             `json:"region,omitempty"`
+	BackupConfigured bool               `json:"backup_configured,omitempty"`
+	CreatedAt        *time.Time         `json:"created_at,omitempty"`
+	// The fields below are only populated by the v3alpha1 methods
+	// (GetDatabaseV3alpha1, ListDatabasesV3alpha1, ForkDatabase, ...).
+	// ReadEndpoint is the read-only endpoint of a 3+ node database.
+	ReadEndpoint *DatabaseReadEndpoint `json:"read_endpoint,omitempty"`
+	// StorageGB is the storage of every node; BaseStorageGB is what the plan
+	// includes, the difference is the billed storage add-on.
+	StorageGB     int `json:"storage_gb,omitempty"`
+	BaseStorageGB int `json:"base_storage_gb,omitempty"`
+	// Extensions are the enabled PostgreSQL extensions.
+	Extensions []string `json:"extensions,omitempty"`
+	// DatabaseParameters are the custom server parameters.
+	DatabaseParameters map[string]string `json:"database_parameters,omitempty"`
+	// EarliestRestoreTime is the oldest moment a point-in-time restore or
+	// fork can target. Nil until the first full backup has completed.
+	EarliestRestoreTime *time.Time `json:"earliest_restore_time,omitempty"`
+	// EngineVersion is the engine release (Percona PostgreSQL operator) the
+	// database runs on; databases on the same network share it.
+	EngineVersion string `json:"engine_version,omitempty"`
+	// UpgradeAvailableTo is the newer engine release the database can be
+	// upgraded to with UpgradeDatabase; empty when it is up to date.
+	UpgradeAvailableTo string `json:"upgrade_available_to,omitempty"`
+	// MajorUpgradesAvailable are the newer PostgreSQL majors the database can
+	// be upgraded to in place with UpgradeDatabaseVersion.
+	MajorUpgradesAvailable []string `json:"major_upgrades_available,omitempty"`
+	// VersionUpgrade is the latest in-place major version upgrade of the
+	// database; nil when it never had one.
+	VersionUpgrade *DatabaseVersionUpgrade `json:"version_upgrade,omitempty"`
+}
+
+// DatabaseVersionUpgrade is the progress of an in-place PostgreSQL major
+// version upgrade.
+type DatabaseVersionUpgrade struct {
+	// Phase is BackingUp, Upgrading, Finalizing, Completed or Failed.
+	Phase         string `json:"phase,omitempty"`
+	FromVersion   string `json:"from_version,omitempty"`
+	TargetVersion string `json:"target_version,omitempty"`
+	// BackupName is the backup taken before the upgrade; it is kept so the
+	// old major can be restored into a new database.
+	BackupName string     `json:"backup_name,omitempty"`
+	Message    string     `json:"message,omitempty"`
+	StartedAt  *time.Time `json:"started_at,omitempty"`
+	FinishedAt *time.Time `json:"finished_at,omitempty"`
 }
 
 // PaginatedDatabases is the structure for list response from DB endpoint
