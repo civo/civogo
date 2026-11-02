@@ -14,5 +14,9 @@ jobs:
     - name: Run govulncheck
       uses: golang/govulncheck-action@v1
       with:
-        go-version-input: ${{ vars.GO_VERSION || '1.25.10' }}
+        # The action runs with GOTOOLCHAIN=local, so the scan uses exactly the Go it installs:
+        # read the toolchain line from go.mod so govulncheck checks the same patched standard
+        # library that test and lint build with.
+        go-version-input: ""
+        go-version-file: go.mod
         go-package: ./...
