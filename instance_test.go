@@ -1,6 +1,7 @@
 package civogo
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -540,6 +541,41 @@ func TestUpdateInstanceAllowedIPs(t *testing.T) {
 	defer server.Close()
 
 	got, err := client.UpdateInstanceAllowedIPs("12345", []string{"192.168.1.10", "192.168.1.11"})
+	EnsureSuccessfulSimpleResponse(t, got, err)
+}
+
+func TestUpdateInstanceAllowedIPsRejectsInvalidIP(t *testing.T) {
+	client, server, _ := NewAdvancedClientForTesting([]ConfigAdvanceClientForTesting{})
+	defer server.Close()
+
+	got, err := client.UpdateInstanceAllowedIPs("12345", []string{"192.168.1.10", "not-an-ip"})
+	if err == nil {
+		t.Fatalf("expected error for invalid IP, got none")
+	}
+	if !strings.Contains(err.Error(), "not-an-ip") {
+		t.Fatalf("error should name the invalid entry, got: %v", err)
+	}
+	if got != nil {
+		t.Fatalf("expected nil response on validation failure, got %v", got)
+	}
+}
+
+func TestUpdateInstanceAllowedIPsAcceptsCIDR(t *testing.T) {
+	client, server, _ := NewAdvancedClientForTesting([]ConfigAdvanceClientForTesting{
+		{
+			Method: "PUT",
+			Value: []ValueAdvanceClientForTesting{
+				{
+					RequestBody:  `"{"allowed_ips": ["10.0.0.0/24"]"`,
+					URL:          "/v2/instances/12345/allowed_ips",
+					ResponseBody: `{"result": "success"}`,
+				},
+			},
+		},
+	})
+	defer server.Close()
+
+	got, err := client.UpdateInstanceAllowedIPs("12345", []string{"10.0.0.0/24"})
 	EnsureSuccessfulSimpleResponse(t, got, err)
 }
 
