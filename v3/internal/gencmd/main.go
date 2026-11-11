@@ -112,7 +112,8 @@ func goName(s string) string {
 			b.WriteString(u)
 			continue
 		}
-		b.WriteString(strings.ToUpper(p[:1]) + p[1:])
+		b.WriteString(strings.ToUpper(p[:1]))
+		b.WriteString(p[1:])
 	}
 	return b.String()
 }
@@ -444,7 +445,9 @@ func writeImports(b *strings.Builder, src string) {
 	if len(imports) == 0 {
 		return
 	}
-	b.WriteString("import (\n" + strings.Join(imports, "\n") + "\n)\n\n")
+	b.WriteString("import (\n")
+	b.WriteString(strings.Join(imports, "\n"))
+	b.WriteString("\n)\n\n")
 }
 
 func sortedKeys[T any](m map[string]T) []string {
