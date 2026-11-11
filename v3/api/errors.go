@@ -8,7 +8,6 @@ import (
 )
 
 // Canonical google.rpc.Code names reported in Error.Status.
-// Only the ones the predicates below rely on are named here.
 const (
 	StatusInvalidArgument   = "INVALID_ARGUMENT"
 	StatusNotFound          = "NOT_FOUND"
@@ -23,36 +22,25 @@ const (
 const ReasonValidationFailed = "REQUEST_VALIDATION_FAILED"
 
 // Error is the single error type returned for any v3 API failure.
-//
-// The API answers failures with an AIP-193 envelope whose details carry
-// one google.rpc.ErrorInfo (Reason, Domain, Metadata) and, for
-// validation or quota failures, a google.rpc.BadRequest or
-// google.rpc.QuotaFailure. Branch on Reason: it is the stable,
-// machine-readable condition (e.g. "INSTANCE_NOT_FOUND").
+// Branch on Reason: it is the stable, machine-readable condition.
 type Error struct {
-	// HTTPStatus is the HTTP response status code.
 	HTTPStatus int
 	// Status is the canonical gRPC code name, e.g. "NOT_FOUND".
-	Status string
-	// Message is the human-readable error message from the server.
+	Status  string
 	Message string
 
-	// Reason is the ErrorInfo reason, e.g. "INSTANCE_NOT_FOUND".
+	// Reason is the google.rpc.ErrorInfo reason, e.g. "INSTANCE_NOT_FOUND".
 	Reason string
-	// Domain is the ErrorInfo domain of the service that failed, e.g. "compute.civo.com".
-	Domain string
-	// Metadata is the ErrorInfo metadata, verbatim.
-	Metadata map[string]string
-	// RequestID identifies the request server-side; quote it in support tickets.
+	// Domain is the service that failed, e.g. "compute.civo.com".
+	Domain    string
+	Metadata  map[string]string
 	RequestID string
 
-	// FieldViolations lists the request fields that failed validation.
 	FieldViolations []FieldViolation
-	// QuotaViolations lists the quotas the request would exceed.
 	QuotaViolations []QuotaViolation
 
-	// Details holds every detail object of the response, verbatim,
-	// including any the fields above do not model.
+	// Details holds every detail object of the response, including any
+	// the fields above do not model.
 	Details []json.RawMessage
 }
 
@@ -126,8 +114,7 @@ type errorEnvelope struct {
 	} `json:"error"`
 }
 
-// detail is the union of the google.rpc detail types the API sends,
-// discriminated by @type.
+// detail is the union of the google.rpc detail types, discriminated by @type.
 type detail struct {
 	Type            string            `json:"@type"`
 	Reason          string            `json:"reason"`

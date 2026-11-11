@@ -21,8 +21,7 @@ type Transport struct {
 	httpClient    *http.Client
 }
 
-// Config carries the constructor inputs for a Transport. It is populated
-// by the root package's functional options.
+// Config is populated by the root package's options.
 type Config struct {
 	BaseURL       string
 	Token         string
@@ -54,7 +53,6 @@ func NewTransport(cfg Config) (*Transport, error) {
 }
 
 // DefaultRegion returns the client-level default region, or "".
-// Service methods use it only when a request does not specify regions.
 func (t *Transport) DefaultRegion() string { return t.defaultRegion }
 
 // Do performs one API call: it encodes body as JSON (when non-nil),

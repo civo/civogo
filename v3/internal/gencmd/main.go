@@ -45,8 +45,6 @@ const (
 	reasonsPkg    = "compute"
 )
 
-// --- minimal OpenAPI 3 model (only what grpc-gateway emits) ---
-
 type spec struct {
 	Paths      map[string]map[string]*operation `json:"paths"`
 	Components struct {
@@ -96,8 +94,6 @@ func (s *schema) refName() string {
 	return s.Ref[strings.LastIndex(s.Ref, "/")+1:]
 }
 
-// --- naming ---
-
 var initialisms = map[string]string{
 	"id": "ID", "ip": "IP", "ipv4": "IPv4", "ipv6": "IPv6", "url": "URL",
 	"ssh": "SSH", "dns": "DNS", "gpu": "GPU", "cpu": "CPU", "ram": "RAM",
@@ -136,8 +132,6 @@ func typeName(name string) string {
 func enumConstName(typ, val string) string {
 	return typ + strings.TrimPrefix(goName(val), typ)
 }
-
-// --- generation ---
 
 type generator struct {
 	spec        *spec
@@ -206,13 +200,13 @@ package %s
 
 // opInfo is one operation resolved against the spec.
 type opInfo struct {
-	name       string // Go method name
+	name       string
 	httpMethod string
 	path       string // spec path, e.g. /v3alpha1/compute/instances/{instance_id}
 	pathParams []string
-	query      []*parameter // query parameters
-	bodyRef    string       // schema name of the request body, "" if none
-	respRef    string       // schema name of the 200 response
+	query      []*parameter
+	bodyRef    string // schema name of the request body, "" if none
+	respRef    string // schema name of the 200 response
 }
 
 func (g *generator) collectOps(svc serviceDef) []opInfo {
@@ -369,8 +363,6 @@ func (g *generator) isMessageRef(s *schema) bool {
 	}
 }
 
-// --- types.go ---
-
 func (g *generator) render(svc serviceDef) (types, methods []byte) {
 	ops := g.collectOps(svc)
 	return g.renderTypes(svc, ops), g.renderService(svc, ops)
@@ -464,8 +456,6 @@ func sortedKeys[T any](m map[string]T) []string {
 	return keys
 }
 
-// --- service.go ---
-
 // trivialBody reports whether a request body schema carries nothing but
 // call-scoping fields (region/account_id); such operations get a
 // variadic-option signature instead of a request struct.
@@ -532,7 +522,6 @@ func (g *generator) renderMethod(b *strings.Builder, svc serviceDef, op opInfo) 
 	retType, retField := g.unwrap(op.respRef)
 	isList := strings.HasPrefix(op.name, "List")
 
-	// Signature parts.
 	sig := []string{"ctx context.Context"}
 	var pathExpr = fmt.Sprintf("%q", op.path)
 	for _, pp := range op.pathParams {
@@ -583,7 +572,6 @@ func (g *generator) renderMethod(b *strings.Builder, svc serviceDef, op opInfo) 
 		b.WriteString("if req.Region == \"\" {\nreq.Region = s.t.DefaultRegion()\n}\n")
 	}
 
-	// The Do call.
 	errRet := "return err"
 	okRet := "return nil"
 	out := "nil"
@@ -612,19 +600,20 @@ func (g *generator) renderMethod(b *strings.Builder, svc serviceDef, op opInfo) 
 		op.httpMethod, pathExpr, query, bodyArg, out, errRet, okRet)
 }
 
-// renderListMethod emits the List method, its ListRequest type, and the
-// All iterator.
+// renderListMethod emits ListRequest, List and All.
 func (g *generator) renderListMethod(b *strings.Builder, svc serviceDef, op opInfo) {
 	respType := typeName(op.respRef)
 
-	// ListRequest from the query parameters.
 	b.WriteString("// ListRequest selects what List returns.\ntype ListRequest struct {\n")
 	for _, p := range op.query {
 		switch p.Name {
 		case "pagination.page", "pagination.per_page":
 			continue // covered by Page
 		}
-		fmt.Fprintf(b, "// %s\n%s %s\n", strings.TrimSpace(p.Description), goName(strings.ReplaceAll(p.Name, ".", "_")), g.goType(p.Schema))
+		if d := strings.TrimSpace(p.Description); d != "" {
+			fmt.Fprintf(b, "// %s\n", d)
+		}
+		fmt.Fprintf(b, "%s %s\n", goName(strings.ReplaceAll(p.Name, ".", "_")), g.goType(p.Schema))
 	}
 	b.WriteString("// Page selects one page; the zero value uses server defaults.\nPage api.PageParams\n}\n\n")
 
@@ -654,8 +643,7 @@ func (g *generator) renderListMethod(b *strings.Builder, svc serviceDef, op opIn
 
 `, respType, respType, op.path)
 
-	// All iterator.
-	itemsField := "" // find the array property of the response
+	itemsField := ""
 	sch := g.spec.Components.Schemas[op.respRef]
 	for _, name := range sortedKeys(sch.Properties) {
 		if sch.Properties[name].Type == "array" {

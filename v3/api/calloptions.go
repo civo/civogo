@@ -2,10 +2,9 @@ package api
 
 import "net/url"
 
-// CallParams are the call-scoping parameters shared by simple v3
-// operations (those whose only inputs are the target resource, a region
-// and an optional account override). Depending on the HTTP method they
-// are sent as query parameters or as the JSON body.
+// CallParams scope a call whose only inputs are the target resource, a
+// region and an optional account. They are sent as query parameters or as
+// the JSON body, depending on the operation.
 type CallParams struct {
 	Region    string `json:"region,omitempty"`
 	AccountID string `json:"account_id,omitempty"`

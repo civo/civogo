@@ -46,7 +46,6 @@ func Ptr[T any](v T) *T { return &v }
 
 // Client is the entry point to the Civo v3 API. Construct it with New.
 type Client struct {
-	// Instances provides access to the Compute instances service.
 	Instances *instances.Service
 }
 
@@ -62,8 +61,7 @@ func WithDefaultRegion(region string) Option {
 	return func(c *api.Config) { c.DefaultRegion = region }
 }
 
-// WithHTTPClient supplies a custom *http.Client (proxies, timeouts,
-// instrumented transports).
+// WithHTTPClient sets the *http.Client used for requests.
 func WithHTTPClient(hc *http.Client) Option { return func(c *api.Config) { c.HTTPClient = hc } }
 
 // WithUserAgent prepends an application-specific User-Agent component.

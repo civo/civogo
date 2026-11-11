@@ -12,9 +12,6 @@ import (
 	"github.com/civo/civogo/v3/instances"
 )
 
-// TestClientIsConcurrencySafe exercises mixed operations from many
-// goroutines under -race; the v2 client fails this by design
-// (shared LastJSONResponse, per-request transport swap).
 func TestClientIsConcurrencySafe(t *testing.T) {
 	client := testClient(t, func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, `{"instance": {"id": "i-1"}, "instances": [], "page_info": {"total_pages": 1}}`)

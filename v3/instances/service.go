@@ -193,7 +193,6 @@ func (s *Service) HardReboot(ctx context.Context, instanceID string, opts ...api
 
 // ListRequest selects what List returns.
 type ListRequest struct {
-	//
 	AccountID string
 	// Regions to list instances from. At least one region is required.
 	Regions []string

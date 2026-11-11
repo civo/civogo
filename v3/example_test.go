@@ -29,7 +29,6 @@ func Example() {
 }
 
 func ExampleNew() {
-	// The default region applies to calls that do not name one.
 	client, err := civogo.New(os.Getenv("CIVO_TOKEN"), civogo.WithDefaultRegion("lon1"))
 	if err != nil {
 		log.Fatal(err)
@@ -61,12 +60,11 @@ func ExampleError() {
 			fmt.Printf("%s: %s\n", v.Field, v.Description)
 		}
 	default:
-		log.Fatal(err) // the message includes the request ID for support
+		log.Fatal(err)
 	}
 }
 
-// Optional fields are pointers: nil leaves them unchanged, Ptr sends a value,
-// including false or "".
+// Optional fields are pointers: nil leaves them unchanged, Ptr sends a value.
 func ExamplePtr() {
 	client, err := civogo.New(os.Getenv("CIVO_TOKEN"), civogo.WithDefaultRegion("lon1"))
 	if err != nil {
