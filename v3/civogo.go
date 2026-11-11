@@ -21,6 +21,7 @@ import (
 
 	"github.com/civo/civogo/v3/api"
 	"github.com/civo/civogo/v3/compute"
+	"github.com/civo/civogo/v3/internal/transport"
 )
 
 // DefaultBaseURL is the production Civo API endpoint.
@@ -58,28 +59,28 @@ type Client struct {
 }
 
 // Option configures a Client at construction time.
-type Option func(*api.Config)
+type Option func(*transport.Config)
 
 // WithBaseURL points the client at a non-production API endpoint.
-func WithBaseURL(u string) Option { return func(c *api.Config) { c.BaseURL = u } }
+func WithBaseURL(u string) Option { return func(c *transport.Config) { c.BaseURL = u } }
 
 // WithDefaultRegion sets the region used when a request does not
 // specify any.
 func WithDefaultRegion(region string) Option {
-	return func(c *api.Config) { c.DefaultRegion = region }
+	return func(c *transport.Config) { c.DefaultRegion = region }
 }
 
 // WithHTTPClient sets the *http.Client used for requests.
-func WithHTTPClient(hc *http.Client) Option { return func(c *api.Config) { c.HTTPClient = hc } }
+func WithHTTPClient(hc *http.Client) Option { return func(c *transport.Config) { c.HTTPClient = hc } }
 
 // WithUserAgent prepends an application-specific User-Agent component.
 func WithUserAgent(ua string) Option {
-	return func(c *api.Config) { c.UserAgent = ua + " " + c.UserAgent }
+	return func(c *transport.Config) { c.UserAgent = ua + " " + c.UserAgent }
 }
 
 // New builds a Client authenticated with token.
 func New(token string, opts ...Option) (*Client, error) {
-	cfg := api.Config{
+	cfg := transport.Config{
 		BaseURL:   DefaultBaseURL,
 		Token:     token,
 		UserAgent: "civogo/v3",
@@ -87,7 +88,7 @@ func New(token string, opts ...Option) (*Client, error) {
 	for _, opt := range opts {
 		opt(&cfg)
 	}
-	t, err := api.NewTransport(cfg)
+	t, err := transport.NewTransport(cfg)
 	if err != nil {
 		return nil, err
 	}

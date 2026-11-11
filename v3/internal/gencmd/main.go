@@ -286,7 +286,7 @@ func (g *generator) reachableTypes(ops []opInfo) []string {
 		}
 	}
 	for _, op := range ops {
-		if !g.trivialBody(op.bodyRef) { // trivial bodies are api.CallParams
+		if !g.trivialBody(op.bodyRef) { // trivial bodies are transport.ResolveCallParams
 			visit(op.bodyRef)
 		}
 		visit(op.respRef)
@@ -390,12 +390,12 @@ func (g *generator) renderClient() []byte {
 	b := &strings.Builder{}
 	fmt.Fprintf(b, "// Code generated from %s (proto commit %s) by gencmd. DO NOT EDIT.\n\n", g.specName, g.protoCommit)
 	fmt.Fprintf(b, "// Package %s is the client for the Civo %s v3 API.\npackage %s\n\n", g.pkg.name, g.pkg.title, g.pkg.name)
-	b.WriteString("import \"github.com/civo/civogo/v3/api\"\n\n")
+	b.WriteString("import \"github.com/civo/civogo/v3/internal/transport\"\n\n")
 	fmt.Fprintf(b, "// Client groups the %s services. Use civogo.New to build one.\ntype Client struct {\n", g.pkg.title)
 	for _, svc := range g.pkg.services {
 		fmt.Fprintf(b, "%s *%sService\n", svc.name, svc.name)
 	}
-	b.WriteString("}\n\n// NewClient is called by the root civogo package.\nfunc NewClient(t *api.Transport) *Client {\nreturn &Client{\n")
+	b.WriteString("}\n\n// NewClient is called by the root civogo package; use civogo.New.\nfunc NewClient(t *transport.Transport) *Client {\nreturn &Client{\n")
 	for _, svc := range g.pkg.services {
 		fmt.Fprintf(b, "%s: &%sService{t: t},\n", svc.name, svc.name)
 	}
@@ -460,6 +460,9 @@ func writeImports(b *strings.Builder, src string) {
 	}
 	if strings.Contains(src, "api.") {
 		imports = append(imports, `"github.com/civo/civogo/v3/api"`)
+	}
+	if strings.Contains(src, "transport.") {
+		imports = append(imports, `"github.com/civo/civogo/v3/internal/transport"`)
 	}
 	if strings.Contains(src, "iter.Seq2") {
 		imports = append(imports, `"iter"`)
@@ -538,7 +541,7 @@ func (g *generator) renderService(svc serviceDef, ops []opInfo) []byte {
 	b.WriteString(g.header())
 
 	body := &strings.Builder{}
-	fmt.Fprintf(body, "// %sService is the %s %s API.\ntype %sService struct {\nt *api.Transport\n}\n\n",
+	fmt.Fprintf(body, "// %sService is the %s %s API.\ntype %sService struct {\nt *transport.Transport\n}\n\n",
 		svc.name, g.pkg.title, strings.ToLower(svc.name), svc.name)
 
 	lists := 0
@@ -609,9 +612,9 @@ func (g *generator) renderMethod(b *strings.Builder, svc serviceDef, op opInfo) 
 	// the query (GET/DELETE, or bodyless POSTs) or as the JSON body.
 	switch {
 	case trivial && op.bodyRef == "":
-		b.WriteString("q := api.ResolveCallParams(s.t, opts...).Query()\n")
+		b.WriteString("q := transport.Query(transport.ResolveCallParams(s.t, opts...))\n")
 	case trivial:
-		b.WriteString("body := api.ResolveCallParams(s.t, opts...)\n")
+		b.WriteString("body := transport.ResolveCallParams(s.t, opts...)\n")
 	case reqStruct != "":
 		b.WriteString("if req.Region == \"\" {\nreq.Region = s.t.DefaultRegion()\n}\n")
 	}
@@ -705,7 +708,7 @@ func (g *generator) renderListMethod(b *strings.Builder, svc serviceDef, op opIn
 	}
 	fmt.Fprintf(b, `// All lazily iterates every %s matching req across all pages.
 func (s *%sService) All(ctx context.Context, req %s) iter.Seq2[%s, error] {
-	return api.All(func(p api.PageParams) ([]%s, *api.PageInfo, error) {
+	return transport.All(func(p api.PageParams) ([]%s, *api.PageInfo, error) {
 		r := req
 		r.Page = p
 		resp, err := s.List(ctx, r)

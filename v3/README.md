@@ -36,9 +36,12 @@ standard library.
 
 ## Layout
 
-- `civogo.go`, `api/` — hand-written core: client construction and
-  options, the single request path, the `Error` type and predicates,
-  pagination primitives.
+- `civogo.go`, `api/` — hand-written public surface: client construction
+  and options, per-call options, the `Error` type and predicates, page
+  types.
+- `internal/transport/` — hand-written request path shared by the
+  generated packages: auth, encoding, error decoding, pagination. Internal
+  so it can change without breaking users.
 - `compute/` — **generated** from the Compute v3 OpenAPI document: one
   package per API, holding all its services (`Client.Compute.Instances`),
   types and error reasons. Do not edit; regenerate instead. Other APIs

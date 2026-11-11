@@ -3,15 +3,15 @@
 // Package compute is the client for the Civo Compute v3 API.
 package compute
 
-import "github.com/civo/civogo/v3/api"
+import "github.com/civo/civogo/v3/internal/transport"
 
 // Client groups the Compute services. Use civogo.New to build one.
 type Client struct {
 	Instances *InstancesService
 }
 
-// NewClient is called by the root civogo package.
-func NewClient(t *api.Transport) *Client {
+// NewClient is called by the root civogo package; use civogo.New.
+func NewClient(t *transport.Transport) *Client {
 	return &Client{
 		Instances: &InstancesService{t: t},
 	}

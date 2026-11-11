@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/civo/civogo/v3/api"
+	"github.com/civo/civogo/v3/internal/transport"
 	"iter"
 	"net/url"
 	"strings"
@@ -14,7 +15,7 @@ import (
 
 // InstancesService is the Compute instances API.
 type InstancesService struct {
-	t *api.Transport
+	t *transport.Transport
 }
 
 // AssignIP calls POST /v3alpha1/compute/instances/{instance_id}/assign-ip.
@@ -68,7 +69,7 @@ func (s *InstancesService) CreateConsole(ctx context.Context, instanceID string,
 
 // Delete calls DELETE /v3alpha1/compute/instances/{instance_id}.
 func (s *InstancesService) Delete(ctx context.Context, instanceID string, opts ...api.CallOption) (*Instance, error) {
-	q := api.ResolveCallParams(s.t, opts...).Query()
+	q := transport.Query(transport.ResolveCallParams(s.t, opts...))
 	var out struct {
 		V *Instance `json:"instance"`
 	}
@@ -84,7 +85,7 @@ func (s *InstancesService) Delete(ctx context.Context, instanceID string, opts .
 // DeleteConsole calls DELETE /v3alpha1/compute/instances/{instance_id}/console.
 // The API returns no payload for this call.
 func (s *InstancesService) DeleteConsole(ctx context.Context, instanceID string, opts ...api.CallOption) error {
-	q := api.ResolveCallParams(s.t, opts...).Query()
+	q := transport.Query(transport.ResolveCallParams(s.t, opts...))
 	return s.t.Do(ctx, "DELETE", strings.Replace("/v3alpha1/compute/instances/{instance_id}/console", "{instance_id}", url.PathEscape(instanceID), 1), q, nil, nil)
 }
 
@@ -99,7 +100,7 @@ func (s *InstancesService) DetachVolume(ctx context.Context, instanceID string, 
 
 // DisableRecoveryMode calls DELETE /v3alpha1/compute/instances/{instance_id}/recovery.
 func (s *InstancesService) DisableRecoveryMode(ctx context.Context, instanceID string, opts ...api.CallOption) (*InstanceRecoveryMode, error) {
-	q := api.ResolveCallParams(s.t, opts...).Query()
+	q := transport.Query(transport.ResolveCallParams(s.t, opts...))
 	var out struct {
 		V *InstanceRecoveryMode `json:"recovery_mode"`
 	}
@@ -148,7 +149,7 @@ func (s *InstancesService) ExpandRootDisk(ctx context.Context, instanceID string
 
 // Get calls GET /v3alpha1/compute/instances/{instance_id}.
 func (s *InstancesService) Get(ctx context.Context, instanceID string, opts ...api.CallOption) (*Instance, error) {
-	q := api.ResolveCallParams(s.t, opts...).Query()
+	q := transport.Query(transport.ResolveCallParams(s.t, opts...))
 	var out struct {
 		V *Instance `json:"instance"`
 	}
@@ -163,7 +164,7 @@ func (s *InstancesService) Get(ctx context.Context, instanceID string, opts ...a
 
 // GetConsole calls GET /v3alpha1/compute/instances/{instance_id}/console.
 func (s *InstancesService) GetConsole(ctx context.Context, instanceID string, opts ...api.CallOption) (*InstanceConsole, error) {
-	q := api.ResolveCallParams(s.t, opts...).Query()
+	q := transport.Query(transport.ResolveCallParams(s.t, opts...))
 	var out struct {
 		V *InstanceConsole `json:"console"`
 	}
@@ -178,7 +179,7 @@ func (s *InstancesService) GetConsole(ctx context.Context, instanceID string, op
 
 // GetRecoveryMode calls GET /v3alpha1/compute/instances/{instance_id}/recovery.
 func (s *InstancesService) GetRecoveryMode(ctx context.Context, instanceID string, opts ...api.CallOption) (*InstanceRecoveryMode, error) {
-	q := api.ResolveCallParams(s.t, opts...).Query()
+	q := transport.Query(transport.ResolveCallParams(s.t, opts...))
 	var out struct {
 		V *InstanceRecoveryMode `json:"recovery_mode"`
 	}
@@ -194,7 +195,7 @@ func (s *InstancesService) GetRecoveryMode(ctx context.Context, instanceID strin
 // HardReboot calls POST /v3alpha1/compute/instances/{instance_id}/reboot_hard.
 // The API returns no payload for this call.
 func (s *InstancesService) HardReboot(ctx context.Context, instanceID string, opts ...api.CallOption) error {
-	body := api.ResolveCallParams(s.t, opts...)
+	body := transport.ResolveCallParams(s.t, opts...)
 	return s.t.Do(ctx, "POST", strings.Replace("/v3alpha1/compute/instances/{instance_id}/reboot_hard", "{instance_id}", url.PathEscape(instanceID), 1), nil, body, nil)
 }
 
@@ -233,7 +234,7 @@ func (s *InstancesService) List(ctx context.Context, req ListInstancesRequest) (
 
 // All lazily iterates every Instance matching req across all pages.
 func (s *InstancesService) All(ctx context.Context, req ListInstancesRequest) iter.Seq2[Instance, error] {
-	return api.All(func(p api.PageParams) ([]Instance, *api.PageInfo, error) {
+	return transport.All(func(p api.PageParams) ([]Instance, *api.PageInfo, error) {
 		r := req
 		r.Page = p
 		resp, err := s.List(ctx, r)
@@ -264,28 +265,28 @@ func (s *InstancesService) Resize(ctx context.Context, instanceID string, req Re
 // SoftReboot calls POST /v3alpha1/compute/instances/{instance_id}/reboot_soft.
 // The API returns no payload for this call.
 func (s *InstancesService) SoftReboot(ctx context.Context, instanceID string, opts ...api.CallOption) error {
-	body := api.ResolveCallParams(s.t, opts...)
+	body := transport.ResolveCallParams(s.t, opts...)
 	return s.t.Do(ctx, "POST", strings.Replace("/v3alpha1/compute/instances/{instance_id}/reboot_soft", "{instance_id}", url.PathEscape(instanceID), 1), nil, body, nil)
 }
 
 // Start calls POST /v3alpha1/compute/instances/{instance_id}/start.
 // The API returns no payload for this call.
 func (s *InstancesService) Start(ctx context.Context, instanceID string, opts ...api.CallOption) error {
-	body := api.ResolveCallParams(s.t, opts...)
+	body := transport.ResolveCallParams(s.t, opts...)
 	return s.t.Do(ctx, "POST", strings.Replace("/v3alpha1/compute/instances/{instance_id}/start", "{instance_id}", url.PathEscape(instanceID), 1), nil, body, nil)
 }
 
 // Stop calls POST /v3alpha1/compute/instances/{instance_id}/stop.
 // The API returns no payload for this call.
 func (s *InstancesService) Stop(ctx context.Context, instanceID string, opts ...api.CallOption) error {
-	body := api.ResolveCallParams(s.t, opts...)
+	body := transport.ResolveCallParams(s.t, opts...)
 	return s.t.Do(ctx, "POST", strings.Replace("/v3alpha1/compute/instances/{instance_id}/stop", "{instance_id}", url.PathEscape(instanceID), 1), nil, body, nil)
 }
 
 // UnassignIP calls POST /v3alpha1/compute/instances/{instance_id}/unassign-ip.
 // The API returns no payload for this call.
 func (s *InstancesService) UnassignIP(ctx context.Context, instanceID string, opts ...api.CallOption) error {
-	q := api.ResolveCallParams(s.t, opts...).Query()
+	q := transport.Query(transport.ResolveCallParams(s.t, opts...))
 	return s.t.Do(ctx, "POST", strings.Replace("/v3alpha1/compute/instances/{instance_id}/unassign-ip", "{instance_id}", url.PathEscape(instanceID), 1), q, nil, nil)
 }
 

@@ -110,8 +110,8 @@ the path. Responses are unwrapped: a wrapper with a single field
 field is an error; a list field returns `[]Instance`; an empty response
 returns only `error`; a wrapper with more fields is returned whole.
 
-All methods call `api.Transport.Do`. Auth, encoding and error decoding
-are hand-written there, never generated.
+All methods call `transport.Transport.Do` (`internal/transport`). Auth,
+encoding and error decoding are hand-written there, never generated.
 
 ### Error reasons (`reasons.go`)
 

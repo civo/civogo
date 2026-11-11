@@ -1,4 +1,4 @@
-package api
+package transport
 
 import (
 	"context"
@@ -8,6 +8,8 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/civo/civogo/v3/api"
 )
 
 func testTransport(t *testing.T, handler http.HandlerFunc) *Transport {
@@ -54,19 +56,19 @@ func TestDoDecodesErrorEnvelope(t *testing.T) {
 	})
 
 	err := tr.Do(context.Background(), "GET", "/v3/things/nope", nil, nil, nil)
-	var apiErr *Error
+	var apiErr *api.Error
 	if !errors.As(err, &apiErr) {
 		t.Fatalf("want *Error, got %T: %v", err, err)
 	}
-	if apiErr.HTTPStatus != 404 || apiErr.Status != StatusNotFound || apiErr.Message != "instance not found" ||
+	if apiErr.HTTPStatus != 404 || apiErr.Status != api.StatusNotFound || apiErr.Message != "instance not found" ||
 		apiErr.Reason != "INSTANCE_NOT_FOUND" || apiErr.Domain != "compute.civo.com" || apiErr.RequestID != "req-1" ||
 		len(apiErr.Details) != 1 {
 		t.Errorf("unexpected error: %+v", apiErr)
 	}
-	if !IsNotFound(err) || !HasReason(err, "INSTANCE_NOT_FOUND") {
+	if !api.IsNotFound(err) || !api.HasReason(err, "INSTANCE_NOT_FOUND") {
 		t.Error("IsNotFound/HasReason = false")
 	}
-	if IsRateLimited(err) || HasReason(err, "SIZE_NOT_FOUND") {
+	if api.IsRateLimited(err) || api.HasReason(err, "SIZE_NOT_FOUND") {
 		t.Error("IsRateLimited/HasReason matched wrongly")
 	}
 }
@@ -82,14 +84,14 @@ func TestDoDecodesViolations(t *testing.T) {
 	})
 
 	err := tr.Do(context.Background(), "POST", "/v3/things", nil, nil, nil)
-	var apiErr *Error
+	var apiErr *api.Error
 	if !errors.As(err, &apiErr) {
 		t.Fatalf("want *Error, got %T: %v", err, err)
 	}
-	if !HasReason(err, "REQUEST_VALIDATION_FAILED") || !IsInvalidArgument(err) {
+	if !api.HasReason(err, "REQUEST_VALIDATION_FAILED") || !api.IsInvalidArgument(err) {
 		t.Errorf("reason/status not decoded: %+v", apiErr)
 	}
-	if len(apiErr.FieldViolations) != 1 || apiErr.FieldViolations[0] != (FieldViolation{"account_id", "must be a valid UUID"}) {
+	if len(apiErr.FieldViolations) != 1 || apiErr.FieldViolations[0] != (api.FieldViolation{Field: "account_id", Description: "must be a valid UUID"}) {
 		t.Errorf("FieldViolations = %+v", apiErr.FieldViolations)
 	}
 	if len(apiErr.QuotaViolations) != 1 || apiErr.QuotaViolations[0].Subject != "instances" {
@@ -110,7 +112,7 @@ func TestDoKeepsUnstructuredErrorBodies(t *testing.T) {
 	})
 
 	err := tr.Do(context.Background(), "GET", "/", nil, nil, nil)
-	var apiErr *Error
+	var apiErr *api.Error
 	if !errors.As(err, &apiErr) {
 		t.Fatalf("want *Error, got %T", err)
 	}
@@ -126,7 +128,7 @@ func TestIsNotFoundIgnoresBare404(t *testing.T) {
 	})
 
 	err := tr.Do(context.Background(), "GET", "/", nil, nil, nil)
-	if err == nil || IsNotFound(err) {
+	if err == nil || api.IsNotFound(err) {
 		t.Errorf("IsNotFound = true for a bare 404: %v", err)
 	}
 }
@@ -148,10 +150,10 @@ func TestNewTransportRequiresToken(t *testing.T) {
 
 func TestAllIteratesEveryPage(t *testing.T) {
 	fetched := 0
-	fetch := func(p PageParams) ([]int, *PageInfo, error) {
+	fetch := func(p api.PageParams) ([]int, *api.PageInfo, error) {
 		fetched++
 		items := []int{p.Page*10 + 1, p.Page*10 + 2}
-		return items, &PageInfo{Page: p.Page, TotalPages: 3}, nil
+		return items, &api.PageInfo{Page: p.Page, TotalPages: 3}, nil
 	}
 
 	var got []int
@@ -168,9 +170,9 @@ func TestAllIteratesEveryPage(t *testing.T) {
 
 func TestAllStopsOnBreak(t *testing.T) {
 	fetched := 0
-	fetch := func(p PageParams) ([]int, *PageInfo, error) {
+	fetch := func(p api.PageParams) ([]int, *api.PageInfo, error) {
 		fetched++
-		return []int{1, 2}, &PageInfo{Page: p.Page, TotalPages: 100}, nil
+		return []int{1, 2}, &api.PageInfo{Page: p.Page, TotalPages: 100}, nil
 	}
 	for _, err := range All(fetch) {
 		if err != nil {
@@ -185,11 +187,11 @@ func TestAllStopsOnBreak(t *testing.T) {
 
 func TestAllYieldsFetchError(t *testing.T) {
 	boom := errors.New("boom")
-	fetch := func(p PageParams) ([]int, *PageInfo, error) {
+	fetch := func(p api.PageParams) ([]int, *api.PageInfo, error) {
 		if p.Page == 2 {
 			return nil, nil, boom
 		}
-		return []int{1}, &PageInfo{Page: p.Page, TotalPages: 5}, nil
+		return []int{1}, &api.PageInfo{Page: p.Page, TotalPages: 5}, nil
 	}
 	var errs []error
 	var items int
@@ -212,20 +214,20 @@ func TestCallParamsResolution(t *testing.T) {
 	if p.Region != "lon1" {
 		t.Errorf("default region not applied: %+v", p)
 	}
-	p = ResolveCallParams(tr, WithRegion("fra1"), WithAccountID("acc-1"))
+	p = ResolveCallParams(tr, api.WithRegion("fra1"), api.WithAccountID("acc-1"))
 	if p.Region != "fra1" || p.AccountID != "acc-1" {
 		t.Errorf("options not applied: %+v", p)
 	}
-	q := p.Query()
+	q := Query(p)
 	if q.Get("region") != "fra1" || q.Get("account_id") != "acc-1" {
 		t.Errorf("query = %v", q)
 	}
 }
 
 func TestAllStopsOnEmptyResult(t *testing.T) {
-	for _, info := range []*PageInfo{{TotalPages: 0}, nil} {
+	for _, info := range []*api.PageInfo{{TotalPages: 0}, nil} {
 		fetched := 0
-		fetch := func(p PageParams) ([]int, *PageInfo, error) {
+		fetch := func(p api.PageParams) ([]int, *api.PageInfo, error) {
 			fetched++
 			if fetched > 3 {
 				t.Fatal("still fetching")
@@ -256,17 +258,17 @@ func TestErrorClassification(t *testing.T) {
 		is     func(error) bool
 		expect bool
 	}{
-		{"not found", 404, envelope("NOT_FOUND", "INSTANCE_NOT_FOUND"), IsNotFound, true},
-		{"routing 404 without reason", 404, envelope("NOT_FOUND", ""), IsNotFound, false},
-		{"already exists", 409, envelope("ALREADY_EXISTS", "X_EXISTS"), IsAlreadyExists, true},
-		{"already exists is not not-found", 409, envelope("ALREADY_EXISTS", "X_EXISTS"), IsNotFound, false},
-		{"bare 409", 409, "conflict", IsAlreadyExists, true},
-		{"bare 401", 401, "", IsAuthFailure, true},
-		{"bare 403", 403, "", IsAuthFailure, true},
-		{"permission denied", 403, envelope("PERMISSION_DENIED", "R"), IsAuthFailure, true},
-		{"bare 429", 429, "slow down", IsRateLimited, true},
-		{"bare 400", 400, "bad", IsInvalidArgument, true},
-		{"bare 500", 500, "boom", IsInvalidArgument, false},
+		{"not found", 404, envelope("NOT_FOUND", "INSTANCE_NOT_FOUND"), api.IsNotFound, true},
+		{"routing 404 without reason", 404, envelope("NOT_FOUND", ""), api.IsNotFound, false},
+		{"already exists", 409, envelope("ALREADY_EXISTS", "X_EXISTS"), api.IsAlreadyExists, true},
+		{"already exists is not not-found", 409, envelope("ALREADY_EXISTS", "X_EXISTS"), api.IsNotFound, false},
+		{"bare 409", 409, "conflict", api.IsAlreadyExists, true},
+		{"bare 401", 401, "", api.IsAuthFailure, true},
+		{"bare 403", 403, "", api.IsAuthFailure, true},
+		{"permission denied", 403, envelope("PERMISSION_DENIED", "R"), api.IsAuthFailure, true},
+		{"bare 429", 429, "slow down", api.IsRateLimited, true},
+		{"bare 400", 400, "bad", api.IsInvalidArgument, true},
+		{"bare 500", 500, "boom", api.IsInvalidArgument, false},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			err := decodeError(tc.code, []byte(tc.body))
