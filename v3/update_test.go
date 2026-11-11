@@ -29,7 +29,11 @@ func TestUpdateSendsExplicitFalse(t *testing.T) {
 			t.Errorf("body %s missing %s", body, want)
 		}
 	}
-	if strings.Contains(body, "hostname") {
-		t.Errorf("unset optional field sent: %s", body)
+	// Unset fields must stay off the wire: an empty placement_rule would
+	// make the server wipe the instance's placement constraints.
+	for _, unset := range []string{"hostname", "placement_rule"} {
+		if strings.Contains(body, unset) {
+			t.Errorf("unset field %s sent: %s", unset, body)
+		}
 	}
 }

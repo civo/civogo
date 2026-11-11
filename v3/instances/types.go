@@ -86,8 +86,8 @@ type UpdateInstanceRequest struct {
 	// New network bandwidth limit.
 	NetworkBandwidthLimit *string `json:"network_bandwidth_limit,omitempty"`
 	// New notes for the instance.
-	Notes         *string       `json:"notes,omitempty"`
-	PlacementRule PlacementRule `json:"placement_rule,omitempty"`
+	Notes         *string        `json:"notes,omitempty"`
+	PlacementRule *PlacementRule `json:"placement_rule,omitempty"`
 	// Whether a public IPv4 address is required.
 	PublicIPRequired *bool `json:"public_ip_required,omitempty"`
 	// The region of the instance.
@@ -132,7 +132,7 @@ type AttachedVolume struct {
 
 // CreateInstanceConsoleResponse — Response containing the console session.
 type CreateInstanceConsoleResponse struct {
-	Console InstanceConsole `json:"console,omitempty"`
+	Console *InstanceConsole `json:"console,omitempty"`
 }
 
 // CreateInstanceRequest — Request to create a new compute instance.
@@ -162,8 +162,8 @@ type CreateInstanceRequest struct {
 	// The network ID to place the instance in.
 	NetworkID string `json:"network_id,omitempty"`
 	// Notes for the instance.
-	Notes         string        `json:"notes,omitempty"`
-	PlacementRule PlacementRule `json:"placement_rule,omitempty"`
+	Notes         string         `json:"notes,omitempty"`
+	PlacementRule *PlacementRule `json:"placement_rule,omitempty"`
 	// Whether a public IPv4 address is required.
 	PublicIPRequired bool `json:"public_ip_required,omitempty"`
 	// The region to create the instance in.
@@ -207,7 +207,7 @@ type DeleteInstanceConsoleResponse struct {
 
 // DeleteInstanceResponse — Response containing the deleted compute instance.
 type DeleteInstanceResponse struct {
-	Instance Instance `json:"instance,omitempty"`
+	Instance *Instance `json:"instance,omitempty"`
 }
 
 // DetachVolumeFromInstanceResponse — Response for detaching a volume from a compute instance.
@@ -216,12 +216,12 @@ type DetachVolumeFromInstanceResponse struct {
 
 // DisableInstanceRecoveryModeResponse — Response containing the recovery mode.
 type DisableInstanceRecoveryModeResponse struct {
-	RecoveryMode InstanceRecoveryMode `json:"recovery_mode,omitempty"`
+	RecoveryMode *InstanceRecoveryMode `json:"recovery_mode,omitempty"`
 }
 
 // EnableInstanceRecoveryModeResponse — Response containing the recovery mode.
 type EnableInstanceRecoveryModeResponse struct {
-	RecoveryMode InstanceRecoveryMode `json:"recovery_mode,omitempty"`
+	RecoveryMode *InstanceRecoveryMode `json:"recovery_mode,omitempty"`
 }
 
 // ExpandInstanceRootDiskResponse — Response containing the compute instance after a root-disk expansion was
@@ -230,22 +230,22 @@ type EnableInstanceRecoveryModeResponse struct {
 // (status/reason) for progress and outcome. root_disk.current_size_gb
 // converges to the target only on success.
 type ExpandInstanceRootDiskResponse struct {
-	Instance Instance `json:"instance,omitempty"`
+	Instance *Instance `json:"instance,omitempty"`
 }
 
 // GetInstanceConsoleResponse — Response containing the console session.
 type GetInstanceConsoleResponse struct {
-	Console InstanceConsole `json:"console,omitempty"`
+	Console *InstanceConsole `json:"console,omitempty"`
 }
 
 // GetInstanceRecoveryModeResponse — Response containing the recovery mode.
 type GetInstanceRecoveryModeResponse struct {
-	RecoveryMode InstanceRecoveryMode `json:"recovery_mode,omitempty"`
+	RecoveryMode *InstanceRecoveryMode `json:"recovery_mode,omitempty"`
 }
 
 // GetInstanceResponse — Response containing a single compute instance.
 type GetInstanceResponse struct {
-	Instance Instance `json:"instance,omitempty"`
+	Instance *Instance `json:"instance,omitempty"`
 }
 
 // HardRebootInstanceResponse — Response for an hard rebooted instance.
@@ -312,8 +312,8 @@ type Instance struct {
 	// Name of the network the instance is attached to.
 	NetworkName string `json:"network_name,omitempty"`
 	// Free-form notes attached to the instance by the user.
-	Notes         string        `json:"notes,omitempty"`
-	PlacementRule PlacementRule `json:"placement_rule,omitempty"`
+	Notes         string         `json:"notes,omitempty"`
+	PlacementRule *PlacementRule `json:"placement_rule,omitempty"`
 	// Private IPv4 address assigned within the instance's network.
 	PrivateIP string `json:"private_ip,omitempty"`
 	// Public IPv4 address assigned to the instance, if any.
@@ -331,8 +331,8 @@ type Instance struct {
 	// Name of the reserved IP currently assigned to the instance, if any.
 	ReservedIPName string `json:"reserved_ip_name,omitempty"`
 	// Reverse-DNS hostname configured for the instance's public IP.
-	ReverseDNS string   `json:"reverse_dns,omitempty"`
-	RootDisk   RootDisk `json:"root_disk,omitempty"`
+	ReverseDNS string    `json:"reverse_dns,omitempty"`
+	RootDisk   *RootDisk `json:"root_disk,omitempty"`
 	// Instance size identifier (e.g. "g4s.medium"); determines CPU, RAM and disk allocation.
 	Size string `json:"size,omitempty"`
 	// Human-readable label for the instance size (e.g. "Medium").
@@ -422,7 +422,7 @@ type PlacementRule struct {
 
 // ResizeInstanceResponse — Response containing the resized compute instance.
 type ResizeInstanceResponse struct {
-	Instance Instance `json:"instance,omitempty"`
+	Instance *Instance `json:"instance,omitempty"`
 }
 
 // RootDisk describes the instance's root disk: its provisioned size, any
@@ -448,8 +448,8 @@ type ResizeInstanceResponse struct {
 type RootDisk struct {
 	// The provisioned size of the root disk in GB. Grows only when an expansion
 	// completes; progress and outcome are reported via expansion.
-	CurrentSizeGB int               `json:"current_size_gb,omitempty"`
-	Expansion     RootDiskExpansion `json:"expansion,omitempty"`
+	CurrentSizeGB int                `json:"current_size_gb,omitempty"`
+	Expansion     *RootDiskExpansion `json:"expansion,omitempty"`
 	// The last requested root disk size in GB. Not rolled back if an expansion
 	// is rejected or times out, so it may exceed current_size_gb indefinitely
 	// after the expansion settled.
@@ -564,5 +564,5 @@ type UnassignIPFromInstanceResponse struct {
 
 // UpdateInstanceResponse — Response containing the updated compute instance.
 type UpdateInstanceResponse struct {
-	Instance Instance `json:"instance,omitempty"`
+	Instance *Instance `json:"instance,omitempty"`
 }

@@ -49,6 +49,10 @@ func TestRenderReasons(t *testing.T) {
 
 func TestFieldTypeNullable(t *testing.T) {
 	g := &generator{spec: &spec{}}
+	g.spec.Components.Schemas = map[string]*schema{
+		"v3alpha1PlacementRule":  {Type: "object", Properties: map[string]*schema{"x": {Type: "string"}}},
+		"v3alpha1InstanceStatus": {Type: "string", Enum: []string{"A"}},
+	}
 	for _, tc := range []struct {
 		s    *schema
 		want string
@@ -57,6 +61,9 @@ func TestFieldTypeNullable(t *testing.T) {
 		{&schema{Type: "string", Nullable: true}, "*string"},
 		{&schema{Type: "boolean"}, "bool"},
 		{&schema{Type: "array", Items: &schema{Type: "string"}, Nullable: true}, "[]string"},
+		{&schema{Ref: "#/components/schemas/v3alpha1PlacementRule"}, "*PlacementRule"},
+		{&schema{Ref: "#/components/schemas/v3alpha1InstanceStatus"}, "InstanceStatus"},
+		{&schema{Ref: "#/components/schemas/v1PageInfo"}, "api.PageInfo"},
 	} {
 		if got := g.fieldType(tc.s); got != tc.want {
 			t.Errorf("fieldType(%+v) = %s, want %s", tc.s, got, tc.want)

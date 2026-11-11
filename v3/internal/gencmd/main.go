@@ -340,15 +340,33 @@ func (g *generator) goType(s *schema) string {
 	return "json.RawMessage"
 }
 
-// fieldType is goType for a struct field. A proto3 optional scalar
-// (nullable in the spec) becomes a pointer, so its zero value can be sent:
-// with omitempty, nil omits the field and a pointer to false or "" sends it.
+// fieldType is goType for a struct field, made a pointer where the field
+// has presence, so that leaving it unset omits it from the JSON:
+//   - a proto3 optional scalar (nullable in the spec), so its zero value
+//     can be sent: nil omits it, a pointer to false or "" sends it;
+//   - a nested message, since omitempty never omits a struct and an empty
+//     object is not the same request as an absent one.
 func (g *generator) fieldType(s *schema) string {
 	t := g.goType(s)
 	if s.Nullable && s.Ref == "" && s.Type != "array" && s.Type != "object" {
 		return "*" + t
 	}
+	if g.isMessageRef(s) {
+		return "*" + t
+	}
 	return t
+}
+
+// isMessageRef reports whether s references a generated message type
+// (not an enum, and not a type mapped to the hand-written core).
+func (g *generator) isMessageRef(s *schema) bool {
+	switch ref := s.refName(); ref {
+	case "", "v1PageInfo", "protobufAny":
+		return false
+	default:
+		target := g.spec.Components.Schemas[ref]
+		return target != nil && len(target.Enum) == 0
+	}
 }
 
 // --- types.go ---
