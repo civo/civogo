@@ -15,7 +15,7 @@ jobs:
       uses: golang/govulncheck-action@v1
       with:
         # The action runs with GOTOOLCHAIN=local, so the scan uses exactly the Go it installs:
-        # read the toolchain line from go.mod so govulncheck checks the same patched standard
+        # read the Go version from go.mod so govulncheck checks the same patched standard
         # library that test and lint build with.
         go-version-input: ""
         go-version-file: go.mod
