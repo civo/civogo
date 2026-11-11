@@ -23,7 +23,7 @@ import (
 // all of its services. Adding a service means adding an entry to services;
 // adding a product means adding a package, selected with -pkg.
 type packageDef struct {
-	name     string // Go package name and output directory
+	name     string // Go package name and output directory; set from the packages key
 	title    string // product name used in docs, e.g. "Compute"
 	services []serviceDef
 }
@@ -37,7 +37,6 @@ type serviceDef struct {
 
 var packages = map[string]packageDef{
 	"compute": {
-		name:  "compute",
 		title: "Compute",
 		services: []serviceDef{
 			{
@@ -165,6 +164,7 @@ func main() {
 	if !ok {
 		fatal(fmt.Errorf("unknown package %q", *pkgName))
 	}
+	pkg.name = *pkgName
 
 	raw, err := os.ReadFile(*specPath)
 	if err != nil {
@@ -201,7 +201,7 @@ func writeFile(outDir, pkg, name string, src []byte) {
 	if err != nil {
 		// Write the unformatted source anyway so the error is debuggable.
 		_ = os.WriteFile(outDir+"/"+pkg+"/"+name+".broken", src, 0o644)
-		fatal(fmt.Errorf("%s/%s does not compile: %w", pkg, name, err))
+		fatal(fmt.Errorf("%s/%s does not parse: %w", pkg, name, err))
 	}
 	if err := os.MkdirAll(outDir+"/"+pkg, 0o755); err != nil {
 		fatal(err)
@@ -247,6 +247,8 @@ func (g *generator) collectOps(svc serviceDef) []opInfo {
 					info.pathParams = append(info.pathParams, p.Name)
 				case "query":
 					info.query = append(info.query, p)
+				default:
+					fatal(fmt.Errorf("%s: %s parameter %q is not supported", op.OperationID, p.In, p.Name))
 				}
 			}
 			if op.RequestBody != nil {
@@ -474,6 +476,9 @@ func writeImports(b *strings.Builder, src string) {
 	if strings.Contains(src, "fmt.") {
 		imports = append(imports, `"fmt"`)
 	}
+	if strings.Contains(src, "errors.New") {
+		imports = append(imports, `"errors"`)
+	}
 	if len(imports) == 0 {
 		return
 	}
@@ -536,7 +541,13 @@ func (g *generator) renderService(svc serviceDef, ops []opInfo) []byte {
 	fmt.Fprintf(body, "// %sService is the %s %s API.\ntype %sService struct {\nt *api.Transport\n}\n\n",
 		svc.name, g.pkg.title, strings.ToLower(svc.name), svc.name)
 
+	lists := 0
 	for _, op := range ops {
+		if strings.HasPrefix(op.name, "List") {
+			if lists++; lists > 1 {
+				fatal(fmt.Errorf("service %s has more than one list operation", svc.name))
+			}
+		}
 		g.renderMethod(body, svc, op)
 	}
 
@@ -585,6 +596,11 @@ func (g *generator) renderMethod(b *strings.Builder, svc serviceDef, op opInfo) 
 		g.renderListMethod(b, svc, op)
 		return
 	}
+	for _, p := range op.query {
+		if !trivial || op.bodyRef != "" || (p.Name != "region" && p.Name != "account_id") {
+			fatal(fmt.Errorf("%s %s: query parameter %q is not supported", op.httpMethod, op.path, p.Name))
+		}
+	}
 
 	writeMethodDoc(b, op, retType)
 	fmt.Fprintf(b, "func (s *%sService) %s(%s) %s {\n", svc.name, op.name, params, rets)
@@ -600,20 +616,6 @@ func (g *generator) renderMethod(b *strings.Builder, svc serviceDef, op opInfo) 
 		b.WriteString("if req.Region == \"\" {\nreq.Region = s.t.DefaultRegion()\n}\n")
 	}
 
-	errRet := "return err"
-	okRet := "return nil"
-	out := "nil"
-	if retType != "" {
-		fmt.Fprintf(b, "var out struct {\nV %s `json:\"%s\"`\n}\n", retType, retField)
-		out = "&out"
-		if !strings.HasPrefix(retType, "[]") {
-			okRet = "return &out.V, nil"
-		} else {
-			okRet = "return out.V, nil"
-		}
-		errRet = "return nil, err"
-	}
-
 	query, bodyArg := "nil", "nil"
 	if trivial && op.bodyRef == "" {
 		query = "q"
@@ -622,15 +624,30 @@ func (g *generator) renderMethod(b *strings.Builder, svc serviceDef, op opInfo) 
 	} else if reqStruct != "" {
 		bodyArg = "req"
 	}
+	call := fmt.Sprintf("s.t.Do(ctx, %q, %s, %s, %s, ", op.httpMethod, pathExpr, query, bodyArg)
 
-	fmt.Fprintf(b, "if err := s.t.Do(ctx, %q, %s, %s, %s, %s); err != nil {\n%s\n}\n%s\n}\n\n",
-		op.httpMethod, pathExpr, query, bodyArg, out, errRet, okRet)
+	switch {
+	case retType == "":
+		fmt.Fprintf(b, "return %snil)\n}\n\n", call)
+	case retField == "":
+		// A wrapper with several fields is returned whole.
+		fmt.Fprintf(b, "var out %s\nif err := %s&out); err != nil {\nreturn nil, err\n}\nreturn &out, nil\n}\n\n", retType, call)
+	case strings.HasPrefix(retType, "[]"):
+		// protojson omits an empty list, so an absent field is a valid empty result.
+		fmt.Fprintf(b, "var out struct {\nV %s `json:\"%s\"`\n}\nif err := %s&out); err != nil {\nreturn nil, err\n}\nreturn out.V, nil\n}\n\n", retType, retField, call)
+	default:
+		fmt.Fprintf(b, "var out struct {\nV *%s `json:\"%s\"`\n}\nif err := %s&out); err != nil {\nreturn nil, err\n}\nif out.V == nil {\nreturn nil, errors.New(%q)\n}\nreturn out.V, nil\n}\n\n",
+			retType, retField, call, fmt.Sprintf("civo: %s response has no %q field", op.name, retField))
+	}
 }
 
 func listRequestType(svc serviceDef) string { return "List" + svc.name + "Request" }
 
 // renderListMethod emits the list request type, List and All.
 func (g *generator) renderListMethod(b *strings.Builder, svc serviceDef, op opInfo) {
+	if len(op.pathParams) > 0 {
+		fatal(fmt.Errorf("%s %s: list path parameters are not supported", op.httpMethod, op.path))
+	}
 	respType := typeName(op.respRef)
 
 	reqType := listRequestType(svc)
@@ -639,6 +656,12 @@ func (g *generator) renderListMethod(b *strings.Builder, svc serviceDef, op opIn
 		switch p.Name {
 		case "pagination.page", "pagination.per_page":
 			continue // covered by Page
+		case "regions":
+			b.WriteString("// Regions to list from. Empty uses the client's default region.\nRegions []string\n")
+			continue
+		case "account_id":
+		default:
+			fatal(fmt.Errorf("%s %s: list query parameter %q is not supported", op.httpMethod, op.path, p.Name))
 		}
 		if d := strings.TrimSpace(p.Description); d != "" {
 			fmt.Fprintf(b, "// %s\n", d)
@@ -683,8 +706,9 @@ func (g *generator) renderListMethod(b *strings.Builder, svc serviceDef, op opIn
 	fmt.Fprintf(b, `// All lazily iterates every %s matching req across all pages.
 func (s *%sService) All(ctx context.Context, req %s) iter.Seq2[%s, error] {
 	return api.All(func(p api.PageParams) ([]%s, *api.PageInfo, error) {
-		req.Page = p
-		resp, err := s.List(ctx, req)
+		r := req
+		r.Page = p
+		resp, err := s.List(ctx, r)
 		if err != nil {
 			return nil, nil, err
 		}

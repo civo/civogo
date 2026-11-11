@@ -176,3 +176,36 @@ func TestNotFoundErrorFlow(t *testing.T) {
 		t.Errorf("error = %#v", err)
 	}
 }
+
+func TestGetEscapesID(t *testing.T) {
+	client := testClient(t, func(w http.ResponseWriter, r *http.Request) {
+		if got := r.URL.EscapedPath(); got != "/v3alpha1/compute/instances/a%20b%2Fc" {
+			t.Errorf("path = %s", got)
+		}
+		fmt.Fprint(w, `{"instance": {"id": "x"}}`)
+	})
+	if _, err := client.Compute.Instances.Get(context.Background(), "a b/c"); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestGetRejectsMissingWrapper(t *testing.T) {
+	client := testClient(t, func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, `{}`)
+	})
+	if inst, err := client.Compute.Instances.Get(context.Background(), "i-1"); err == nil {
+		t.Errorf("want error, got %+v", inst)
+	}
+}
+
+func TestWithUserAgent(t *testing.T) {
+	client := testClient(t, func(w http.ResponseWriter, r *http.Request) {
+		if got := r.Header.Get("User-Agent"); got != "myapp/1 civogo/v3" {
+			t.Errorf("User-Agent = %q", got)
+		}
+		fmt.Fprint(w, `{"instance": {"id": "x"}}`)
+	}, civogo.WithUserAgent("myapp/1"))
+	if _, err := client.Compute.Instances.Get(context.Background(), "x"); err != nil {
+		t.Fatal(err)
+	}
+}

@@ -16,7 +16,7 @@ func TestUpdateSendsExplicitFalse(t *testing.T) {
 	client := testClient(t, func(w http.ResponseWriter, r *http.Request) {
 		b, _ := io.ReadAll(r.Body)
 		body = string(b)
-		io.WriteString(w, `{"instance":{"id":"i-1"}}`)
+		_, _ = io.WriteString(w, `{"instance":{"id":"i-1"}}`)
 	})
 	if _, err := client.Compute.Instances.Update(context.Background(), "i-1", compute.UpdateInstanceRequest{
 		PublicIPRequired: civogo.Ptr(false),

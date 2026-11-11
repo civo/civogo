@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
 	"strings"
 )
 
@@ -16,10 +17,6 @@ const (
 	StatusResourceExhausted = "RESOURCE_EXHAUSTED"
 	StatusUnauthenticated   = "UNAUTHENTICATED"
 )
-
-// ReasonValidationFailed is the reason of every request rejected for
-// breaking a validation rule; FieldViolations names the offending fields.
-const ReasonValidationFailed = "REQUEST_VALIDATION_FAILED"
 
 // Error is the single error type returned for any v3 API failure.
 // Branch on Reason: it is the stable, machine-readable condition.
@@ -59,7 +56,11 @@ type QuotaViolation struct {
 
 func (e *Error) Error() string {
 	var b strings.Builder
-	fmt.Fprintf(&b, "civo: %s (http %d", e.Message, e.HTTPStatus)
+	msg := e.Message
+	if msg == "" {
+		msg = http.StatusText(e.HTTPStatus)
+	}
+	fmt.Fprintf(&b, "civo: %s (http %d", msg, e.HTTPStatus)
 	if e.Reason != "" {
 		fmt.Fprintf(&b, ", reason %s", e.Reason)
 	}
@@ -79,11 +80,12 @@ func HasReason(err error, reason string) bool {
 	return errors.As(err, &apiErr) && apiErr.Reason == reason
 }
 
-// IsNotFound reports whether err is a v3 API "not found" error. A bare 404
-// without the API's error envelope (a proxy, a wrong base URL) does not count.
+// IsNotFound reports whether err is a v3 API "not found" error. A 404
+// without the API's error envelope and reason (a proxy, a wrong base URL,
+// a route the server does not serve) does not count.
 func IsNotFound(err error) bool {
 	var apiErr *Error
-	return errors.As(err, &apiErr) && apiErr.Status == StatusNotFound
+	return errors.As(err, &apiErr) && apiErr.Status == StatusNotFound && apiErr.Reason != ""
 }
 
 // IsAlreadyExists reports whether err is a v3 API "already exists" error.

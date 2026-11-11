@@ -14,7 +14,7 @@ compute.openapi3.json
   ├─ compute/instances.go  InstancesService: one method per operation, plus List/All
   ├─ compute/types.go      one struct or enum per reachable schema
   └─ compute/reasons.go    ErrorReason enum → Reason* constants
-  then gofmt each file; abort if it does not compile
+  then gofmt each file; abort if it does not parse
 ```
 
 ## Running it
@@ -51,7 +51,8 @@ The `packages` map in `main.go` declares each package, selected with
 | `strip`      | `Instance`, `ToInstance`, …    | Tokens removed from method names         |
 
 Adding a Compute service (SSH keys, snapshots, …) means adding an entry;
-adding another API means adding a package and running with its spec.
+adding another API means adding a package, running with its spec, and
+wiring its `NewClient` into `Client` in `civogo.go` by hand.
 
 ### Method names
 
@@ -105,9 +106,9 @@ Each operation becomes one of three shapes:
 
 Path parameters (`{instance_id}`) become string arguments, escaped into
 the path. Responses are unwrapped: a wrapper with a single field
-(`{"instance": {...}}`) returns `*Instance`; a list field returns
-`[]Instance`; an empty response returns only `error`; a wrapper with more
-fields is returned whole.
+(`{"instance": {...}}`) returns `*Instance`, and a response missing that
+field is an error; a list field returns `[]Instance`; an empty response
+returns only `error`; a wrapper with more fields is returned whole.
 
 All methods call `api.Transport.Do`. Auth, encoding and error decoding
 are hand-written there, never generated.
@@ -131,9 +132,12 @@ written to `<file>.broken` and the generator exits non-zero.
 These hold for Compute today and are the first things to revisit when
 adding a service:
 
-- The List template hardcodes the `regions`, `account_id` and
-  `pagination.*` query parameters, and expects one array field plus
-  `page_info` in the response.
+- The List template sends only the `regions`, `account_id` and
+  `pagination.*` query parameters, takes no path parameters, and expects
+  one array field plus `page_info` in the response; one List per service.
+  Other operations take query parameters only as the simple-call
+  `region`/`account_id`, and only path and query parameters exist.
+  Anything else aborts generation rather than being silently dropped.
 - An operation is a list only if its name starts with `List`.
 - A body is "simple" only if all its properties are `region` or
   `account_id`.

@@ -86,7 +86,7 @@ func TestDoDecodesViolations(t *testing.T) {
 	if !errors.As(err, &apiErr) {
 		t.Fatalf("want *Error, got %T: %v", err, err)
 	}
-	if !HasReason(err, ReasonValidationFailed) || !IsInvalidArgument(err) {
+	if !HasReason(err, "REQUEST_VALIDATION_FAILED") || !IsInvalidArgument(err) {
 		t.Errorf("reason/status not decoded: %+v", apiErr)
 	}
 	if len(apiErr.FieldViolations) != 1 || apiErr.FieldViolations[0] != (FieldViolation{"account_id", "must be a valid UUID"}) {
@@ -172,7 +172,10 @@ func TestAllStopsOnBreak(t *testing.T) {
 		fetched++
 		return []int{1, 2}, &PageInfo{Page: p.Page, TotalPages: 100}, nil
 	}
-	for range All(fetch) {
+	for _, err := range All(fetch) {
+		if err != nil {
+			t.Fatal(err)
+		}
 		break
 	}
 	if fetched != 1 {
@@ -216,5 +219,91 @@ func TestCallParamsResolution(t *testing.T) {
 	q := p.Query()
 	if q.Get("region") != "fra1" || q.Get("account_id") != "acc-1" {
 		t.Errorf("query = %v", q)
+	}
+}
+
+func TestAllStopsOnEmptyResult(t *testing.T) {
+	for _, info := range []*PageInfo{{TotalPages: 0}, nil} {
+		fetched := 0
+		fetch := func(p PageParams) ([]int, *PageInfo, error) {
+			fetched++
+			if fetched > 3 {
+				t.Fatal("still fetching")
+			}
+			return nil, info, nil
+		}
+		for _, err := range All(fetch) {
+			t.Fatalf("yielded on an empty result: %v", err)
+		}
+		if fetched != 1 {
+			t.Errorf("info %+v: fetched %d pages", info, fetched)
+		}
+	}
+}
+
+func TestErrorClassification(t *testing.T) {
+	envelope := func(status, reason string) string {
+		d := ""
+		if reason != "" {
+			d = `{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"` + reason + `"}`
+		}
+		return `{"error":{"status":"` + status + `","message":"m","details":[` + d + `]}}`
+	}
+	for _, tc := range []struct {
+		name   string
+		code   int
+		body   string
+		is     func(error) bool
+		expect bool
+	}{
+		{"not found", 404, envelope("NOT_FOUND", "INSTANCE_NOT_FOUND"), IsNotFound, true},
+		{"routing 404 without reason", 404, envelope("NOT_FOUND", ""), IsNotFound, false},
+		{"already exists", 409, envelope("ALREADY_EXISTS", "X_EXISTS"), IsAlreadyExists, true},
+		{"already exists is not not-found", 409, envelope("ALREADY_EXISTS", "X_EXISTS"), IsNotFound, false},
+		{"bare 409", 409, "conflict", IsAlreadyExists, true},
+		{"bare 401", 401, "", IsAuthFailure, true},
+		{"bare 403", 403, "", IsAuthFailure, true},
+		{"permission denied", 403, envelope("PERMISSION_DENIED", "R"), IsAuthFailure, true},
+		{"bare 429", 429, "slow down", IsRateLimited, true},
+		{"bare 400", 400, "bad", IsInvalidArgument, true},
+		{"bare 500", 500, "boom", IsInvalidArgument, false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			err := decodeError(tc.code, []byte(tc.body))
+			if got := tc.is(err); got != tc.expect {
+				t.Errorf("got %v for %v", got, err)
+			}
+		})
+	}
+}
+
+func TestErrorMessageFallsBackToStatusText(t *testing.T) {
+	if got := decodeError(502, nil).Error(); got != "civo: Bad Gateway (http 502)" {
+		t.Errorf("Error() = %q", got)
+	}
+}
+
+func TestDoBuildsURLAndHeaders(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if got := r.URL.EscapedPath(); got != "/prefix/v3/things/a%20b%2Fc" {
+			t.Errorf("path = %s", got)
+		}
+		if r.Header.Get("Content-Type") != "application/json" || r.Header.Get("Accept") != "application/json" {
+			t.Errorf("headers = %v", r.Header)
+		}
+	}))
+	t.Cleanup(server.Close)
+	tr, err := NewTransport(Config{BaseURL: server.URL + "/prefix/", Token: "t"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := tr.Do(context.Background(), "POST", "/v3/things/a%20b%2Fc", nil, map[string]string{}, nil); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestNewTransportRejectsBaseURLWithoutScheme(t *testing.T) {
+	if _, err := NewTransport(Config{BaseURL: "api.civo.com", Token: "t"}); err == nil {
+		t.Error("want error for a base URL without scheme")
 	}
 }

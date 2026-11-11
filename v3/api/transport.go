@@ -39,6 +39,9 @@ func NewTransport(cfg Config) (*Transport, error) {
 	if err != nil {
 		return nil, fmt.Errorf("civo: invalid base URL %q: %w", cfg.BaseURL, err)
 	}
+	if u.Scheme == "" || u.Host == "" {
+		return nil, fmt.Errorf("civo: invalid base URL %q: want scheme and host", cfg.BaseURL)
+	}
 	hc := cfg.HTTPClient
 	if hc == nil {
 		hc = &http.Client{}
@@ -56,11 +59,16 @@ func NewTransport(cfg Config) (*Transport, error) {
 func (t *Transport) DefaultRegion() string { return t.defaultRegion }
 
 // Do performs one API call: it encodes body as JSON (when non-nil),
-// sends method to path with query, and decodes the JSON response into
+// sends method to path (already escaped) with query, and decodes the JSON response into
 // out (when non-nil). Any non-2xx response is returned as *Error.
 func (t *Transport) Do(ctx context.Context, method, path string, query url.Values, body, out any) error {
 	u := *t.baseURL
-	u.Path = strings.TrimSuffix(u.Path, "/") + path
+	u.RawPath = strings.TrimSuffix(t.baseURL.EscapedPath(), "/") + path
+	p, err := url.PathUnescape(u.RawPath)
+	if err != nil {
+		return fmt.Errorf("civo: invalid path %q: %w", path, err)
+	}
+	u.Path = p
 	if len(query) > 0 {
 		u.RawQuery = query.Encode()
 	}

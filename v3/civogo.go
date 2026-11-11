@@ -29,15 +29,23 @@ const DefaultBaseURL = "https://api.civo.com"
 // Error is the single error type returned for any v3 API failure.
 type Error = api.Error
 
-// Error-classification helpers, re-exported from the api package.
-var (
-	IsNotFound        = api.IsNotFound
-	IsAlreadyExists   = api.IsAlreadyExists
-	IsAuthFailure     = api.IsAuthFailure
-	IsRateLimited     = api.IsRateLimited
-	IsInvalidArgument = api.IsInvalidArgument
-	HasReason         = api.HasReason
-)
+// IsNotFound reports whether err is a v3 API "not found" error.
+func IsNotFound(err error) bool { return api.IsNotFound(err) }
+
+// IsAlreadyExists reports whether err is a v3 API "already exists" error.
+func IsAlreadyExists(err error) bool { return api.IsAlreadyExists(err) }
+
+// IsAuthFailure reports whether err is an authentication or authorization failure.
+func IsAuthFailure(err error) bool { return api.IsAuthFailure(err) }
+
+// IsRateLimited reports whether err is a rate-limit / quota-exhausted error.
+func IsRateLimited(err error) bool { return api.IsRateLimited(err) }
+
+// IsInvalidArgument reports whether err is a request-validation error.
+func IsInvalidArgument(err error) bool { return api.IsInvalidArgument(err) }
+
+// HasReason reports whether err is a v3 API error with the given reason.
+func HasReason(err error, reason string) bool { return api.HasReason(err, reason) }
 
 // Ptr returns a pointer to v, for setting optional request fields:
 //

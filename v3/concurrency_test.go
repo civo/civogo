@@ -41,3 +41,24 @@ func TestClientIsConcurrencySafe(t *testing.T) {
 	}
 	wg.Wait()
 }
+
+func TestAllIteratorIsReusableConcurrently(t *testing.T) {
+	client := testClient(t, func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, `{"instances": [{"id": "i-1"}], "page_info": {"total_pages": 2}}`)
+	})
+	seq := client.Compute.Instances.All(context.Background(), compute.ListInstancesRequest{})
+
+	var wg sync.WaitGroup
+	for range 4 {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for _, err := range seq {
+				if err != nil {
+					t.Error(err)
+				}
+			}
+		}()
+	}
+	wg.Wait()
+}

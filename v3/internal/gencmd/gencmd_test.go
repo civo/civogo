@@ -17,7 +17,9 @@ func TestSplitEnumDoc(t *testing.T) {
 }
 
 func TestRenderReasons(t *testing.T) {
-	g := &generator{pkg: packages["compute"], protoCommit: "abc", specName: "compute.openapi3.json", spec: &spec{}}
+	pkg := packages["compute"]
+	pkg.name = "compute"
+	g := &generator{pkg: pkg, protoCommit: "abc", specName: "compute.openapi3.json", spec: &spec{}}
 	if g.renderReasons() != nil {
 		t.Fatal("spec without ErrorReason must render nothing")
 	}
