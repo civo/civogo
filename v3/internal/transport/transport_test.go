@@ -224,6 +224,13 @@ func TestResolve(t *testing.T) {
 	if _, err := Resolve(tr, []api.CallOption{api.WithRegion("lon1"), api.WithRegion("fra1")}); err == nil {
 		t.Error("want error for two regions on a single-region call")
 	}
+	sc, err = Resolve(tr, []api.CallOption{api.WithRegion(""), api.WithRegion("fra1")})
+	if err != nil || sc.Region != "fra1" {
+		t.Errorf("empty region not ignored: %+v, %v", sc, err)
+	}
+	if sc, _ := Resolve(tr, []api.CallOption{api.WithRegion("")}); sc.Region != "lon1" {
+		t.Errorf("empty region dropped the default: %+v", sc)
+	}
 }
 
 func TestListQuery(t *testing.T) {

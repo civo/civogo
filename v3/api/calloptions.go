@@ -12,9 +12,14 @@ type CallOption func(*CallParams)
 
 // WithRegion targets the call at region instead of the client's default
 // region. List calls accept it several times and query every region given;
-// any other call fails if given more than one.
+// any other call fails if given more than one. An empty region is ignored,
+// so the default still applies.
 func WithRegion(region string) CallOption {
-	return func(p *CallParams) { p.Regions = append(p.Regions, region) }
+	return func(p *CallParams) {
+		if region != "" {
+			p.Regions = append(p.Regions, region)
+		}
+	}
 }
 
 // WithAccountID scopes the call to a specific account. Only needed when
