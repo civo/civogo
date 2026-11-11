@@ -1,7 +1,7 @@
 // Command gencmd generates the typed service packages of civogo/v3 from
 // a Civo v3 OpenAPI document, as emitted by grpc-gateway. It is
-// intentionally NOT a general OpenAPI generator: it
-// relies on the uniform shapes grpc-gateway produces.
+// intentionally NOT a general OpenAPI generator: it relies on the uniform
+// shapes grpc-gateway produces.
 //
 // Usage:
 //
