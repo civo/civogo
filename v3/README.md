@@ -1,7 +1,6 @@
 # civogo v3 (preview)
 
-Go SDK for the Civo v3 API. Design notes live in the vNEXT epic
-(civo/team/core&3); this module is the Compute PoC (&5).
+Go SDK for the Civo v3 API.
 
 ## Usage
 
@@ -50,13 +49,12 @@ standard library.
 ## Regenerating
 
 Regeneration is manual and must be run against the spec version that is
-**live in production** (not the proto repo's HEAD — see the epic for the
-drift rationale):
+**live in production**, not the latest unreleased one:
 
 ```sh
 go run ./internal/gencmd \
-  -spec ~/dev/civo/compute/proto/gen/openapi/civo/compute/v3alpha1/compute.openapi3.json \
-  -proto-commit "$(git -C ~/dev/civo/compute/proto rev-parse HEAD)"
+  -spec path/to/compute.openapi3.json \
+  -proto-commit <commit the spec was generated from>
 ```
 
 The proto commit is stamped into every generated file header. Running

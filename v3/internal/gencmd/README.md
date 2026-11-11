@@ -6,7 +6,7 @@ grpc-gateway emits from our protos, which keeps it small (one file,
 `main.go`).
 
 ```
-compute.openapi3.json (compute/proto, gen/openapi/...)
+compute.openapi3.json
   │  1. parse into a minimal model (paths, operations, schemas)
   │  2. select operations by path prefix   → /v3alpha1/compute/instances*
   │  3. walk $refs to find reachable types → only what those calls use
@@ -18,13 +18,13 @@ compute.openapi3.json (compute/proto, gen/openapi/...)
 
 ## Running it
 
-Run it manually, against the spec version that is live in production (not
-the proto repo's HEAD):
+Run it manually, against the spec version that is live in production, not
+the latest unreleased one:
 
 ```sh
 go run ./internal/gencmd \
-  -spec ~/dev/civo/compute/proto/gen/openapi/civo/compute/v3alpha1/compute.openapi3.json \
-  -proto-commit "$(git -C ~/dev/civo/compute/proto rev-parse HEAD)"
+  -spec path/to/compute.openapi3.json \
+  -proto-commit <commit the spec was generated from>
 ```
 
 The output is deterministic: running it twice on the same spec gives a zero
