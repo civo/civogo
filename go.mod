@@ -2,7 +2,7 @@ module github.com/civo/civogo
 
 go 1.26.0
 
-toolchain go1.26.10
+toolchain go1.26.11
 
 require (
 	github.com/google/go-querystring v1.1.0
