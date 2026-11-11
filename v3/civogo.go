@@ -7,10 +7,11 @@
 //
 //	inst, err := client.Compute.Instances.Get(ctx, instanceID)
 //
-// List endpoints accept multiple regions and report real server-side
-// pagination; use All for lazy iteration over every page:
+// Every call takes api.WithRegion to override the default region. List
+// endpoints accept it several times to query multiple regions, and report
+// real server-side pagination; use All for lazy iteration over every page:
 //
-//	for inst, err := range client.Compute.Instances.All(ctx, compute.ListInstancesRequest{Regions: []string{"lon1", "fra1"}}) {
+//	for inst, err := range client.Compute.Instances.All(ctx, compute.ListInstancesRequest{}, api.WithRegion("lon1"), api.WithRegion("fra1")) {
 //		if err != nil { ... }
 //		fmt.Println(inst.Hostname)
 //	}

@@ -207,20 +207,34 @@ func TestAllYieldsFetchError(t *testing.T) {
 	}
 }
 
-func TestCallParamsResolution(t *testing.T) {
+func TestResolve(t *testing.T) {
 	tr := testTransport(t, func(w http.ResponseWriter, r *http.Request) {})
 
-	p := ResolveCallParams(tr)
-	if p.Region != "lon1" {
-		t.Errorf("default region not applied: %+v", p)
+	sc, err := Resolve(tr, nil)
+	if err != nil || sc != (Scope{Region: "lon1"}) {
+		t.Errorf("default region not applied: %+v, %v", sc, err)
 	}
-	p = ResolveCallParams(tr, api.WithRegion("fra1"), api.WithAccountID("acc-1"))
-	if p.Region != "fra1" || p.AccountID != "acc-1" {
-		t.Errorf("options not applied: %+v", p)
+	sc, err = Resolve(tr, []api.CallOption{api.WithRegion("fra1"), api.WithAccountID("acc-1")})
+	if err != nil || sc != (Scope{Region: "fra1", AccountID: "acc-1"}) {
+		t.Errorf("options not applied: %+v, %v", sc, err)
 	}
-	q := Query(p)
-	if q.Get("region") != "fra1" || q.Get("account_id") != "acc-1" {
+	if q := sc.Query(); q.Get("region") != "fra1" || q.Get("account_id") != "acc-1" {
 		t.Errorf("query = %v", q)
+	}
+	if _, err := Resolve(tr, []api.CallOption{api.WithRegion("lon1"), api.WithRegion("fra1")}); err == nil {
+		t.Error("want error for two regions on a single-region call")
+	}
+}
+
+func TestListQuery(t *testing.T) {
+	tr := testTransport(t, func(w http.ResponseWriter, r *http.Request) {})
+
+	if q := ListQuery(tr, nil); q.Encode() != "regions=lon1" {
+		t.Errorf("default query = %s", q.Encode())
+	}
+	q := ListQuery(tr, []api.CallOption{api.WithRegion("lon1"), api.WithRegion("fra1"), api.WithAccountID("acc-1")})
+	if q.Encode() != "account_id=acc-1&regions=lon1&regions=fra1" {
+		t.Errorf("query = %s", q.Encode())
 	}
 }
 

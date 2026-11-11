@@ -44,9 +44,8 @@ func TestListInstancesMultiRegion(t *testing.T) {
 	})
 
 	resp, err := client.Compute.Instances.List(context.Background(), compute.ListInstancesRequest{
-		Regions: []string{"lon1", "fra1"},
-		Page:    api.PageParams{PerPage: 50},
-	})
+		Page: api.PageParams{PerPage: 50},
+	}, api.WithRegion("lon1"), api.WithRegion("fra1"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -113,28 +112,35 @@ func TestGetInstanceUnwraps(t *testing.T) {
 	}
 }
 
-func TestCreateInstanceDefaultsRegionWithoutMutatingRequest(t *testing.T) {
+func TestCreateInstanceMergesScopeIntoBody(t *testing.T) {
 	client := testClient(t, func(w http.ResponseWriter, r *http.Request) {
 		var body map[string]any
 		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 			t.Fatal(err)
 		}
-		if body["region"] != "lon1" || body["hostname"] != "web-1" {
+		if body["region"] != "fra1" || body["account_id"] != "acc-1" || body["hostname"] != "web-1" || len(body) != 3 {
 			t.Errorf("body = %v", body)
 		}
-		fmt.Fprint(w, `{"instances": [{"id": "i-new", "region": "lon1"}]}`)
+		fmt.Fprint(w, `{"instances": [{"id": "i-new", "region": "fra1"}]}`)
 	}, civogo.WithDefaultRegion("lon1"))
 
-	req := compute.CreateInstanceRequest{Hostname: "web-1"}
-	created, err := client.Compute.Instances.Create(context.Background(), req)
+	created, err := client.Compute.Instances.Create(context.Background(), compute.CreateInstanceRequest{Hostname: "web-1"},
+		api.WithRegion("fra1"), api.WithAccountID("acc-1"))
 	if err != nil {
 		t.Fatal(err)
 	}
 	if len(created) != 1 || created[0].ID != "i-new" {
 		t.Errorf("created = %+v", created)
 	}
-	if req.Region != "" {
-		t.Errorf("caller's request was mutated: %+v", req)
+}
+
+func TestSingleRegionCallRejectsSeveralRegions(t *testing.T) {
+	client := testClient(t, func(w http.ResponseWriter, r *http.Request) {
+		t.Error("request sent")
+	})
+	_, err := client.Compute.Instances.Get(context.Background(), "i-1", api.WithRegion("lon1"), api.WithRegion("fra1"))
+	if err == nil {
+		t.Fatal("want error")
 	}
 }
 

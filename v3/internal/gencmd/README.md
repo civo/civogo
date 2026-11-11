@@ -88,21 +88,23 @@ emits only those schemas. `v1PageInfo` maps to `api.PageInfo`;
 
 ### Methods (`<service>.go`)
 
-Each operation becomes one of three shapes:
+Every method ends in `opts ...api.CallOption`. `api.WithRegion` and
+`api.WithAccountID` scope the call, with the client's default region as
+fallback, so `region` and `account_id` are never fields of a generated
+request type. Each operation becomes one of three shapes:
 
 - **Simple call**: no body, or a body with only `region`/`account_id`
-  (Get, Delete, Start, Stop, …). Signature
-  `(ctx, id, opts ...api.CallOption)`; `api.WithRegion` and
-  `api.WithAccountID` scope the call, with the client's default region as
-  fallback. Sent as query parameters, or as the JSON body for POSTs that
-  declare one.
+  (Get, Delete, Start, Stop, …). Signature `(ctx, id, opts...)`. The
+  scope is sent as query parameters, or as the JSON body for POSTs that
+  declare one. More than one `WithRegion` is an error.
 - **Request struct** (Create, Update, Resize, …):
-  `(ctx, id, req XRequest)`. An empty `req.Region` is filled with the
-  default region; `req` is sent as JSON.
-- **List** (operation name starts with `List`): emits `ListInstancesRequest` from
-  the query parameters plus `Page`, `List` returning one page with the
+  `(ctx, id, req XRequest, opts...)`. `req` and the scope are merged into
+  one JSON body. More than one `WithRegion` is an error.
+- **List** (operation name starts with `List`): emits `ListInstancesRequest`
+  holding `Page`, `List(ctx, req, opts...)` returning one page with the
   server's pagination, and `All`, an `iter.Seq2` that pages through
-  `List` 100 items at a time until `total_pages`.
+  `List` 100 items at a time until `total_pages`. Every `WithRegion` is
+  sent as `regions`.
 
 Path parameters (`{instance_id}`) become string arguments, escaped into
 the path. Responses are unwrapped: a wrapper with a single field
@@ -132,12 +134,15 @@ written to `<file>.broken` and the generator exits non-zero.
 These hold for Compute today and are the first things to revisit when
 adding a service:
 
-- The List template sends only the `regions`, `account_id` and
-  `pagination.*` query parameters, takes no path parameters, and expects
-  one array field plus `page_info` in the response; one List per service.
-  Other operations take query parameters only as the simple-call
-  `region`/`account_id`, and only path and query parameters exist.
-  Anything else aborts generation rather than being silently dropped.
+- A List takes exactly the `regions`, `account_id` and `pagination.*`
+  query parameters and no path parameters, and returns one array field
+  plus `page_info`; one List per service. Every other operation takes
+  `region` and `account_id`, as query parameters when it has no body or
+  as body properties when it has one, and nothing else in the query. Only
+  path and query parameters exist. Anything else aborts generation rather
+  than being silently dropped.
+- A request body schema is used by one operation only: its `region` and
+  `account_id` are dropped from the generated type.
 - An operation is a list only if its name starts with `List`.
 - A body is "simple" only if all its properties are `region` or
   `account_id`.

@@ -61,9 +61,6 @@ func NewTransport(cfg Config) (*Transport, error) {
 	}, nil
 }
 
-// DefaultRegion returns the client-level default region, or "".
-func (t *Transport) DefaultRegion() string { return t.defaultRegion }
-
 // Do performs one API call: it encodes body as JSON (when non-nil),
 // sends method to path (already escaped) with query, and decodes the JSON response into
 // out (when non-nil). Any non-2xx response is returned as *Error.
@@ -178,29 +175,62 @@ func decodeError(httpStatus int, body []byte) *api.Error {
 	return e
 }
 
-// ResolveCallParams applies opts and falls back to the transport's
-// default region when none was chosen.
-func ResolveCallParams(t *Transport, opts ...api.CallOption) api.CallParams {
-	var p api.CallParams
-	for _, opt := range opts {
-		opt(&p)
-	}
-	if p.Region == "" {
-		p.Region = t.DefaultRegion()
-	}
-	return p
+// Scope is the region and account a single-region call targets. It is
+// sent as query parameters, or merged into the JSON body.
+type Scope struct {
+	Region    string `json:"region,omitempty"`
+	AccountID string `json:"account_id,omitempty"`
 }
 
-// Query renders call parameters as URL query values.
-func Query(p api.CallParams) url.Values {
+// Query renders the scope as URL query values.
+func (s Scope) Query() url.Values {
 	q := url.Values{}
-	if p.Region != "" {
-		q.Set("region", p.Region)
+	if s.Region != "" {
+		q.Set("region", s.Region)
+	}
+	if s.AccountID != "" {
+		q.Set("account_id", s.AccountID)
+	}
+	return q
+}
+
+// Resolve applies opts for a single-region call, falling back to the
+// client's default region. More than one region is an error.
+func Resolve(t *Transport, opts []api.CallOption) (Scope, error) {
+	p := t.apply(opts)
+	if len(p.Regions) > 1 {
+		return Scope{}, fmt.Errorf("civo: this call takes one region, got %d (%s)", len(p.Regions), strings.Join(p.Regions, ", "))
+	}
+	s := Scope{AccountID: p.AccountID}
+	if len(p.Regions) == 1 {
+		s.Region = p.Regions[0]
+	}
+	return s, nil
+}
+
+// ListQuery applies opts for a list call: every region given, or the
+// client's default region.
+func ListQuery(t *Transport, opts []api.CallOption) url.Values {
+	p := t.apply(opts)
+	q := url.Values{}
+	if len(p.Regions) > 0 {
+		q["regions"] = p.Regions
 	}
 	if p.AccountID != "" {
 		q.Set("account_id", p.AccountID)
 	}
 	return q
+}
+
+func (t *Transport) apply(opts []api.CallOption) api.CallParams {
+	var p api.CallParams
+	for _, opt := range opts {
+		opt(&p)
+	}
+	if len(p.Regions) == 0 && t.defaultRegion != "" {
+		p.Regions = []string{t.defaultRegion}
+	}
+	return p
 }
 
 const allPerPage = 100

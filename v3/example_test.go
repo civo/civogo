@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/civo/civogo/v3"
+	"github.com/civo/civogo/v3/api"
 	"github.com/civo/civogo/v3/compute"
 )
 
@@ -18,8 +19,8 @@ func Example() {
 		log.Fatal(err)
 	}
 
-	req := compute.ListInstancesRequest{Regions: []string{"lon1", "fra1"}}
-	for inst, err := range client.Compute.Instances.All(context.Background(), req) {
+	for inst, err := range client.Compute.Instances.All(context.Background(), compute.ListInstancesRequest{},
+		api.WithRegion("lon1"), api.WithRegion("fra1")) {
 		if err != nil {
 			log.Fatal(err)
 		}

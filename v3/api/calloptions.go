@@ -1,23 +1,24 @@
 package api
 
-// CallParams scope a call whose only inputs are the target resource, a
-// region and an optional account. They are sent as query parameters or as
-// the JSON body, depending on the operation.
+// CallParams scope a call: the regions it targets and, rarely, the account
+// it acts on. Build them with CallOptions.
 type CallParams struct {
-	Region    string `json:"region,omitempty"`
-	AccountID string `json:"account_id,omitempty"`
+	Regions   []string
+	AccountID string
 }
 
 // CallOption customises the scoping of a single API call.
 type CallOption func(*CallParams)
 
-// WithRegion targets the call at a specific region, overriding the
-// client-level default.
+// WithRegion targets the call at region instead of the client's default
+// region. List calls accept it several times and query every region given;
+// any other call fails if given more than one.
 func WithRegion(region string) CallOption {
-	return func(p *CallParams) { p.Region = region }
+	return func(p *CallParams) { p.Regions = append(p.Regions, region) }
 }
 
-// WithAccountID scopes the call to a specific account.
+// WithAccountID scopes the call to a specific account. Only needed when
+// authenticating with a JWT: an API key already identifies its account.
 func WithAccountID(accountID string) CallOption {
 	return func(p *CallParams) { p.AccountID = accountID }
 }

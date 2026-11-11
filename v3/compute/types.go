@@ -9,18 +9,14 @@ import (
 
 // AssignIPToInstanceRequest — Request to assign a reserved IP to a compute instance.
 type AssignIPToInstanceRequest struct {
-	AccountID string `json:"account_id,omitempty"`
-	Region    string `json:"region,omitempty"`
 	// Identifier for the reserved IP to assign. Accepts UUID, name, or label.
 	ReservedIPID string `json:"reserved_ip_id,omitempty"`
 }
 
 // AttachVolumeToInstanceRequest — Request to attach a volume to a compute instance.
 type AttachVolumeToInstanceRequest struct {
-	AccountID string `json:"account_id,omitempty"`
 	// Whether to attach the volume at boot time.
-	AttachAtBoot bool   `json:"attach_at_boot,omitempty"`
-	Region       string `json:"region,omitempty"`
+	AttachAtBoot bool `json:"attach_at_boot,omitempty"`
 	// Identifier for the volume to attach.
 	VolumeID string `json:"volume_id,omitempty"`
 }
@@ -28,33 +24,25 @@ type AttachVolumeToInstanceRequest struct {
 // CreateInstanceConsoleRequest — Request to start a console session on a compute instance. An instance has at
 // most one session: if one is already running, it is returned unchanged.
 type CreateInstanceConsoleRequest struct {
-	AccountID string `json:"account_id,omitempty"`
 	// How long the session lasts, between 5m and 24h. Defaults to 1h.
 	Duration string `json:"duration,omitempty"`
-	Region   string `json:"region,omitempty"`
 }
 
 // DetachVolumeFromInstanceRequest — Request to detach a volume from a compute instance.
 type DetachVolumeFromInstanceRequest struct {
-	AccountID string `json:"account_id,omitempty"`
-	Region    string `json:"region,omitempty"`
 	// Identifier for the volume to detach.
 	VolumeID string `json:"volume_id,omitempty"`
 }
 
 // EnableInstanceRecoveryModeRequest — Request to enable recovery mode on a compute instance.
 type EnableInstanceRecoveryModeRequest struct {
-	AccountID string `json:"account_id,omitempty"`
 	// Name of the recovery disk image to boot from. Defaults to the best match
 	// for the instance's operating system.
 	RecoveryImage *string `json:"recovery_image,omitempty"`
-	Region        string  `json:"region,omitempty"`
 }
 
 // ExpandInstanceRootDiskRequest — Request to expand the root disk of a compute instance.
 type ExpandInstanceRootDiskRequest struct {
-	AccountID string `json:"account_id,omitempty"`
-	Region    string `json:"region,omitempty"`
 	// The desired root disk size in GB; the target is absolute, not a delta. Set
 	// on the returned Instance as root_disk.target_size_gb; progress and outcome
 	// are reported via root_disk.expansion. Expansion is grow-only: this must be
@@ -67,16 +55,12 @@ type ExpandInstanceRootDiskRequest struct {
 
 // ResizeInstanceRequest — Request to resize a compute instance.
 type ResizeInstanceRequest struct {
-	AccountID string `json:"account_id,omitempty"`
-	Region    string `json:"region,omitempty"`
 	// The target size (e.g. "g4s.large"). Must be a valid, selectable instance size.
 	Size string `json:"size,omitempty"`
 }
 
 // UpdateInstanceRequest — Request to update an existing compute instance.
 type UpdateInstanceRequest struct {
-	// The account that owns the instance.
-	AccountID string `json:"account_id,omitempty"`
 	// New allowed IPs for the instance.
 	AllowedIps []string `json:"allowed_ips,omitempty"`
 	// New firewall ID to apply.
@@ -90,8 +74,6 @@ type UpdateInstanceRequest struct {
 	PlacementRule *PlacementRule `json:"placement_rule,omitempty"`
 	// Whether a public IPv4 address is required.
 	PublicIPRequired *bool `json:"public_ip_required,omitempty"`
-	// The region of the instance.
-	Region string `json:"region,omitempty"`
 	// Reserved IPv4 to assign (UUID, IP, or name). Empty string to unassign.
 	ReservedIPv4 *string `json:"reserved_ipv4,omitempty"`
 	// New reverse DNS entry for the instance.
@@ -137,8 +119,6 @@ type CreateInstanceConsoleResponse struct {
 
 // CreateInstanceRequest — Request to create a new compute instance.
 type CreateInstanceRequest struct {
-	// The account that owns the instance.
-	AccountID string `json:"account_id,omitempty"`
 	// Allowed IPs for the instance (requires advanced instance networking region feature).
 	AllowedIps []string `json:"allowed_ips,omitempty"`
 	// Cloud-init configuration to apply to the instance.
@@ -166,8 +146,6 @@ type CreateInstanceRequest struct {
 	PlacementRule *PlacementRule `json:"placement_rule,omitempty"`
 	// Whether a public IPv4 address is required.
 	PublicIPRequired bool `json:"public_ip_required,omitempty"`
-	// The region to create the instance in.
-	Region string `json:"region,omitempty"`
 	// Reserved IP ID to assign.
 	ReservedIPID string `json:"reserved_ip_id,omitempty"`
 	// Reverse DNS entry.

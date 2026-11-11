@@ -286,7 +286,7 @@ func (g *generator) reachableTypes(ops []opInfo) []string {
 		}
 	}
 	for _, op := range ops {
-		if !g.trivialBody(op.bodyRef) { // trivial bodies are transport.ResolveCallParams
+		if !g.trivialBody(op.bodyRef) { // trivial bodies are sent as transport.Scope
 			visit(op.bodyRef)
 		}
 		visit(op.respRef)
@@ -407,6 +407,12 @@ func (g *generator) renderTypes(ops []opInfo) []byte {
 	var b strings.Builder
 	b.WriteString(g.header())
 
+	// region and account_id of request bodies come from api.CallOption.
+	bodies := map[string]bool{}
+	for _, op := range ops {
+		bodies[op.bodyRef] = true
+	}
+
 	body := &strings.Builder{}
 	for _, name := range g.reachableTypes(ops) {
 		sch := g.spec.Components.Schemas[name]
@@ -423,6 +429,9 @@ func (g *generator) renderTypes(ops []opInfo) []byte {
 		writeDoc(body, tn, sch.Description)
 		fmt.Fprintf(body, "type %s struct {\n", tn)
 		for _, prop := range sortedKeys(sch.Properties) {
+			if bodies[name] && (prop == "region" || prop == "account_id") {
+				continue
+			}
 			ps := sch.Properties[prop]
 			if ps.Description != "" {
 				fmt.Fprintf(body, "// %s\n", strings.ReplaceAll(strings.TrimSpace(ps.Description), "\n", "\n// "))
@@ -574,16 +583,11 @@ func (g *generator) renderMethod(b *strings.Builder, svc serviceDef, op opInfo) 
 
 	reqStruct := ""
 	trivial := g.trivialBody(op.bodyRef)
-	switch {
-	case isList:
-		reqStruct = listRequestType(svc)
-		sig = append(sig, "req "+reqStruct)
-	case !trivial:
+	if !trivial {
 		reqStruct = typeName(op.bodyRef)
 		sig = append(sig, "req "+reqStruct)
-	default:
-		sig = append(sig, "opts ...api.CallOption")
 	}
+	sig = append(sig, "opts ...api.CallOption")
 	params := strings.Join(sig, ", ")
 
 	rets := "error"
@@ -599,33 +603,26 @@ func (g *generator) renderMethod(b *strings.Builder, svc serviceDef, op opInfo) 
 		g.renderListMethod(b, svc, op)
 		return
 	}
-	for _, p := range op.query {
-		if !trivial || op.bodyRef != "" || (p.Name != "region" && p.Name != "account_id") {
-			fatal(fmt.Errorf("%s %s: query parameter %q is not supported", op.httpMethod, op.path, p.Name))
-		}
-	}
+	g.checkScope(op)
 
 	writeMethodDoc(b, op, retType)
 	fmt.Fprintf(b, "func (s *%sService) %s(%s) %s {\n", svc.name, op.name, params, rets)
 
-	// Query and body assembly. Trivial ops carry region/account_id in
-	// the query (GET/DELETE, or bodyless POSTs) or as the JSON body.
-	switch {
-	case trivial && op.bodyRef == "":
-		b.WriteString("q := transport.Query(transport.ResolveCallParams(s.t, opts...))\n")
-	case trivial:
-		b.WriteString("body := transport.ResolveCallParams(s.t, opts...)\n")
-	case reqStruct != "":
-		b.WriteString("if req.Region == \"\" {\nreq.Region = s.t.DefaultRegion()\n}\n")
+	// region/account_id come from opts: sent as the query when there is
+	// no body, as the body when it holds nothing else, else merged into it.
+	errRet := "return err"
+	if retType != "" {
+		errRet = "return nil, err"
 	}
-
+	fmt.Fprintf(b, "sc, err := transport.Resolve(s.t, opts)\nif err != nil {\n%s\n}\n", errRet)
 	query, bodyArg := "nil", "nil"
-	if trivial && op.bodyRef == "" {
-		query = "q"
-	} else if trivial {
-		bodyArg = "body"
-	} else if reqStruct != "" {
-		bodyArg = "req"
+	switch {
+	case op.bodyRef == "":
+		query = "sc.Query()"
+	case trivial:
+		bodyArg = "sc"
+	default:
+		bodyArg = fmt.Sprintf("struct {\n%s\ntransport.Scope\n}{req, sc}", reqStruct)
 	}
 	call := fmt.Sprintf("s.t.Do(ctx, %q, %s, %s, %s, ", op.httpMethod, pathExpr, query, bodyArg)
 
@@ -644,6 +641,42 @@ func (g *generator) renderMethod(b *strings.Builder, svc serviceDef, op opInfo) 
 	}
 }
 
+// checkScope verifies an operation takes region and account_id where the
+// generated code sends them from opts, and nothing it would silently drop.
+func (g *generator) checkScope(op opInfo) {
+	want := map[string]bool{"region": true, "account_id": true}
+	if strings.HasPrefix(op.name, "List") {
+		want = map[string]bool{"regions": true, "account_id": true, "pagination.page": true, "pagination.per_page": true}
+	}
+	got := map[string]bool{}
+	for _, p := range op.query {
+		got[p.Name] = true
+	}
+	if op.bodyRef != "" {
+		if len(got) > 0 {
+			fatal(fmt.Errorf("%s %s: query parameters next to a body are not supported", op.httpMethod, op.path))
+		}
+		for prop := range g.spec.Components.Schemas[op.bodyRef].Properties {
+			got[prop] = true
+		}
+		for name := range want {
+			if !got[name] {
+				fatal(fmt.Errorf("%s %s: body has no %q", op.httpMethod, op.path, name))
+			}
+		}
+		return
+	}
+	for name := range want {
+		if !got[name] {
+			fatal(fmt.Errorf("%s %s: no %q query parameter", op.httpMethod, op.path, name))
+		}
+		delete(got, name)
+	}
+	for name := range got {
+		fatal(fmt.Errorf("%s %s: query parameter %q is not supported", op.httpMethod, op.path, name))
+	}
+}
+
 func listRequestType(svc serviceDef) string { return "List" + svc.name + "Request" }
 
 // renderListMethod emits the list request type, List and All.
@@ -654,36 +687,13 @@ func (g *generator) renderListMethod(b *strings.Builder, svc serviceDef, op opIn
 	respType := typeName(op.respRef)
 
 	reqType := listRequestType(svc)
+	g.checkScope(op)
 	fmt.Fprintf(b, "// %s selects what List returns.\ntype %s struct {\n", reqType, reqType)
-	for _, p := range op.query {
-		switch p.Name {
-		case "pagination.page", "pagination.per_page":
-			continue // covered by Page
-		case "regions":
-			b.WriteString("// Regions to list from. Empty uses the client's default region.\nRegions []string\n")
-			continue
-		case "account_id":
-		default:
-			fatal(fmt.Errorf("%s %s: list query parameter %q is not supported", op.httpMethod, op.path, p.Name))
-		}
-		if d := strings.TrimSpace(p.Description); d != "" {
-			fmt.Fprintf(b, "// %s\n", d)
-		}
-		fmt.Fprintf(b, "%s %s\n", goName(strings.ReplaceAll(p.Name, ".", "_")), g.goType(p.Schema))
-	}
 	b.WriteString("// Page selects one page; the zero value uses server defaults.\nPage api.PageParams\n}\n\n")
 
-	fmt.Fprintf(b, "// List calls %s %s, returning one page.\n", op.httpMethod, op.path)
-	fmt.Fprintf(b, `func (s *%sService) List(ctx context.Context, req %s) (*%s, error) {
-	q := url.Values{}
-	regions := req.Regions
-	if len(regions) == 0 && s.t.DefaultRegion() != "" {
-		regions = []string{s.t.DefaultRegion()}
-	}
-	q["regions"] = regions
-	if req.AccountID != "" {
-		q.Set("account_id", req.AccountID)
-	}
+	fmt.Fprintf(b, "// List calls %s %s, returning one page. Pass api.WithRegion once per\n// region to list from several; with none, the client's default is used.\n", op.httpMethod, op.path)
+	fmt.Fprintf(b, `func (s *%sService) List(ctx context.Context, req %s, opts ...api.CallOption) (*%s, error) {
+	q := transport.ListQuery(s.t, opts)
 	if req.Page.Page > 0 {
 		q.Set("pagination.page", fmt.Sprint(req.Page.Page))
 	}
@@ -707,11 +717,11 @@ func (g *generator) renderListMethod(b *strings.Builder, svc serviceDef, op opIn
 		}
 	}
 	fmt.Fprintf(b, `// All lazily iterates every %s matching req across all pages.
-func (s *%sService) All(ctx context.Context, req %s) iter.Seq2[%s, error] {
+func (s *%sService) All(ctx context.Context, req %s, opts ...api.CallOption) iter.Seq2[%s, error] {
 	return transport.All(func(p api.PageParams) ([]%s, *api.PageInfo, error) {
 		r := req
 		r.Page = p
-		resp, err := s.List(ctx, r)
+		resp, err := s.List(ctx, r, opts...)
 		if err != nil {
 			return nil, nil, err
 		}
