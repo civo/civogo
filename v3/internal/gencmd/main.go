@@ -578,13 +578,12 @@ func (g *generator) renderMethod(b *strings.Builder, svc serviceDef, op opInfo) 
 	if retType != "" {
 		fmt.Fprintf(b, "var out struct {\nV %s `json:\"%s\"`\n}\n", retType, retField)
 		out = "&out"
-		zero := "nil"
 		if !strings.HasPrefix(retType, "[]") {
 			okRet = "return &out.V, nil"
 		} else {
 			okRet = "return out.V, nil"
 		}
-		errRet = fmt.Sprintf("return %s, err", zero)
+		errRet = "return nil, err"
 	}
 
 	query, bodyArg := "nil", "nil"

@@ -43,9 +43,9 @@ standard library.
 - `instances/` — **generated** from the Compute v3 OpenAPI document.
   Do not edit; regenerate instead.
 - `compute/` — **generated** error reason constants, from the spec's
-  `ErrorReason` enum (only emitted once the pinned spec includes it).
-- `internal/gencmd/` — the generator. Deliberately specialised to the
-  OpenAPI shapes grpc-gateway emits from the private proto repos.
+  `ErrorReason` enum.
+- `internal/gencmd/` — the generator, specialised to the OpenAPI shapes
+  grpc-gateway emits. See [how it works](internal/gencmd/README.md).
 
 ## Regenerating
 
