@@ -9,19 +9,19 @@ client, err := civogo.New(token, civogo.WithDefaultRegion("lon1"))
 if err != nil { ... }
 
 // Multi-region listing with real server-side pagination.
-page, err := client.Instances.List(ctx, instances.ListRequest{
+page, err := client.Compute.Instances.List(ctx, compute.ListInstancesRequest{
     Regions: []string{"lon1", "fra1"},
     Page:    api.PageParams{PerPage: 50},
 })
 
 // Lazy iteration over every page.
-for inst, err := range client.Instances.All(ctx, instances.ListRequest{}) {
+for inst, err := range client.Compute.Instances.All(ctx, compute.ListInstancesRequest{}) {
     if err != nil { ... }
     fmt.Println(inst.Hostname, inst.Region)
 }
 
 // Per-call region override; the client default applies otherwise.
-inst, err := client.Instances.Get(ctx, id, api.WithRegion("fra1"))
+inst, err := client.Compute.Instances.Get(ctx, id, api.WithRegion("fra1"))
 
 // Errors are one structured type. Reason is the stable condition;
 // FieldViolations explain validation failures; RequestID is for support.
@@ -39,10 +39,10 @@ standard library.
 - `civogo.go`, `api/` — hand-written core: client construction and
   options, the single request path, the `Error` type and predicates,
   pagination primitives.
-- `instances/` — **generated** from the Compute v3 OpenAPI document.
-  Do not edit; regenerate instead.
-- `compute/` — **generated** error reason constants, from the spec's
-  `ErrorReason` enum.
+- `compute/` — **generated** from the Compute v3 OpenAPI document: one
+  package per API, holding all its services (`Client.Compute.Instances`),
+  types and error reasons. Do not edit; regenerate instead. Other APIs
+  (Kubernetes, networking, …) will get their own package next to it.
 - `internal/gencmd/` — the generator, specialised to the OpenAPI shapes
   grpc-gateway emits. See [how it works](internal/gencmd/README.md).
 
@@ -59,4 +59,4 @@ go run ./internal/gencmd \
 
 The proto commit is stamped into every generated file header. Running
 the generator twice against the same spec produces a zero diff; MRs that
-touch `instances/` by hand will not survive the next regeneration.
+touch `compute/` by hand will not survive the next regeneration.

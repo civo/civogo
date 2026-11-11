@@ -9,7 +9,6 @@ import (
 
 	"github.com/civo/civogo/v3"
 	"github.com/civo/civogo/v3/compute"
-	"github.com/civo/civogo/v3/instances"
 )
 
 // List every instance across two regions; All fetches further pages lazily.
@@ -19,8 +18,8 @@ func Example() {
 		log.Fatal(err)
 	}
 
-	req := instances.ListRequest{Regions: []string{"lon1", "fra1"}}
-	for inst, err := range client.Instances.All(context.Background(), req) {
+	req := compute.ListInstancesRequest{Regions: []string{"lon1", "fra1"}}
+	for inst, err := range client.Compute.Instances.All(context.Background(), req) {
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -34,7 +33,7 @@ func ExampleNew() {
 		log.Fatal(err)
 	}
 
-	inst, err := client.Instances.Get(context.Background(), "my-instance-id")
+	inst, err := client.Compute.Instances.Get(context.Background(), "my-instance-id")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -48,7 +47,7 @@ func ExampleError() {
 		log.Fatal(err)
 	}
 
-	_, err = client.Instances.Get(context.Background(), "my-instance-id")
+	_, err = client.Compute.Instances.Get(context.Background(), "my-instance-id")
 	switch {
 	case err == nil:
 	case civogo.HasReason(err, compute.ReasonInstanceNotFound):
@@ -71,7 +70,7 @@ func ExamplePtr() {
 		log.Fatal(err)
 	}
 
-	_, err = client.Instances.Update(context.Background(), "my-instance-id", instances.UpdateInstanceRequest{
+	_, err = client.Compute.Instances.Update(context.Background(), "my-instance-id", compute.UpdateInstanceRequest{
 		PublicIPRequired: civogo.Ptr(false),
 		Notes:            civogo.Ptr(""),
 	})

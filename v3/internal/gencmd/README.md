@@ -10,8 +10,9 @@ compute.openapi3.json
   │  1. parse into a minimal model (paths, operations, schemas)
   │  2. select operations by path prefix   → /v3alpha1/compute/instances*
   │  3. walk $refs to find reachable types → only what those calls use
-  ├─ instances/types.go    one struct or enum per reachable schema
-  ├─ instances/service.go  one method per operation, plus List/All
+  ├─ compute/client.go     package doc and Client{Instances, …}
+  ├─ compute/instances.go  InstancesService: one method per operation, plus List/All
+  ├─ compute/types.go      one struct or enum per reachable schema
   └─ compute/reasons.go    ErrorReason enum → Reason* constants
   then gofmt each file; abort if it does not compile
 ```
@@ -32,18 +33,25 @@ diff. Never edit generated files by hand.
 
 ## How it works
 
-### Services
+### Packages and services
 
-The `services` table in `main.go` declares one row per generated package:
+One spec (one proto package, e.g. `civo.compute.v3alpha1`) becomes one Go
+package. Proto message names are unique within a proto package, so the Go
+types never collide, and types shared between services (`PlacementRule`,
+error reasons) live in one place.
+
+The `packages` map in `main.go` declares each package, selected with
+`-pkg` (default `compute`), and its services:
 
 | Field        | Example                        | Purpose                                  |
 |--------------|--------------------------------|------------------------------------------|
-| `pkg`        | `instances`                    | Go package and output directory          |
+| `name`       | `Instances`                    | Field on the package `Client`; `InstancesService` type |
 | `entity`     | `Instance`                     | Item type yielded by `All`               |
 | `pathPrefix` | `/v3alpha1/compute/instances`  | Operations whose path starts with this   |
 | `strip`      | `Instance`, `ToInstance`, …    | Tokens removed from method names         |
 
-Adding a service (SSH keys, snapshots, …) means adding a row.
+Adding a Compute service (SSH keys, snapshots, …) means adding an entry;
+adding another API means adding a package and running with its spec.
 
 ### Method names
 
@@ -53,7 +61,8 @@ drops everything up to `_`, then removes the `strip` tokens:
 
 ### Types (`types.go`)
 
-Starting from each operation's request body and `200` response, the
+Starting from the request body and `200` response of every operation in
+the package's services, the
 generator follows every `$ref` through properties, arrays and maps, and
 emits only those schemas. `v1PageInfo` maps to `api.PageInfo`;
 `rpcStatus` and `protobufAny` are never emitted.
@@ -76,7 +85,7 @@ emits only those schemas. `v1PageInfo` maps to `api.PageInfo`;
     a struct, and the API treats an empty object differently from an
     absent one.
 
-### Methods (`service.go`)
+### Methods (`<service>.go`)
 
 Each operation becomes one of three shapes:
 
@@ -89,7 +98,7 @@ Each operation becomes one of three shapes:
 - **Request struct** (Create, Update, Resize, …):
   `(ctx, id, req XRequest)`. An empty `req.Region` is filled with the
   default region; `req` is sent as JSON.
-- **List** (operation name starts with `List`): emits `ListRequest` from
+- **List** (operation name starts with `List`): emits `ListInstancesRequest` from
   the query parameters plus `Page`, `List` returning one page with the
   server's pagination, and `All`, an `iter.Seq2` that pages through
   `List` 100 items at a time until `total_pages`.
@@ -128,6 +137,6 @@ adding a service:
 - An operation is a list only if its name starts with `List`.
 - A body is "simple" only if all its properties are `region` or
   `account_id`.
-- The reasons schema and the `compute` package are hardcoded; another
-  product with its own `ErrorReason` needs this generalised.
+- The reasons schema name (`v3alpha1ErrorReason`) is hardcoded; an API on
+  another proto version needs it derived from the spec.
 - A `$ref` to an undefined schema aborts generation.

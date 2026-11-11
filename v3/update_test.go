@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/civo/civogo/v3"
-	"github.com/civo/civogo/v3/instances"
+	"github.com/civo/civogo/v3/compute"
 )
 
 func TestUpdateSendsExplicitFalse(t *testing.T) {
@@ -18,7 +18,7 @@ func TestUpdateSendsExplicitFalse(t *testing.T) {
 		body = string(b)
 		io.WriteString(w, `{"instance":{"id":"i-1"}}`)
 	})
-	if _, err := client.Instances.Update(context.Background(), "i-1", instances.UpdateInstanceRequest{
+	if _, err := client.Compute.Instances.Update(context.Background(), "i-1", compute.UpdateInstanceRequest{
 		PublicIPRequired: civogo.Ptr(false),
 		Notes:            civogo.Ptr(""),
 	}); err != nil {

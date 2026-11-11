@@ -5,12 +5,12 @@
 //	client, err := civogo.New(token, civogo.WithDefaultRegion("lon1"))
 //	if err != nil { ... }
 //
-//	inst, err := client.Instances.Get(ctx, instanceID)
+//	inst, err := client.Compute.Instances.Get(ctx, instanceID)
 //
 // List endpoints accept multiple regions and report real server-side
 // pagination; use All for lazy iteration over every page:
 //
-//	for inst, err := range client.Instances.All(ctx, instances.ListRequest{Regions: []string{"lon1", "fra1"}}) {
+//	for inst, err := range client.Compute.Instances.All(ctx, compute.ListInstancesRequest{Regions: []string{"lon1", "fra1"}}) {
 //		if err != nil { ... }
 //		fmt.Println(inst.Hostname)
 //	}
@@ -20,7 +20,7 @@ import (
 	"net/http"
 
 	"github.com/civo/civogo/v3/api"
-	"github.com/civo/civogo/v3/instances"
+	"github.com/civo/civogo/v3/compute"
 )
 
 // DefaultBaseURL is the production Civo API endpoint.
@@ -41,12 +41,12 @@ var (
 
 // Ptr returns a pointer to v, for setting optional request fields:
 //
-//	client.Instances.Update(ctx, id, instances.UpdateInstanceRequest{PublicIPRequired: civogo.Ptr(false)})
+//	client.Compute.Instances.Update(ctx, id, compute.UpdateInstanceRequest{PublicIPRequired: civogo.Ptr(false)})
 func Ptr[T any](v T) *T { return &v }
 
 // Client is the entry point to the Civo v3 API. Construct it with New.
 type Client struct {
-	Instances *instances.Service
+	Compute *compute.Client
 }
 
 // Option configures a Client at construction time.
@@ -84,6 +84,6 @@ func New(token string, opts ...Option) (*Client, error) {
 		return nil, err
 	}
 	return &Client{
-		Instances: instances.NewService(t),
+		Compute: compute.NewClient(t),
 	}, nil
 }

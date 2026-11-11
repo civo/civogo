@@ -1,6 +1,9 @@
 // Code generated from compute.openapi3.json (proto commit 60c7e49248e86df73908df1dde1c7e92ce59bdfd) by gencmd. DO NOT EDIT.
 
-// Package compute holds the error reasons the Compute v3 API reports.
+package compute
+
+// Reasons reported in Error.Reason; match them with civogo.HasReason.
+// The API may add reasons, so never treat this set as exhaustive.
 //
 // ErrorReason names the reasons the compute services report in the
 // google.rpc.ErrorInfo detail of a failed RPC. The value name is the reason
@@ -19,10 +22,6 @@
 // Failures that are the service's own fault reach the client masked, as a
 // generic internal error with reason INTERNAL, or UNKNOWN when the service did
 // not classify the error.
-package compute
-
-// Reasons reported in Error.Reason; match them with civogo.HasReason.
-// The API may add reasons, so never treat this set as exhaustive.
 const (
 	// ReasonInstanceNotFound — No instance with the requested identifier exists in the account.
 	ReasonInstanceNotFound = "INSTANCE_NOT_FOUND"

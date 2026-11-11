@@ -1,6 +1,6 @@
 // Code generated from compute.openapi3.json (proto commit 60c7e49248e86df73908df1dde1c7e92ce59bdfd) by gencmd. DO NOT EDIT.
 
-package instances
+package compute
 
 import (
 	"context"
@@ -11,17 +11,14 @@ import (
 	"strings"
 )
 
-// Service provides access to the instances API.
-type Service struct {
+// InstancesService is the Compute instances API.
+type InstancesService struct {
 	t *api.Transport
 }
 
-// NewService is called by the root civogo package; use civogo.New.
-func NewService(t *api.Transport) *Service { return &Service{t: t} }
-
 // AssignIP calls POST /v3alpha1/compute/instances/{instance_id}/assign-ip.
 // The API returns no payload for this call.
-func (s *Service) AssignIP(ctx context.Context, instanceID string, req AssignIPToInstanceRequest) error {
+func (s *InstancesService) AssignIP(ctx context.Context, instanceID string, req AssignIPToInstanceRequest) error {
 	if req.Region == "" {
 		req.Region = s.t.DefaultRegion()
 	}
@@ -33,7 +30,7 @@ func (s *Service) AssignIP(ctx context.Context, instanceID string, req AssignIPT
 
 // AttachVolume calls POST /v3alpha1/compute/instances/{instance_id}/attach-volume.
 // The API returns no payload for this call.
-func (s *Service) AttachVolume(ctx context.Context, instanceID string, req AttachVolumeToInstanceRequest) error {
+func (s *InstancesService) AttachVolume(ctx context.Context, instanceID string, req AttachVolumeToInstanceRequest) error {
 	if req.Region == "" {
 		req.Region = s.t.DefaultRegion()
 	}
@@ -44,7 +41,7 @@ func (s *Service) AttachVolume(ctx context.Context, instanceID string, req Attac
 }
 
 // Create calls POST /v3alpha1/compute/instances.
-func (s *Service) Create(ctx context.Context, req CreateInstanceRequest) ([]Instance, error) {
+func (s *InstancesService) Create(ctx context.Context, req CreateInstanceRequest) ([]Instance, error) {
 	if req.Region == "" {
 		req.Region = s.t.DefaultRegion()
 	}
@@ -58,7 +55,7 @@ func (s *Service) Create(ctx context.Context, req CreateInstanceRequest) ([]Inst
 }
 
 // CreateConsole calls PUT /v3alpha1/compute/instances/{instance_id}/console.
-func (s *Service) CreateConsole(ctx context.Context, instanceID string, req CreateInstanceConsoleRequest) (*InstanceConsole, error) {
+func (s *InstancesService) CreateConsole(ctx context.Context, instanceID string, req CreateInstanceConsoleRequest) (*InstanceConsole, error) {
 	if req.Region == "" {
 		req.Region = s.t.DefaultRegion()
 	}
@@ -72,7 +69,7 @@ func (s *Service) CreateConsole(ctx context.Context, instanceID string, req Crea
 }
 
 // Delete calls DELETE /v3alpha1/compute/instances/{instance_id}.
-func (s *Service) Delete(ctx context.Context, instanceID string, opts ...api.CallOption) (*Instance, error) {
+func (s *InstancesService) Delete(ctx context.Context, instanceID string, opts ...api.CallOption) (*Instance, error) {
 	q := api.ResolveCallParams(s.t, opts...).Query()
 	var out struct {
 		V Instance `json:"instance"`
@@ -85,7 +82,7 @@ func (s *Service) Delete(ctx context.Context, instanceID string, opts ...api.Cal
 
 // DeleteConsole calls DELETE /v3alpha1/compute/instances/{instance_id}/console.
 // The API returns no payload for this call.
-func (s *Service) DeleteConsole(ctx context.Context, instanceID string, opts ...api.CallOption) error {
+func (s *InstancesService) DeleteConsole(ctx context.Context, instanceID string, opts ...api.CallOption) error {
 	q := api.ResolveCallParams(s.t, opts...).Query()
 	if err := s.t.Do(ctx, "DELETE", strings.Replace("/v3alpha1/compute/instances/{instance_id}/console", "{instance_id}", url.PathEscape(instanceID), 1), q, nil, nil); err != nil {
 		return err
@@ -95,7 +92,7 @@ func (s *Service) DeleteConsole(ctx context.Context, instanceID string, opts ...
 
 // DetachVolume calls POST /v3alpha1/compute/instances/{instance_id}/detach-volume.
 // The API returns no payload for this call.
-func (s *Service) DetachVolume(ctx context.Context, instanceID string, req DetachVolumeFromInstanceRequest) error {
+func (s *InstancesService) DetachVolume(ctx context.Context, instanceID string, req DetachVolumeFromInstanceRequest) error {
 	if req.Region == "" {
 		req.Region = s.t.DefaultRegion()
 	}
@@ -106,7 +103,7 @@ func (s *Service) DetachVolume(ctx context.Context, instanceID string, req Detac
 }
 
 // DisableRecoveryMode calls DELETE /v3alpha1/compute/instances/{instance_id}/recovery.
-func (s *Service) DisableRecoveryMode(ctx context.Context, instanceID string, opts ...api.CallOption) (*InstanceRecoveryMode, error) {
+func (s *InstancesService) DisableRecoveryMode(ctx context.Context, instanceID string, opts ...api.CallOption) (*InstanceRecoveryMode, error) {
 	q := api.ResolveCallParams(s.t, opts...).Query()
 	var out struct {
 		V InstanceRecoveryMode `json:"recovery_mode"`
@@ -118,7 +115,7 @@ func (s *Service) DisableRecoveryMode(ctx context.Context, instanceID string, op
 }
 
 // EnableRecoveryMode calls PUT /v3alpha1/compute/instances/{instance_id}/recovery.
-func (s *Service) EnableRecoveryMode(ctx context.Context, instanceID string, req EnableInstanceRecoveryModeRequest) (*InstanceRecoveryMode, error) {
+func (s *InstancesService) EnableRecoveryMode(ctx context.Context, instanceID string, req EnableInstanceRecoveryModeRequest) (*InstanceRecoveryMode, error) {
 	if req.Region == "" {
 		req.Region = s.t.DefaultRegion()
 	}
@@ -132,7 +129,7 @@ func (s *Service) EnableRecoveryMode(ctx context.Context, instanceID string, req
 }
 
 // ExpandRootDisk calls POST /v3alpha1/compute/instances/{instance_id}/expand-root-disk.
-func (s *Service) ExpandRootDisk(ctx context.Context, instanceID string, req ExpandInstanceRootDiskRequest) (*Instance, error) {
+func (s *InstancesService) ExpandRootDisk(ctx context.Context, instanceID string, req ExpandInstanceRootDiskRequest) (*Instance, error) {
 	if req.Region == "" {
 		req.Region = s.t.DefaultRegion()
 	}
@@ -146,7 +143,7 @@ func (s *Service) ExpandRootDisk(ctx context.Context, instanceID string, req Exp
 }
 
 // Get calls GET /v3alpha1/compute/instances/{instance_id}.
-func (s *Service) Get(ctx context.Context, instanceID string, opts ...api.CallOption) (*Instance, error) {
+func (s *InstancesService) Get(ctx context.Context, instanceID string, opts ...api.CallOption) (*Instance, error) {
 	q := api.ResolveCallParams(s.t, opts...).Query()
 	var out struct {
 		V Instance `json:"instance"`
@@ -158,7 +155,7 @@ func (s *Service) Get(ctx context.Context, instanceID string, opts ...api.CallOp
 }
 
 // GetConsole calls GET /v3alpha1/compute/instances/{instance_id}/console.
-func (s *Service) GetConsole(ctx context.Context, instanceID string, opts ...api.CallOption) (*InstanceConsole, error) {
+func (s *InstancesService) GetConsole(ctx context.Context, instanceID string, opts ...api.CallOption) (*InstanceConsole, error) {
 	q := api.ResolveCallParams(s.t, opts...).Query()
 	var out struct {
 		V InstanceConsole `json:"console"`
@@ -170,7 +167,7 @@ func (s *Service) GetConsole(ctx context.Context, instanceID string, opts ...api
 }
 
 // GetRecoveryMode calls GET /v3alpha1/compute/instances/{instance_id}/recovery.
-func (s *Service) GetRecoveryMode(ctx context.Context, instanceID string, opts ...api.CallOption) (*InstanceRecoveryMode, error) {
+func (s *InstancesService) GetRecoveryMode(ctx context.Context, instanceID string, opts ...api.CallOption) (*InstanceRecoveryMode, error) {
 	q := api.ResolveCallParams(s.t, opts...).Query()
 	var out struct {
 		V InstanceRecoveryMode `json:"recovery_mode"`
@@ -183,7 +180,7 @@ func (s *Service) GetRecoveryMode(ctx context.Context, instanceID string, opts .
 
 // HardReboot calls POST /v3alpha1/compute/instances/{instance_id}/reboot_hard.
 // The API returns no payload for this call.
-func (s *Service) HardReboot(ctx context.Context, instanceID string, opts ...api.CallOption) error {
+func (s *InstancesService) HardReboot(ctx context.Context, instanceID string, opts ...api.CallOption) error {
 	body := api.ResolveCallParams(s.t, opts...)
 	if err := s.t.Do(ctx, "POST", strings.Replace("/v3alpha1/compute/instances/{instance_id}/reboot_hard", "{instance_id}", url.PathEscape(instanceID), 1), nil, body, nil); err != nil {
 		return err
@@ -191,8 +188,8 @@ func (s *Service) HardReboot(ctx context.Context, instanceID string, opts ...api
 	return nil
 }
 
-// ListRequest selects what List returns.
-type ListRequest struct {
+// ListInstancesRequest selects what List returns.
+type ListInstancesRequest struct {
 	AccountID string
 	// Regions to list instances from. At least one region is required.
 	Regions []string
@@ -201,7 +198,7 @@ type ListRequest struct {
 }
 
 // List calls GET /v3alpha1/compute/instances, returning one page.
-func (s *Service) List(ctx context.Context, req ListRequest) (*ListInstancesResponse, error) {
+func (s *InstancesService) List(ctx context.Context, req ListInstancesRequest) (*ListInstancesResponse, error) {
 	q := url.Values{}
 	regions := req.Regions
 	if len(regions) == 0 && s.t.DefaultRegion() != "" {
@@ -225,7 +222,7 @@ func (s *Service) List(ctx context.Context, req ListRequest) (*ListInstancesResp
 }
 
 // All lazily iterates every Instance matching req across all pages.
-func (s *Service) All(ctx context.Context, req ListRequest) iter.Seq2[Instance, error] {
+func (s *InstancesService) All(ctx context.Context, req ListInstancesRequest) iter.Seq2[Instance, error] {
 	return api.All(func(p api.PageParams) ([]Instance, *api.PageInfo, error) {
 		req.Page = p
 		resp, err := s.List(ctx, req)
@@ -237,7 +234,7 @@ func (s *Service) All(ctx context.Context, req ListRequest) iter.Seq2[Instance, 
 }
 
 // Resize calls POST /v3alpha1/compute/instances/{instance_id}/resize.
-func (s *Service) Resize(ctx context.Context, instanceID string, req ResizeInstanceRequest) (*Instance, error) {
+func (s *InstancesService) Resize(ctx context.Context, instanceID string, req ResizeInstanceRequest) (*Instance, error) {
 	if req.Region == "" {
 		req.Region = s.t.DefaultRegion()
 	}
@@ -252,7 +249,7 @@ func (s *Service) Resize(ctx context.Context, instanceID string, req ResizeInsta
 
 // SoftReboot calls POST /v3alpha1/compute/instances/{instance_id}/reboot_soft.
 // The API returns no payload for this call.
-func (s *Service) SoftReboot(ctx context.Context, instanceID string, opts ...api.CallOption) error {
+func (s *InstancesService) SoftReboot(ctx context.Context, instanceID string, opts ...api.CallOption) error {
 	body := api.ResolveCallParams(s.t, opts...)
 	if err := s.t.Do(ctx, "POST", strings.Replace("/v3alpha1/compute/instances/{instance_id}/reboot_soft", "{instance_id}", url.PathEscape(instanceID), 1), nil, body, nil); err != nil {
 		return err
@@ -262,7 +259,7 @@ func (s *Service) SoftReboot(ctx context.Context, instanceID string, opts ...api
 
 // Start calls POST /v3alpha1/compute/instances/{instance_id}/start.
 // The API returns no payload for this call.
-func (s *Service) Start(ctx context.Context, instanceID string, opts ...api.CallOption) error {
+func (s *InstancesService) Start(ctx context.Context, instanceID string, opts ...api.CallOption) error {
 	body := api.ResolveCallParams(s.t, opts...)
 	if err := s.t.Do(ctx, "POST", strings.Replace("/v3alpha1/compute/instances/{instance_id}/start", "{instance_id}", url.PathEscape(instanceID), 1), nil, body, nil); err != nil {
 		return err
@@ -272,7 +269,7 @@ func (s *Service) Start(ctx context.Context, instanceID string, opts ...api.Call
 
 // Stop calls POST /v3alpha1/compute/instances/{instance_id}/stop.
 // The API returns no payload for this call.
-func (s *Service) Stop(ctx context.Context, instanceID string, opts ...api.CallOption) error {
+func (s *InstancesService) Stop(ctx context.Context, instanceID string, opts ...api.CallOption) error {
 	body := api.ResolveCallParams(s.t, opts...)
 	if err := s.t.Do(ctx, "POST", strings.Replace("/v3alpha1/compute/instances/{instance_id}/stop", "{instance_id}", url.PathEscape(instanceID), 1), nil, body, nil); err != nil {
 		return err
@@ -282,7 +279,7 @@ func (s *Service) Stop(ctx context.Context, instanceID string, opts ...api.CallO
 
 // UnassignIP calls POST /v3alpha1/compute/instances/{instance_id}/unassign-ip.
 // The API returns no payload for this call.
-func (s *Service) UnassignIP(ctx context.Context, instanceID string, opts ...api.CallOption) error {
+func (s *InstancesService) UnassignIP(ctx context.Context, instanceID string, opts ...api.CallOption) error {
 	q := api.ResolveCallParams(s.t, opts...).Query()
 	if err := s.t.Do(ctx, "POST", strings.Replace("/v3alpha1/compute/instances/{instance_id}/unassign-ip", "{instance_id}", url.PathEscape(instanceID), 1), q, nil, nil); err != nil {
 		return err
@@ -291,7 +288,7 @@ func (s *Service) UnassignIP(ctx context.Context, instanceID string, opts ...api
 }
 
 // Update calls PUT /v3alpha1/compute/instances/{instance_id}.
-func (s *Service) Update(ctx context.Context, instanceID string, req UpdateInstanceRequest) (*Instance, error) {
+func (s *InstancesService) Update(ctx context.Context, instanceID string, req UpdateInstanceRequest) (*Instance, error) {
 	if req.Region == "" {
 		req.Region = s.t.DefaultRegion()
 	}

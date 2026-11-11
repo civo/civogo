@@ -11,7 +11,7 @@ import (
 
 	civogo "github.com/civo/civogo/v3"
 	"github.com/civo/civogo/v3/api"
-	"github.com/civo/civogo/v3/instances"
+	"github.com/civo/civogo/v3/compute"
 )
 
 func testClient(t *testing.T, handler http.HandlerFunc, opts ...civogo.Option) *civogo.Client {
@@ -43,7 +43,7 @@ func TestListInstancesMultiRegion(t *testing.T) {
 		}`)
 	})
 
-	resp, err := client.Instances.List(context.Background(), instances.ListRequest{
+	resp, err := client.Compute.Instances.List(context.Background(), compute.ListInstancesRequest{
 		Regions: []string{"lon1", "fra1"},
 		Page:    api.PageParams{PerPage: 50},
 	})
@@ -66,7 +66,7 @@ func TestListInstancesUsesDefaultRegion(t *testing.T) {
 		fmt.Fprint(w, `{"instances": [], "page_info": {"total_pages": 0}}`)
 	}, civogo.WithDefaultRegion("nyc1"))
 
-	if _, err := client.Instances.List(context.Background(), instances.ListRequest{}); err != nil {
+	if _, err := client.Compute.Instances.List(context.Background(), compute.ListInstancesRequest{}); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -82,7 +82,7 @@ func TestAllPaginatesLazily(t *testing.T) {
 	}, civogo.WithDefaultRegion("lon1"))
 
 	var ids []string
-	for inst, err := range client.Instances.All(context.Background(), instances.ListRequest{}) {
+	for inst, err := range client.Compute.Instances.All(context.Background(), compute.ListInstancesRequest{}) {
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -104,11 +104,11 @@ func TestGetInstanceUnwraps(t *testing.T) {
 		fmt.Fprint(w, `{"instance": {"id": "i-123", "hostname": "web-1", "status": "INSTANCE_STATUS_ACTIVE"}}`)
 	})
 
-	inst, err := client.Instances.Get(context.Background(), "i-123", api.WithRegion("fra1"))
+	inst, err := client.Compute.Instances.Get(context.Background(), "i-123", api.WithRegion("fra1"))
 	if err != nil {
 		t.Fatal(err)
 	}
-	if inst.ID != "i-123" || inst.Status != instances.InstanceStatusActive {
+	if inst.ID != "i-123" || inst.Status != compute.InstanceStatusActive {
 		t.Errorf("instance = %+v", inst)
 	}
 }
@@ -125,8 +125,8 @@ func TestCreateInstanceDefaultsRegionWithoutMutatingRequest(t *testing.T) {
 		fmt.Fprint(w, `{"instances": [{"id": "i-new", "region": "lon1"}]}`)
 	}, civogo.WithDefaultRegion("lon1"))
 
-	req := instances.CreateInstanceRequest{Hostname: "web-1"}
-	created, err := client.Instances.Create(context.Background(), req)
+	req := compute.CreateInstanceRequest{Hostname: "web-1"}
+	created, err := client.Compute.Instances.Create(context.Background(), req)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -153,7 +153,7 @@ func TestStopSendsRegionInBody(t *testing.T) {
 		fmt.Fprint(w, `{}`)
 	}, civogo.WithDefaultRegion("lon1"))
 
-	if err := client.Instances.Stop(context.Background(), "i-1", api.WithRegion("fra1")); err != nil {
+	if err := client.Compute.Instances.Stop(context.Background(), "i-1", api.WithRegion("fra1")); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -164,7 +164,7 @@ func TestNotFoundErrorFlow(t *testing.T) {
 		fmt.Fprint(w, `{"error":{"code":404,"status":"NOT_FOUND","message":"instance not found","details":[{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"INSTANCE_NOT_FOUND","domain":"compute.civo.com"}]}}`)
 	})
 
-	_, err := client.Instances.Get(context.Background(), "i-nope")
+	_, err := client.Compute.Instances.Get(context.Background(), "i-nope")
 	if err == nil {
 		t.Fatal("want error")
 	}

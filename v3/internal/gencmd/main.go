@@ -19,31 +19,41 @@ import (
 	"strings"
 )
 
-// serviceDef declares one generated service package. Adding a service to
-// a spec means adding a row here.
+// packageDef maps one spec (one proto package) to one Go package holding
+// all of its services. Adding a service means adding an entry to services;
+// adding a product means adding a package, selected with -pkg.
+type packageDef struct {
+	name     string // Go package name and output directory
+	title    string // product name used in docs, e.g. "Compute"
+	services []serviceDef
+}
+
 type serviceDef struct {
-	pkg        string   // Go package name and output directory
-	entity     string   // primary entity, e.g. "Instance"
+	name       string   // field on the package Client, e.g. "Instances"
+	entity     string   // item type yielded by All, e.g. "Instance"
 	pathPrefix string   // spec paths handled by this service
 	strip      []string // tokens removed from operation names
 }
 
-var services = []serviceDef{
-	{
-		pkg:        "instances",
-		entity:     "Instance",
-		pathPrefix: "/v3alpha1/compute/instances",
-		strip:      []string{"ToInstance", "FromInstance", "Instances", "Instance"},
+var packages = map[string]packageDef{
+	"compute": {
+		name:  "compute",
+		title: "Compute",
+		services: []serviceDef{
+			{
+				name:       "Instances",
+				entity:     "Instance",
+				pathPrefix: "/v3alpha1/compute/instances",
+				strip:      []string{"ToInstance", "FromInstance", "Instances", "Instance"},
+			},
+		},
 	},
 }
 
 // reasonsSchema is the spec enum listing the ErrorInfo reasons the API
-// reports. Its values are generated as string constants into reasonsPkg,
-// for use with civogo.HasReason. Specs without it generate no reasons file.
-const (
-	reasonsSchema = "v3alpha1ErrorReason"
-	reasonsPkg    = "compute"
-)
+// reports. Its values are generated as string constants, for use with
+// civogo.HasReason. Specs without it generate no reasons file.
+const reasonsSchema = "v3alpha1ErrorReason"
 
 type spec struct {
 	Paths      map[string]map[string]*operation `json:"paths"`
@@ -135,6 +145,7 @@ func enumConstName(typ, val string) string {
 }
 
 type generator struct {
+	pkg         packageDef
 	spec        *spec
 	protoCommit string
 	specName    string
@@ -144,10 +155,15 @@ func main() {
 	specPath := flag.String("spec", "", "path to the OpenAPI 3 JSON document")
 	protoCommit := flag.String("proto-commit", "unknown", "proto repo commit the spec was generated from")
 	outDir := flag.String("out", ".", "root of the v3 module")
+	pkgName := flag.String("pkg", "compute", "package to generate, a key of packages")
 	flag.Parse()
 	if *specPath == "" {
 		fmt.Fprintln(os.Stderr, "gencmd: -spec is required")
 		os.Exit(2)
+	}
+	pkg, ok := packages[*pkgName]
+	if !ok {
+		fatal(fmt.Errorf("unknown package %q", *pkgName))
 	}
 
 	raw, err := os.ReadFile(*specPath)
@@ -159,14 +175,17 @@ func main() {
 		fatal(fmt.Errorf("parsing %s: %w", *specPath, err))
 	}
 
-	g := &generator{spec: &sp, protoCommit: *protoCommit, specName: base(*specPath)}
-	for _, svc := range services {
-		types, methods := g.render(svc)
-		writeFile(*outDir, svc.pkg, "types.go", types)
-		writeFile(*outDir, svc.pkg, "service.go", methods)
+	g := &generator{pkg: pkg, spec: &sp, protoCommit: *protoCommit, specName: base(*specPath)}
+	var allOps []opInfo
+	for _, svc := range pkg.services {
+		ops := g.collectOps(svc)
+		allOps = append(allOps, ops...)
+		writeFile(*outDir, pkg.name, strings.ToLower(svc.name)+".go", g.renderService(svc, ops))
 	}
+	writeFile(*outDir, pkg.name, "client.go", g.renderClient())
+	writeFile(*outDir, pkg.name, "types.go", g.renderTypes(allOps))
 	if src := g.renderReasons(); src != nil {
-		writeFile(*outDir, reasonsPkg, "reasons.go", src)
+		writeFile(*outDir, pkg.name, "reasons.go", src)
 	}
 }
 
@@ -192,11 +211,11 @@ func writeFile(outDir, pkg, name string, src []byte) {
 	}
 }
 
-func (g *generator) header(pkg string) string {
+func (g *generator) header() string {
 	return fmt.Sprintf(`// Code generated from %s (proto commit %s) by gencmd. DO NOT EDIT.
 
 package %s
-`, g.specName, g.protoCommit, pkg)
+`, g.specName, g.protoCommit, g.pkg.name)
 }
 
 // opInfo is one operation resolved against the spec.
@@ -364,14 +383,27 @@ func (g *generator) isMessageRef(s *schema) bool {
 	}
 }
 
-func (g *generator) render(svc serviceDef) (types, methods []byte) {
-	ops := g.collectOps(svc)
-	return g.renderTypes(svc, ops), g.renderService(svc, ops)
+// renderClient emits the package doc and the Client grouping its services.
+func (g *generator) renderClient() []byte {
+	b := &strings.Builder{}
+	fmt.Fprintf(b, "// Code generated from %s (proto commit %s) by gencmd. DO NOT EDIT.\n\n", g.specName, g.protoCommit)
+	fmt.Fprintf(b, "// Package %s is the client for the Civo %s v3 API.\npackage %s\n\n", g.pkg.name, g.pkg.title, g.pkg.name)
+	b.WriteString("import \"github.com/civo/civogo/v3/api\"\n\n")
+	fmt.Fprintf(b, "// Client groups the %s services. Use civogo.New to build one.\ntype Client struct {\n", g.pkg.title)
+	for _, svc := range g.pkg.services {
+		fmt.Fprintf(b, "%s *%sService\n", svc.name, svc.name)
+	}
+	b.WriteString("}\n\n// NewClient is called by the root civogo package.\nfunc NewClient(t *api.Transport) *Client {\nreturn &Client{\n")
+	for _, svc := range g.pkg.services {
+		fmt.Fprintf(b, "%s: &%sService{t: t},\n", svc.name, svc.name)
+	}
+	b.WriteString("}\n}\n")
+	return []byte(b.String())
 }
 
-func (g *generator) renderTypes(svc serviceDef, ops []opInfo) []byte {
+func (g *generator) renderTypes(ops []opInfo) []byte {
 	var b strings.Builder
-	b.WriteString(g.header(svc.pkg))
+	b.WriteString(g.header())
 
 	body := &strings.Builder{}
 	for _, name := range g.reachableTypes(ops) {
@@ -498,18 +530,11 @@ func (g *generator) unwrap(ref string) (string, string) {
 
 func (g *generator) renderService(svc serviceDef, ops []opInfo) []byte {
 	var b strings.Builder
-	b.WriteString(g.header(svc.pkg))
+	b.WriteString(g.header())
 
 	body := &strings.Builder{}
-	fmt.Fprintf(body, `// Service provides access to the %s API.
-type Service struct {
-	t *api.Transport
-}
-
-// NewService is called by the root civogo package; use civogo.New.
-func NewService(t *api.Transport) *Service { return &Service{t: t} }
-
-`, svc.pkg)
+	fmt.Fprintf(body, "// %sService is the %s %s API.\ntype %sService struct {\nt *api.Transport\n}\n\n",
+		svc.name, g.pkg.title, strings.ToLower(svc.name), svc.name)
 
 	for _, op := range ops {
 		g.renderMethod(body, svc, op)
@@ -537,8 +562,8 @@ func (g *generator) renderMethod(b *strings.Builder, svc serviceDef, op opInfo) 
 	trivial := g.trivialBody(op.bodyRef)
 	switch {
 	case isList:
-		reqStruct = "ListRequest"
-		sig = append(sig, "req ListRequest")
+		reqStruct = listRequestType(svc)
+		sig = append(sig, "req "+reqStruct)
 	case !trivial:
 		reqStruct = typeName(op.bodyRef)
 		sig = append(sig, "req "+reqStruct)
@@ -562,7 +587,7 @@ func (g *generator) renderMethod(b *strings.Builder, svc serviceDef, op opInfo) 
 	}
 
 	writeMethodDoc(b, op, retType)
-	fmt.Fprintf(b, "func (s *Service) %s(%s) %s {\n", op.name, params, rets)
+	fmt.Fprintf(b, "func (s *%sService) %s(%s) %s {\n", svc.name, op.name, params, rets)
 
 	// Query and body assembly. Trivial ops carry region/account_id in
 	// the query (GET/DELETE, or bodyless POSTs) or as the JSON body.
@@ -602,11 +627,14 @@ func (g *generator) renderMethod(b *strings.Builder, svc serviceDef, op opInfo) 
 		op.httpMethod, pathExpr, query, bodyArg, out, errRet, okRet)
 }
 
-// renderListMethod emits ListRequest, List and All.
+func listRequestType(svc serviceDef) string { return "List" + svc.name + "Request" }
+
+// renderListMethod emits the list request type, List and All.
 func (g *generator) renderListMethod(b *strings.Builder, svc serviceDef, op opInfo) {
 	respType := typeName(op.respRef)
 
-	b.WriteString("// ListRequest selects what List returns.\ntype ListRequest struct {\n")
+	reqType := listRequestType(svc)
+	fmt.Fprintf(b, "// %s selects what List returns.\ntype %s struct {\n", reqType, reqType)
 	for _, p := range op.query {
 		switch p.Name {
 		case "pagination.page", "pagination.per_page":
@@ -620,7 +648,7 @@ func (g *generator) renderListMethod(b *strings.Builder, svc serviceDef, op opIn
 	b.WriteString("// Page selects one page; the zero value uses server defaults.\nPage api.PageParams\n}\n\n")
 
 	fmt.Fprintf(b, "// List calls %s %s, returning one page.\n", op.httpMethod, op.path)
-	fmt.Fprintf(b, `func (s *Service) List(ctx context.Context, req ListRequest) (*%s, error) {
+	fmt.Fprintf(b, `func (s *%sService) List(ctx context.Context, req %s) (*%s, error) {
 	q := url.Values{}
 	regions := req.Regions
 	if len(regions) == 0 && s.t.DefaultRegion() != "" {
@@ -643,7 +671,7 @@ func (g *generator) renderListMethod(b *strings.Builder, svc serviceDef, op opIn
 	return &out, nil
 }
 
-`, respType, respType, op.path)
+`, svc.name, reqType, respType, respType, op.path)
 
 	itemsField := ""
 	sch := g.spec.Components.Schemas[op.respRef]
@@ -653,7 +681,7 @@ func (g *generator) renderListMethod(b *strings.Builder, svc serviceDef, op opIn
 		}
 	}
 	fmt.Fprintf(b, `// All lazily iterates every %s matching req across all pages.
-func (s *Service) All(ctx context.Context, req ListRequest) iter.Seq2[%s, error] {
+func (s *%sService) All(ctx context.Context, req %s) iter.Seq2[%s, error] {
 	return api.All(func(p api.PageParams) ([]%s, *api.PageInfo, error) {
 		req.Page = p
 		resp, err := s.List(ctx, req)
@@ -664,7 +692,7 @@ func (s *Service) All(ctx context.Context, req ListRequest) iter.Seq2[%s, error]
 	})
 }
 
-`, svc.entity, svc.entity, svc.entity, itemsField)
+`, svc.entity, svc.name, reqType, svc.entity, svc.entity, itemsField)
 }
 
 func writeMethodDoc(b *strings.Builder, op opInfo, retType string) {
@@ -713,11 +741,9 @@ func (g *generator) renderReasons() []byte {
 	overview, docs := splitEnumDoc(sch.Description)
 
 	b := &strings.Builder{}
-	b.WriteString(strings.Replace(g.header(reasonsPkg), "\npackage ",
-		"\n// Package "+reasonsPkg+" holds the error reasons the Compute v3 API reports.\n//\n// "+
-			strings.ReplaceAll(overview, "\n", "\n// ")+"\npackage ", 1))
-	b.WriteString("\n// Reasons reported in Error.Reason; match them with civogo.HasReason.\n")
-	b.WriteString("// The API may add reasons, so never treat this set as exhaustive.\nconst (\n")
+	b.WriteString(g.header())
+	fmt.Fprintf(b, "\n// Reasons reported in Error.Reason; match them with civogo.HasReason.\n// The API may add reasons, so never treat this set as exhaustive.\n//\n// %s\nconst (\n",
+		strings.ReplaceAll(overview, "\n", "\n// "))
 	for _, v := range sch.Enum {
 		if strings.HasSuffix(v, "_UNSPECIFIED") {
 			continue

@@ -9,7 +9,7 @@ import (
 
 	civogo "github.com/civo/civogo/v3"
 	"github.com/civo/civogo/v3/api"
-	"github.com/civo/civogo/v3/instances"
+	"github.com/civo/civogo/v3/compute"
 )
 
 func TestClientIsConcurrencySafe(t *testing.T) {
@@ -25,15 +25,15 @@ func TestClientIsConcurrencySafe(t *testing.T) {
 			ctx := context.Background()
 			switch i % 3 {
 			case 0:
-				if _, err := client.Instances.Get(ctx, "i-1", api.WithRegion("fra1")); err != nil {
+				if _, err := client.Compute.Instances.Get(ctx, "i-1", api.WithRegion("fra1")); err != nil {
 					t.Error(err)
 				}
 			case 1:
-				if _, err := client.Instances.List(ctx, instances.ListRequest{}); err != nil {
+				if _, err := client.Compute.Instances.List(ctx, compute.ListInstancesRequest{}); err != nil {
 					t.Error(err)
 				}
 			case 2:
-				if err := client.Instances.Stop(ctx, "i-1"); err != nil {
+				if err := client.Compute.Instances.Stop(ctx, "i-1"); err != nil {
 					t.Error(err)
 				}
 			}
