@@ -119,6 +119,18 @@ func TestDoKeepsUnstructuredErrorBodies(t *testing.T) {
 	}
 }
 
+func TestIsNotFoundIgnoresBare404(t *testing.T) {
+	tr := testTransport(t, func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+		fmt.Fprint(w, "404 page not found")
+	})
+
+	err := tr.Do(context.Background(), "GET", "/", nil, nil, nil)
+	if err == nil || IsNotFound(err) {
+		t.Errorf("IsNotFound = true for a bare 404: %v", err)
+	}
+}
+
 func TestDoHonoursContextCancellation(t *testing.T) {
 	tr := testTransport(t, func(w http.ResponseWriter, r *http.Request) {})
 	ctx, cancel := context.WithCancel(context.Background())

@@ -79,8 +79,12 @@ func HasReason(err error, reason string) bool {
 	return errors.As(err, &apiErr) && apiErr.Reason == reason
 }
 
-// IsNotFound reports whether err is a v3 API "not found" error.
-func IsNotFound(err error) bool { return hasStatus(err, StatusNotFound, 404) }
+// IsNotFound reports whether err is a v3 API "not found" error. A bare 404
+// without the API's error envelope (a proxy, a wrong base URL) does not count.
+func IsNotFound(err error) bool {
+	var apiErr *Error
+	return errors.As(err, &apiErr) && apiErr.Status == StatusNotFound
+}
 
 // IsAlreadyExists reports whether err is a v3 API "already exists" error.
 func IsAlreadyExists(err error) bool { return hasStatus(err, StatusAlreadyExists, 409) }
