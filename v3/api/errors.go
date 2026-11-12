@@ -1,0 +1,111 @@
+package api
+
+import (
+	"encoding/json"
+	"errors"
+	"fmt"
+	"net/http"
+	"strings"
+)
+
+// Canonical google.rpc.Code names reported in Error.Status.
+const (
+	StatusInvalidArgument   = "INVALID_ARGUMENT"
+	StatusNotFound          = "NOT_FOUND"
+	StatusAlreadyExists     = "ALREADY_EXISTS"
+	StatusPermissionDenied  = "PERMISSION_DENIED"
+	StatusResourceExhausted = "RESOURCE_EXHAUSTED"
+	StatusUnauthenticated   = "UNAUTHENTICATED"
+)
+
+// Error is the single error type returned for any v3 API failure.
+// Branch on Reason: it is the stable, machine-readable condition.
+type Error struct {
+	HTTPStatus int
+	// Status is the canonical gRPC code name, e.g. "NOT_FOUND".
+	Status  string
+	Message string
+
+	// Reason is the google.rpc.ErrorInfo reason, e.g. "INSTANCE_NOT_FOUND".
+	Reason string
+	// Domain is the service that failed, e.g. "compute.civo.com".
+	Domain    string
+	Metadata  map[string]string
+	RequestID string
+
+	FieldViolations []FieldViolation
+	QuotaViolations []QuotaViolation
+
+	// Details holds every detail object of the response, including any
+	// the fields above do not model.
+	Details []json.RawMessage
+}
+
+// FieldViolation is one entry of a google.rpc.BadRequest detail.
+type FieldViolation struct {
+	// Field is the path of the offending field in the request, e.g. "account_id".
+	Field       string `json:"field"`
+	Description string `json:"description"`
+}
+
+// QuotaViolation is one entry of a google.rpc.QuotaFailure detail.
+type QuotaViolation struct {
+	Subject     string `json:"subject"`
+	Description string `json:"description"`
+}
+
+func (e *Error) Error() string {
+	var b strings.Builder
+	msg := e.Message
+	if msg == "" {
+		msg = http.StatusText(e.HTTPStatus)
+	}
+	fmt.Fprintf(&b, "civo: %s (http %d", msg, e.HTTPStatus)
+	if e.Reason != "" {
+		fmt.Fprintf(&b, ", reason %s", e.Reason)
+	}
+	if e.RequestID != "" {
+		fmt.Fprintf(&b, ", request %s", e.RequestID)
+	}
+	b.WriteString(")")
+	for _, v := range e.FieldViolations {
+		fmt.Fprintf(&b, "; %s: %s", v.Field, v.Description)
+	}
+	return b.String()
+}
+
+// HasReason reports whether err is a v3 API error with the given reason.
+func HasReason(err error, reason string) bool {
+	var apiErr *Error
+	return errors.As(err, &apiErr) && apiErr.Reason == reason
+}
+
+// IsNotFound reports whether err is a v3 API "not found" error. A 404
+// without the API's error envelope and reason (a proxy, a wrong base URL,
+// a route the server does not serve) does not count.
+func IsNotFound(err error) bool {
+	var apiErr *Error
+	return errors.As(err, &apiErr) && apiErr.Status == StatusNotFound && apiErr.Reason != ""
+}
+
+// IsAlreadyExists reports whether err is a v3 API "already exists" error.
+func IsAlreadyExists(err error) bool { return hasStatus(err, StatusAlreadyExists, 409) }
+
+// IsAuthFailure reports whether err is an authentication or authorization failure.
+func IsAuthFailure(err error) bool {
+	return hasStatus(err, StatusUnauthenticated, 401) || hasStatus(err, StatusPermissionDenied, 403)
+}
+
+// IsRateLimited reports whether err is a rate-limit / quota-exhausted error.
+func IsRateLimited(err error) bool { return hasStatus(err, StatusResourceExhausted, 429) }
+
+// IsInvalidArgument reports whether err is a request-validation error.
+func IsInvalidArgument(err error) bool { return hasStatus(err, StatusInvalidArgument, 400) }
+
+func hasStatus(err error, status string, httpStatus int) bool {
+	var apiErr *Error
+	if !errors.As(err, &apiErr) {
+		return false
+	}
+	return apiErr.Status == status || apiErr.HTTPStatus == httpStatus
+}
