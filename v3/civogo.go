@@ -53,6 +53,10 @@ func HasReason(err error, reason string) bool { return api.HasReason(err, reason
 // region. List calls accept it several times to query every region given.
 func WithRegion(region string) api.CallOption { return api.WithRegion(region) }
 
+// WithAccountID scopes a call to a specific account. Only needed when
+// authenticating with a JWT: an API key already identifies its account.
+func WithAccountID(accountID string) api.CallOption { return api.WithAccountID(accountID) }
+
 // Ptr returns a pointer to v, for setting optional request fields:
 //
 //	client.Compute.Instances.Update(ctx, id, compute.UpdateInstanceRequest{PublicIPRequired: civogo.Ptr(false)})
