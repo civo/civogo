@@ -7,11 +7,11 @@
 //
 //	inst, err := client.Compute.Instances.Get(ctx, instanceID)
 //
-// Every call takes api.WithRegion to override the default region. List
+// Every call takes WithRegion to override the default region. List
 // endpoints accept it several times to query multiple regions, and report
 // real server-side pagination; use All for lazy iteration over every page:
 //
-//	for inst, err := range client.Compute.Instances.All(ctx, compute.ListInstancesRequest{}, api.WithRegion("lon1"), api.WithRegion("fra1")) {
+//	for inst, err := range client.Compute.Instances.All(ctx, compute.ListInstancesRequest{}, civogo.WithRegion("lon1"), civogo.WithRegion("fra1")) {
 //		if err != nil { ... }
 //		fmt.Println(inst.Hostname)
 //	}
@@ -48,6 +48,10 @@ func IsInvalidArgument(err error) bool { return api.IsInvalidArgument(err) }
 
 // HasReason reports whether err is a v3 API error with the given reason.
 func HasReason(err error, reason string) bool { return api.HasReason(err, reason) }
+
+// WithRegion targets a call at region instead of the client's default
+// region. List calls accept it several times to query every region given.
+func WithRegion(region string) api.CallOption { return api.WithRegion(region) }
 
 // Ptr returns a pointer to v, for setting optional request fields:
 //

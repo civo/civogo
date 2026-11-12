@@ -9,16 +9,16 @@ client, err := civogo.New(token, civogo.WithDefaultRegion("lon1"))
 if err != nil { ... }
 
 // Region is an option on every call; the client default applies otherwise.
-inst, err := client.Compute.Instances.Get(ctx, id, api.WithRegion("fra1"))
+inst, err := client.Compute.Instances.Get(ctx, id, civogo.WithRegion("fra1"))
 inst, err = client.Compute.Instances.Update(ctx, id, compute.UpdateInstanceRequest{
     Notes: civogo.Ptr("web"),
-}, api.WithRegion("fra1"))
+}, civogo.WithRegion("fra1"))
 
 // Lists take WithRegion several times to query multiple regions, with real
 // server-side pagination. Any other call given two regions returns an error.
 page, err := client.Compute.Instances.List(ctx, compute.ListInstancesRequest{
     Page: api.PageParams{PerPage: 50},
-}, api.WithRegion("lon1"), api.WithRegion("fra1"))
+}, civogo.WithRegion("lon1"), civogo.WithRegion("fra1"))
 
 // Lazy iteration over every page.
 for inst, err := range client.Compute.Instances.All(ctx, compute.ListInstancesRequest{}) {
