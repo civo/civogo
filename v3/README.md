@@ -1,6 +1,6 @@
 # civogo v3 (preview)
 
-Go SDK for the Civo v3 API.
+Go SDK for the Civo v3 API. Coming from v2? See [MIGRATING.md](MIGRATING.md).
 
 ## Usage
 
