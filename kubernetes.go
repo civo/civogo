@@ -148,6 +148,11 @@ type KubernetesClusterConfig struct {
 	FirewallID        string                        `json:"firewall_id,omitempty"`
 	CNIPlugin         string                        `json:"cni_plugin,omitempty"`
 	VolumeType        string                        `json:"volume_type,omitempty"`
+	// LogsCollectorEnabled controls whether the logs collector is installed on the cluster.
+	// It is a pointer so that "unset" (nil, not sent to the API) can be distinguished from
+	// an explicit true/false. When nil, the API applies its own default. Disabled by default
+	// on standard small and xsmall nodes to save node resources.
+	LogsCollectorEnabled *bool `json:"logs_collector_enabled,omitempty"`
 }
 
 // KubernetesClusterPoolConfig is used to create a new cluster pool
